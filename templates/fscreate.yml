@@ -1,0 +1,10 @@
+---
+- hosts: rhs_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Create a xfs filesystem
+    filesystem: fstype=xfs dev={{ item }}
+                opts="-f -K -i size=512 -d sw=10,su=128k -n size=8192"
+    with_items: lvols
