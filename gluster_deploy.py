@@ -1,5 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+#
+# gluster_deploy script, taking a configuration file as input,
+# calls different methods in generator_module generating
+# necessary ansible playbooks and variable files and then executes the
+# playbooks using ansible-playbook command which sets up backend and then
+# deploy gluster in all the hosts specified in the configuration file.
+#
+#
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -15,6 +24,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
 import argparse
 import sys
 from generator_modules import ConfigParseHelpers
