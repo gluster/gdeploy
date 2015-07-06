@@ -30,13 +30,13 @@ class GlusterDeploy(VarFileGenerator, ConfigParseHelpers):
         self.base_dir = '/tmp/playbooks'
         self.set_up_yml = self.get_file_dir_path(self.base_dir,
                                             'setup-backend.yml')
-        self.group = 'rhs-servers'
+        self.group = 'rhs_servers'
         self.inventory = self.get_file_dir_path(self.base_dir,
                                                 'ansible_hosts')
         self.var_file_type_check()
         self.write_config(self.group, self.hosts, self.inventory)
         self.deploy_gluster()
-        if args.keep:
+        if not args.keep:
             self.exec_cmds('rm -rf', self.base_dir)
         else:
             print "You can view the generated configuration files "\
@@ -48,8 +48,8 @@ class GlusterDeploy(VarFileGenerator, ConfigParseHelpers):
                             help="Configuration file",
                             type=argparse.FileType('rt'),
                             required=True)
-        parser.add_argument('-k', dest='keep', const='y',
-                            default='n',
+        parser.add_argument('-k', dest='keep', const='1',
+                            default='0',
                             action='store',
                             nargs='?',
                             help="Keep the generated ansible utility files")

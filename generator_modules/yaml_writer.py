@@ -26,7 +26,9 @@ class YamlWriter(ConfigParseHelpers):
                                       zip(self.section_dict['vgs'],
                                           self.section_dict['lvs'])]
         performance_data_dict = self.perf_spec_data_write()
-        self.yaml_list_data_write([self.section_dict, performance_data_dict])
+        listables_in_yaml = {key: self.section_dict[key]
+                for key in ['vgs', 'bricks', 'mountpoints', 'lvols'] }
+        self.yaml_list_data_write([listables_in_yaml, performance_data_dict])
         self.yaml_dict_data_write()
 
     def insufficient_param_count(self, section, count):
@@ -73,16 +75,17 @@ class YamlWriter(ConfigParseHelpers):
         self.write_yaml(data_dict, True)
 
     def yaml_dict_data_write(self):
-        vgs, mntpaths, lvs, pools = [], [], [], []
-        for brick, vg, pool, lv, mntpnt, mntpath in zip(self.section_dict['bricks'], self.section_dict['vgs'], self.section_dict[
-                                                        'pools'], self.section_dict['lvs'], self.section_dict['mountpoints'], self.section_dict['lvols']):
-            vgs.append({'brick': brick, 'vg': vg})
-            mntpaths.append({'path': mntpnt, 'device': mntpath})
-            lvs.append({'pool': pool, 'vg': vg, 'lv': lv})
-            pools.append({'pool': pool, 'vg': vg})
+        vgnames, mntpaths, lvpools, pools = ([] for i in range(4))
+        for i, vg in enumerate(self.section_dict['vgs']):
+            vgnames.append({'brick': self.section_dict['bricks'][i], 'vg': vg})
+            mntpaths.append({'path': self.section_dict['mountpoints'][i],
+                'device': self.section_dict['lvols'][i]})
+            lvpools.append({'pool': self.section_dict['pools'][i], 'vg': vg,
+                'lv': self.section_dict['lvs'][i]})
+            pools.append({'pool': self.section_dict['pools'][i], 'vg': vg})
         data_dict = {
-            'vgs': vgs,
-            'lvs': lvs,
+            'vgnames': vgnames,
+            'lvpools': lvpools,
             'mntpath': mntpaths,
             'pools': pools}
         for key, value in data_dict.iteritems():
@@ -100,16 +103,11 @@ class YamlWriter(ConfigParseHelpers):
             sys.exit(0)
         if perf['disktype'] != 'jbod':
             perf['diskcount'] = int(
-                self.config_get_options(
-                    self.config,
-                    'diskcount',
-                    True)[0])
+                self.config_get_options(self.config, 'diskcount', True)[0])
             stripe_size_necessary = {'raid10': False,
                                      'raid6': True
-                                     }[perf['disktype']]
-            stripe_size = self.config_get_options(
-                self.config,
-                'stripesize',
+                                    }[perf['disktype']]
+            stripe_size = self.config_get_options(self.config, 'stripesize',
                 stripe_size_necessary)
             if stripe_size:
                 perf['stripesize'] = int(stripe_size[0])
@@ -118,14 +116,13 @@ class YamlWriter(ConfigParseHelpers):
                         "for RAID 10"
             else:
                 perf['stripesize'] = 256
-            perf['dataalign'] = {
-                'raid6': perf['stripesize'] *
-                perf['diskcount'],
-                'raid10': perf['stripesize'] *
-                perf['diskcount']}[
-                perf['disktype']]
+            perf['dalign'] = {
+                'raid6': perf['stripesize'] * perf['diskcount'],
+                'raid10': perf['stripesize'] * perf['diskcount']
+                }[perf['disktype']]
         else:
-            perf['dataalign'] = 256
+            perf['dalign'] = 256
+            perf['diskcount'] = perf['stripesize'] = 0
         return perf
 
     def write_yaml(self, data_dict, data_flow):
