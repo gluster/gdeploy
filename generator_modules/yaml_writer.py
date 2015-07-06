@@ -34,27 +34,38 @@ class YamlWriter(ConfigParseHelpers):
         self.filename = filename
         self.filetype = filetype
         self.device_count = len(bricks)
+        self.mountpoints = self.section_data_gen('mountpoints', 'Mount Point')
         self.write_sections()
 
     def write_sections(self):
-        sections = ['vgs', 'lvs', 'pools', 'mountpoints']
-        section_names = ['Volume Group', 'Logical Volume',
-                         'Logical Pool', 'Mount Point']
-        self.section_dict = {'bricks': self.bricks}
-        for section, section_name in zip(sections, section_names):
-            self.section_dict[section] = self.section_data_gen(
-                section,
-                section_name)
-        self.section_dict['lvols'] = ['/dev/%s/%s' % (i, j) for i, j in
-                                      zip(self.section_dict['vgs'],
-                                          self.section_dict['lvs'])]
-        gluster_vol_conf_dict = self.gluster_vol_spec()
-        performance_data_dict = self.perf_spec_data_write()
-        listables_in_yaml = {key: self.section_dict[key]
-                for key in ['vgs', 'bricks', 'mountpoints', 'lvols'] }
-        self.yaml_list_data_write([listables_in_yaml, performance_data_dict,
-                                    gluster_vol_conf_dict])
-        self.yaml_dict_data_write()
+        if self.bricks:
+            sections = ['vgs', 'lvs', 'pools']
+            section_names = ['Volume Group', 'Logical Volume',
+                             'Logical Pool']
+            self.section_dict = {'bricks': self.bricks,
+                    'mountpoints': self.mountpoints}
+            for section, section_name in zip(sections, section_names):
+                self.section_dict[section] = self.section_data_gen(
+                    section,
+                    section_name)
+            self.section_dict['lvols'] = ['/dev/%s/%s' % (i, j) for i, j in
+                                          zip(self.section_dict['vgs'],
+                                              self.section_dict['lvs'])]
+            listables_in_yaml = {key: self.section_dict[key]
+                    for key in ['vgs', 'bricks', 'mountpoints', 'lvols'] }
+            self.yaml_list_data_write(listables_in_yaml)
+            self.yaml_dict_data_write()
+            self.perf_spec_data_write()
+        elif self.mountpoints:
+            print "Warning: Since no brick data is provided, we cannot do a "\
+                    "backend setup. Continuing with gluster deployement using "\
+                    " the mount points %s", ', '.join(self.mountpoints)
+            self.yaml_list_data_write({'mountpoints': self.mountpoints})
+        else:
+            print "Error: Device names for backend setup or mount point " \
+                    "details for gluster deployement not provided. Exiting."
+            sys.exit(0)
+        self.gluster_vol_spec()
 
     def insufficient_param_count(self, section, count):
         print "Error: Please provide %s names for %s devices " \
@@ -87,12 +98,11 @@ class YamlWriter(ConfigParseHelpers):
                 options.append(pattern + str(i))
         return options
 
-    def yaml_list_data_write(self, list_data_dicts):
-        for each in list_data_dicts:
-            for key, value in each.iteritems():
-                data = {}
-                data[key] = value
-                self.write_yaml(data, False)
+    def yaml_list_data_write(self, data_dict):
+        for key, value in data_dict.iteritems():
+            data = {}
+            data[key] = value
+            self.write_yaml(data, False)
 
     def create_yaml_dict(self, section, data):
         data_dict = {}
@@ -117,9 +127,13 @@ class YamlWriter(ConfigParseHelpers):
             self.create_yaml_dict(key, value)
 
     def gluster_vol_spec(self):
-        gluster = dict(clients=filter(None, self.config_section_map(
-                self.config, 'clients', 'hosts',
-                True).split(',')))
+        clients=self.config_section_map(self.config, 'clients', 'hosts',
+                False)
+        if not clients:
+            print "Client hosts are not specified. Can't deploy GlusterFS"
+            ConfigParseHelpers.gluster_ret = False
+            return
+        gluster = dict(filter(None, clients.split(',')))
         gluster['client_mount_points'] = filter(None, self.config_section_map(
                 self.config, 'clients', 'mount_points',
                 False).split(','))
@@ -132,7 +146,8 @@ class YamlWriter(ConfigParseHelpers):
             gluster['client_mount_points'] = '/mnt/client'
         gluster['volname'] = self.config_get_options(self.config,
                 'volname', False) or 'vol1'
-        return gluster
+        self.yaml_list_data_write(gluster)
+        ConfigParseHelpers.gluster_ret = True
 
     def perf_spec_data_write(self):
         disktype = self.config_get_options(self.config,
@@ -168,7 +183,7 @@ class YamlWriter(ConfigParseHelpers):
             perf['diskcount'] = perf['stripesize'] = 0
         perf['profile'] = self.config_get_options(self.config,
                 'tune-profile', False) or 'rhs-high-throughput'
-        return perf
+        self.yaml_list_data_write(perf)
 
     def write_yaml(self, data_dict, data_flow):
         with open(self.filename, 'a+') as outfile:

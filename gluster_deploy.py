@@ -38,8 +38,6 @@ class GlusterDeploy(VarFileGenerator, ConfigParseHelpers):
         config_file = args.config_file.name
         self.config = self.read_config(config_file)
         self.base_dir = '/tmp/playbooks'
-        self.set_up_yml = self.get_file_dir_path(self.base_dir,
-                                            'setup-backend.yml')
         self.group = 'rhs_servers'
         self.inventory = self.get_file_dir_path(self.base_dir,
                                                 'ansible_hosts')
@@ -85,6 +83,11 @@ class GlusterDeploy(VarFileGenerator, ConfigParseHelpers):
 
     def deploy_gluster(self):
         try:
+            self.set_up_yml = self.get_file_dir_path(self.base_dir,
+                                                'setup-backend.yml')
+            if ConfigParseHelpers.gluster_ret:
+                self.set_up_yml += ' ' + self.get_file_dir_path(self.base_dir,
+                                                'gluster-deploy.yml')
             cmd = 'ansible-playbook -i %s %s' % (
                 self.inventory, self.set_up_yml)
             self.exec_cmds(cmd, '')
