@@ -23,7 +23,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 import yaml
-from generator_modules.conf_parser import ConfigParseHelpers
+from conf_parser import ConfigParseHelpers
 
 
 class YamlWriter(ConfigParseHelpers):
@@ -39,6 +39,7 @@ class YamlWriter(ConfigParseHelpers):
 
     def write_sections(self):
         if self.bricks:
+            ConfigParseHelpers.setup_backend = True
             sections = ['vgs', 'lvs', 'pools']
             section_names = ['Volume Group', 'Logical Volume',
                              'Logical Pool']
@@ -57,9 +58,10 @@ class YamlWriter(ConfigParseHelpers):
             self.yaml_dict_data_write()
             self.perf_spec_data_write()
         elif self.mountpoints:
+            ConfigParseHelpers.setup_backend = False
             print "Warning: Since no brick data is provided, we cannot do a "\
                     "backend setup. Continuing with gluster deployement using "\
-                    " the mount points %s", ', '.join(self.mountpoints)
+                    " the mount points %s" % ', '.join(self.mountpoints)
             self.yaml_list_data_write({'mountpoints': self.mountpoints})
         else:
             print "Error: Device names for backend setup or mount point " \
@@ -72,18 +74,23 @@ class YamlWriter(ConfigParseHelpers):
             "else leave the field empty" % (section, count)
         sys.exit(0)
 
+    def split_comma_seperated_options(self, options):
+        if options:
+            return filter(None, options.split(','))
+        return []
+
     def get_options(self, section, required):
         if self.filetype == 'group_vars':
             return self.config_get_options(self.config, section, required)
         else:
-            return self.config_section_map(
+            return self.split_comma_seperated_options(
+                    self.config_section_map(
                 self.config, self.filename.split('/')[-1], section,
-                required)
+                required))
 
     def section_data_gen(self, section, section_name):
         options = self.get_options(section, False)
         if options:
-            options = filter(None, options.split(','))
             if len(options) < self.device_count:
                 return self.insufficient_param_count(
                     section_name,
@@ -130,20 +137,23 @@ class YamlWriter(ConfigParseHelpers):
         clients=self.config_section_map(self.config, 'clients', 'hosts',
                 False)
         if not clients:
-            print "Client hosts are not specified. Can't deploy GlusterFS"
+            print "Client hosts are not specified. Skipping GlusterFS " \
+                    "deploy configuration details."
             ConfigParseHelpers.gluster_ret = False
             return
-        gluster = dict(filter(None, clients.split(',')))
-        gluster['client_mount_points'] = filter(None, self.config_section_map(
+        gluster = dict(clients=self.split_comma_seperated_options(clients))
+        client_mntpts = self.config_section_map(
                 self.config, 'clients', 'mount_points',
-                False).split(','))
-        if len(gluster['client_mount_points']):
-            if len(gluster['client_mount_points']) != len(gluster['clients']):
+                False) or '/mnt/gluster'
+        if client_mntpts:
+            gluster['client_mount_points'] = self.split_comma_seperated_options(
+                                                            client_mntpts)
+            if len(gluster['client_mount_points']) != len(
+                    gluster['clients']) or len(
+                            gluster['client_mount_points']) != 1:
                 print "Error: Provide volume mount points in each client " \
                         "or a common mount point for all the clients. "
                 sys.exit(0)
-        else:
-            gluster['client_mount_points'] = '/mnt/client'
         gluster['volname'] = self.config_get_options(self.config,
                 'volname', False) or 'vol1'
         self.yaml_list_data_write(gluster)
@@ -154,31 +164,30 @@ class YamlWriter(ConfigParseHelpers):
                                            'disktype', False)
         if disktype:
             perf = dict(disktype=disktype[0].lower())
+            if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
+                print "Error: Unsupported disk type!"
+                sys.exit(0)
+            if perf['disktype'] != 'jbod':
+                perf['diskcount'] = int(
+                    self.config_get_options(self.config, 'diskcount', True)[0])
+                stripe_size_necessary = {'raid10': False,
+                                         'raid6': True
+                                        }[perf['disktype']]
+                stripe_size = self.config_get_options(self.config, 'stripesize',
+                    stripe_size_necessary)
+                if stripe_size:
+                    perf['stripesize'] = int(stripe_size[0])
+                    if perf['disktype'] == 'raid10' and perf['stripesize'] != 256:
+                        print "Warning: We recommend a stripe unit size of 256KB " \
+                            "for RAID 10"
+                else:
+                    perf['stripesize'] = 256
+                perf['dalign'] = {
+                    'raid6': perf['stripesize'] * perf['diskcount'],
+                    'raid10': perf['stripesize'] * perf['diskcount']
+                    }[perf['disktype']]
         else:
             perf = dict(disktype='jbod')
-        if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
-            print "Error: Unsupported disk type!"
-            sys.exit(0)
-        if perf['disktype'] != 'jbod':
-            perf['diskcount'] = int(
-                self.config_get_options(self.config, 'diskcount', True)[0])
-            stripe_size_necessary = {'raid10': False,
-                                     'raid6': True
-                                    }[perf['disktype']]
-            stripe_size = self.config_get_options(self.config, 'stripesize',
-                stripe_size_necessary)
-            if stripe_size:
-                perf['stripesize'] = int(stripe_size[0])
-                if perf['disktype'] == 'raid10' and perf['stripesize'] != 256:
-                    print "Warning: We recommend a stripe unit size of 256KB " \
-                        "for RAID 10"
-            else:
-                perf['stripesize'] = 256
-            perf['dalign'] = {
-                'raid6': perf['stripesize'] * perf['diskcount'],
-                'raid10': perf['stripesize'] * perf['diskcount']
-                }[perf['disktype']]
-        else:
             perf['dalign'] = 256
             perf['diskcount'] = perf['stripesize'] = 0
         perf['profile'] = self.config_get_options(self.config,

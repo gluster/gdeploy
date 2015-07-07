@@ -27,6 +27,7 @@
 
 import argparse
 import sys
+import os
 from generator_modules import ConfigParseHelpers
 from generator_modules import VarFileGenerator
 
@@ -36,19 +37,10 @@ class GlusterDeploy(VarFileGenerator, ConfigParseHelpers):
     def __init__(self):
         args = self.parse_arguments()
         config_file = args.config_file.name
-        self.config = self.read_config(config_file)
         self.base_dir = '/tmp/playbooks'
-        self.group = 'rhs_servers'
-        self.inventory = self.get_file_dir_path(self.base_dir,
-                                                'ansible_hosts')
-        self.var_file_type_check()
-        self.write_config(self.group, self.hosts, self.inventory)
+        VarFileGenerator(config_file, self.base_dir)
         self.deploy_gluster()
-        if not args.keep:
-            self.exec_cmds('rm -rf', self.base_dir)
-        else:
-            print "You can view the generated configuration files "\
-                "inside /tmp/playbooks/"
+        self.cleanup(args.keep)
 
     def parse_arguments(self):
         parser = argparse.ArgumentParser(version='1.0')
@@ -66,34 +58,36 @@ class GlusterDeploy(VarFileGenerator, ConfigParseHelpers):
         except IOError as msg:
             parser.error(str(msg))
 
-    def var_file_type_check(self):
-        options = self.config_get_sections(self.config)
-        self.hosts = self.config_get_options(self.config, 'hosts', True)
-        if set(self.hosts).intersection(set(options)):
-            if set(self.hosts).issubset(set(options)):
-                var_type = 'host_vars'
-            else:
-                print "Error: Looks like you missed to give configurations " \
-                    "for one or many host(s). Exiting!"
-                sys.exit(0)
-        else:
-            var_type = 'group_vars'
-        VarFileGenerator(var_type, options, self.hosts, self.config,
-                         self.base_dir, self.group)
-
     def deploy_gluster(self):
-        try:
+        self.inventory = self.get_file_dir_path(self.base_dir,
+                                                'ansible_hosts')
+        if ConfigParseHelpers.setup_backend:
             self.set_up_yml = self.get_file_dir_path(self.base_dir,
                                                 'setup-backend.yml')
-            if ConfigParseHelpers.gluster_ret:
-                self.set_up_yml += ' ' + self.get_file_dir_path(self.base_dir,
-                                                'gluster-deploy.yml')
+            print "Setting up back-end..."
+            self.call_ansible_command(self.set_up_yml)
+        if ConfigParseHelpers.gluster_ret:
+            self.gluster_deploy_yml = self.get_file_dir_path(self.base_dir,
+                                            'gluster-deploy.yml')
+            print "Deploying GlusterFS... Coming Soon!!!"
+            #self.call_ansible_command(self.gluster_deploy_yml)
+
+    def call_ansible_command(self, playbooks):
+        try:
             cmd = 'ansible-playbook -i %s %s' % (
-                self.inventory, self.set_up_yml)
+                self.inventory, playbooks)
             self.exec_cmds(cmd, '')
         except:
             print "Error: Looks like there is something wrong with " \
                 "your ansible installation."
+
+
+    def cleanup(self, keep):
+        if not int(keep) and os.path.isdir(self.base_dir):
+            self.exec_cmds('rm -rf', self.base_dir)
+        else:
+            print "You can view the generated configuration files "\
+                "inside /tmp/playbooks/"
 
 if __name__ == '__main__':
     GlusterDeploy()
