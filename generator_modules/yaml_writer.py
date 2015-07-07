@@ -1,10 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-#    YamlWriter is a helper class used by VarFileGenerator to write
-#    all the necessary sections and options into the yaml file
-#    as per specified in the configuration file
-#
 #
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
 #
@@ -21,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+#
+#    yaml_writer.py
+#    -------------
+#    YamlWriter is a helper class used by VarFileGenerator to write
+#    all the necessary sections and options into the yaml file
+#    as per specified in the configuration file
+#
 
 import yaml
 from conf_parser import ConfigParseHelpers
