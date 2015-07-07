@@ -1,7 +1,0 @@
----
-- include: pvcreate.yml
-- include: vgcreate.yml
-- include: lvcreate.yml
-- include: tune-profile.yml
-- include: fscreate.yml
-- include: mount.yml
