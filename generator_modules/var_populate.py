@@ -1,15 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-#    VarFileGenerator, with the help of other helper methods from various
-#    classes in the package, creates the variable files for the ansible
-#    playbooks to read from.
-#
-#    This script can be called seperately even, providing the configuration
-#    file and the directory to which the ansible playbooks and variable files
-#    are to be generated(this is optional.Default is '/tmp/playbooks'
-#    Usage: ./var_populate.py <configuration_file> [<directory name>]
-#
 #
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
 #
@@ -26,6 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+#
+#    var_populate.py
+#    --------------
+#    VarFileGenerator, with the help of other helper methods from various
+#    classes in the package, creates the variable files for the ansible
+#    playbooks to read from.
+#
+#    This script can be called seperately even, providing the configuration
+#    file and the directory to which the ansible playbooks and variable files
+#    are to be generated(this is optional.Default is '/tmp/playbooks'
+#    Usage: ./var_populate.py <configuration_file> [<directory name>]
+#
 
 import os
 import sys
