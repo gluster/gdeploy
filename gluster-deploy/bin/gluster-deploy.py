@@ -17,7 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
-#   gluster_deploy.py
+#   gluster-deploy.py
 #   ----------------
 #
 # gluster_deploy script, taking a configuration file as input,
@@ -30,19 +30,19 @@
 import argparse
 import sys
 import os
-from generator_modules import ConfigParseHelpers
-from generator_modules import VarFileGenerator
+from lib import Global
+from playbook_gen import PlaybookGen
 
 
-class GlusterDeploy(VarFileGenerator, ConfigParseHelpers):
+class GlusterDeploy(PlaybookGen, Global):
 
     def __init__(self):
         args = self.parse_arguments()
         config_file = args.config_file.name
-        self.base_dir = '/tmp/playbooks'
-        VarFileGenerator(config_file, self.base_dir)
+        PlaybookGen(config_file)
         self.deploy_gluster()
-        self.cleanup(args.keep)
+        if not args.keep:
+           self.cleanup_and_quit()
 
     def parse_arguments(self):
         parser = argparse.ArgumentParser(version='1.0')
@@ -61,15 +61,13 @@ class GlusterDeploy(VarFileGenerator, ConfigParseHelpers):
             parser.error(str(msg))
 
     def deploy_gluster(self):
-        self.inventory = self.get_file_dir_path(self.base_dir,
-                                                'ansible_hosts')
-        if ConfigParseHelpers.setup_backend:
-            self.set_up_yml = self.get_file_dir_path(self.base_dir,
+        if Global.do_setup_backend:
+            self.set_up_yml = self.get_file_dir_path(Global.base_dir,
                                                 'setup-backend.yml')
             print "Setting up back-end..."
-            self.call_ansible_command(self.set_up_yml)
-        if ConfigParseHelpers.gluster_ret:
-            self.gluster_deploy_yml = self.get_file_dir_path(self.base_dir,
+            #self.call_ansible_command(self.set_up_yml)
+        if Global.do_gluster_deploy:
+            self.gluster_deploy_yml = self.get_file_dir_path(Global.base_dir,
                                             'gluster-deploy.yml')
             print "Deploying GlusterFS... Coming Soon!!!"
             #self.call_ansible_command(self.gluster_deploy_yml)
@@ -77,19 +75,12 @@ class GlusterDeploy(VarFileGenerator, ConfigParseHelpers):
     def call_ansible_command(self, playbooks):
         try:
             cmd = 'ansible-playbook -i %s %s' % (
-                self.inventory, playbooks)
+                Global.inventory, playbooks)
             self.exec_cmds(cmd, '')
         except:
             print "Error: Looks like there is something wrong with " \
                 "your ansible installation."
 
-
-    def cleanup(self, keep):
-        if not int(keep) and os.path.isdir(self.base_dir):
-            self.exec_cmds('rm -rf', self.base_dir)
-        else:
-            print "You can view the generated configuration files "\
-                "inside /tmp/playbooks/"
 
 if __name__ == '__main__':
     GlusterDeploy()

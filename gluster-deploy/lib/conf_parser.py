@@ -31,9 +31,10 @@
 import argparse
 import ConfigParser
 import sys
+from helpers import Helpers
 
 
-class ConfigParseHelpers(object):
+class ConfigParseHelpers(Helpers):
 
     def call_config_parser(self):
         config = ConfigParser.ConfigParser(allow_no_value=True)
@@ -50,7 +51,7 @@ class ConfigParseHelpers(object):
                 "file is not something we could read! \nTry removing " \
                 "whitespaces or unwanted characters in the configuration " \
                 "file."
-            sys.exit(0)
+            self.cleanup_and_quit()
 
     def write_config(self, section, options, filename):
         config = self.call_config_parser()
@@ -62,7 +63,7 @@ class ConfigParseHelpers(object):
                 config.write(file)
         except:
             print "Error: Failed to create file %s. Exiting!" % filename
-            sys.exit(0)
+            self.cleanup_and_quit()
 
     def config_section_map(self, config_parse, section, option, required):
         try:
@@ -70,7 +71,7 @@ class ConfigParseHelpers(object):
         except:
             if required:
                 print "Error: Option %s not found! Exiting!" % option
-                sys.exit(0)
+                self.cleanup_and_quit()
             return []
 
     def config_get_options(self, config_parse, section, required):
@@ -80,7 +81,6 @@ class ConfigParseHelpers(object):
             if required:
                 print "Error: Section %s not found in the " \
                     "configuration file" % section
-                sys.exit(0)
             return []
 
     def config_get_sections(self, config_parse):
@@ -90,4 +90,4 @@ class ConfigParseHelpers(object):
             print "Error: Looks like you haven't provided any options " \
                 "I need in the conf " \
                 "file. Please populate the conf file and retry!"
-            sys.exit(0)
+            self.cleanup_and_quit()

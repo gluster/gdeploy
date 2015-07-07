@@ -28,6 +28,7 @@
 
 import yaml
 from conf_parser import ConfigParseHelpers
+from global_vars import Global
 
 
 class YamlWriter(ConfigParseHelpers):
@@ -43,7 +44,6 @@ class YamlWriter(ConfigParseHelpers):
 
     def write_sections(self):
         if self.bricks:
-            ConfigParseHelpers.setup_backend = True
             sections = ['vgs', 'lvs', 'pools']
             section_names = ['Volume Group', 'Logical Volume',
                              'Logical Pool']
@@ -62,21 +62,18 @@ class YamlWriter(ConfigParseHelpers):
             self.yaml_dict_data_write()
             self.perf_spec_data_write()
         elif self.mountpoints:
-            ConfigParseHelpers.setup_backend = False
-            print "Warning: Since no brick data is provided, we cannot do a "\
-                    "backend setup. Continuing with gluster deployement using "\
-                    " the mount points %s" % ', '.join(self.mountpoints)
+            Global.do_setup_backend = False
             self.yaml_list_data_write({'mountpoints': self.mountpoints})
         else:
             print "Error: Device names for backend setup or mount point " \
                     "details for gluster deployement not provided. Exiting."
-            sys.exit(0)
+            self.cleanup_and_exit()
         self.gluster_vol_spec()
 
     def insufficient_param_count(self, section, count):
         print "Error: Please provide %s names for %s devices " \
             "else leave the field empty" % (section, count)
-        sys.exit(0)
+        self.cleanup_and_exit()
 
     def split_comma_seperated_options(self, options):
         if options:
@@ -141,10 +138,16 @@ class YamlWriter(ConfigParseHelpers):
         clients=self.config_section_map(self.config, 'clients', 'hosts',
                 False)
         if not clients:
-            print "Client hosts are not specified. Skipping GlusterFS " \
-                    "deploy configuration details."
-            ConfigParseHelpers.gluster_ret = False
+            log_level = 'Warning' if Global.do_setup_backend else 'Error'
+
+            print "%s: Client hosts are not specified. Skipping GlusterFS " \
+                    "deploy configuration details." % log_level
+            Global.do_gluster_deploy = False
             return
+        if not Global.do_setup_backend:
+            print "Warning: Since no brick data is provided, we cannot do a "\
+                    "backend setup. Continuing with gluster deployement using "\
+                    " the mount points %s" % ', '.join(self.mountpoints)
         gluster = dict(clients=self.split_comma_seperated_options(clients))
         client_mntpts = self.config_section_map(
                 self.config, 'clients', 'mount_points',
@@ -157,7 +160,7 @@ class YamlWriter(ConfigParseHelpers):
                             gluster['client_mount_points']) != 1:
                 print "Error: Provide volume mount points in each client " \
                         "or a common mount point for all the clients. "
-                sys.exit(0)
+                self.cleanup_and_exit()
         gluster['volname'] = self.config_get_options(self.config,
                 'volname', False) or 'vol1'
         self.yaml_list_data_write(gluster)
@@ -170,7 +173,7 @@ class YamlWriter(ConfigParseHelpers):
             perf = dict(disktype=disktype[0].lower())
             if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
                 print "Error: Unsupported disk type!"
-                sys.exit(0)
+                self.cleanup_and_exit()
             if perf['disktype'] != 'jbod':
                 perf['diskcount'] = int(
                     self.config_get_options(self.config, 'diskcount', True)[0])
