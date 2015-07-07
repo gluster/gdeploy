@@ -1,0 +1,17 @@
+---
+- hosts: rhs_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  # Expand pv on all the disks, provided the partitions are
+  #enlarged using fdisk
+  #- name: Expand Physical Volumes on all the nodes
+    #pv: action=resize operation=expand disks="{{ bricks }}"
+
+  # Shrink pv on all the disks to the specified size,
+  #Partitions will not be shrinked.
+  - name: Shrink the Physical Volumes on all the nodes.
+    pv: action=resize operation=shrink disks={{ item.brick }}
+        size={{ item.size }}
+    with_items: pvshrink

@@ -1,0 +1,8 @@
+---
+- hosts: rhs_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Remove Physical Volumes (if any)
+    pv: action=remove disks="{{ bricks }}"

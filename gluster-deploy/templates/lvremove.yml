@@ -1,0 +1,16 @@
+---
+- hosts: rhs_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Remove logical volumes
+    lv: action=remove
+        vgname={{ item.vg }} lvname={{ item.lv }}
+    with_items: lvpools
+
+  - name: Remove thin pools
+    lv: action=remove lvname={{ item.pool }}
+        vgname={{ item.vg }}
+    with_items: pools
+
