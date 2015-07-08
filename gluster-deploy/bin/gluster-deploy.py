@@ -41,8 +41,11 @@ class GlusterDeploy(PlaybookGen, Global):
         config_file = args.config_file.name
         PlaybookGen(config_file)
         self.deploy_gluster()
-        if not args.keep:
+        if not int(args.keep):
            self.cleanup_and_quit()
+        else:
+            print "You can view the generated configuration files "\
+                "inside /tmp/playbooks/"
 
     def parse_arguments(self):
         parser = argparse.ArgumentParser(version='1.0')

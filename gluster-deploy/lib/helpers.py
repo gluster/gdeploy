@@ -33,9 +33,6 @@ class Helpers(Global):
     def cleanup_and_quit(self):
         if os.path.isdir(Global.base_dir):
             self.exec_cmds('rm -rf', Global.base_dir)
-        else:
-            print "You can view the generated configuration files "\
-                "inside /tmp/playbooks/"
         sys.exit(0)
 
     def mk_dir(self, dirlists):
