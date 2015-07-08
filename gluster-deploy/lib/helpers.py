@@ -25,6 +25,7 @@
 #
 
 import os
+import sys
 from global_vars import Global
 
 class Helpers(Global):
