@@ -9,6 +9,6 @@
     vg: action="create" disks={{ item.brick }}
         vgname={{ item.vg }}
         diskcount="{{ diskcount }}"
-        compute="{{ disktype }}"
+        disktype="{{ disktype }}"
         stripesize="{{ stripesize }}"
     with_items: vgnames

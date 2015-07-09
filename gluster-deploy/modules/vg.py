@@ -50,6 +50,26 @@ options:
         required: true for remove action
         description: Names of the Volume Groups that are to be removed
 
+    disk_type:
+        required: false
+        choices: [raid10, raid6, jbod]
+        description: Specifies which disk configuration is used while
+        setting up the backend. Supports RAID 10, RAID 6 and JBOD
+        configurations. Defining this will set the module to
+        assign physicalextentsize best for the performance based
+        on the number of datadisks and the stripe unit size in the
+        configuration.
+
+    stripe_size:
+        required: true if disk_type is provided
+        description: Specifies the stripe unit size of each disk
+        in the architecture
+
+    diskcount:
+        required: true if disk_type is provided
+        description: Specifies the number of data disks in the
+        configuration.
+
 author: Anusha Rao, Nandaja Varma
 '''
 
@@ -66,8 +86,6 @@ EXAMPLES = '''
 '''
 
 from ansible.module_utils.basic import *
-import json
-import re
 from ast import literal_eval
 import sys
 import os
@@ -114,8 +132,8 @@ class VgOps(object):
         return pe_size
 
     def vg_create(self):
-        self.compute = self.validated_params('compute')
-        if self.compute not in ['jbod']:
+        self.disktype = self.module.params['disktype']
+        if self.disktype and self.disktype not in ['jbod']:
             self.options += ' -s %sK ' % self.compute_size()
         opts = " %s %s %s" % (self.vgname, self.options, self.disks)
         return self.run_command(self.op, opts)
@@ -140,7 +158,7 @@ if __name__ == '__main__':
             disks=dict(),
             options=dict(type='str'),
             diskcount=dict(),
-            compute=dict(),
+            disktype=dict(),
             stripesize=dict()
         ),
     )
