@@ -27,7 +27,7 @@ description:
 options:
     action:
         required: true
-        choices: [create, remove]
+        choices: [create, remove, resize, change]
         description: Specifies the pv operation that is to be executed,
                      either a physical volume creation or deletion.
     disks:
@@ -40,6 +40,15 @@ options:
         description: Extra options that needs to be passed while creating the
                      Physical Volumes can be given here. Check the man page of
                      pvcreate for more info.
+    operation:
+        required: true if action is resize
+        choices: [expand, shrink]
+        description: Specifies how the physical volume should be resized.
+                     Either to expand or shrink
+    size:
+        required: true if action is resize and opertion is shrink
+        description: Specifies to what size the physical volume is to be
+                     shrunken
 
 authors: Anusha Rao, Nandaja Varma
 '''
@@ -138,7 +147,7 @@ class PvOps(object):
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
-            action=dict(choices=["create", "remove", "resize", "change", "move"], required=True),
+            action=dict(choices=["create", "remove", "resize", "change"], required=True),
             disks=dict(),
             options=dict(type='str'),
             size=dict(),
