@@ -30,8 +30,8 @@
 import argparse
 import sys
 import os
-from lib import Global
-from playbook_gen import PlaybookGen
+from glusterlib import Global
+from glusterlib import PlaybookGen
 
 
 class GlusterDeploy(PlaybookGen, Global):

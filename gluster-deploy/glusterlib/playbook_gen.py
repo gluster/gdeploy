@@ -33,8 +33,8 @@
 
 import os
 import sys
-from lib import YamlWriter
-from lib import Global
+from yaml_writer import YamlWriter
+from global_vars import Global
 
 
 class PlaybookGen(YamlWriter):
