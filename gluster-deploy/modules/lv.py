@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Ansible module to create or remove a Physical Volume.
+Ansible module to create or remove a Logical Volume.
 (c) 2015 Nandaja Varma <nvarma@redhat.com>, Anusha Rao <arao@redhat.com>
 This file is part of Ansible
 Ansible is free software: you can redistribute it and/or modify
