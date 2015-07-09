@@ -61,16 +61,10 @@ class PvOps(object):
 
     def __init__(self, module):
         self.result = {'clears': [], 'errors': []}
-        self.has_method = False
         self.module = module
         self.action = self.validated_params('action')
         self.options = self.module.params['options'] or ''
-        if hasattr(self, self.action):
-            action_method = getattr(self, self.action)
-            action_method()
-        if not self.has_method:
-            self.disks = literal_eval(self.validated_params('disks'))
-            map(self.pv_action, self.disks)
+        self.pv_action()
         self.get_output()
 
     def get_output(self):
@@ -111,6 +105,10 @@ class PvOps(object):
             ret = 1
         return ret
 
+    def iterate_disk_names(self):
+        self.disks = literal_eval(self.validated_params('disks'))
+        map(self.call_ansible_run_command, self.disks)
+
     def get_resize_params(self, disk):
         size = self.validated_params('size')
         params = " %s --setphysicalvolumesize %s %s " % (self.options, size, disk)
@@ -120,18 +118,22 @@ class PvOps(object):
     def resize(self):
         self.operation = self.validated_params('operation')
         if self.operation == 'expand':
-            return
+            self.iterate_disk_names()
         else:
-            self.has_method = True
             disks = self.validated_params('disks'),
             map(self.get_resize_params, disks)
 
-
-    def pv_action(self, disk):
+    def call_ansible_run_command(self, disk):
         if self.pv_presence_check(disk):
             op = 'pv' + self.action
             args = " %s %s" % (self.options, disk)
             self.run_command(op, args)
+
+    def pv_action(self):
+        if self.action == 'resize':
+            self.resize()
+        else:
+            self.iterate_disk_names()
 
 if __name__ == '__main__':
     module = AnsibleModule(

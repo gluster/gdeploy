@@ -4,7 +4,7 @@
   gather_facts: no
 
   tasks:
-  # Expand pv on all the disks, provided the partitions are
+   #Expand pv on all the disks, provided the partitions are
   #enlarged using fdisk
   #- name: Expand Physical Volumes on all the nodes
     #pv: action=resize operation=expand disks="{{ bricks }}"
