@@ -35,11 +35,10 @@ class Helpers(Global):
             self.exec_cmds('rm -rf', Global.base_dir)
         sys.exit(0)
 
-    def mk_dir(self, dirlists):
-        for each in dirlists:
-            if os.path.isdir(each):
-                self.exec_cmds('rm -rf', each)
-            self.exec_cmds('mkdir', each)
+    def mk_dir(self, direc):
+        if os.path.isdir(direc):
+            self.exec_cmds('rm -rf', direc)
+        self.exec_cmds('mkdir', direc)
 
     def touch_file(self, filename):
         try:

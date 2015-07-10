@@ -1,15 +1,82 @@
 [hosts]
 10.70.46.13
+10.70.46.15
+10.70.46.17
+10.70.46.19
+
+# Generic section [devices] is applicable to all the hosts listed in the [hosts]
+# section. However, if sections of hosts [hostname] or [ip-address] is present,
+# then the data in generic sections like [devices] are ignored. Host specific
+# data take precedence.
+
+# [devices]
+# /dev/sda
+# /dev/vdb
+# /dev/vda
+
+# Section [disktype] specifies which disk configuration is used while
+# setting up the backend. Supports RAID 10, RAID 6 and JBOD configurations. If this
+# field is left empty, it will be by default taken as JBOD.
+# [disktype]
+# raid6
+
+# Section [diskcount] specifies the number of data disks in the setup. This is a
+# mandatory field if the disk configuration specified is either RAID 10 or RAID 6
+# and will be ignored if architecture is JBOD.
+# [diskcount]
+# 10
+
+# Section [stripesize] specifies the stripe_unit size in KB. This is a mandatory field if
+# disk configuration is RAID 6. If this is not specified in case of RAID 10 configurations,
+# it will take the default value 256K. This field is not necessary for JBOD configuration
+# of disks. Do not add any suffixes like K, KB, M, etc.
+# [stripesize]
+# 128
+
+# vg names for the above devices
+# The number of vgs in the [vgs] should match the devices
+
+# [vgs]
+# CUSTOM_vg
+
+# pool names for the above volume groups
+# The number of pools listed in the [pools] section should match the number of
+# vgs.
+
+# [pools]
+# CUSTOM_pool
+
+# lv names for the above volume groups
+# The number of logical volumes listed in the [lvs] section should match the
+# number of vgs.
+
+# [lvs]
+# CUSTOM_lv
+
+# Brick mountpoints for the logical volumes
+# The number of mountpoints should match the number of logical volumes listed
+# above.
+
+# [mountpoints]
+# /rhs/brick
 
 [10.70.46.13]
-devices=/dev/vdb,/dev/vda,/dev/sdb
+devices=/dev/sdb,/dev/vdb,/dev/vda
+[10.70.46.15]
+devices=/dev/vdc,/dev/vdb
+[10.70.46.17]
+devices=/dev/vdc,/dev/vdb
+[10.70.46.19]
+devices=/dev/vdb
 
-[disktype]
-raid10
+# Defines the name of the gluster volume to be created.
+# If not provided, default will be set as glustervol
+#[volname]
 
-[diskcount]
-10
-
+# Specifies the client hosts and mountpoints to mount the gluster
+# volume created. Cliend hosts field is mandatory. If mount points
+# are not specified, default will be taken as /mnt/gluster
+# for all the hosts
 [clients]
-hosts=10.70.46.15
-mount_points=/mnt/helo
+hosts=10.70.46.21,10.70.46.19
+mount_points=/mnt/client

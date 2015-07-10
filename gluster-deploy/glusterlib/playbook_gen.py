@@ -43,30 +43,37 @@ class PlaybookGen(YamlWriter):
         self.config = self.read_config(config_file)
         options = self.config_get_sections(self.config)
         self.hosts = self.config_get_options(self.config, 'hosts', True)
+        self.mk_dir(Global.base_dir)
+        self.mk_dir(Global.group_vars_dir)
         if set(self.hosts).intersection(set(options)):
             if set(self.hosts).issubset(set(options)):
                 self.var_file = 'host_vars'
+                self.mk_dir(Global.host_vars_dir)
             else:
                 print "Error: Looks like you missed to give configurations " \
                     "for one or many host(s). Exiting!"
                 self.cleanup_and_quit()
         else:
             self.var_file = 'group_vars'
-        vars_dir = self.get_file_dir_path(Global.base_dir, self.var_file)
-        dir_list = [Global.base_dir, vars_dir]
-        self.mk_dir(dir_list)
+        '''
+        Since the client data for gluster confs are common for all the
+        hosts, creating a group var file anyway.
+        '''
+        self.mk_dir(Global.group_vars_dir)
+        self.touch_file(Global.group_file)
         output = {'host_vars': self.host_vars_gen,
                   'group_vars': self.group_vars_gen
-                  }[self.var_file](vars_dir)
+                  }[self.var_file]()
         self.move_templates_to_playbooks()
         self.create_inventory()
+        self.gluster_vol_spec(self.config)
 
     def create_inventory(self):
         self.write_config(Global.group, self.hosts, Global.inventory)
 
-    def host_vars_gen(self, host_vars_path):
+    def host_vars_gen(self):
         for host in self.hosts:
-            host_file = self.get_file_dir_path(host_vars_path, host)
+            host_file = self.get_file_dir_path(Global.host_vars_dir, host)
             self.touch_file(host_file)
             device_names = filter(
                 None,
@@ -77,12 +84,10 @@ class PlaybookGen(YamlWriter):
                     True).split(','))
             YamlWriter(device_names, self.config, host_file, self.var_file)
 
-    def group_vars_gen(self, group_vars_path):
-        group_file = self.get_file_dir_path(group_vars_path, Global.group)
-        self.touch_file(group_file)
+    def group_vars_gen(self):
         device_names = self.config_get_options(self.config,
                                                'devices', False)
-        YamlWriter(device_names, self.config, group_file, self.var_file)
+        YamlWriter(device_names, self.config, Global.group_file, self.var_file)
 
     def template_files_create(self, temp_file):
         if not os.path.isdir(temp_file):

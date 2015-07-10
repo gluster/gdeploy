@@ -29,6 +29,7 @@
 import yaml
 from conf_parser import ConfigParseHelpers
 from global_vars import Global
+from helpers import Helpers
 
 
 class YamlWriter(ConfigParseHelpers):
@@ -67,13 +68,12 @@ class YamlWriter(ConfigParseHelpers):
         else:
             print "Error: Device names for backend setup or mount point " \
                     "details for gluster deployement not provided. Exiting."
-            self.cleanup_and_exit()
-        self.gluster_vol_spec()
+            self.cleanup_and_quit()
 
     def insufficient_param_count(self, section, count):
         print "Error: Please provide %s names for %s devices " \
             "else leave the field empty" % (section, count)
-        self.cleanup_and_exit()
+        self.cleanup_and_quit()
 
     def split_comma_seperated_options(self, options):
         if options:
@@ -134,7 +134,9 @@ class YamlWriter(ConfigParseHelpers):
         for key, value in data_dict.iteritems():
             self.create_yaml_dict(key, value)
 
-    def gluster_vol_spec(self):
+    def gluster_vol_spec(self, config):
+        self.config = config
+        self.filename = Global.group_file
         clients=self.config_section_map(self.config, 'clients', 'hosts',
                 False)
         if not clients:
@@ -156,15 +158,15 @@ class YamlWriter(ConfigParseHelpers):
             gluster['client_mount_points'] = self.split_comma_seperated_options(
                                                             client_mntpts)
             if len(gluster['client_mount_points']) != len(
-                    gluster['clients']) or len(
+                    gluster['clients']) and len(
                             gluster['client_mount_points']) != 1:
                 print "Error: Provide volume mount points in each client " \
                         "or a common mount point for all the clients. "
-                self.cleanup_and_exit()
+                self.cleanup_and_quit()
         gluster['volname'] = self.config_get_options(self.config,
                 'volname', False) or 'vol1'
         self.yaml_list_data_write(gluster)
-        ConfigParseHelpers.gluster_ret = True
+        return
 
     def perf_spec_data_write(self):
         disktype = self.config_get_options(self.config,
@@ -173,7 +175,7 @@ class YamlWriter(ConfigParseHelpers):
             perf = dict(disktype=disktype[0].lower())
             if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
                 print "Error: Unsupported disk type!"
-                self.cleanup_and_exit()
+                self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
                 perf['diskcount'] = int(
                     self.config_get_options(self.config, 'diskcount', True)[0])

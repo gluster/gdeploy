@@ -26,6 +26,11 @@ class Global(object):
     success = True
     do_setup_backend = True
     do_gluster_deploy = True
+    host_vars = 'host_vars'
+    group_vars = 'group_vars'
     group = 'rhs_servers'
     base_dir = '/tmp/playbooks'
+    group_vars_dir = os.path.join(os.path.realpath(base_dir), group_vars)
+    host_vars_dir = os.path.join(os.path.realpath(base_dir), host_vars)
     inventory = os.path.join(os.path.realpath(base_dir), 'ansible_hosts')
+    group_file = os.path.join(group_vars_dir, group)
