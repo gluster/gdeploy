@@ -92,8 +92,8 @@ class PlaybookGen(YamlWriter):
 
     def move_templates_to_playbooks(self):
         templates_path = '/usr/share/ansible/ansible-glusterfs/templates'
-        templates_path_bk = self.get_file_dir_path(os.path.dirname(__file__),
-                '../templates')
+        templates_path_bk = self.get_file_dir_path(self.uppath(__file__, 2),
+                'templates')
         if not (self.template_files_create(templates_path) or
                 self.template_files_create(templates_path_bk)):
             print "Error: Template files not found at %s or %s. " \

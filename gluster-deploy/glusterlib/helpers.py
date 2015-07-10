@@ -51,6 +51,9 @@ class Helpers(Global):
     def get_file_dir_path(self, basedir, newdir):
         return os.path.join(os.path.realpath(basedir), newdir)
 
+    def uppath(self, path, n):
+        return os.sep.join(path.split(os.sep)[:-n])
+
     def exec_cmds(self, cmd, opts):
         try:
             os.system(cmd + ' ' + opts)

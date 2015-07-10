@@ -68,7 +68,7 @@ class GlusterDeploy(PlaybookGen, Global):
             self.set_up_yml = self.get_file_dir_path(Global.base_dir,
                                                 'setup-backend.yml')
             print "Setting up back-end..."
-            #self.call_ansible_command(self.set_up_yml)
+            self.call_ansible_command(self.set_up_yml)
         if Global.do_gluster_deploy:
             self.gluster_deploy_yml = self.get_file_dir_path(Global.base_dir,
                                             'gluster-deploy.yml')
