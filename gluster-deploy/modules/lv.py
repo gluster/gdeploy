@@ -143,36 +143,37 @@ class LvOps(object):
             self.module.exit_json(msg=output, changed=1)
 
     def compute(self):
-        global error
-        option = " --noheadings -o pv_name %s" % self.vgname
-        rc, pv_name, err = self.run_command('vgs', option)
-        if rc:
-            error = True
-            return 0, 0
-        else:
-            option = " --noheading --units m  -o pv_size %s" % pv_name
-            rc, pv_size, err = self.run_command('pvs', option)
-            if not rc:
-                pv_size = floor(float(pv_size.strip(' m\t\r\n')) - 4)
-                KB_PER_GB = 1048576
-                if pv_size > 1000000:
-                    METADATA_SIZE_GB = 16
-                    metadatasize = floor(METADATA_SIZE_GB * KB_PER_GB)
-                else:
-                    METADATA_SIZE_MB = pv_size / 200
-                    metadatasize = floor(floor(METADATA_SIZE_MB) * 1024)
-                pool_sz = floor(pv_size * 1024) - metadatasize
-                return metadatasize, pool_sz
+        #This is an RHS specific computation method for performance
+        #improvements. User can choose not to use it by providing
+        # metadatasize and poolsize in the playbook.
+        if self.compute_type == 'rhs':
+            global error
+            option = " --noheadings -o pv_name %s" % self.vgname
+            rc, pv_name, err = self.run_command('vgs', option)
+            if rc:
+                error = True
+                return 0, 0
             else:
-                self.module.fail_json(msg="PV %s does not exist" % pv_name)
+                option = " --noheading --units m  -o pv_size %s" % pv_name
+                rc, pv_size, err = self.run_command('pvs', option)
+                if not rc:
+                    pv_size = floor(float(pv_size.strip(' m\t\r\n')) - 4)
+                    KB_PER_GB = 1048576
+                    if pv_size > 1000000:
+                        METADATA_SIZE_GB = 16
+                        metadatasize = floor(METADATA_SIZE_GB * KB_PER_GB)
+                    else:
+                        METADATA_SIZE_MB = pv_size / 200
+                        metadatasize = floor(floor(METADATA_SIZE_MB) * 1024)
+                    pool_sz = floor(pv_size * 1024) - metadatasize
+                    return metadatasize, pool_sz
+                else:
+                    self.module.fail_json(msg="PV %s does not exist" % pv_name)
+        else:
+            metadatasize = self.validated_params('metadatasize')
+            pool_sz = self.validated_params('poolsize')
+        return metadatasize, pool_sz
 
-    def get_thin_pool_chunk_sz(self):
-        diskcount = self.validated_params('diskcount')
-        chunksize = {'raid10': int(self.stripe_unit_size) * int(diskcount),
-                     'raid6': 256,
-                     'jbod': 256
-                   }[self.compute_type]
-        return chunksize
 
     def validated_params(self, opt):
         value = self.module.params[opt]
@@ -188,13 +189,12 @@ class LvOps(object):
     def create(self):
         self.lvtype = self.validated_params('lvtype')
         lvname = self.validated_params('lvname')
-        self.compute_type = self.module.params['compute'] or ''
+        self.compute_type = self.module.params['compute']
         if self.lvtype in ['virtual']:
             poolname = self.validated_params('poolname')
         else:
             poolname = ''
-        if self.compute_type:
-            metadatasize, pool_sz = self.compute()
+        metadatasize, pool_sz = self.compute()
         if not error:
             options = {'thin': ' -L %sK -n %s %s' % (metadatasize,
                                              lvname, self.vgname),
@@ -207,17 +207,41 @@ class LvOps(object):
         err = "%s Volume Group Does Not Exist!" % self.vgname
         return 1, 0, err
 
+    def get_thin_pool_chunk_sz(self):
+        #As per performance enhancement specifications, to ensure best
+        #performance, the thin pool chunksize should be 256KB for RAID6 and
+        #JBOD and stripe unit size times the data disks count in case of RAID10
+        #If disktype not specified will take user input for chunksize or
+        #follow the default behaviour of lvconvert.
+        self.disktype = self.module.params['disktype']
+        if self.disktype:
+            self.stripe_unit_size = self.validated_params('stripesize')
+            diskcount = self.validated_params('diskcount')
+            chunksize = {'raid10': int(self.stripe_unit_size) * int(diskcount),
+                         'raid6': 256,
+                         'jbod': 256
+                       }[self.disktype]
+        else:
+            chunksize = self.module.params['chunksize']
+        if chunksize:
+            self.lvconvert['chunksize'] = chunksize
+
+    def parse_playbook_data(self, dictionary, cmd):
+        for key, value in dictionary.iteritems():
+            if value:
+                cmd += ' --%s %s ' % (key, value)
+        return cmd
+
     def convert(self):
-        thinpool = self.validated_params('thinpool')
-        self.compute_type = self.validated_params('compute')
-        self.stripe_unit_size = self.validated_params('stripesize')
-        poolmetadata = self.module.params['poolmetadata'] or ''
-        poolmetadataspare = self.module.params['poolmetadataspare'] or ''
-        chunksize = self.get_thin_pool_chunk_sz()
-        options = ' --yes -ff -c %s --thinpool %s --poolmetadata %s ' \
-            '--poolmetadataspare %s' % (chunksize, thinpool,
-                                        poolmetadata, poolmetadataspare)
-        return self.run_command('lvconvert', options)
+        self.lvconvert = {}
+        self.lvconvert['thinpool'] = self.validated_params('thinpool')
+        self.get_thin_pool_chunk_sz()
+        self.lvconvert['poolmetadata'] = self.module.params['poolmetadata']
+        self.lvconvert['poolmetadataspare'] = self.module.params[
+                'poolmetadataspare']
+        self.lvconvert['options'] = self.module.params['options']
+        cmd = self.parse_playbook_data(self.lvconvert, ' -ff --yes')
+        return self.run_command('lvconvert', cmd)
 
     def change(self):
         poolname = self.validated_params('poolname')
@@ -243,7 +267,9 @@ def main():
             poolmetadataspare=dict(),
             poolname=dict(),
             zero=dict(),
+            options=dict(),
             compute=dict(),
+            disktype=dict(),
             diskcount=dict(),
             stripesize=dict()
         ),
