@@ -15,21 +15,27 @@
 # /dev/vda
 
 # Section [disktype] specifies which disk configuration is used while
-# setting up the backend. Supports RAID 10, RAID 6 and JBOD configurations. If this
-# field is left empty, it will be by default taken as JBOD.
+# setting up the backend. Supports RAID 10, RAID 6 and JBOD configurations.
+# If this field is left empty, it will be by default taken as JBOD.
+# This is common for all the hosts.
+
 # [disktype]
 # raid6
 
 # Section [diskcount] specifies the number of data disks in the setup. This is a
-# mandatory field if the disk configuration specified is either RAID 10 or RAID 6
-# and will be ignored if architecture is JBOD.
+# mandatory field if the disk configuration specified is either RAID 10 or
+# RAID 6 and will be ignored if architecture is JBOD. This is host specific
+# data.
+
 # [diskcount]
 # 10
 
-# Section [stripesize] specifies the stripe_unit size in KB. This is a mandatory field if
-# disk configuration is RAID 6. If this is not specified in case of RAID 10 configurations,
-# it will take the default value 256K. This field is not necessary for JBOD configuration
-# of disks. Do not add any suffixes like K, KB, M, etc.
+# Section [stripesize] specifies the stripe_unit size in KB. This is a mandatory
+# field if disk configuration is RAID 6. If this is not specified in case of
+# RAID 10 configurations, it will take the default value 256K. This field is
+# not necessary for JBOD configuration of disks. Do not add any suffixes like
+# K, KB, M, etc.This is host specific data.
+
 # [stripesize]
 # 128
 
@@ -56,27 +62,49 @@
 # Brick mountpoints for the logical volumes
 # The number of mountpoints should match the number of logical volumes listed
 # above.
+# IMP: If only gluster deployement is to be done and not back-end setup, just
+# give this data about the hosts specified in the [hosts] section along
+# with the client data.
 
 # [mountpoints]
 # /rhs/brick
 
+# Host specific data are to be given as follows
+
 [10.70.46.13]
 devices=/dev/sdb,/dev/vdb,/dev/vda
+diskcount=2
+stripsize-128
+
 [10.70.46.15]
 devices=/dev/vdc,/dev/vdb
+diskcount=2
+stripsize-128
+
 [10.70.46.17]
 devices=/dev/vdc,/dev/vdb
+diskcount=2
+stripsize-128
+
 [10.70.46.19]
 devices=/dev/vdb
+diskcount=2
+stripsize-128
 
-# Defines the name of the gluster volume to be created.
-# If not provided, default will be set as glustervol
-#[volname]
+
+# IMP: If only back-end setup is to be done but not GlusterFs
+# deployement omit the following section
 
 # Specifies the client hosts and mountpoints to mount the gluster
 # volume created. Cliend hosts field is mandatory. If mount points
 # are not specified, default will be taken as /mnt/gluster
 # for all the hosts
+
 [clients]
 hosts=10.70.46.21,10.70.46.19
 mount_points=/mnt/client
+
+# Defines the name of the gluster volume to be created.
+# If not provided, default will be set as glustervol
+
+#[volname]

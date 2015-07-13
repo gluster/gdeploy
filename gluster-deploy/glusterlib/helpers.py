@@ -29,6 +29,9 @@ import sys
 from global_vars import Global
 
 class Helpers(Global):
+    '''
+    Some helper methods to help in directory/file creation/removal etc.
+    '''
 
     def cleanup_and_quit(self):
         if os.path.isdir(Global.base_dir):
@@ -51,6 +54,7 @@ class Helpers(Global):
         return os.path.join(os.path.realpath(basedir), newdir)
 
     def uppath(self, path, n):
+        #To get the n the parent of a particular directory
         return os.sep.join(path.split(os.sep)[:-n])
 
     def exec_cmds(self, cmd, opts):

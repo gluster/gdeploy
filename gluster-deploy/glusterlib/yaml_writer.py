@@ -44,6 +44,12 @@ class YamlWriter(ConfigParseHelpers):
         self.write_sections()
 
     def write_sections(self):
+        '''
+        device names, vg names, lv names, pool names, mount point,
+        everything is read into a dictionary section_dict, so the association
+        can be maintained between all these things. Association as in,
+        /dev/vgname1/lvname1 is to be mounted at mount_point1 etc
+        '''
         if self.bricks:
             sections = ['vgs', 'lvs', 'pools']
             section_names = ['Volume Group', 'Logical Volume',
@@ -59,12 +65,19 @@ class YamlWriter(ConfigParseHelpers):
                                               self.section_dict['lvs'])]
             listables_in_yaml = {key: self.section_dict[key]
                     for key in ['vgs', 'bricks', 'mountpoints', 'lvols'] }
-            self.yaml_list_data_write(listables_in_yaml)
+            self.iterate_dicts_and_yaml_write(listables_in_yaml)
             self.yaml_dict_data_write()
             self.perf_spec_data_write()
         elif self.mountpoints:
+            '''
+            If anyone wishes to just give the mountpoints directly
+            without setting up the backend, only mountpoints option
+            need to be given in the config file. It will skip
+            the back-end setup
+            '''
             Global.do_setup_backend = False
-            self.yaml_list_data_write({'mountpoints': self.mountpoints})
+            self.iterate_dicts_and_yaml_write(
+                    {'mountpoints': self.mountpoints})
         else:
             print "Error: Device names for backend setup or mount point " \
                     "details for gluster deployement not provided. Exiting."
@@ -106,18 +119,29 @@ class YamlWriter(ConfigParseHelpers):
                 options.append(pattern + str(i))
         return options
 
-    def yaml_list_data_write(self, data_dict):
+    def iterate_dicts_and_yaml_write(self, data_dict, keep_format=False):
+        #Just a pretty wrapper over create_yaml_dict to iterate over dicts
         for key, value in data_dict.iteritems():
-            data = {}
-            data[key] = value
-            self.write_yaml(data, False)
+            self.create_yaml_dict(key, value, keep_format)
 
-    def create_yaml_dict(self, section, data):
+    def create_yaml_dict(self, section, data, keep_format=True):
+        '''
+        This method is called if in the playbook yaml,
+        the options are to be written as a list
+        '''
         data_dict = {}
         data_dict[section] = data
-        self.write_yaml(data_dict, True)
+        self.write_yaml(data_dict, keep_format)
 
     def yaml_dict_data_write(self):
+        '''
+        Matter complicates when the data are to be written as a dictionary
+        in the yaml. for the data with above mentioned associations are
+        to be written as a dictionary itself in the yaml, the dictionary
+        section_dict is iterated keeping the associations intact, and
+        multiple lists are created for vgs, lvs, pools, mountpoints
+        '''
+        #Just a pretty way to initialise 4 empty lists
         vgnames, mntpaths, lvpools, pools = ([] for i in range(4))
         for i, vg in enumerate(self.section_dict['vgs']):
             vgnames.append({'brick': self.section_dict['bricks'][i], 'vg': vg})
@@ -131,8 +155,7 @@ class YamlWriter(ConfigParseHelpers):
             'lvpools': lvpools,
             'mntpath': mntpaths,
             'pools': pools}
-        for key, value in data_dict.iteritems():
-            self.create_yaml_dict(key, value)
+        self.iterate_dicts_and_yaml_write(data_dict, True)
 
     def gluster_vol_spec(self, config):
         self.config = config
@@ -149,7 +172,7 @@ class YamlWriter(ConfigParseHelpers):
         if not Global.do_setup_backend:
             print "Warning: Since no brick data is provided, we cannot do a "\
                     "backend setup. Continuing with gluster deployement using "\
-                    " the mount points %s" % ', '.join(self.mountpoints)
+                    " the mount points provided"
         gluster = dict(clients=self.split_comma_seperated_options(clients))
         client_mntpts = self.config_section_map(
                 self.config, 'clients', 'mount_points',
@@ -165,10 +188,17 @@ class YamlWriter(ConfigParseHelpers):
                 self.cleanup_and_quit()
         gluster['volname'] = self.config_get_options(self.config,
                 'volname', False) or 'glustervol'
-        self.yaml_list_data_write(gluster)
-        return
+        self.iterate_dicts_and_yaml_write(gluster)
 
     def perf_spec_data_write(self):
+        '''
+        Now this one looks dirty. Couldn't help it.
+        This one reads the performance related data like
+        number of data disks and stripe unit size  if
+        the option disk type is provided in the config.
+        Some calculations are made as to enhance
+        performance
+        '''
         disktype = self.config_get_options(self.config,
                                            'disktype', False)
         if disktype:
@@ -177,12 +207,11 @@ class YamlWriter(ConfigParseHelpers):
                 print "Error: Unsupported disk type!"
                 self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
-                perf['diskcount'] = int(
-                    self.config_get_options(self.config, 'diskcount', True)[0])
+                perf['diskcount'] = int(self.get_options('diskcount', True)[0])
                 stripe_size_necessary = {'raid10': False,
                                          'raid6': True
                                         }[perf['disktype']]
-                stripe_size = self.config_get_options(self.config, 'stripesize',
+                stripe_size = self.get_options('stripesize',
                     stripe_size_necessary)
                 if stripe_size:
                     perf['stripesize'] = int(stripe_size[0])
@@ -201,7 +230,7 @@ class YamlWriter(ConfigParseHelpers):
             perf['diskcount'] = perf['stripesize'] = 0
         perf['profile'] = self.config_get_options(self.config,
                 'tune-profile', False) or 'rhs-high-throughput'
-        self.yaml_list_data_write(perf)
+        self.iterate_dicts_and_yaml_write(perf)
 
     def write_yaml(self, data_dict, data_flow):
         with open(self.filename, 'a+') as outfile:

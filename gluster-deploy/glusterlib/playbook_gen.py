@@ -139,6 +139,7 @@ class PlaybookGen(YamlWriter):
 
 
 if __name__ == '__main__':
+    #For playbook_gen to be standalone script.
     if len(sys.argv) < 2:
         print "Usage: var_populate configuration_file"
         sys.exit(0)
