@@ -21,7 +21,7 @@
 #
 #    playbook_gen.py
 #    ----------------------
-#    VarFileGenerator, with the help of other helper methods from various
+#    PlaybookGen, with the help of other helper methods from various
 #    classes in the package, creates the variable files for the ansible
 #    playbooks to read from.
 #
@@ -41,12 +41,42 @@ class PlaybookGen(YamlWriter):
 
     def __init__(self, config_file):
         self.config = self.read_config(config_file)
-        options = self.config_get_sections(self.config)
+        self.options = self.config_get_sections(self.config)
         self.hosts = self.config_get_options(self.config, 'hosts', True)
+        self.create_files_and_dirs()
+        self.get_var_file_type()
+        output = {'host_vars': self.host_vars_gen,
+                  'group_vars': self.group_vars_gen
+                  }[self.var_file]()
+        '''
+        since the client configuration data are to be written
+        to the global_vars file no matter what, this method
+        is called seperately
+        '''
+        self.gluster_vol_spec(self.config)
+
+    def create_files_and_dirs(self):
+        '''
+        Creates required directories for all the configuration files
+        to go in. Since the client data for gluster confs are common for all the
+        hosts, creating a group var file anyway.
+        '''
         self.mk_dir(Global.base_dir)
         self.mk_dir(Global.group_vars_dir)
-        if set(self.hosts).intersection(set(options)):
-            if set(self.hosts).issubset(set(options)):
+        self.touch_file(Global.group_file)
+        self.move_templates_to_playbooks()
+        self.create_inventory()
+
+    def get_var_file_type(self):
+        '''
+        Decides if host_vars are to be created or everything can
+        fit into the group_vars file based on the options provided
+        in the configuration file. If all the hostnames are
+        present as sections in the configuration file, assumes
+        we need host_vars. Fails accordingly.
+        '''
+        if set(self.hosts).intersection(set(self.options)):
+            if set(self.hosts).issubset(set(self.options)):
                 self.var_file = 'host_vars'
                 self.mk_dir(Global.host_vars_dir)
             else:
@@ -55,23 +85,16 @@ class PlaybookGen(YamlWriter):
                 self.cleanup_and_quit()
         else:
             self.var_file = 'group_vars'
-        '''
-        Since the client data for gluster confs are common for all the
-        hosts, creating a group var file anyway.
-        '''
-        self.mk_dir(Global.group_vars_dir)
-        self.touch_file(Global.group_file)
-        output = {'host_vars': self.host_vars_gen,
-                  'group_vars': self.group_vars_gen
-                  }[self.var_file]()
-        self.move_templates_to_playbooks()
-        self.create_inventory()
-        self.gluster_vol_spec(self.config)
 
     def create_inventory(self):
         self.write_config(Global.group, self.hosts, Global.inventory)
 
     def host_vars_gen(self):
+        '''
+        If decided to create host, this will create host_vars file for
+        each hosts and writes data to it, accorsing with the help of
+        YAMLWriter
+        '''
         for host in self.hosts:
             host_file = self.get_file_dir_path(Global.host_vars_dir, host)
             self.touch_file(host_file)
@@ -85,6 +108,9 @@ class PlaybookGen(YamlWriter):
             YamlWriter(device_names, self.config, host_file, self.var_file)
 
     def group_vars_gen(self):
+        '''
+        Calls YamlWriter for writing data to the group_vars file
+        '''
         device_names = self.config_get_options(self.config,
                                                'devices', False)
         YamlWriter(device_names, self.config, Global.group_file, self.var_file)
@@ -96,6 +122,10 @@ class PlaybookGen(YamlWriter):
         return True
 
     def move_templates_to_playbooks(self):
+        '''
+        Templates directory in this codebase's repo will be moved to
+        /tmp/playbooks
+        '''
         templates_path = '/usr/share/ansible/ansible-glusterfs/templates'
         templates_path_bk = self.get_file_dir_path(self.uppath(__file__, 2),
                 'templates')

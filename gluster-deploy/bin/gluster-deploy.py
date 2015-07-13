@@ -17,15 +17,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
-#   gluster-deploy.py
-#   ----------------
-#
-# gluster_deploy script, taking a configuration file as input,
-# calls different methods in generator_module generating
-# necessary ansible playbooks and variable files and then executes the
-# playbooks using ansible-playbook command which sets up backend and then
-# deploy gluster in all the hosts specified in the configuration file.
-#
 
 import argparse
 import sys
@@ -35,6 +26,12 @@ from glusterlib import PlaybookGen
 
 
 class GlusterDeploy(PlaybookGen, Global):
+    '''
+    This class makes use of the class PlaybookGen inside glusterlib
+    library to create the ansible playbooks and variable files.
+    Then calls ansible-playbook command to setup back-end and
+    deploy GlusterFS
+    '''
 
     def __init__(self):
         args = self.parse_arguments()
@@ -48,6 +45,10 @@ class GlusterDeploy(PlaybookGen, Global):
                 "inside /tmp/playbooks/"
 
     def parse_arguments(self):
+        '''
+        This methos uses argparser to parse the command line inputs
+        to the gluster-deploy script
+        '''
         parser = argparse.ArgumentParser(version='1.0')
         parser.add_argument('-c', dest='config_file',
                             help="Configuration file",
@@ -64,6 +65,10 @@ class GlusterDeploy(PlaybookGen, Global):
             parser.error(str(msg))
 
     def deploy_gluster(self):
+        '''
+        Checks if the necessary variables for backend-setup and
+        gluster deploy are populated.
+        '''
         if Global.do_setup_backend:
             self.set_up_yml = self.get_file_dir_path(Global.base_dir,
                                                 'setup-backend.yml')
@@ -76,6 +81,9 @@ class GlusterDeploy(PlaybookGen, Global):
             #self.call_ansible_command(self.gluster_deploy_yml)
 
     def call_ansible_command(self, playbooks):
+        '''
+        Calls the ansible-playbook command on necessary yamls
+        '''
         try:
             cmd = 'ansible-playbook -i %s %s' % (
                 Global.inventory, playbooks)

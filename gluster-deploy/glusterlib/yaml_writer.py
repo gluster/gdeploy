@@ -164,7 +164,7 @@ class YamlWriter(ConfigParseHelpers):
                         "or a common mount point for all the clients. "
                 self.cleanup_and_quit()
         gluster['volname'] = self.config_get_options(self.config,
-                'volname', False) or 'vol1'
+                'volname', False) or 'glustervol'
         self.yaml_list_data_write(gluster)
         return
 
