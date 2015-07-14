@@ -1,0 +1,8 @@
+---
+- hosts: rhs_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Creates a Trusted Storage Pool
+    gluster: command=peer action=status

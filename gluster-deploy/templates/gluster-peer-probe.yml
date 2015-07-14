@@ -1,0 +1,10 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Creates a Trusted Storage Pool
+    gluster: command=peer action=probe
+             current_host={{inventory_hostname}}
+             all_hosts="{{ hosts }}"

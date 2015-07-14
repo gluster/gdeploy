@@ -1,0 +1,10 @@
+---
+- hosts: rhs_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Sets options for volume
+    gluster: command=volume action=set
+             volume=volname
+             key= value=

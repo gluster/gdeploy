@@ -1,0 +1,10 @@
+---
+- hosts: rhs_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  # Start glusterd in all the nodes
+  - name: Start glusterd in all the hosts (if not started already)
+    service: name=glusterd state=started
+             enabled=yes

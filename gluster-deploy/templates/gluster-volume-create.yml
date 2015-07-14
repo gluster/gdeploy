@@ -1,0 +1,25 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Creates a volume with a single host
+    gluster: command=volume action=create
+             volume=volname
+             bricks='{{ mountpoints }}'
+             current_host={{inventory_hostname}}
+             force=yes
+
+#---
+#- hosts: rhs_servers
+  #remote_user: root
+  #gather_facts: no
+
+  #tasks:
+  #- name: Add bricks from all the other hosts to volume
+  #gluster: command=volume action=add-brick
+             #volume=volname
+             #bricks='{{ mountpoints }}'
+             #current_host={{inventory_hostname}}
+             #force=yes

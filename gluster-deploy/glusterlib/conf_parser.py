@@ -59,7 +59,7 @@ class ConfigParseHelpers(Helpers):
         for option in options:
             config.set(section, option)
         try:
-            with open(filename, 'wb') as file:
+            with open(filename, 'ab') as file:
                 config.write(file)
         except:
             print "Error: Failed to create file %s. Exiting!" % filename
