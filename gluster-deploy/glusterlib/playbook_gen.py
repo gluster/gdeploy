@@ -54,6 +54,7 @@ class PlaybookGen(YamlWriter):
         is called seperately
         '''
         self.gluster_vol_spec(self.config)
+        self.write_host_names(self.config, self.hosts)
 
     def create_files_and_dirs(self):
         '''
