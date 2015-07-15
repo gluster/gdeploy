@@ -1,0 +1,10 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Starts a volume
+    gluster: command=volume action=start
+             volume=volname
+             force=yes

@@ -1,5 +1,5 @@
 ---
-- hosts: rhs_servers
+- hosts: master
   remote_user: root
   gather_facts: no
 
@@ -7,4 +7,4 @@
   - name: Sets options for volume
     gluster: command=volume action=set
              volume=volname
-             key= value=
+             key=cluster.nufa value=on
