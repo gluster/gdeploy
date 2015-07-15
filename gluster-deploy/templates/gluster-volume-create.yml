@@ -7,9 +7,13 @@
   - name: Creates a volume with a single host
     gluster: command=volume action=create
              volume=volname
-             bricks='{{ mountpoints }}'
+             bricks='{% for host in hosts %}
+             {{ hostvars[host]['mountpoints'] }}
+             {% endfor %}'
+             hosts="{{ hosts }}"
              current_host={{inventory_hostname}}
              force=yes
+
 
 #---
 #- hosts: rhs_servers

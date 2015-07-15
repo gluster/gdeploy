@@ -1,5 +1,5 @@
 ---
-- hosts: master
+- hosts: rhs_servers
   remote_user: root
   gather_facts: no
 
@@ -7,4 +7,4 @@
   - name: Creates a Trusted Storage Pool
     gluster: command=peer action=probe
              current_host={{inventory_hostname}}
-             all_hosts="{{ hosts }}"
+             hosts="{{ hosts }}"

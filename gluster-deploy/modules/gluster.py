@@ -27,6 +27,15 @@ class Gluster(object):
         self.module = module
         self.command = self._validated_params('command')
         self.action = self._validated_params('action')
+        '''current_host(the one in which operation is running right now) and
+           hosts can be defined in the yml like this
+           current_host={{inventory_hostname}}
+           hosts="{% for host in groups[<group name>] %}
+           {{ hostvars[host]['private_ip'] }},{% endfor %}"
+
+        '''
+        self.current_host = self._validated_params('current_host')
+        self.hosts = literal_eval(self._validated_params('hosts'))
         {
             'peer': self.gluster_peer_ops,
             'volume': self.gluster_volume_ops
@@ -41,10 +50,10 @@ class Gluster(object):
 
     def gluster_peer_ops(self):
         if self.action in ['probe', 'detach']:
-            self.current_host = self._validated_params('current_host')
-            self.all_hosts = literal_eval(self._validated_params('all_hosts'))
             force = 'force' if self.module.params['force'] == 'yes' else ''
-            for hostname in self.all_hosts:
+            peers = [peer for peer in self.hosts
+                    if peer not in self.current_host]
+            for hostname in peers:
                 rc, output, err = self.call_gluster_cmd('peer',
                         self.action, force, hostname)
         else:
@@ -55,12 +64,11 @@ class Gluster(object):
     def gluster_volume_ops(self):
         #ops = ['create', 'delete', 'set', 'add-brick', 'remove-brick']
         if self.action == 'create':
-            self.current_host = self._validated_params('current_host')
             force = 'force' if self.module.params['force'] == 'yes' else ''
-            bricks = [brick.strip('[]\n\t\r') for brick in
-                    self._validated_params('bricks').split(', ')]
-            brick_list = ' '.join(brick for brick in
-                    map(self.append_host_name, bricks))
+            self.bricks = [brick.strip('[]\n\t\r') for brick in
+                    self._validated_params('bricks').split(' ') if brick]
+            brick_list = ' '.join(brick_path for brick_path in
+                    self.append_host_name())
             volume = self._validated_params('volume')
             rc, out, err = self.call_gluster_cmd('volume',
                     self.action, volume, brick_list, force)
@@ -72,8 +80,11 @@ class Gluster(object):
 
 
 
-    def append_host_name(self, str):
-        return self.current_host + ':' + str.strip()
+    def append_host_name(self):
+        brick_list = []
+        for host, brick in zip(self.hosts, self.bricks):
+            brick_list.append(host + ':' + brick)
+        return brick_list
 
     def call_gluster_cmd(self, *args):
         params = ' '.join(opt for opt in args)
@@ -92,10 +103,10 @@ class Gluster(object):
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
-            command=dict(),
-            action=dict(),
-            current_host=dict(),
-            all_hosts=dict(),
+            command=dict(required=True),
+            action=dict(required=True),
+            current_host=dict(required=True),
+            hosts=dict(required=True),
             volume=dict(),
             bricks=dict(),
             force=dict()

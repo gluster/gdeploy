@@ -7,4 +7,4 @@
   - name: Detaches a pool form a Trusted Storage Pool
     gluster: command=peer action=detach
              current_host={{inventory_hostname}}
-             all_hosts="{{ hosts }}"
+             hosts="{{ hosts }}"
