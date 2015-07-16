@@ -66,6 +66,7 @@ class PlaybookGen(YamlWriter):
         self.mk_dir(Global.group_vars_dir)
         self.touch_file(Global.group_file)
         self.move_templates_to_playbooks()
+        self.mk_dir(Global.host_vars_dir)
         self.create_inventory()
 
     def get_var_file_type(self):
@@ -79,7 +80,6 @@ class PlaybookGen(YamlWriter):
         if set(self.hosts).intersection(set(self.options)):
             if set(self.hosts).issubset(set(self.options)):
                 self.var_file = 'host_vars'
-                self.mk_dir(Global.host_vars_dir)
             else:
                 print "Error: Looks like you missed to give configurations " \
                     "for one or many host(s). Exiting!"

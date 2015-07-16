@@ -184,6 +184,8 @@ class YamlWriter(ConfigParseHelpers):
         '''
         client hostnames or IP should also be in the inventory file since
         mounting is to be done in the client host machines
+        Also, host_var files are to be created if multiple clients
+        have different mount points for gluster volume
         '''
         self.write_config('clients', self.clients, Global.inventory)
         if len(self.client_mntpts) != len(self.clients) and len(

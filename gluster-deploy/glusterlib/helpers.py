@@ -38,8 +38,10 @@ class Helpers(Global):
             self.exec_cmds('rm -rf', Global.base_dir)
         sys.exit(0)
 
-    def mk_dir(self, direc):
+    def mk_dir(self, direc, keep=False):
         if os.path.isdir(direc):
+            if not keep:
+                return
             self.exec_cmds('rm -rf', direc)
         self.exec_cmds('mkdir', direc)
 
