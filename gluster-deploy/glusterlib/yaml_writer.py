@@ -88,7 +88,8 @@ class YamlWriter(ConfigParseHelpers):
             "else leave the field empty" % (section, count)
         self.cleanup_and_quit()
 
-    def split_comma_seperated_options(self, options):
+    def split_comma_seperated_options(self, section, option, reqd):
+        options = self.config_section_map(self.config, section, option, reqd)
         if options:
             return filter(None, options.split(','))
         return []
@@ -98,9 +99,8 @@ class YamlWriter(ConfigParseHelpers):
             return self.config_get_options(self.config, section, required)
         else:
             return self.split_comma_seperated_options(
-                    self.config_section_map(
-                self.config, self.filename.split('/')[-1], section,
-                required))
+                        self.filename.split('/')[-1], section,
+                        required)
 
     def section_data_gen(self, section, section_name):
         options = self.get_options(section, False)
@@ -159,10 +159,8 @@ class YamlWriter(ConfigParseHelpers):
 
     def gluster_vol_spec(self, config):
         self.config = config
-        self.filename = Global.group_file
-        clients=self.config_section_map(self.config, 'clients', 'hosts',
-                False)
-        if not clients:
+        self.clients = self.split_comma_seperated_options('clients', 'hosts', False)
+        if not self.clients:
             log_level = 'Warning' if Global.do_setup_backend else 'Error'
 
             print "%s: Client hosts are not specified. Skipping GlusterFS " \
@@ -173,22 +171,32 @@ class YamlWriter(ConfigParseHelpers):
             print "Warning: Since no brick data is provided, we cannot do a "\
                     "backend setup. Continuing with gluster deployement using "\
                     " the mount points provided"
-        gluster = dict(clients=self.split_comma_seperated_options(clients))
-        client_mntpts = self.config_section_map(
-                self.config, 'clients', 'mount_points',
-                False) or '/mnt/gluster'
-        if client_mntpts:
-            gluster['client_mount_points'] = self.split_comma_seperated_options(
-                                                            client_mntpts)
-            if len(gluster['client_mount_points']) != len(
-                    gluster['clients']) and len(
-                            gluster['client_mount_points']) != 1:
-                print "Error: Provide volume mount points in each client " \
-                        "or a common mount point for all the clients. "
-                self.cleanup_and_quit()
-        gluster['volname'] = self.config_get_options(self.config,
+        self.client_mntpts =  self.split_comma_seperated_options(
+                              'clients', 'mountpoints',
+                                False) or ['/mnt/gluster']
+        self.volname = self.config_get_options(self.config,
                 'volname', False) or 'glustervol'
-        self.iterate_dicts_and_yaml_write(gluster)
+        self.write_client_conf_data()
+
+    def write_client_conf_data(self):
+        self.write_config('clients', self.clients, Global.inventory)
+        if len(self.client_mntpts) != len(self.clients) and len(
+                        self.client_mntpts) != 1:
+            print "Error: Provide volume mount points in each client " \
+                    "or a common mount point for all the clients. "
+            self.cleanup_and_quit()
+        if len(self.client_mntpts) == 1:
+            gluster = dict(volname=self.volname)
+            self.filename = Global.group_file
+            gluster['client_mount_points'] = self.client_mntpts
+            self.iterate_dicts_and_yaml_write(gluster)
+        else:
+            for client, mntpnt in zip(self.clients, self.client_mntpts):
+                gluster = dict(volname=self.volname)
+                self.filename = self.get_file_dir_path(
+                        Global.host_vars_dir, client)
+                gluster['client_mount_points'] = mntpnt
+                self.iterate_dicts_and_yaml_write(gluster)
 
     def perf_spec_data_write(self):
         '''

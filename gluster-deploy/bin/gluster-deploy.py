@@ -78,7 +78,7 @@ class GlusterDeploy(PlaybookGen, Global):
             self.gluster_deploy_yml = self.get_file_dir_path(Global.base_dir,
                                             'gluster-deploy.yml')
             print "Deploying GlusterFS... Coming Soon!!!"
-            #self.call_ansible_command(self.gluster_deploy_yml)
+            self.call_ansible_command(self.gluster_deploy_yml)
 
     def call_ansible_command(self, playbooks):
         '''

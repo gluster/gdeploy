@@ -6,5 +6,5 @@
   tasks:
   - name: Sets options for volume
     gluster: command=volume action=set
-             volume=volname
+             volume="{{ volname }}"
              key=cluster.nufa value=on

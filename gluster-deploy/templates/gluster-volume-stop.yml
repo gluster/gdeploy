@@ -4,7 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: Starts a volume
+  - name: Stops a volume
     gluster: command=volume action=stop
-             volume=volname
+             volume"{{ volname }}"
              force=yes

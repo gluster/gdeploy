@@ -6,5 +6,5 @@
   tasks:
   - name: Starts a volume
     gluster: command=volume action=start
-             volume=volname
+             volume="{{ volname }}"
              force=yes

@@ -4,6 +4,6 @@
   gather_facts: no
 
   tasks:
-  - name: Creates a volume with a single host
+  - name: Deletes a volume
     gluster: command=volume action=delete
-             volume=volname
+             volume="{{ volname }}"

@@ -53,8 +53,9 @@ class Gluster(object):
 
     def append_host_name(self):
         brick_list = []
-        for host, brick in zip(self.hosts, self.bricks):
-            brick_list.append(host + ':' + brick)
+        for host, bricks in zip(self.hosts, self.bricks):
+            for brick in bricks.strip('[]').split(','):
+                brick_list.append(host + ':' + brick.strip())
         return brick_list
 
     def get_brick_list_of_all_hosts(self):
@@ -63,9 +64,9 @@ class Gluster(object):
         Expected to provide 'bricks' in the yml in the same
         order as that of the hosts.
         '''
-        self.bricks = [brick.strip(',[]\n\t\r') for brick in
-                self._validated_params('bricks').split(' ') if brick]
-        self.brick_list = ' '.join(brick_path for brick_path in
+        self.bricks = filter(None, [brick.strip() for brick in
+                self._validated_params('bricks').split(';')])
+        return ' '.join(brick_path for brick_path in
                 self.append_host_name())
 
     def gluster_peer_ops(self):
@@ -82,13 +83,13 @@ class Gluster(object):
         self._get_output(rc, output, err)
 
     def gluster_volume_ops(self):
+        option_str = ''
         if self.action in ['delete', 'set']:
             self.force = ''
         volume = self._validated_params('volume')
         if self.action == 'create':
             self.get_host_names()
-            self.get_brick_list_of_all_hosts()
-            option_str = self.brick_list
+            option_str = self.get_brick_list_of_all_hosts()
         if self.action == 'set':
             key = self._validated_params('key')
             value = self._validated_params('value')

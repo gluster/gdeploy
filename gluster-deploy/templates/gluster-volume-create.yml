@@ -4,11 +4,11 @@
   gather_facts: no
 
   tasks:
-  - name: Creates a volume with a single host
+  - name: Creates a volume
     gluster: command=volume action=create
-             volume=volname
+             volume="{{ volname }}"
              bricks='{% for host in hosts %}
-             {{ hostvars[host]['mountpoints'] }}
+             {{ hostvars[host]['mountpoints'] }};
              {% endfor %}'
              hosts="{{ hosts }}"
              current_host={{inventory_hostname}}

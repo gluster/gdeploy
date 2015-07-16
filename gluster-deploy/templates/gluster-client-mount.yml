@@ -1,0 +1,19 @@
+---
+- hosts: clients
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Create the dir to mount the volume, fails if present
+    shell: mkdir -p {{ item }}
+
+    with_items: client_mount_points
+
+  - name: Mount the volumes
+    mount: name={{ item }}
+           src="{{ groups['master'][0]}}:{{ volname }}"
+           fstype=glusterfs
+           state=mounted
+
+    with_items: client_mount_points
+
