@@ -101,8 +101,8 @@ stripsize-128
 # for all the hosts
 
 [clients]
-hosts=10.70.46.21,10.70.46.19
-mount_points=/mnt/client
+hosts=10.70.46.19,10.70.46.15
+mountpoints=/mnt/hello,/mnt/world
 
 # Defines the name of the gluster volume to be created.
 # If not provided, default will be set as glustervol
