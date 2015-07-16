@@ -106,7 +106,7 @@ class Gluster(object):
 
     def _get_output(self, rc, output, err):
         if not rc:
-            self.module.exit_json(stdout=output)
+            self.module.exit_json(stdout=output, changed=1)
         else:
             self.module.fail_json(msg=err)
 
