@@ -158,6 +158,7 @@ class YamlWriter(ConfigParseHelpers):
         self.iterate_dicts_and_yaml_write(data_dict, True)
 
     def gluster_vol_spec(self, config):
+        self.filename = Global.group_file
         self.config = config
         self.clients = self.split_comma_seperated_options('clients', 'hosts', False)
         if not self.clients:
@@ -176,9 +177,14 @@ class YamlWriter(ConfigParseHelpers):
                                 False) or ['/mnt/gluster']
         self.volname = self.config_get_options(self.config,
                 'volname', False) or 'glustervol'
+        self.create_yaml_dict('volname', self.volname, False)
         self.write_client_conf_data()
 
     def write_client_conf_data(self):
+        '''
+        client hostnames or IP should also be in the inventory file since
+        mounting is to be done in the client host machines
+        '''
         self.write_config('clients', self.clients, Global.inventory)
         if len(self.client_mntpts) != len(self.clients) and len(
                         self.client_mntpts) != 1:
@@ -186,16 +192,14 @@ class YamlWriter(ConfigParseHelpers):
                     "or a common mount point for all the clients. "
             self.cleanup_and_quit()
         if len(self.client_mntpts) == 1:
-            gluster = dict(volname=self.volname)
-            self.filename = Global.group_file
-            gluster['client_mount_points'] = self.client_mntpts
+            gluster = dict(client_mount_points=self.client_mntpts)
             self.iterate_dicts_and_yaml_write(gluster)
         else:
             for client, mntpnt in zip(self.clients, self.client_mntpts):
-                gluster = dict(volname=self.volname)
+                gluster = dict()
                 self.filename = self.get_file_dir_path(
                         Global.host_vars_dir, client)
-                gluster['client_mount_points'] = mntpnt
+                gluster = dict(client_mount_points=mntpnt)
                 self.iterate_dicts_and_yaml_write(gluster)
 
     def perf_spec_data_write(self):
