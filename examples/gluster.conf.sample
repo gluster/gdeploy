@@ -131,5 +131,5 @@ transport=tcp,rdma
 # replica_count=2
 # arbiter_count=2
 disperse=yes
-disperse-count=0
-redundancy-count=2
+disperse_count=0
+redundancy_count=2

@@ -194,9 +194,9 @@ class YamlWriter(ConfigParseHelpers):
         volume['arbiter_count'] = self.config_section_map(self.config, 'volume',
                 'arbiter-count') or 0
         volume['disperse_count'] = self.config_section_map(self.config, 'volume',
-                'disperse-count') or 0
+                'disperse_count') or 0
         volume['redundancy_count'] = self.config_section_map(self.config, 'volume',
-                'redundancy-count') or 0
+                'redundancy_count') or 0
         self.iterate_dicts_and_yaml_write(volume)
 
     def write_client_conf_data(self):
