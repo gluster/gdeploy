@@ -128,16 +128,20 @@ class PlaybookGen(YamlWriter):
         Templates directory in this codebase's repo will be moved to
         /tmp/playbooks
         '''
-        templates_path = '/usr/share/ansible/ansible-glusterfs/templates'
+        #Is the templates present as a part of ansible installation?
+        templates_path_pkg = '/usr/share/ansible/ansible-glusterfs/templates'
+        #Or is it present in the source directory or installed via setuptools
         templates_path_bk = self.get_file_dir_path(self.uppath(__file__, 2),
                 'templates')
-        if not (self.template_files_create(templates_path) or
-                self.template_files_create(templates_path_bk)):
+        templates_dir = [path for path in [templates_path_pkg,
+                templates_path_bk] if os.path.isdir(path)]
+        if not templates_dir:
             print "Error: Template files not found at %s or %s. " \
                 "Check your ansible-gluster " \
                 "installation and try " \
-                "again." % (templates_path, templates_path_bk)
+                "again." % (templates_path_pkg, templates_path_bk)
             self.cleanup_and_quit()
+        self.template_files_create(templates_dir[0])
 
 
 if __name__ == '__main__':

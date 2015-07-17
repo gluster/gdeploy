@@ -1,1 +1,1 @@
-recursive-include gluster-deploy/templates *
+recursive-include templates *
