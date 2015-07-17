@@ -83,7 +83,7 @@ class Gluster(object):
         self._get_output(rc, output, err)
 
     def get_volume_configs(self):
-        options = ' ' + self._validated_params('transport')
+        options = ' '
         if self.module.params['replica'] == 'yes':
             options += ' replica %d ' % int(self._validated_params('replica_count'))
             arbiter_count = int(self.module.params['arbiter_count'])
@@ -98,6 +98,7 @@ class Gluster(object):
             redundancy = int(self.module.params['redundancy_count'])
             if redundancy:
                 options += ' redundancy %d ' % redundancy
+        options += ' transport ' + self._validated_params('transport')
         return (options + ' ')
 
 
@@ -108,8 +109,8 @@ class Gluster(object):
         volume = self._validated_params('volume')
         if self.action == 'create':
             self.get_host_names()
-            option_str = self.get_brick_list_of_all_hosts()
-            option_str += self.get_volume_configs()
+            option_str = self.get_volume_configs()
+            option_str += self.get_brick_list_of_all_hosts()
         if self.action == 'set':
             key = self._validated_params('key')
             value = self._validated_params('value')
