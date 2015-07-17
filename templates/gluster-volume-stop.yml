@@ -6,5 +6,4 @@
   tasks:
   - name: Stops a volume
     gluster: command=volume action=stop
-             volume"{{ volname }}"
-             force=yes
+             volume="{{ volname }}"

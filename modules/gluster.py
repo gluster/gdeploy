@@ -132,7 +132,7 @@ class Gluster(object):
             self.module.fail_json(msg=err)
 
     def _run_command(self, op, opts):
-        cmd = self.module.get_bin_path(op, True) + opts
+        cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         return self.module.run_command(cmd)
 
 if __name__ == '__main__':
