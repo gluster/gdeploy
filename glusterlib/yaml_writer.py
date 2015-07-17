@@ -175,10 +175,29 @@ class YamlWriter(ConfigParseHelpers):
         self.client_mntpts =  self.split_comma_seperated_options(
                               'clients', 'mountpoints',
                                 False) or ['/mnt/gluster']
-        self.volname = self.config_get_options(self.config,
-                'volname', False) or 'glustervol'
-        self.create_yaml_dict('volname', self.volname, False)
+        self.write_volume_conf_data()
         self.write_client_conf_data()
+
+    def write_volume_conf_data(self):
+        volume = {}
+        volume['volname'] = self.config_section_map(self.config, 'volume',
+                                        'volname') or 'glustervol'
+        volume['transport'] = self.config_section_map(self.config, 'volume',
+                                        'transport') or 'tcp'
+        volume['replica'] = self.config_section_map(self.config, 'volume',
+                                        'replica') or 'no'
+        volume['disperse'] = self.config_section_map(self.config, 'volume',
+                                        'disperse') or 'no'
+        replica_count_necessary = True if volume['replica'] != 'no' else False
+        volume['replica_count'] = self.config_section_map(self.config, 'volume',
+                'replica_count', replica_count_necessary)  or 0
+        volume['arbiter_count'] = self.config_section_map(self.config, 'volume',
+                'arbiter-count') or 0
+        volume['disperse_count'] = self.config_section_map(self.config, 'volume',
+                'disperse-count') or 0
+        volume['redundancy_count'] = self.config_section_map(self.config, 'volume',
+                'redundancy-count') or 0
+        self.iterate_dicts_and_yaml_write(volume)
 
     def write_client_conf_data(self):
         '''

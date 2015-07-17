@@ -104,7 +104,32 @@ stripsize-128
 hosts=10.70.46.19,10.70.46.15
 mountpoints=/mnt/hello,/mnt/world
 
-# Defines the name of the gluster volume to be created.
-# If not provided, default will be set as glustervol
+# The section volume specifies the configuration options for the volume.
 
-#[volname]
+# 'volname' option specifies the volume name. Default is glustervol
+
+# 'transport' option specifies the transport type. Default is tcp. Options are
+# tcp or rdma or tcp,rdma
+
+# 'replica' option will specify if the volume should be of type replica or not.
+# options are yes and no. Default is no.
+# If 'replica' is given as yes, 'replica_count' should be given.
+# Option 'arbiter_count' is optional.
+
+# 'disperse' option will specify if the volume should be of type disperse.
+# options are yes and no. Default is no.
+# 'disperse_count' is optional even if the 'disperse' is yes. if not specified,
+# the number of bricks specified in the command line is taken as the
+# disperse_count value.
+# If 'redundancy_count' is not specified, and if 'disperse' is yes,  it's
+# default value is computed so that it generates an optimal configuration.
+
+[volume]
+volname=glustervol
+transport=tcp,rdma
+# replica=yes
+# replica_count=2
+# arbiter_count=2
+disperse=yes
+disperse-count=0
+redundancy-count=2

@@ -82,6 +82,25 @@ class Gluster(object):
             #This still doesn't print output to stdout sadly.
         self._get_output(rc, output, err)
 
+    def get_volume_configs(self):
+        options = ' ' + self._validated_params('transport')
+        if self.module.params['replica'] == 'yes':
+            options += ' replica %d ' % int(self._validated_params('replica_count'))
+            arbiter_count = int(self.module.params['arbiter_count'])
+            if arbiter_count:
+                options += ' arbiter %d ' % arbiter_count
+        if self.module.params['disperse'] == 'yes':
+            disperce_count = int(self.module.params['disperse_count'])
+            if disperce_count:
+                options += ' disperse-data %d ' % disperce_count
+            else:
+                options += ' disperse '
+            redundancy = int(self.module.params['redundancy_count'])
+            if redundancy:
+                options += ' redundancy %d ' % redundancy
+        return (options + ' ')
+
+
     def gluster_volume_ops(self):
         option_str = ''
         if self.action in ['delete', 'set']:
@@ -90,6 +109,7 @@ class Gluster(object):
         if self.action == 'create':
             self.get_host_names()
             option_str = self.get_brick_list_of_all_hosts()
+            option_str += self.get_volume_configs()
         if self.action == 'set':
             key = self._validated_params('key')
             value = self._validated_params('value')
@@ -127,9 +147,12 @@ if __name__ == '__main__':
             key=dict(),
             value=dict(),
             replica=dict(),
+            replica_count=dict(),
+            arbiter_count=dict(),
             transport=dict(),
             disperse=dict(),
-            redundancy=dict()
+            disperse_count=dict(),
+            redundancy_count=dict()
         ),
     )
 

@@ -65,7 +65,7 @@ class ConfigParseHelpers(Helpers):
             print "Error: Failed to create file %s. Exiting!" % filename
             self.cleanup_and_quit()
 
-    def config_section_map(self, config_parse, section, option, required):
+    def config_section_map(self, config_parse, section, option, required=False):
         try:
             return config_parse.get(section, option)
         except:

@@ -12,4 +12,11 @@
              {% endfor %}'
              hosts="{{ hosts }}"
              current_host={{inventory_hostname}}
+             transport="{{ transport }}"
+             replica="{{ replica }}"
+             replica_count="{{ replica_count }}"
+             arbiter_count="{{ arbiter_count }}"
+             disperse="{{ disperse }}"
+             disperse_count="{{ disperse_count }}"
+             redundancy_count="{{ redundancy_count }}"
              force=yes
