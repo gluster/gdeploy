@@ -10,25 +10,32 @@ file to be defined by the user.
 
 ##Installation
 
-Clone this repo:
+###Clone this repo:
 
 ` git clone git@github.com:nandajavarma/gluster-deploy.git`
 
 ` cd gluster-deploy`
 
-Install the requirements:
+###Install the requirements:
 
 ` pip install -r requirements.txt`
 
-To use the module you can either do and install:
+###Add ansible modules to ANSIBLE_LIBRARY environment variable
+
+` echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:'/path/to/gluster-deploy/modules/'" >> ~/.bashrc`
+
+###To use the module you can either do:
+
+####Install using setuptools:
 
 ` python setup.py install`
 
 OR
 
-Add the path to the module to the python path:
+####Add the path to the module to the python path:
 
 ` echo "export PYTHONPATH=$PYTHONPATH:'/path/to/gluster-deploy/glusterlib/'" >> ~/.bashrc`
+
 
 
 ##Usage
@@ -42,9 +49,9 @@ An example configuration file can be found [here](//github.com/nandajavarma/glus
 
 To set-up back-end and deploy GlusterFS in the specified host machines, run:
 
-` python gluster-deploy/bin/gluster-deploy.py -c <configuration file>`
+` python bin/gluster-deploy.py -c <configuration file>`
 
 For help and usage options, try:
 
-` python gluster-deploy/bin/gluster-deploy.py -h`
+` python bin/gluster-deploy.py -h`
 
