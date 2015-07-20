@@ -1,0 +1,14 @@
+---
+- hosts: clients
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Unmount the volumes
+    mount: name={{ item }} src={{ item }} fstype=xfs
+           state=unmounted
+    with_items: client_mount_points
+
+  - name: Delete the mount points
+    shell: rm -rf {{ item }}
+    with_items: client_mount_points
