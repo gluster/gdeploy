@@ -100,13 +100,8 @@ class PlaybookGen(YamlWriter):
         for host in self.hosts:
             host_file = self.get_file_dir_path(Global.host_vars_dir, host)
             self.touch_file(host_file)
-            device_names = filter(
-                None,
-                self.config_section_map(
-                    self.config,
-                    host,
-                    'devices',
-                    True).split(','))
+            device_names = self.split_comma_seperated_options(host, 'devices',
+                                                        False)
             YamlWriter(device_names, self.config, host_file, self.var_file)
 
     def group_vars_gen(self):
