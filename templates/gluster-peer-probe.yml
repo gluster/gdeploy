@@ -6,5 +6,4 @@
   tasks:
   - name: Creates a Trusted Storage Pool
     gluster: command=peer action=probe
-             current_host={{inventory_hostname}}
              hosts="{{ hosts }}"
