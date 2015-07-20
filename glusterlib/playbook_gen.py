@@ -101,7 +101,7 @@ class PlaybookGen(YamlWriter):
             host_file = self.get_file_dir_path(Global.host_vars_dir, host)
             self.touch_file(host_file)
             device_names = self.split_comma_seperated_options(host, 'devices',
-                                                        False)
+                                                              False)
             YamlWriter(device_names, self.config, host_file, self.var_file)
 
     def group_vars_gen(self):
@@ -123,12 +123,14 @@ class PlaybookGen(YamlWriter):
         Templates directory in this codebase's repo will be moved to
         /tmp/playbooks
         '''
-        #Is the templates present as a part of ansible installation?
+        # Is the templates present as a part of ansible installation?
         templates_path_pkg = '/usr/share/ansible/ansible-glusterfs/templates'
-        #Or is it present in the source directory or installed via setuptools
+        # Or is it present in the source directory or installed via setuptools
         templates_path_bk = self.get_file_dir_path(self.uppath(__file__, 2),
-                'templates')
-        templates_dir = [path for path in [templates_path_pkg,
+                                                   'templates')
+        templates_dir = [
+            path for path in [
+                templates_path_pkg,
                 templates_path_bk] if os.path.isdir(path)]
         if not templates_dir:
             print "Error: Template files not found at %s or %s. " \
@@ -140,13 +142,10 @@ class PlaybookGen(YamlWriter):
 
 
 if __name__ == '__main__':
-    #For playbook_gen to be standalone script.
+    # For playbook_gen to be standalone script.
     if len(sys.argv) < 2:
         print "Usage: var_populate configuration_file"
         sys.exit(0)
     PlaybookGen(sys.argv[1])
     print "You can find your configuration file inside " \
-            "'%s' directory" % Global.base_dir
-
-
-
+        "'%s' directory" % Global.base_dir

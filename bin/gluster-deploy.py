@@ -26,6 +26,7 @@ from glusterlib import PlaybookGen
 
 
 class GlusterDeploy(PlaybookGen, Global):
+
     '''
     This class makes use of the class PlaybookGen inside glusterlib
     library to create the ansible playbooks and variable files.
@@ -39,7 +40,7 @@ class GlusterDeploy(PlaybookGen, Global):
         PlaybookGen(config_file)
         self.deploy_gluster()
         if not int(args.keep):
-           self.cleanup_and_quit()
+            self.cleanup_and_quit()
         else:
             print "You can view the generated configuration files "\
                 "inside /tmp/playbooks/"
@@ -71,12 +72,13 @@ class GlusterDeploy(PlaybookGen, Global):
         '''
         if Global.do_setup_backend:
             self.set_up_yml = self.get_file_dir_path(Global.base_dir,
-                                                'setup-backend.yml')
+                                                     'setup-backend.yml')
             print "Setting up back-end..."
             self.call_ansible_command(self.set_up_yml)
         if Global.do_gluster_deploy:
-            self.gluster_deploy_yml = self.get_file_dir_path(Global.base_dir,
-                                            'gluster-deploy.yml')
+            self.gluster_deploy_yml = self.get_file_dir_path(
+                Global.base_dir,
+                'gluster-deploy.yml')
             print "Deploying GlusterFS..."
             self.call_ansible_command(self.gluster_deploy_yml)
 
