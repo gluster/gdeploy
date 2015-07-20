@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 import sys
-import json
+import re
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
@@ -86,25 +86,37 @@ class Gluster(object):
         options = ' '
         if self.module.params['replica'] == 'yes':
             options += ' replica %d ' % int(self._validated_params('replica_count'))
-            arbiter_count = int(self.module.params['arbiter_count'])
+            arbiter_count = self.module.params['arbiter_count']
             if arbiter_count:
-                options += ' arbiter %d ' % arbiter_count
+                options += ' arbiter %d ' % int(arbiter_count)
         if self.module.params['disperse'] == 'yes':
             disperce_count = int(self.module.params['disperse_count'])
             if disperce_count:
                 options += ' disperse-data %d ' % disperce_count
             else:
                 options += ' disperse '
-            redundancy = int(self.module.params['redundancy_count'])
+            redundancy = self.module.params['redundancy_count']
             if redundancy:
-                options += ' redundancy %d ' % redundancy
-        options += ' transport ' + self._validated_params('transport')
+                options += ' redundancy %d ' % int(redundancy)
+        transport = self.module.params['transport']
+        if transport:
+            options += ' transport %d ' % transport
         return (options + ' ')
 
 
+    def brick_ops(self):
+        options = ' '
+        if self.module.params['replica'] == 'yes':
+            options += ' replica %d ' % int(self._validated_params('replica_count'))
+        new_bricks = ' '.join(re.sub('[\[\]\']', '', brick.strip()) for brick in
+                self._validated_params('bricks').split(',') if brick)
+        if self.action == 'remove-brick':
+            return options + new_bricks + ' ' + self._validated_params('state')
+        return options + new_bricks
+
     def gluster_volume_ops(self):
         option_str = ''
-        if self.action in ['delete', 'set']:
+        if self.action in ['delete', 'set', 'remove-brick']:
             self.force = ''
         volume = self._validated_params('volume')
         if self.action == 'create':
@@ -114,7 +126,9 @@ class Gluster(object):
         if self.action == 'set':
             key = self._validated_params('key')
             value = self._validated_params('value')
-            option_str = ' '.join(key + ' ' +  value)
+            option_str = ' %s %s ' % (key, value)
+        if re.search(r'(.*)brick$', self.action):
+            option_str = self.brick_ops()
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
@@ -145,6 +159,7 @@ if __name__ == '__main__':
             volume=dict(),
             bricks=dict(),
             force=dict(),
+            state=dict(),
             key=dict(),
             value=dict(),
             replica=dict(),
