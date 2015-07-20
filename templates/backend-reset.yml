@@ -1,0 +1,5 @@
+---
+- include: umount.yml
+- include: lvremove.yml
+- include: vgremove.yml
+- include: pvremove.yml

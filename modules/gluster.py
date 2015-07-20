@@ -244,16 +244,16 @@ class Gluster(object):
         if self.module.params['replica'] == 'yes':
             options += ' replica %s ' % self._validated_params('replica_count')
             arbiter_count = self.module.params['arbiter_count']
-            if arbiter_count:
+            if int(arbiter_count):
                 options += ' arbiter %s ' % arbiter_count
         if self.module.params['disperse'] == 'yes':
-            disperce_count = self.module.params['disperse_count']
-            if disperce_count:
-                options += ' disperse-data %s ' % disperce_count
+            disperse_count = self.module.params['disperse_count']
+            if int(disperse_count):
+                options += ' disperse-data %s ' % disperse_count
             else:
                 options += ' disperse '
             redundancy = self.module.params['redundancy_count']
-            if redundancy:
+            if int(redundancy):
                 options += ' redundancy %s ' % redundancy
         transport = self.module.params['transport']
         if transport:
