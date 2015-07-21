@@ -55,7 +55,7 @@ class YamlWriter(ConfigParseHelpers):
             section_names = ['Volume Group', 'Logical Volume',
                              'Logical Pool']
             self.section_dict = {'bricks': self.bricks,
-                                 'mountpoints': self.mountpoints}
+                    'mountpoints': self.mountpoints}
             for section, section_name in zip(sections, section_names):
                 self.section_dict[section] = self.section_data_gen(
                     section,
@@ -63,12 +63,8 @@ class YamlWriter(ConfigParseHelpers):
             self.section_dict['lvols'] = ['/dev/%s/%s' % (i, j) for i, j in
                                           zip(self.section_dict['vgs'],
                                               self.section_dict['lvs'])]
-            listables_in_yaml = {
-                key: self.section_dict[key] for key in [
-                    'vgs',
-                    'bricks',
-                    'mountpoints',
-                    'lvols']}
+            listables_in_yaml = {key: self.section_dict[key]
+                    for key in ['vgs', 'bricks', 'mountpoints', 'lvols'] }
             self.iterate_dicts_and_yaml_write(listables_in_yaml)
             self.yaml_dict_data_write()
             self.perf_spec_data_write()
@@ -81,10 +77,10 @@ class YamlWriter(ConfigParseHelpers):
             '''
             Global.do_setup_backend = False
             self.iterate_dicts_and_yaml_write(
-                {'mountpoints': self.mountpoints})
+                    {'mountpoints': self.mountpoints})
         else:
             print "Error: Device names for backend setup or mount point " \
-                "details for gluster deployement not provided. Exiting."
+                    "details for gluster deployement not provided. Exiting."
             self.cleanup_and_quit()
 
     def insufficient_param_count(self, section, count):
@@ -103,8 +99,8 @@ class YamlWriter(ConfigParseHelpers):
             return self.config_get_options(self.config, section, required)
         else:
             return self.split_comma_seperated_options(
-                self.filename.split('/')[-1], section,
-                required)
+                        self.filename.split('/')[-1], section,
+                        required)
 
     def section_data_gen(self, section, section_name):
         options = self.get_options(section, False)
@@ -124,7 +120,7 @@ class YamlWriter(ConfigParseHelpers):
         return options
 
     def iterate_dicts_and_yaml_write(self, data_dict, keep_format=False):
-        # Just a pretty wrapper over create_yaml_dict to iterate over dicts
+        #Just a pretty wrapper over create_yaml_dict to iterate over dicts
         for key, value in data_dict.iteritems():
             self.create_yaml_dict(key, value, keep_format)
 
@@ -145,14 +141,14 @@ class YamlWriter(ConfigParseHelpers):
         section_dict is iterated keeping the associations intact, and
         multiple lists are created for vgs, lvs, pools, mountpoints
         '''
-        # Just a pretty way to initialise 4 empty lists
+        #Just a pretty way to initialise 4 empty lists
         vgnames, mntpaths, lvpools, pools = ([] for i in range(4))
         for i, vg in enumerate(self.section_dict['vgs']):
             vgnames.append({'brick': self.section_dict['bricks'][i], 'vg': vg})
             mntpaths.append({'path': self.section_dict['mountpoints'][i],
-                             'device': self.section_dict['lvols'][i]})
+                'device': self.section_dict['lvols'][i]})
             lvpools.append({'pool': self.section_dict['pools'][i], 'vg': vg,
-                            'lv': self.section_dict['lvs'][i]})
+                'lv': self.section_dict['lvs'][i]})
             pools.append({'pool': self.section_dict['pools'][i], 'vg': vg})
         data_dict = {
             'vgnames': vgnames,
@@ -165,52 +161,45 @@ class YamlWriter(ConfigParseHelpers):
         self.filename = Global.group_file
         self.config = config
         self.clients = self.split_comma_seperated_options('clients', 'hosts',
-                                                          False)
+                False)
         if not self.clients:
             log_level = 'Warning' if Global.do_setup_backend else 'Error'
 
             print "%s: Client hosts are not specified. Cannot do GlusterFS " \
-                "deployement." % log_level
+                    "deployement." % log_level
             Global.do_gluster_deploy = False
             return
         if not Global.do_setup_backend:
             print "Warning: Since no brick data is provided, we cannot do a "\
-                "backend setup. Continuing with gluster deployement using "\
-                " the mount points provided"
-        self.client_mntpts = self.split_comma_seperated_options(
-            'clients', 'mountpoints',
-            False) or ['/mnt/gluster']
+                    "backend setup. Continuing with gluster deployement using "\
+                    " the mount points provided"
+        self.client_mntpts =  self.split_comma_seperated_options(
+                              'clients', 'mountpoints',
+                                False) or ['/mnt/gluster']
         self.write_volume_conf_data()
         self.write_client_conf_data()
 
     def write_volume_conf_data(self):
         volume = {}
         volume['volname'] = self.config_section_map(self.config, 'volume',
-                                                    'volname') or 'glustervol'
+                                        'volname') or 'glustervol'
         volume['transport'] = self.config_section_map(self.config, 'volume',
-                                                      'transport') or 'tcp'
+                                        'transport') or 'tcp'
         volume['replica'] = self.config_section_map(self.config, 'volume',
-                                                    'replica') or 'no'
+                                        'replica') or 'no'
         volume['disperse'] = self.config_section_map(self.config, 'volume',
-                                                     'disperse') or 'no'
+                                        'disperse') or 'no'
         replica_count_necessary = True if volume['replica'] != 'no' else False
-        volume['replica_count'] = self.config_section_map(
-            self.config,
-            'volume',
-            'replica_count',
-            replica_count_necessary) or 0
-        volume['arbiter_count'] = self.config_section_map(
-            self.config,
-            'volume',
-            'arbiter-count') or 0
-        volume['disperse_count'] = self.config_section_map(
-            self.config,
-            'volume',
-            'disperse_count') or 0
-        volume['redundancy_count'] = self.config_section_map(
-            self.config,
-            'volume',
-            'redundancy_count') or 0
+        volume['replica_count'] = self.config_section_map(self.config, 'volume',
+                'replica_count', replica_count_necessary)  or 0
+        volume['arbiter_count'] = self.config_section_map(self.config, 'volume',
+                'arbiter-count') or 0
+        volume['disperse_count'] = self.config_section_map(self.config, 'volume',
+                'disperse_count') or 0
+        volume['redundancy_count'] = self.config_section_map(self.config, 'volume',
+                'redundancy_count') or 0
+        volume['fstype'] = self.config_get_options(self.config, 'fstype',
+                False) or 'glusterfs'
         self.iterate_dicts_and_yaml_write(volume)
 
     def write_client_conf_data(self):
@@ -222,9 +211,9 @@ class YamlWriter(ConfigParseHelpers):
         '''
         self.write_config('clients', self.clients, Global.inventory)
         if len(self.client_mntpts) != len(self.clients) and len(
-                self.client_mntpts) != 1:
+                        self.client_mntpts) != 1:
             print "Error: Provide volume mount points in each client " \
-                "or a common mount point for all the clients. "
+                    "or a common mount point for all the clients. "
             self.cleanup_and_quit()
         if len(self.client_mntpts) == 1:
             gluster = dict(client_mount_points=self.client_mntpts)
@@ -233,7 +222,7 @@ class YamlWriter(ConfigParseHelpers):
             for client, mntpnt in zip(self.clients, self.client_mntpts):
                 gluster = dict()
                 self.filename = self.get_file_dir_path(
-                    Global.host_vars_dir, client)
+                        Global.host_vars_dir, client)
                 gluster = dict(client_mount_points=mntpnt)
                 self.iterate_dicts_and_yaml_write(gluster)
 
@@ -257,13 +246,12 @@ class YamlWriter(ConfigParseHelpers):
                 perf['diskcount'] = int(self.get_options('diskcount', True)[0])
                 stripe_size_necessary = {'raid10': False,
                                          'raid6': True
-                                         }[perf['disktype']]
+                                        }[perf['disktype']]
                 stripe_size = self.get_options('stripesize',
-                                               stripe_size_necessary)
+                    stripe_size_necessary)
                 if stripe_size:
                     perf['stripesize'] = int(stripe_size[0])
-                    if perf['disktype'] == 'raid10' and perf[
-                            'stripesize'] != 256:
+                    if perf['disktype'] == 'raid10' and perf['stripesize'] != 256:
                         print "Warning: We recommend a stripe unit size of 256KB " \
                             "for RAID 10"
                 else:
@@ -271,15 +259,13 @@ class YamlWriter(ConfigParseHelpers):
                 perf['dalign'] = {
                     'raid6': perf['stripesize'] * perf['diskcount'],
                     'raid10': perf['stripesize'] * perf['diskcount']
-                }[perf['disktype']]
+                    }[perf['disktype']]
         else:
             perf = dict(disktype='jbod')
             perf['dalign'] = 256
             perf['diskcount'] = perf['stripesize'] = 0
-        perf['profile'] = self.config_get_options(
-            self.config,
-            'tune-profile',
-            False) or 'rhs-high-throughput'
+        perf['profile'] = self.config_get_options(self.config,
+                'tune-profile', False) or 'rhs-high-throughput'
         self.iterate_dicts_and_yaml_write(perf)
 
     def write_host_names(self, config, hosts):

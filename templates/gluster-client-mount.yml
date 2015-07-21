@@ -12,7 +12,7 @@
   - name: Mount the volumes
     mount: name={{ item }}
            src="{{ groups['master'][0]}}:{{ volname }}"
-           fstype=glusterfs
+           fstype="{{ fstype }}"
            state=mounted
 
     with_items: client_mount_points

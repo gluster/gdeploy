@@ -5,8 +5,10 @@
 
   tasks:
   - name: Unmount the volumes
-    mount: name="{{ client_mount_points }}" src="{{ client_mount_points }}" fstype=xfs
+    mount: name={{ item }} src="{{ client_mount_points }}" fstype="{{ fstype }}"
            state=unmounted
+    with_items: client_mount_points
 
   - name: Delete the mount points
-    shell: rm -rf "{{ client_mount_points }}"
+    shell: rm -rf {{ item }}
+    with_items: client_mount_points
