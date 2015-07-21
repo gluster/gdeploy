@@ -198,8 +198,8 @@ class YamlWriter(ConfigParseHelpers):
                 'disperse_count') or 0
         volume['redundancy_count'] = self.config_section_map(self.config, 'volume',
                 'redundancy_count') or 0
-        volume['fstype'] = self.config_get_options(self.config, 'fstype',
-                False) or 'glusterfs'
+        fstype = self.config_get_options(self.config, 'fstype', False)
+        volume['fstype'] = fstype[0] if fstype else 'glusterfs'
         self.iterate_dicts_and_yaml_write(volume)
 
     def write_client_conf_data(self):
