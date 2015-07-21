@@ -3,6 +3,7 @@
 10.70.46.15
 10.70.46.17
 10.70.46.19
+#------------------------------
 
 # Generic section [devices] is applicable to all the hosts listed in the [hosts]
 # section. However, if sections of hosts [hostname] or [ip-address] is present,
@@ -13,6 +14,7 @@
 # /dev/sda
 # /dev/vdb
 # /dev/vda
+#------------------------------
 
 # Section [disktype] specifies which disk configuration is used while
 # setting up the backend. Supports RAID 10, RAID 6 and JBOD configurations.
@@ -21,6 +23,7 @@
 
 # [disktype]
 # raid6
+#------------------------------
 
 # Section [diskcount] specifies the number of data disks in the setup. This is a
 # mandatory field if the disk configuration specified is either RAID 10 or
@@ -29,6 +32,7 @@
 
 # [diskcount]
 # 10
+#------------------------------
 
 # Section [stripesize] specifies the stripe_unit size in KB. This is a mandatory
 # field if disk configuration is RAID 6. If this is not specified in case of
@@ -38,12 +42,14 @@
 
 # [stripesize]
 # 128
+#------------------------------
 
 # vg names for the above devices
 # The number of vgs in the [vgs] should match the devices
 
 # [vgs]
 # CUSTOM_vg
+#------------------------------
 
 # pool names for the above volume groups
 # The number of pools listed in the [pools] section should match the number of
@@ -51,6 +57,7 @@
 
 # [pools]
 # CUSTOM_pool
+#------------------------------
 
 # lv names for the above volume groups
 # The number of logical volumes listed in the [lvs] section should match the
@@ -58,6 +65,7 @@
 
 # [lvs]
 # CUSTOM_lv
+#-------------------------------
 
 # Brick mountpoints for the logical volumes
 # The number of mountpoints should match the number of logical volumes listed
@@ -68,6 +76,7 @@
 
 # [mountpoints]
 # /rhs/brick
+#-------------------------------
 
 # Host specific data are to be given as follows
 
@@ -90,6 +99,7 @@ stripsize-128
 devices=/dev/vdb
 diskcount=2
 stripsize-128
+#----------------------------------
 
 
 # IMP: If only back-end setup is to be done but not GlusterFs
@@ -103,6 +113,7 @@ stripsize-128
 [clients]
 hosts=10.70.46.19,10.70.46.15
 mountpoints=/mnt/hello,/mnt/world
+#-----------------------------------
 
 # The section volume specifies the configuration options for the volume.
 
@@ -133,3 +144,10 @@ transport=tcp,rdma
 disperse=yes
 disperse_count=0
 redundancy_count=2
+#---------------------------------
+
+# The section fstype specifies how gluster volume is to be mounted.
+# Default is glusterfs. The volume can also be mounted as NFS
+
+# [fstype]
+# nfs
