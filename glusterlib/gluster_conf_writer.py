@@ -31,6 +31,7 @@ class GlusterConfWriter(YamlWriter):
 
     def gluster_vol_spec(self):
         client_info = self.config._sections['clients']
+        del client_info['__name__']
         sections_default_value = {'client_mount_points': '/mnt/gluster',
                 'fstype': 'glusterfs'}
         self.set_default_value_for_dict_key(client_info, sections_default_value)
@@ -48,12 +49,14 @@ class GlusterConfWriter(YamlWriter):
                     "backend setup. Continuing with gluster deployement using "\
                     " the mount points provided"
         for key, value in client_info.iteritems():
-            client_info[key] = self.split_comma_seperated_options(value)
+            if ',' in value:
+                client_info[key] = self.split_comma_seperated_options(value)
         self.write_volume_conf_data()
         self.write_client_conf_data(client_info)
 
     def write_volume_conf_data(self):
         volume_confs = self.config._sections['volume']
+        del volume_confs['__name__']
         sections_default_value = {'volname': 'glustervol', 'transport': 'tcp',
                 'replica': 'no', 'disperse': 'no', 'replica_count': 0,
                 'arbiter_count': 0, 'disperse_count': 0, 'redundancy_count': 0 }
@@ -74,17 +77,17 @@ class GlusterConfWriter(YamlWriter):
         del client_info['hosts']
         for key, value in client_info.iteritems():
             gluster = dict()
-            if len(value) != len(self.clients) and len(value) != 1:
-                print "Error: Provide %s in each client " \
-                        "or a common one for all the clients. " % key
-                self.cleanup_and_quit()
-            if len(value) == 1:
-                self.filename = Global.group_file
-                gluster[key] = value
-                self.iterate_dicts_and_yaml_write(gluster)
-            else:
+            if type(value) is list:
+                if len(value) != len(self.clients):
+                    print "Error: Provide %s in each client " \
+                            "or a common one for all the clients. " % key
+                    self.cleanup_and_quit()
                 for client, conf in zip(self.clients, value):
                     self.filename = self.get_file_dir_path(
                             Global.host_vars_dir, client)
                     gluster[key] = conf
                     self.iterate_dicts_and_yaml_write(gluster)
+            else:
+                self.filename = Global.group_file
+                gluster[key] = value
+                self.iterate_dicts_and_yaml_write(gluster)

@@ -115,7 +115,7 @@ stripsize-128
 # seperated.
 
 [clients]
-hosts=10.70.46.19,10.70.46.15
+hosts=10.70.46.19,10.70.46.13
 fstype=nfs,glusterfs
 client_mount_points=/mnt/client1,/mnt/client2
 #-----------------------------------
