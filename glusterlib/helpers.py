@@ -59,6 +59,11 @@ class Helpers(Global):
         # To get the n the parent of a particular directory
         return os.sep.join(path.split(os.sep)[:-n])
 
+    def set_default_value_for_dict_key(self, dictname, default_value_dict):
+        for key, value in default_value_dict.iteritems():
+            if key not in dictname:
+                dictname[key] = value
+
     def exec_cmds(self, cmd, opts):
         try:
             os.system(cmd + ' ' + opts)

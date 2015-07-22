@@ -35,9 +35,10 @@ import os
 import sys
 from yaml_writer import YamlWriter
 from global_vars import Global
+from gluster_conf_writer import GlusterConfWriter
 
 
-class PlaybookGen(YamlWriter):
+class PlaybookGen(GlusterConfWriter):
 
     def __init__(self, config_file):
         self.config = self.read_config(config_file)
@@ -53,7 +54,7 @@ class PlaybookGen(YamlWriter):
         to the global_vars file no matter what, this method
         is called seperately
         '''
-        self.gluster_vol_spec(self.config)
+        GlusterConfWriter(self.config)
         self.write_host_names(self.config, self.hosts)
 
     def create_files_and_dirs(self):
@@ -100,8 +101,9 @@ class PlaybookGen(YamlWriter):
         for host in self.hosts:
             host_file = self.get_file_dir_path(Global.host_vars_dir, host)
             self.touch_file(host_file)
-            device_names = self.split_comma_seperated_options(host, 'devices',
-                                                              False)
+            devices = self.config_section_map(self.config, host,
+                    'devices', False)
+            device_names = self.split_comma_seperated_options(devices)
             YamlWriter(device_names, self.config, host_file, self.var_file)
 
     def group_vars_gen(self):

@@ -105,14 +105,19 @@ stripsize-128
 # IMP: If only back-end setup is to be done but not GlusterFs
 # deployement omit the following section
 
-# Specifies the client hosts and mountpoints to mount the gluster
+# Specifies the client hosts and client_mount_points to mount the gluster
 # volume created. Cliend hosts field is mandatory. If mount points
 # are not specified, default will be taken as /mnt/gluster
 # for all the hosts
+# The option fstype specifies how gluster volume is to be mounted.
+# Default is glusterfs(FUSE mount). The volume can also be mounted as NFS.
+# Each client can have different types of volume mount. Just specify it comma
+# seperated.
 
 [clients]
 hosts=10.70.46.19,10.70.46.15
-mountpoints=/mnt/hello,/mnt/world
+fstype=nfs,glusterfs
+client_mount_points=/mnt/client1,/mnt/client2
 #-----------------------------------
 
 # The section volume specifies the configuration options for the volume.
@@ -146,8 +151,6 @@ disperse_count=0
 redundancy_count=2
 #---------------------------------
 
-# The section fstype specifies how gluster volume is to be mounted.
-# Default is glusterfs. The volume can also be mounted as NFS
 
-# [fstype]
-# nfs
+
+
