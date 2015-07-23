@@ -1,0 +1,10 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Activates a snapshot
+    gluster: command=snapshot action=activate
+             snapname="{{ snapname }}"
+             force=yes

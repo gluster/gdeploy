@@ -28,6 +28,7 @@ class Global(object):
     success = True
     do_setup_backend = True
     do_gluster_deploy = True
+    create_snapshot = False
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'rhs_servers'

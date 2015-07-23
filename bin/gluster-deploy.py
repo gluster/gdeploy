@@ -81,6 +81,11 @@ class GlusterDeploy(PlaybookGen, Global):
                 'gluster-deploy.yml')
             print "Deploying GlusterFS..."
             self.call_ansible_command(self.gluster_deploy_yml)
+        if Global.create_snapshot:
+            self.snapshot_setup_yml = self.get_file_dir_path(
+                Global.base_dir,
+                'snapshot-setup.yml')
+            self.call_ansible_command(self.snapshot_setup_yml)
 
     def call_ansible_command(self, playbooks):
         '''

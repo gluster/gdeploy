@@ -31,7 +31,7 @@ description:
 
 
 options:
-    commands:
+    command:
         required: True
         choices: [peer, volume]
         description: Specifies if the operation is a peer operation or
@@ -164,6 +164,7 @@ EXAMPLES = '''
 
 import sys
 import re
+from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
@@ -175,11 +176,15 @@ class Gluster(object):
         self.force = 'force' if self.module.params['force'] == 'yes' else ''
         {
             'peer': self.gluster_peer_ops,
-            'volume': self.gluster_volume_ops
+            'volume': self.gluster_volume_ops,
+            'snapshot': self.gluster_snapshot_ops
         }[self.command]()
 
+    def get_playbook_params(self, opt):
+        return self.module.params[opt]
+
     def _validated_params(self, opt):
-        value = self.module.params[opt]
+        value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
             self.module.fail_json(msg=msg)
@@ -292,6 +297,52 @@ class Gluster(object):
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
 
+    def create_params_dict(self, param_list):
+        return OrderedDict((param, self.get_playbook_params(param))
+                for param in param_list)
+
+    def gluster_snapshot_ops(self):
+        option_str = ' '
+        direct_value_params = { 'create':  ['snapname', 'volume',
+                                            'options'],
+                                'clone': ['snapname', 'clonename'],
+                                'restore': ['snapname'],
+                                'config': ['volume'],
+                                'delete': ['snapname'],
+                                'activate': ['snapname'],
+                                'deactivate': ['snapname']
+                              }[self.action]
+        direct_param_dict = self.create_params_dict(direct_value_params)
+        for params in direct_value_params:
+            if direct_param_dict[params]:
+                option_str += ' %s ' % direct_param_dict[params]
+
+        try:
+            keyword_needed_params = { 'create': ['description'],
+                                      'config': ['snap_max_hard_limit',
+                                         'snap_max_soft_limit', 'auto_delete',
+                                          'activate_on_create'],
+                                      'delete': ['volume']
+                                    }[self.action]
+            keyword_param_dict = self.create_params_dict(keyword_needed_params)
+            for params in keyword_needed_params:
+                if keyword_param_dict[params]:
+                    if params == 'description':
+                        option_str += "%s '%s' " % (params,
+                                keyword_param_dict[params])
+                    else:
+                        option_str += '%s %s ' % (params.replace('_', '-'),
+                                keyword_param_dict[params])
+        except:
+            pass
+
+        if self.action not in ['create', 'activate']:
+            self.force = ''
+
+        rc, output, err = self.call_gluster_cmd('snapshot', self.action,
+                                                option_str, self.force)
+        self._get_output(rc, output, err)
+
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
         key_value_pair = ' '.join(' %s %s ' % (key, value)
@@ -327,7 +378,16 @@ if __name__ == '__main__':
             transport=dict(),
             disperse=dict(),
             disperse_count=dict(),
-            redundancy_count=dict()
+            redundancy_count=dict(),
+            snapname=dict(),
+            description=dict(),
+            options=dict(),
+            clonename=dict(),
+            snap_max_hard_limit=dict(),
+            snap_max_soft_limit=dict(),
+            auto_delete=dict(),
+            activate_on_create=dict()
+
         ),
     )
 
