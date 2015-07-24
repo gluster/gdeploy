@@ -70,17 +70,16 @@ class GlusterDeploy(PlaybookGen, Global):
         Checks if the necessary variables for backend-setup and
         gluster deploy are populated.
         '''
-        if Global.do_setup_backend:
-            self.set_up_yml = self.get_file_dir_path(Global.base_dir,
+        if Global.do_setup_backend and Global.do_gluster_deploy:
+            the_playbook = self.get_file_dir_path(Global.base_dir,
+                    'setup-backend-and-deploy-gluster.yml')
+        elif Global.do_setup_backend:
+            the_playbook = self.get_file_dir_path(Global.base_dir,
                                                      'setup-backend.yml')
-            print "Setting up back-end..."
-            self.call_ansible_command(self.set_up_yml)
-        if Global.do_gluster_deploy:
-            self.gluster_deploy_yml = self.get_file_dir_path(
-                Global.base_dir,
+        elif Global.do_gluster_deploy:
+            the_playbook = self.get_file_dir_path(Global.base_dir,
                 'gluster-deploy.yml')
-            print "Deploying GlusterFS..."
-            self.call_ansible_command(self.gluster_deploy_yml)
+        self.call_ansible_command(the_playbook)
 
     def call_ansible_command(self, playbooks):
         '''

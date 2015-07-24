@@ -299,8 +299,11 @@ class Gluster(object):
         return self._run_command('gluster', ' ' + params + ' ' + key_value_pair)
 
     def _get_output(self, rc, output, err):
-        if not rc:
-            self.module.exit_json(stdout=output, changed=1)
+        carryon = True if self.action in  ['stop',
+                'delete', 'detach'] else True
+        changed = 0 if (carryon and rc) else 1
+        if not rc or carryon:
+            self.module.exit_json(stdout=output, changed=changed)
         else:
             self.module.fail_json(msg=err)
 
