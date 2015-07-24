@@ -1,9 +1,0 @@
----
-- hosts: master
-  remote_user: root
-  gather_facts: no
-
-  tasks:
-  - name: Configures a snapshot
-    gluster: command=snapshot action=config
-             snap_max_soft_limit=95

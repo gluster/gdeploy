@@ -65,7 +65,6 @@ class GlusterConfWriter(YamlWriter):
                 'replica_count']) == 0:
             print "Error: Provide the replica count for the volume."
             self.cleanup_and_quit()
-        Global.create_snapshot = True if 'snapname' in volume_confs else False
         self.iterate_dicts_and_yaml_write(volume_confs)
 
     def write_client_conf_data(self, client_info):

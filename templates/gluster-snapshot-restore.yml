@@ -1,9 +1,0 @@
----
-- hosts: master
-  remote_user: root
-  gather_facts: no
-
-  tasks:
-  - name: Restores a snapshot
-    gluster: command=snapshot action=restore
-             snapname=snap2
