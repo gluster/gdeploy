@@ -54,7 +54,7 @@ class PlaybookGen(GlusterConfWriter):
         to the global_vars file no matter what, this method
         is called seperately
         '''
-        GlusterConfWriter(self.config)
+        self.parse_gluster_info(self.config)
         self.write_host_names(self.config, self.hosts)
 
     def create_files_and_dirs(self):

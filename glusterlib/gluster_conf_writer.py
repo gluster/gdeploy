@@ -24,57 +24,85 @@ from global_vars import Global
 from helpers import Helpers
 
 class GlusterConfWriter(YamlWriter):
-    def __init__(self, config):
-        self.filename = Global.group_file
+
+    def parse_gluster_info(self, config):
         self.config = config
-        self.gluster_vol_spec()
+        self.filename = Global.group_file
+        '''
+        Each of the seperate feature to be added other than
+        the back-end setup provided as a seperate section in
+        the conf file should be mentioned in this list
+        '''
+        gluster_sections = ['volume', 'clients']
+        sections = self.config_get_sections(self.config)
+        if 'volume' not in sections:
+            gluster_sections.remove('volume')
+            Global.do_volume_create = False
+        if 'clients' not in sections:
+            gluster_sections.remove('clients')
+            Global.do_volume_mount = False
+        Global.do_gluster_deploy = (Global.do_volume_create and
+                Global.do_volume_mount)
 
-    def gluster_vol_spec(self):
-        client_info = self.config._sections['clients']
-        del client_info['__name__']
-        sections_default_value = {'client_mount_points': '/mnt/gluster',
+        '''
+        The default value for options in these sections in
+        case user didn't provide them should be given in
+        this sections_default_value hash
+        '''
+        sections_default_value = dict()
+        sections_default_value['clients'] = {'client_mount_points': '/mnt/gluster',
                 'fstype': 'glusterfs'}
-        self.set_default_value_for_dict_key(client_info, sections_default_value)
-        self.clients = self.split_comma_seperated_options(client_info['hosts'])
-        if not self.clients:
-            log_level = 'Warning' if Global.do_setup_backend else 'Error'
-
-            print "%s: Client hosts are not specified. Cannot do GlusterFS " \
-                    "deployement." % log_level
-            Global.do_gluster_deploy = False
-            return
-        self.write_config('clients', self.clients, Global.inventory)
-        if not Global.do_setup_backend:
-            print "Warning: Since no brick data is provided, we cannot do a "\
-                    "backend setup. Continuing with gluster deployement using "\
-                    " the mount points provided"
-        for key, value in client_info.iteritems():
-            if ',' in value:
-                client_info[key] = self.split_comma_seperated_options(value)
-        self.write_volume_conf_data()
-        self.write_client_conf_data(client_info)
-
-    def write_volume_conf_data(self):
-        volume_confs = self.config._sections['volume']
-        del volume_confs['__name__']
-        sections_default_value = {'volname': 'glustervol', 'transport': 'tcp',
+        sections_default_value['volume'] = {'volname': 'glustervol', 'transport': 'tcp',
                 'replica': 'no', 'disperse': 'no', 'replica_count': 0,
                 'arbiter_count': 0, 'disperse_count': 0, 'redundancy_count': 0 }
-        self.set_default_value_for_dict_key(volume_confs, sections_default_value)
-        if volume_confs['replica'].lower() == 'yes' and int(volume_confs[
-                'replica_count']) == 0:
-            print "Error: Provide the replica count for the volume."
-            self.cleanup_and_quit()
-        self.iterate_dicts_and_yaml_write(volume_confs)
 
-    def write_client_conf_data(self, client_info):
+        for section in gluster_sections:
+            option_dict = self.config._sections[section]
+            self.set_default_value_for_dict_key(option_dict,
+                    sections_default_value[section])
+            del option_dict['__name__']
+            for key, value in option_dict.iteritems():
+                '''
+                The value for option 'transport' can have comma in it,
+                eg: tcp,rdma. so comma doesn't mean that it can have
+                multiple values
+                '''
+                if ',' in str(value) and key not in ['transport']:
+                    option_dict[key] = self.split_comma_seperated_options(value)
+            '''
+            Custom methods for each of the feature to be added is written here.
+            '''
+            try:
+                option_dict = { 'volume': self.write_volume_conf_data,
+                                'clients': self.gluster_volume_mount
+                              }[section](option_dict)
+            except:
+                pass
+
+            self.filename = Global.group_file
+            self.iterate_dicts_and_yaml_write(option_dict)
+
+    def gluster_volume_mount(self, client_info):
+        self.clients = client_info['hosts']
+        del client_info['hosts']
+        if not self.clients:
+            Global.do_volume_mount = False
+            return
         '''
         client hostnames or IP should also be in the inventory file since
         mounting is to be done in the client host machines
-        Also, host_var files are to be created if multiple clients
+        '''
+        self.write_config('clients', self.clients, Global.inventory)
+        if not Global.do_volume_create:
+            client_info['volname'] = self.config_section_map(self.config, 'clients',
+                    'volname', True)
+            print "Warning: Since no volume configuration data is provided, " \
+                    "we cannot do a volume create. Continuing with the volume "\
+                    "mount with the volname and client info provided"
+        '''
+        host_var files are to be created if multiple clients
         have different mount points for gluster volume
         '''
-        del client_info['hosts']
         for key, value in client_info.iteritems():
             gluster = dict()
             if type(value) is list:
@@ -87,7 +115,13 @@ class GlusterConfWriter(YamlWriter):
                             Global.host_vars_dir, client)
                     gluster[key] = conf
                     self.iterate_dicts_and_yaml_write(gluster)
-            else:
-                self.filename = Global.group_file
-                gluster[key] = value
-                self.iterate_dicts_and_yaml_write(gluster)
+                del client_info[key]
+        return client_info
+
+
+    def write_volume_conf_data(self, volume_confs):
+        if volume_confs['replica'].lower() == 'yes' and int(volume_confs[
+                'replica_count']) == 0:
+            print "Error: Provide the replica count for the volume."
+            self.cleanup_and_quit()
+        return volume_confs

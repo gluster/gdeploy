@@ -27,7 +27,10 @@ class Global(object):
     '''
     success = True
     do_setup_backend = True
+    do_complete_ops = True
     do_gluster_deploy = True
+    do_volume_create = True
+    do_volume_mount = True
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'rhs_servers'

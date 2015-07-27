@@ -68,20 +68,17 @@ class YamlWriter(ConfigParseHelpers):
             self.iterate_dicts_and_yaml_write(listables_in_yaml)
             self.yaml_dict_data_write()
             self.perf_spec_data_write()
-        elif self.mountpoints:
+        else:
             '''
             If anyone wishes to just give the mountpoints directly
             without setting up the backend, only mountpoints option
             need to be given in the config file. It will skip
             the back-end setup
             '''
+            if self.mountpoints:
+                self.iterate_dicts_and_yaml_write(
+                        {'mountpoints': self.mountpoints})
             Global.do_setup_backend = False
-            self.iterate_dicts_and_yaml_write(
-                    {'mountpoints': self.mountpoints})
-        else:
-            print "Error: Device names for backend setup or mount point " \
-                    "details for gluster deployement not provided. Exiting."
-            self.cleanup_and_quit()
 
     def insufficient_param_count(self, section, count):
         print "Error: Please provide %s names for %s devices " \
