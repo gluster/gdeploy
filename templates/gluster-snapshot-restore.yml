@@ -5,5 +5,5 @@
 
   tasks:
   - name: Restores a snapshot
-    gluster: command=snapshot action=restore
+    snapshot:action=restore
              snapname=snap2

@@ -5,5 +5,5 @@
 
   tasks:
   - name: Deletes a snapshot
-    gluster: command=snapshot action=delete
-             snapname=snap1
+    snapshot: action=delete
+             snapname=snap0

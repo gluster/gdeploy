@@ -5,6 +5,6 @@
 
   tasks:
   - name: Deactivates a snapshot
-    gluster: command=snapshot action=deactivate
+    snapshot: action=deactivate
              snapname=snap1
              force=yes

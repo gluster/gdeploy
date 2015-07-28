@@ -5,6 +5,6 @@
 
   tasks:
   - name: Activates a snapshot
-    gluster: command=snapshot action=activate
+    snapshot: action=activate
              snapname="{{ snapname }}"
              force=yes

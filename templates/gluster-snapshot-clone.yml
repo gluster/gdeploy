@@ -5,7 +5,7 @@
 
   tasks:
   - name: Clones a snapshot
-    gluster: command=snapshot action=clone
+    snapshot: action=clone
              snapname=snap2
              clonename=snap1
              force=yes
