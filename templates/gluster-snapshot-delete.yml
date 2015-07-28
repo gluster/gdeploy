@@ -6,4 +6,4 @@
   tasks:
   - name: Deletes a snapshot
     snapshot: action=delete
-             snapname=snap0
+             snapname={{ snapname }}

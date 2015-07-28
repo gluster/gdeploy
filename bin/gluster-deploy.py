@@ -86,10 +86,11 @@ class GlusterDeploy(PlaybookGen, Global):
         for playbook in playbooks:
             the_playbook = self.get_file_dir_path(Global.base_dir, playbook)
             self.call_ansible_command(the_playbook)
-        self.snapshot_setup_yml = self.get_file_dir_path(
-            Global.base_dir,
-            'snapshot-setup.yml')
-        self.call_ansible_command(self.snapshot_setup_yml)
+        if Global.create_snapshot:
+            self.snapshot_setup_yml = self.get_file_dir_path(
+                Global.base_dir,
+                'snapshot-setup.yml')
+            self.call_ansible_command(self.snapshot_setup_yml)
 
     def call_ansible_command(self, playbooks):
         '''

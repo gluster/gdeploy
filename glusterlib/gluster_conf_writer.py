@@ -34,7 +34,7 @@ class GlusterConfWriter(YamlWriter):
         the back-end setup provided as a seperate section in
         the conf file should be mentioned in this list
         '''
-        gluster_sections = ['volume', 'clients', 'snapshot']
+        gluster_sections = ['volume', 'clients']
         sections = self.config_get_sections(self.config)
         if 'volume' not in sections:
             gluster_sections.remove('volume')
@@ -42,9 +42,9 @@ class GlusterConfWriter(YamlWriter):
         if 'clients' not in sections:
             gluster_sections.remove('clients')
             Global.do_volume_mount = False
-        if 'snapshot' not in sections:
-            gluster_sections.remove('snapshot')
-            Global.do_snapshot_create = False
+        if 'snapshot' in sections:
+            gluster_sections.append('snapshot')
+            Global.snapshot_create = True
         Global.do_gluster_deploy = (Global.do_volume_create and
                 Global.do_volume_mount)
 
@@ -62,8 +62,9 @@ class GlusterConfWriter(YamlWriter):
 
         for section in gluster_sections:
             option_dict = self.config._sections[section]
-            self.set_default_value_for_dict_key(option_dict,
-                    sections_default_value[section])
+            if section in sections_default_value:
+                self.set_default_value_for_dict_key(option_dict,
+                        sections_default_value[section])
             del option_dict['__name__']
             for key, value in option_dict.iteritems():
                 '''
@@ -125,7 +126,7 @@ class GlusterConfWriter(YamlWriter):
     def snapshot_conf_write(self, snapshot_conf):
         if not (Global.do_volume_create or Global.do_volume_mount):
             snapshot_conf['volname'] = self.config_section_map(self.config,
-                    'clients', 'volname', True)
+                    'snapshot', 'volname', True)
             return snapshot_conf
 
 
