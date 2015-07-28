@@ -45,6 +45,7 @@ class PlaybookGen(GlusterConfWriter):
         self.options = self.config_get_sections(self.config)
         self.hosts = self.config_get_options(self.config, 'hosts', True)
         self.create_files_and_dirs()
+        self.create_inventory()
         self.get_var_file_type()
         output = {'host_vars': self.host_vars_gen,
                   'group_vars': self.group_vars_gen
@@ -68,7 +69,6 @@ class PlaybookGen(GlusterConfWriter):
         self.touch_file(Global.group_file)
         self.move_templates_to_playbooks()
         self.mk_dir(Global.host_vars_dir)
-        self.create_inventory()
 
     def get_var_file_type(self):
         '''

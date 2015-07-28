@@ -23,6 +23,7 @@ import sys
 import os
 from glusterlib import Global
 from glusterlib import PlaybookGen
+from glusterlib import CliOps
 from collections import OrderedDict
 
 
@@ -37,10 +38,13 @@ class GlusterDeploy(PlaybookGen, Global):
 
     def __init__(self):
         args = self.parse_arguments()
-        config_file = args.config_file.name
-        PlaybookGen(config_file)
+        if args.config_file:
+            config_file = args.config_file.name
+            PlaybookGen(config_file)
+        elif args.volumeset:
+            CliOps(args.volumeset)
         self.deploy_gluster()
-        if not int(args.keep):
+        if not args.keep:
             self.cleanup_and_quit()
         else:
             print "You can view the generated configuration files "\
@@ -51,28 +55,38 @@ class GlusterDeploy(PlaybookGen, Global):
         This methos uses argparser to parse the command line inputs
         to the gluster-deploy script
         '''
-        parser = argparse.ArgumentParser(version='1.0')
+        usage = 'gluster-deploy.py [-h] [-v] [-c CONFIG_FILE] ' \
+            '[-k] [volume-set <hostIP>:<volumename> <key> <value>]'
+        parser = argparse.ArgumentParser(usage=usage, version='1.0')
         parser.add_argument('-c', dest='config_file',
                             help="Configuration file",
-                            type=argparse.FileType('rt'),
-                            required=True)
-        parser.add_argument('-k', dest='keep', const='1',
-                            default='0',
-                            action='store',
-                            nargs='?',
+                            type=argparse.FileType('rt'))
+        parser.add_argument('volumeset',
+                            help="Set options for the volume",
+                            nargs=4)
+        parser.add_argument('-k', dest='keep',
+                            action='store_true',
                             help="Keep the generated ansible utility files")
         try:
-            return parser.parse_args()
+            args = parser.parse_args()
+            return args
         except IOError as msg:
             parser.error(str(msg))
+        if not (args.config_file and args.volume_set):
+            parser.print_help()
+            self.cleanup_and_quit()
 
     def deploy_gluster(self):
         '''
         Checks if the necessary variables for backend-setup and
         gluster deploy are populated.
         '''
-        Global.do_complete_ops = (Global.do_setup_backend and
-                Global.do_gluster_deploy)
+        if Global.volume_set:
+            the_playbook = self.get_file_dir_path(Global.base_dir,
+                    'gluster-volume-set.yml')
+            self.call_ansible_command(the_playbook)
+            return
+
         playbooks = ' '
         basic_operations = OrderedDict([
                             ('setup-backend.yml', Global.do_setup_backend),
