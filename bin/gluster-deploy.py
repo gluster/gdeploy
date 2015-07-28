@@ -72,25 +72,24 @@ class GlusterDeploy(PlaybookGen, Global):
         '''
         Global.do_complete_ops = (Global.do_setup_backend and
                 Global.do_gluster_deploy)
-        playbooks = []
-        if Global.do_complete_ops:
-            playbooks = ['setup-backend-and-deploy-gluster.yml']
-        else:
-            Global.do_setup_backend and playbooks.append('setup-backend.yml')
-            if Global.do_gluster_deploy:
-                playbooks.append('gluster-deploy.yml')
-            elif Global.do_volume_create:
-                playbooks.append('probe_and_create_volume.yml')
-            elif Global.do_volume_mount:
-                playbooks.append('gluster-client-mount.yml')
-        for playbook in playbooks:
-            the_playbook = self.get_file_dir_path(Global.base_dir, playbook)
-            self.call_ansible_command(the_playbook)
-        if Global.create_snapshot:
-            self.snapshot_setup_yml = self.get_file_dir_path(
-                Global.base_dir,
-                'snapshot-setup.yml')
-            self.call_ansible_command(self.snapshot_setup_yml)
+        playbooks = ' '
+        basic_operations = {Global.do_setup_backend: 'setup-backend.yml',
+                            Global.do_volume_create:
+                                            'probe_and_create_volume.yml',
+                            Global.do_volume_mount: 'gluster-client-mount.yml'
+                           }
+        for op, yml in basic_operations:
+            if op:
+                playbooks += ' ' + self.get_file_dir_path(Global.base_dir, yml)
+
+        self.call_ansible_command(playbooks)
+        #Each additional feature like snapshot, NFS-Ganesha is to be added
+        #here
+        features = { Global.create_snapshot: 'snapshot-setup.yml' }
+        for feature, yml in features:
+            if feature:
+                the_playbook = self.get_file_dir_path(Global.base_dir, yml)
+                self.call_ansible_command(the_playbook)
 
     def call_ansible_command(self, playbooks):
         '''
