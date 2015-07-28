@@ -31,6 +31,7 @@ class Global(object):
     do_gluster_deploy = True
     do_volume_create = True
     do_volume_mount = True
+    create_snapshot = False
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'rhs_servers'

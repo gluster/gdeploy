@@ -1,0 +1,11 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Creates a snapshot
+    snapshot: action=create
+             volume="{{ volname }}"
+             snapname="{{ snapname }}"
+             force=yes

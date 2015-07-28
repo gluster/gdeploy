@@ -25,6 +25,7 @@ from helpers import Helpers
 
 class GlusterConfWriter(YamlWriter):
 
+
     def parse_gluster_info(self, config):
         self.config = config
         self.filename = Global.group_file
@@ -33,7 +34,7 @@ class GlusterConfWriter(YamlWriter):
         the back-end setup provided as a seperate section in
         the conf file should be mentioned in this list
         '''
-        gluster_sections = ['volume', 'clients']
+        gluster_sections = ['volume', 'clients', 'snapshot']
         sections = self.config_get_sections(self.config)
         if 'volume' not in sections:
             gluster_sections.remove('volume')
@@ -41,6 +42,9 @@ class GlusterConfWriter(YamlWriter):
         if 'clients' not in sections:
             gluster_sections.remove('clients')
             Global.do_volume_mount = False
+        if 'snapshot' not in sections:
+            gluster_sections.remove('snapshot')
+            Global.do_snapshot_create = False
         Global.do_gluster_deploy = (Global.do_volume_create and
                 Global.do_volume_mount)
 
@@ -74,13 +78,15 @@ class GlusterConfWriter(YamlWriter):
             '''
             try:
                 option_dict = { 'volume': self.write_volume_conf_data,
-                                'clients': self.gluster_volume_mount
+                                'clients': self.gluster_volume_mount,
+                                'snapshot': self.snapshot_conf_write
                               }[section](option_dict)
             except:
                 pass
 
             self.filename = Global.group_file
             self.iterate_dicts_and_yaml_write(option_dict)
+
 
     def gluster_volume_mount(self, client_info):
         self.clients = client_info['hosts']
@@ -96,9 +102,6 @@ class GlusterConfWriter(YamlWriter):
         if not Global.do_volume_create:
             client_info['volname'] = self.config_section_map(self.config, 'clients',
                     'volname', True)
-            print "Warning: Since no volume configuration data is provided, " \
-                    "we cannot do a volume create. Continuing with the volume "\
-                    "mount with the volname and client info provided"
         '''
         host_var files are to be created if multiple clients
         have different mount points for gluster volume
@@ -117,6 +120,13 @@ class GlusterConfWriter(YamlWriter):
                     self.iterate_dicts_and_yaml_write(gluster)
                 del client_info[key]
         return client_info
+
+
+    def snapshot_conf_write(self, snapshot_conf):
+        if not (Global.do_volume_create or Global.do_volume_mount):
+            snapshot_conf['volname'] = self.config_section_map(self.config,
+                    'clients', 'volname', True)
+            return snapshot_conf
 
 
     def write_volume_conf_data(self, volume_confs):

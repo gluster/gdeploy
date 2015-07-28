@@ -1,0 +1,3 @@
+---
+- include: gluster-snapshot-create.yml
+- include: gluster-snapshot-activate.yml

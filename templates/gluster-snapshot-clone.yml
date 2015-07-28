@@ -1,0 +1,11 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Clones a snapshot
+    gluster: command=snapshot action=clone
+             snapname=snap2
+             clonename=snap1
+             force=yes

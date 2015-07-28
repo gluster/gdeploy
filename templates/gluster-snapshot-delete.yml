@@ -1,0 +1,9 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Deletes a snapshot
+    gluster: command=snapshot action=delete
+             snapname=snap1

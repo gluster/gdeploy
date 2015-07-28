@@ -31,7 +31,7 @@ description:
 
 
 options:
-    commands:
+    command:
         required: True
         choices: [peer, volume]
         description: Specifies if the operation is a peer operation or
@@ -164,6 +164,7 @@ EXAMPLES = '''
 
 import sys
 import re
+from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
@@ -178,8 +179,11 @@ class Gluster(object):
             'volume': self.gluster_volume_ops
         }[self.command]()
 
+    def get_playbook_params(self, opt):
+        return self.module.params[opt]
+
     def _validated_params(self, opt):
-        value = self.module.params[opt]
+        value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
             self.module.fail_json(msg=msg)
@@ -292,6 +296,10 @@ class Gluster(object):
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
 
+    def create_params_dict(self, param_list):
+        return OrderedDict((param, self.get_playbook_params(param))
+                for param in param_list)
+
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
         key_value_pair = ' '.join(' %s %s ' % (key, value)
@@ -330,7 +338,8 @@ if __name__ == '__main__':
             transport=dict(),
             disperse=dict(),
             disperse_count=dict(),
-            redundancy_count=dict()
+            redundancy_count=dict(),
+
         ),
     )
 

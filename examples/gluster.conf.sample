@@ -70,7 +70,7 @@
 # Brick mountpoints for the logical volumes
 # The number of mountpoints should match the number of logical volumes listed
 # above.
-# IMP: If only gluster deployement is to be done and not back-end setup, just
+# IMP: If only gluster deployment is to be done and not back-end setup, just
 # give this data about the hosts specified in the [hosts] section along
 # with the client data.
 
@@ -103,7 +103,7 @@ stripsize-128
 
 
 # IMP: If only back-end setup is to be done but not GlusterFs
-# deployement omit the following section
+# deployment omit the following section
 
 # Specifies the client hosts and client_mount_points to mount the gluster
 # volume created. Cliend hosts field is mandatory. If mount points
