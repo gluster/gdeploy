@@ -1,8 +1,6 @@
 [hosts]
 10.70.46.13
-10.70.46.15
 10.70.46.17
-10.70.46.19
 #------------------------------
 
 # Generic section [devices] is applicable to all the hosts listed in the [hosts]
@@ -95,10 +93,6 @@ devices=/dev/vdc,/dev/vdb
 diskcount=2
 stripsize-128
 
-[10.70.46.19]
-devices=/dev/vdb
-diskcount=2
-stripsize-128
 #----------------------------------
 
 
@@ -115,9 +109,9 @@ stripsize-128
 # seperated.
 
 [clients]
-hosts=10.70.46.19,10.70.46.13
-fstype=nfs,glusterfs
-client_mount_points=/mnt/client1,/mnt/client2
+hosts=10.70.46.13
+fstype=glusterfs
+client_mount_points=/mnt/client1
 #-----------------------------------
 
 # The section volume specifies the configuration options for the volume.

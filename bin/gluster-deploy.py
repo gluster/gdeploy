@@ -23,6 +23,7 @@ import sys
 import os
 from glusterlib import Global
 from glusterlib import PlaybookGen
+from collections import OrderedDict
 
 
 class GlusterDeploy(PlaybookGen, Global):
@@ -73,20 +74,24 @@ class GlusterDeploy(PlaybookGen, Global):
         Global.do_complete_ops = (Global.do_setup_backend and
                 Global.do_gluster_deploy)
         playbooks = ' '
-        basic_operations = {Global.do_setup_backend: 'setup-backend.yml',
-                            Global.do_volume_create:
-                                            'probe_and_create_volume.yml',
-                            Global.do_volume_mount: 'gluster-client-mount.yml'
-                           }
-        for op, yml in basic_operations:
+        basic_operations = OrderedDict([
+                            ('setup-backend.yml', Global.do_setup_backend),
+                            ('probe_and_create_volume.yml',
+                                                 Global.do_volume_create),
+                            ('gluster-client-mount.yml',
+                                                 Global.do_volume_mount)
+                            ])
+        for yml, op in basic_operations.iteritems():
             if op:
                 playbooks += ' ' + self.get_file_dir_path(Global.base_dir, yml)
 
         self.call_ansible_command(playbooks)
         #Each additional feature like snapshot, NFS-Ganesha is to be added
         #here
-        features = { Global.create_snapshot: 'snapshot-setup.yml' }
-        for feature, yml in features:
+        features = OrderedDict([
+                   ('snapshot-setup.yml', Global.create_snapshot)
+                   ])
+        for yml, feature in features.iteritems():
             if feature:
                 the_playbook = self.get_file_dir_path(Global.base_dir, yml)
                 self.call_ansible_command(the_playbook)

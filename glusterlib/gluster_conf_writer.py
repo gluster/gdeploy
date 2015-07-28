@@ -77,13 +77,12 @@ class GlusterConfWriter(YamlWriter):
             '''
             Custom methods for each of the feature to be added is written here.
             '''
-            try:
-                option_dict = { 'volume': self.write_volume_conf_data,
-                                'clients': self.gluster_volume_mount,
-                                'snapshot': self.snapshot_conf_write
-                              }[section](option_dict)
-            except:
-                pass
+            feature_func= { 'volume': self.write_volume_conf_data,
+                            'clients': self.gluster_volume_mount,
+                            'snapshot': self.snapshot_conf_write
+                          }.get(section)
+            if feature_func:
+                option_dict = feature_func(option_dict)
 
             self.filename = Global.group_file
             self.iterate_dicts_and_yaml_write(option_dict)
@@ -91,6 +90,9 @@ class GlusterConfWriter(YamlWriter):
 
     def gluster_volume_mount(self, client_info):
         self.clients = client_info['hosts']
+        if type(self.clients) is str:
+            self.clients = [self.clients]
+        self.write_config('clients', self.clients, Global.inventory)
         del client_info['hosts']
         if not self.clients:
             Global.do_volume_mount = False
@@ -99,7 +101,6 @@ class GlusterConfWriter(YamlWriter):
         client hostnames or IP should also be in the inventory file since
         mounting is to be done in the client host machines
         '''
-        self.write_config('clients', self.clients, Global.inventory)
         if not Global.do_volume_create:
             client_info['volname'] = self.config_section_map(self.config, 'clients',
                     'volname', True)

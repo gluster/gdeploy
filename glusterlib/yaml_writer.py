@@ -78,6 +78,8 @@ class YamlWriter(ConfigParseHelpers):
             if self.mountpoints:
                 self.iterate_dicts_and_yaml_write(
                         {'mountpoints': self.mountpoints})
+            else:
+                Global.do_volume_create = False
             Global.do_setup_backend = False
 
     def insufficient_param_count(self, section, count):
