@@ -33,6 +33,7 @@ class Global(object):
     do_volume_mount = True
     create_snapshot = False
     volume_set = False
+    shell_cmd = False
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'rhs_servers'

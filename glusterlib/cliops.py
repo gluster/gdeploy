@@ -29,6 +29,11 @@ from helpers import Helpers
 class CliOps(PlaybookGen):
 
     def __init__(self, volumeset):
+
+        if volumeset[0] != 'volumeset':
+            print "Error: Unrecognized command '%s'" % volumeset[0]
+            self.cleanup_and_quit()
+
         try:
             cmd, volume, key, value = volumeset
         except:

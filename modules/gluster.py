@@ -279,17 +279,13 @@ class Gluster(object):
 
     def gluster_volume_ops(self):
         option_str = ''
-        if self.action in ['delete', 'set', 'remove-brick']:
+        if self.action in ['delete', 'remove-brick']:
             self.force = ''
         volume = self._validated_params('volume')
         if self.action == 'create':
             self.get_host_names()
             option_str = self.get_volume_configs()
             option_str += self.get_brick_list_of_all_hosts()
-        if self.action == 'set':
-            key = self._validated_params('key')
-            value = self._validated_params('value')
-            option_str = ' %s %s ' % (key, value)
         if re.search(r'(.*)brick$', self.action):
             option_str = self.brick_ops()
         rc, output, err = self.call_gluster_cmd('volume', self.action,
