@@ -31,27 +31,26 @@ class CliOps(PlaybookGen):
     def __init__(self, volumeset):
 
         if volumeset[0] != 'volumeset':
-            print "Error: Unrecognized command '%s'" % volumeset[0]
-            self.cleanup_and_quit()
-
-        try:
-            cmd, volume, key, value = volumeset
-        except:
-            print "Error: Insufficient number of arguments for volumeset"
-            self.cleanup_and_quit()
-        vol_group = re.match("(.*):(.*)", volume)
-        if not vol_group:
-            print "Error: Provide volume name in the format " \
-                    "<hostname>:<volume name>"
-            self.cleanup_and_quit()
-        host_ip = [vol_group.group(1)]
-        volname = vol_group.group(2)
-        self.create_files_and_dirs()
-        self.write_config('master', host_ip, Global.inventory)
-        variables = { 'key': key,
-                 'value': value,
-                 'volname': volname
-               }
-        Global.volume_set = True
+            Global.shell_cmd = True
+            variables = { 'cmd': ' '.join(cmd for cmd in volumeset) }
+        else:
+            try:
+                cmd, volume, key, value = volumeset
+            except:
+                print "Error: Insufficient number of arguments for volumeset"
+                self.cleanup_and_quit()
+            vol_group = re.match("(.*):(.*)", volume)
+            if not vol_group:
+                print "Error: Provide volume name in the format " \
+                        "<hostname>:<volume name>"
+                self.cleanup_and_quit()
+            host_ip = [vol_group.group(1)]
+            volname = vol_group.group(2)
+            self.write_config('master', host_ip, Global.inventory)
+            variables = { 'key': key,
+                     'value': value,
+                     'volname': volname
+                   }
+            Global.volume_set = True
         self.filename = Global.group_file
         self.write_yaml(variables, False)

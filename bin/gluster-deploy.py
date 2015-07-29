@@ -88,6 +88,11 @@ class GlusterDeploy(PlaybookGen, Global):
                     'gluster-volume-set.yml')
             self.call_ansible_command(the_playbook)
             return
+        elif Global.shell_cmd:
+            the_playbook = self.get_file_dir_path(Global.base_dir,
+                    'shell_cmd.yml')
+            self.call_ansible_command(the_playbook)
+            return
 
         playbooks = ' '
         basic_operations = OrderedDict([
@@ -116,13 +121,16 @@ class GlusterDeploy(PlaybookGen, Global):
         '''
         Calls the ansible-playbook command on necessary yamls
         '''
-        try:
-            cmd = 'ansible-playbook -i %s %s' % (
-                Global.inventory, playbooks)
-            self.exec_cmds(cmd, '')
-        except:
-            print "Error: Looks like there is something wrong with " \
-                "your ansible installation."
+        if playbooks.strip():
+            try:
+                cmd = 'ansible-playbook -i %s %s' % (
+                    Global.inventory, playbooks)
+                self.exec_cmds(cmd, '')
+            except:
+                print "Error: Looks like there is something wrong with " \
+                    "your ansible installation."
+        else:
+            print "No actions specified. Not calling ansible-playbook"
 
 
 if __name__ == '__main__':
