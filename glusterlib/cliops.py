@@ -29,7 +29,11 @@ from helpers import Helpers
 class CliOps(PlaybookGen):
 
     def __init__(self, volumeset):
-        cmd, volume, key, value = volumeset
+        try:
+            cmd, volume, key, value = volumeset
+        except:
+            print "Error: Insufficient number of arguments for volumeset"
+            self.cleanup_and_quit()
         vol_group = re.match("(.*):(.*)", volume)
         if not vol_group:
             print "Error: Provide volume name in the format " \

@@ -41,9 +41,10 @@ class GlusterDeploy(PlaybookGen, Global):
         if args.config_file:
             config_file = args.config_file.name
             PlaybookGen(config_file)
-        elif args.volumeset:
+            self.deploy_gluster()
+        if args.volumeset:
             CliOps(args.volumeset)
-        self.deploy_gluster()
+            self.deploy_gluster()
         if not args.keep:
             self.cleanup_and_quit()
         else:
@@ -63,18 +64,19 @@ class GlusterDeploy(PlaybookGen, Global):
                             type=argparse.FileType('rt'))
         parser.add_argument('volumeset',
                             help="Set options for the volume",
-                            nargs=4)
+                            nargs='+')
         parser.add_argument('-k', dest='keep',
                             action='store_true',
                             help="Keep the generated ansible utility files")
         try:
             args = parser.parse_args()
-            return args
         except IOError as msg:
             parser.error(str(msg))
-        if not (args.config_file and args.volume_set):
+        both_not_present =  not (args.config_file or args.volumeset)
+        if both_not_present:
             parser.print_help()
             self.cleanup_and_quit()
+        return args
 
     def deploy_gluster(self):
         '''
