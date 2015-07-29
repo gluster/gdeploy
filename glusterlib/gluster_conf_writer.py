@@ -42,11 +42,13 @@ class GlusterConfWriter(YamlWriter):
         if 'clients' not in sections:
             gluster_sections.remove('clients')
             Global.do_volume_mount = False
+        '''
+        The Global variable to check the selection
+        of new features is to be given truth value here
+        '''
         if 'snapshot' in sections:
             gluster_sections.append('snapshot')
             Global.snapshot_create = True
-        Global.do_gluster_deploy = (Global.do_volume_create and
-                Global.do_volume_mount)
 
         '''
         The default value for options in these sections in
@@ -89,6 +91,7 @@ class GlusterConfWriter(YamlWriter):
 
 
     def gluster_volume_mount(self, client_info):
+        #Custom method to write client information
         self.clients = client_info['hosts']
         if type(self.clients) is str:
             self.clients = [self.clients]
@@ -124,16 +127,20 @@ class GlusterConfWriter(YamlWriter):
         return client_info
 
 
-    def snapshot_conf_write(self, snapshot_conf):
-        if not (Global.do_volume_create or Global.do_volume_mount):
-            snapshot_conf['volname'] = self.config_section_map(self.config,
-                    'snapshot', 'volname', True)
-            return snapshot_conf
-
-
     def write_volume_conf_data(self, volume_confs):
+        #Custom method for volume config specs
         if volume_confs['replica'].lower() == 'yes' and int(volume_confs[
                 'replica_count']) == 0:
             print "Error: Provide the replica count for the volume."
             self.cleanup_and_quit()
         return volume_confs
+
+    def snapshot_conf_write(self, snapshot_conf):
+        '''
+        Custom method to make sure snapshot works fine with the
+        data read from the config file
+        '''
+        if not (Global.do_volume_create or Global.do_volume_mount):
+            snapshot_conf['volname'] = self.config_section_map(self.config,
+                    'snapshot', 'volname', True)
+            return snapshot_conf

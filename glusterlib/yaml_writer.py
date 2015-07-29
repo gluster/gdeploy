@@ -205,8 +205,6 @@ class YamlWriter(ConfigParseHelpers):
         self.create_yaml_dict('hosts', hosts, False)
 
     def write_yaml(self, data_dict, data_flow):
-        if not self.filename:
-            self.filename = Global.group_file
         with open(self.filename, 'a+') as outfile:
             if not data_flow:
                 outfile.write(

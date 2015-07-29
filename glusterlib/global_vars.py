@@ -25,15 +25,17 @@ class Global(object):
         shared varibles between the
         modules
     '''
-    success = True
+    #Truth value of basic ops: backend setup, volume create and mount
     do_setup_backend = True
-    do_complete_ops = True
-    do_gluster_deploy = True
     do_volume_create = True
     do_volume_mount = True
+
+    #Features:
     create_snapshot = False
     volume_set = False
     shell_cmd = False
+
+    #Required filenames and dir names
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'rhs_servers'
