@@ -57,14 +57,14 @@ class GlusterDeploy(PlaybookGen, Global):
         to the gluster-deploy script
         '''
         usage = 'gluster-deploy.py [-h] [-v] [-c CONFIG_FILE] ' \
-            '[-k] [volume-set <hostIP>:<volumename> <key> <value>]'
+            '[-k] [volumeset <hostIP>:<volumename> <key> <value>]'
         parser = argparse.ArgumentParser(usage=usage, version='1.0')
         parser.add_argument('-c', dest='config_file',
                             help="Configuration file",
                             type=argparse.FileType('rt'))
         parser.add_argument('volumeset',
                             help="Set options for the volume",
-                            nargs='+')
+                            nargs='*')
         parser.add_argument('-k', dest='keep',
                             action='store_true',
                             help="Keep the generated ansible utility files")
