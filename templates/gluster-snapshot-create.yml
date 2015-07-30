@@ -7,5 +7,5 @@
   - name: Creates a snapshot
     snapshot: action=create
              volume="{{ volname }}"
-             snapname="{{ snapname }}"
+             snapname="{{ snapshot }}"
              force=yes

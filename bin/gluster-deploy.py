@@ -110,7 +110,8 @@ class GlusterDeploy(PlaybookGen, Global):
         #Each additional feature like snapshot, NFS-Ganesha is to be added
         #here
         features = OrderedDict([
-                   ('snapshot-setup.yml', Global.create_snapshot)
+                   ('snapshot-setup.yml', Global.create_snapshot),
+                   ('ganesha-setup.yml', Global.setup_ganesha)
                    ])
 
         for yml, feature in features.iteritems():

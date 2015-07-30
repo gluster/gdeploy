@@ -32,10 +32,12 @@ class Global(object):
 
     #Features:
     create_snapshot = False
+    setup_ganesha = False
     volume_set = False
     shell_cmd = False
 
     #Required filenames and dir names
+    master = None
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'rhs_servers'

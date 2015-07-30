@@ -43,9 +43,8 @@ class PlaybookGen(GlusterConfWriter):
     def __init__(self, config_file):
         self.config = self.read_config(config_file)
         self.options = self.config_get_sections(self.config)
-        self.hosts = self.config_get_options(self.config, 'hosts', True)
+        self.get_hostnames()
         self.create_files_and_dirs()
-        self.create_inventory()
         self.get_var_file_type()
         output = {'host_vars': self.host_vars_gen,
                   'group_vars': self.group_vars_gen
@@ -56,7 +55,16 @@ class PlaybookGen(GlusterConfWriter):
         is called seperately
         '''
         self.parse_gluster_info(self.config)
+        self.create_inventory()
         self.write_host_names(self.config, self.hosts)
+
+
+    def get_hostnames(self):
+        self.hosts = self.config_get_options(self.config, 'hosts', False)
+        if not self.hosts:
+            print "Warning: Section 'hosts' not found. gluster-deploy will "\
+                    "continue only if volume name is given in the format " \
+                    "<hostname>:<volumename>"
 
     def create_files_and_dirs(self):
         '''
@@ -90,7 +98,8 @@ class PlaybookGen(GlusterConfWriter):
 
     def create_inventory(self):
         self.write_config(Global.group, self.hosts, Global.inventory)
-        self.write_config('master', [self.hosts[0]], Global.inventory)
+        self.write_config('master', Global.master or [self.hosts[0]],
+                Global.inventory)
 
     def host_vars_gen(self):
         '''

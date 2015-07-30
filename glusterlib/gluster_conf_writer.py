@@ -22,6 +22,7 @@ from yaml_writer import YamlWriter
 from conf_parser import ConfigParseHelpers
 from global_vars import Global
 from helpers import Helpers
+import re
 
 class GlusterConfWriter(YamlWriter):
 
@@ -61,8 +62,7 @@ class GlusterConfWriter(YamlWriter):
             Custom methods for each of the feature to be added is written here.
             '''
             feature_func= { 'volume': self.write_volume_conf_data,
-                            'clients': self.gluster_volume_mount,
-                            'snapshot': self.snapshot_conf_write
+                            'clients': self.write_client_conf_data
                           }.get(section)
             if feature_func:
                 option_dict = feature_func(option_dict)
@@ -71,7 +71,7 @@ class GlusterConfWriter(YamlWriter):
             self.iterate_dicts_and_yaml_write(option_dict)
 
 
-    def gluster_volume_mount(self, client_info):
+    def write_client_conf_data(self, client_info):
         #Custom method to write client information
         '''
         This default value dictionary is used to populate the group var
@@ -117,14 +117,49 @@ class GlusterConfWriter(YamlWriter):
 
 
     def write_volume_conf_data(self, volume_confs):
+        '''
+        The subfeatures for the volume such as snapshot, nfs-ganesha will be
+        defined in this list. Custom methods to  be called to customize the
+        params provided are also to be provided.
+        '''
+        subfeatures = ['snapshot', 'nfs-ganesha']
+        custom_feature_functions = { 'snapshot': self.snapshot_conf_write,
+                                     'nfs-ganesha': self.ganesha_conf_write
+                                   }
+        options = self.config_get_options(self.config, 'volume', False)
+        checked_features = [f for f in options if f in subfeatures]
+        for feature in checked_features:
+            subfeature_func = custom_feature_functions.get(feature)
+            if subfeature_func:
+                subfeature_func()
+
+        #This takes in the parameters needed for volume create
+        if not checked_features or volume_confs.get('action') == 'create':
+            volume_confs = self.volume_create_conf_write(volume_confs)
+
+        if 'volname' not in volume_confs:
+            print "Error: Name of the volume('volname') not provided in 'volume' " \
+                    "section. Can't proceed!"
+            self.cleanup_and_quit()
+        vol_group = re.match("(.*):(.*)", volume_confs['volname'])
+        if  vol_group:
+            Global.master = [vol_group.group(1)]
+            volume_confs['volname'] = vol_group.group(2)
+
+
+        return volume_confs
+
+    def volume_create_conf_write(self, volume_confs):
         Global.do_volume_create = True
         '''
         This default value dictionary is used to populate the group var
         with default data, if the data is not given by the user/
         '''
-        sections_default_value = {'volname': 'glustervol', 'transport': 'tcp',
+        sections_default_value = {'volname': 'glustervol',
+                'transport': 'tcp',
                 'replica': 'no', 'disperse': 'no', 'replica_count': 0,
-                'arbiter_count': 0, 'disperse_count': 0, 'redundancy_count': 0 }
+                'arbiter_count': 0, 'disperse_count': 0,
+                'redundancy_count': 0 }
         self.set_default_value_for_dict_key(volume_confs,
                 sections_default_value)
         #Custom method for volume config specs
@@ -134,13 +169,13 @@ class GlusterConfWriter(YamlWriter):
             self.cleanup_and_quit()
         return volume_confs
 
-    def snapshot_conf_write(self, snapshot_conf):
+    def snapshot_conf_write(self):
         '''
         Custom method to make sure snapshot works fine with the
         data read from the config file
         '''
         Global.create_snapshot = True
-        if not (Global.do_volume_create or Global.do_volume_mount):
-            snapshot_conf['volname'] = self.config_section_map(self.config,
-                    'snapshot', 'volname', True)
-        return snapshot_conf
+
+
+    def ganesha_conf_write(self):
+        Global.setup_ganesha = True
