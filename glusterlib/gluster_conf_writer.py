@@ -201,6 +201,11 @@ class GlusterConfWriter(YamlWriter):
         Custom method to make sure snapshot works fine with the
         data read from the config file
         '''
+        if Global.do_volume_create:
+            print "Warning: Looks like you are just creating your volume. Creating a" \
+                    "snapshot now doesn't make much sense. Skipping snapshot "\
+                    "section."
+            return snap_conf
         if snap_conf.get('action') in ['create']:
             Global.create_snapshot = True
             self.check_presence_of_volname(snap_conf)
