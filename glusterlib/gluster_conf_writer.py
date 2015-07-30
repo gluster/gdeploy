@@ -133,6 +133,22 @@ class GlusterConfWriter(YamlWriter):
             if subfeature_func:
                 subfeature_func()
 
+        '''
+        This gives the user the flexibility to not give the hosts
+        section. Instead one can just specify the volume name
+        with one of the peer member's hostname or IP in the
+        format <hostname>:<volumename>
+        '''
+        vol_group = re.match("(.*):(.*)", volume_confs['volname'])
+        if  vol_group:
+            Global.master = [vol_group.group(1)]
+            volume_confs['volname'] = vol_group.group(2)
+
+        if volume_confs.get('action') == 'delete':
+            Global.do_volume_delete = True
+            return volume_confs
+
+
         #This takes in the parameters needed for volume create
         if not checked_features or volume_confs.get('action') == 'create':
             volume_confs = self.volume_create_conf_write(volume_confs)
@@ -141,10 +157,6 @@ class GlusterConfWriter(YamlWriter):
             print "Error: Name of the volume('volname') not provided in 'volume' " \
                     "section. Can't proceed!"
             self.cleanup_and_quit()
-        vol_group = re.match("(.*):(.*)", volume_confs['volname'])
-        if  vol_group:
-            Global.master = [vol_group.group(1)]
-            volume_confs['volname'] = vol_group.group(2)
 
 
         return volume_confs

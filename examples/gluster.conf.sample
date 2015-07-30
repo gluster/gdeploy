@@ -1,5 +1,6 @@
 [hosts]
 10.70.46.13
+10.70.46.15
 10.70.46.17
 #------------------------------
 
@@ -116,7 +117,17 @@ client_mount_points=/mnt/client1
 
 # The section volume specifies the configuration options for the volume.
 
+# 'action' option specifies what action id to be performed in the volume.
+# The choices can be create or delete. If delete is provided all the options
+#  other than 'volname' will be ignored.
+#
 # 'volname' option specifies the volume name. Default is glustervol
+#  If the user wishes to do just a volume operation, she can omit the
+#  'hosts' section if the volname is provided in the format
+#  <hostname>:<volname>, where hostname is the hostname or IP of one of
+#  the nodes in the cluster
+#  IMP: Only single volume creation/deletion/configuration is supported
+#  as of now.
 
 # 'transport' option specifies the transport type. Default is tcp. Options are
 # tcp or rdma or tcp,rdma
@@ -134,7 +145,14 @@ client_mount_points=/mnt/client1
 # If 'redundancy_count' is not specified, and if 'disperse' is yes,  it's
 # default value is computed so that it generates an optimal configuration.
 
+
+# 'snapshot' option can be used if the user wants to create a snapshot for the
+# volume specified in the 'volname' option. The name of the snapshot can be
+# specified as the value to the snapshot option. More customizations will
+# follow soon!
+
 [volume]
+action=create
 volname=glustervol
 transport=tcp,rdma
 # replica=yes
@@ -143,6 +161,7 @@ transport=tcp,rdma
 disperse=yes
 disperse_count=0
 redundancy_count=2
+snapshot=snapshot1
 #---------------------------------
 
 

@@ -1,0 +1,8 @@
+---
+- hosts: test
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: NFS Ganesha dummy
+    shell: echo "Coming soon"

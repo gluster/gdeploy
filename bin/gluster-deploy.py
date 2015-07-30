@@ -100,7 +100,9 @@ class GlusterDeploy(PlaybookGen, Global):
                             ('probe_and_create_volume.yml',
                                                  Global.do_volume_create),
                             ('gluster-client-mount.yml',
-                                                 Global.do_volume_mount)
+                                                 Global.do_volume_mount),
+                            ('gluster-volume-delete.yml',
+                                                Global.do_volume_delete)
                             ])
         for yml, op in basic_operations.iteritems():
             if op:

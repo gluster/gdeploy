@@ -28,6 +28,7 @@ class Global(object):
     #Truth value of basic ops: backend setup, volume create and mount
     do_setup_backend = True
     do_volume_create = False
+    do_volume_delete = False
     do_volume_mount = False
 
     #Features:
