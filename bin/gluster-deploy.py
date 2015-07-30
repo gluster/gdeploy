@@ -53,7 +53,7 @@ class GlusterDeploy(PlaybookGen, Global):
 
     def parse_arguments(self):
         '''
-        This methos uses argparser to parse the command line inputs
+        This method uses argparser to parse the command line inputs
         to the gluster-deploy script
         '''
         usage = 'gluster-deploy.py [-h] [-v] [-c CONFIG_FILE] ' \
@@ -112,6 +112,7 @@ class GlusterDeploy(PlaybookGen, Global):
         features = OrderedDict([
                    ('snapshot-setup.yml', Global.create_snapshot)
                    ])
+
         for yml, feature in features.iteritems():
             if feature:
                 the_playbook = self.get_file_dir_path(Global.base_dir, yml)
@@ -129,8 +130,6 @@ class GlusterDeploy(PlaybookGen, Global):
             except:
                 print "Error: Looks like there is something wrong with " \
                     "your ansible installation."
-        else:
-            print "No actions specified. Not calling ansible-playbook"
 
 
 if __name__ == '__main__':

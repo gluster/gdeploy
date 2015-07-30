@@ -29,49 +29,30 @@ class GlusterConfWriter(YamlWriter):
     def parse_gluster_info(self, config):
         self.config = config
         self.filename = Global.group_file
-        '''
-        Each of the seperate feature to be added other than
-        the back-end setup provided as a seperate section in
-        the conf file should be mentioned in this list
-        '''
-        gluster_sections = ['volume', 'clients']
         sections = self.config_get_sections(self.config)
-        if 'volume' not in sections:
-            gluster_sections.remove('volume')
-            Global.do_volume_create = False
-        if 'clients' not in sections:
-            gluster_sections.remove('clients')
-            Global.do_volume_mount = False
         '''
-        The Global variable to check the selection
-        of new features is to be given truth value here
+        Each section in the group_sections list will be read from the conf
+        stripped to get multiple or singleton entries and written
+        to the groupvars file.
+        Make sure to add any new section(feature) to the group_sections list
+        and write a custom method which can be assigned to feature func to
+        customize the data
         '''
-        if 'snapshot' in sections:
-            gluster_sections.append('snapshot')
-            Global.snapshot_create = True
-
-        '''
-        The default value for options in these sections in
-        case user didn't provide them should be given in
-        this sections_default_value hash
-        '''
-        sections_default_value = dict()
-        sections_default_value['clients'] = {'client_mount_points': '/mnt/gluster',
-                'fstype': 'glusterfs'}
-        sections_default_value['volume'] = {'volname': 'glustervol', 'transport': 'tcp',
-                'replica': 'no', 'disperse': 'no', 'replica_count': 0,
-                'arbiter_count': 0, 'disperse_count': 0, 'redundancy_count': 0 }
-
-        for section in gluster_sections:
-            option_dict = self.config._sections[section]
-            if section in sections_default_value:
-                self.set_default_value_for_dict_key(option_dict,
-                        sections_default_value[section])
+        group_sections = [ 'volume', 'clients', 'snapshot']
+        for section in group_sections:
+            '''
+            This try construct will make sure to continue if the
+            section is absent
+            '''
+            try:
+                option_dict = self.config._sections[section]
+            except:
+                continue
             del option_dict['__name__']
             for key, value in option_dict.iteritems():
                 '''
-                The value for option 'transport' can have comma in it,
-                eg: tcp,rdma. so comma doesn't mean that it can have
+                HACK: The value for option 'transport' can have comma in it,
+                eg: tcp,rdma. so comma here doesn't mean that it can have
                 multiple values
                 '''
                 if ',' in str(value) and key not in ['transport']:
@@ -92,14 +73,22 @@ class GlusterConfWriter(YamlWriter):
 
     def gluster_volume_mount(self, client_info):
         #Custom method to write client information
+        '''
+        This default value dictionary is used to populate the group var
+        with default data, if the data is not given by the user/
+        '''
+        sections_default_value = {'client_mount_points': '/mnt/gluster',
+                'fstype': 'glusterfs'}
+        self.set_default_value_for_dict_key(client_info,
+                sections_default_value)
         self.clients = client_info['hosts']
+        if not self.clients:
+            return
         if type(self.clients) is str:
             self.clients = [self.clients]
         self.write_config('clients', self.clients, Global.inventory)
         del client_info['hosts']
-        if not self.clients:
-            Global.do_volume_mount = False
-            return
+        Global.do_volume_mount = True
         '''
         client hostnames or IP should also be in the inventory file since
         mounting is to be done in the client host machines
@@ -128,6 +117,16 @@ class GlusterConfWriter(YamlWriter):
 
 
     def write_volume_conf_data(self, volume_confs):
+        Global.do_volume_create = True
+        '''
+        This default value dictionary is used to populate the group var
+        with default data, if the data is not given by the user/
+        '''
+        sections_default_value = {'volname': 'glustervol', 'transport': 'tcp',
+                'replica': 'no', 'disperse': 'no', 'replica_count': 0,
+                'arbiter_count': 0, 'disperse_count': 0, 'redundancy_count': 0 }
+        self.set_default_value_for_dict_key(volume_confs,
+                sections_default_value)
         #Custom method for volume config specs
         if volume_confs['replica'].lower() == 'yes' and int(volume_confs[
                 'replica_count']) == 0:
@@ -140,7 +139,8 @@ class GlusterConfWriter(YamlWriter):
         Custom method to make sure snapshot works fine with the
         data read from the config file
         '''
+        Global.create_snapshot = True
         if not (Global.do_volume_create or Global.do_volume_mount):
             snapshot_conf['volname'] = self.config_section_map(self.config,
                     'snapshot', 'volname', True)
-            return snapshot_conf
+        return snapshot_conf
