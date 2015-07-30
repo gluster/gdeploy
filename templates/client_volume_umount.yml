@@ -5,7 +5,7 @@
 
   tasks:
   - name: Unmount the volumes
-    mount: name={{ item }} src="{{ client_mount_points }}" fstype="{{ fstype }}"
+    mount: name={{ item }} src="{{ client_mount_points }}" fstype=glusterfs
            state=unmounted
     with_items: client_mount_points
 

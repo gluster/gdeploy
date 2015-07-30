@@ -22,6 +22,7 @@ from yaml_writer import YamlWriter
 from conf_parser import ConfigParseHelpers
 from global_vars import Global
 from helpers import Helpers
+from collections import OrderedDict
 import re
 
 class GlusterConfWriter(YamlWriter):
@@ -61,41 +62,54 @@ class GlusterConfWriter(YamlWriter):
             '''
             Custom methods for each of the feature to be added is written here.
             '''
-            feature_func= { 'volume': self.write_volume_conf_data,
-                            'clients': self.write_client_conf_data
-                          }.get(section)
+            feature_func= OrderedDict([
+                            ('volume', self.write_volume_conf_data),
+                            ('clients', self.write_client_conf_data),
+                            ('snapshot', self.snapshot_conf_write)
+                          ]).get(section)
             if feature_func:
                 option_dict = feature_func(option_dict)
-
+            '''
+            If the user has given the volname in the format
+            <hostname>:<volname>, this will be handy
+            '''
+            if option_dict.get('volname'):
+                option_dict['volname'] = self.split_volname_and_hostname(
+                        option_dict['volname'])
             self.filename = Global.group_file
             self.iterate_dicts_and_yaml_write(option_dict)
 
 
     def write_client_conf_data(self, client_info):
         #Custom method to write client information
-        '''
-        This default value dictionary is used to populate the group var
-        with default data, if the data is not given by the user/
-        '''
-        sections_default_value = {'client_mount_points': '/mnt/gluster',
-                'fstype': 'glusterfs'}
-        self.set_default_value_for_dict_key(client_info,
-                sections_default_value)
         self.clients = client_info['hosts']
         if not self.clients:
             return
         if type(self.clients) is str:
             self.clients = [self.clients]
-        self.write_config('clients', self.clients, Global.inventory)
-        del client_info['hosts']
-        Global.do_volume_mount = True
         '''
         client hostnames or IP should also be in the inventory file since
         mounting is to be done in the client host machines
         '''
-        if not Global.do_volume_create:
-            client_info['volname'] = self.config_section_map(self.config, 'clients',
-                    'volname', True)
+        self.write_config('clients', self.clients, Global.inventory)
+        del client_info['hosts']
+        if client_info.get('action') in ['mount']:
+            '''
+            This default value dictionary is used to populate the group var
+            with default data, if the data is not given by the user/
+            '''
+            sections_default_value = {'client_mount_points': '/mnt/gluster',
+                    'fstype': 'glusterfs'}
+            self.set_default_value_for_dict_key(client_info,
+                    sections_default_value)
+            Global.do_volume_mount = True
+            self.check_presence_of_volname(client_info)
+
+        elif client_info.get('action') == 'unmount':
+            Global.do_volume_umount = True
+            if not client_info.get('client_mount_points'):
+                print "Error: No 'client_mount_points' provided. Exiting!"
+                self.cleanup_and_quit()
         '''
         host_var files are to be created if multiple clients
         have different mount points for gluster volume
@@ -113,18 +127,18 @@ class GlusterConfWriter(YamlWriter):
                     gluster[key] = conf
                     self.iterate_dicts_and_yaml_write(gluster)
                 del client_info[key]
+
         return client_info
 
 
     def write_volume_conf_data(self, volume_confs):
         '''
-        The subfeatures for the volume such as snapshot, nfs-ganesha will be
+        The subfeatures for the volume such as nfs-ganesha will be
         defined in this list. Custom methods to  be called to customize the
         params provided are also to be provided.
         '''
-        subfeatures = ['snapshot', 'nfs-ganesha']
-        custom_feature_functions = { 'snapshot': self.snapshot_conf_write,
-                                     'nfs-ganesha': self.ganesha_conf_write
+        subfeatures = ['nfs-ganesha']
+        custom_feature_functions = { 'nfs-ganesha': self.ganesha_conf_write
                                    }
         options = self.config_get_options(self.config, 'volume', False)
         checked_features = [f for f in options if f in subfeatures]
@@ -133,24 +147,13 @@ class GlusterConfWriter(YamlWriter):
             if subfeature_func:
                 subfeature_func()
 
-        '''
-        This gives the user the flexibility to not give the hosts
-        section. Instead one can just specify the volume name
-        with one of the peer member's hostname or IP in the
-        format <hostname>:<volumename>
-        '''
-        vol_group = re.match("(.*):(.*)", volume_confs['volname'])
-        if  vol_group:
-            Global.master = [vol_group.group(1)]
-            volume_confs['volname'] = vol_group.group(2)
-
         if volume_confs.get('action') == 'delete':
             Global.do_volume_delete = True
             return volume_confs
 
 
         #This takes in the parameters needed for volume create
-        if not checked_features or volume_confs.get('action') == 'create':
+        if volume_confs.get('action') == 'create':
             volume_confs = self.volume_create_conf_write(volume_confs)
 
         if 'volname' not in volume_confs:
@@ -158,8 +161,20 @@ class GlusterConfWriter(YamlWriter):
                     "section. Can't proceed!"
             self.cleanup_and_quit()
 
-
         return volume_confs
+
+    def split_volname_and_hostname(self, volname):
+        '''
+        This gives the user the flexibility to not give the hosts
+        section. Instead one can just specify the volume name
+        with one of the peer member's hostname or IP in the
+        format <hostname>:<volumename>
+        '''
+        vol_group = re.match("(.*):(.*)", volname)
+        if vol_group:
+            Global.master = [vol_group.group(1)]
+            return vol_group.group(2)
+        return volname
 
     def volume_create_conf_write(self, volume_confs):
         Global.do_volume_create = True
@@ -181,13 +196,29 @@ class GlusterConfWriter(YamlWriter):
             self.cleanup_and_quit()
         return volume_confs
 
-    def snapshot_conf_write(self):
+    def snapshot_conf_write(self, snap_conf):
         '''
         Custom method to make sure snapshot works fine with the
         data read from the config file
         '''
-        Global.create_snapshot = True
-
+        if snap_conf.get('action') in ['create']:
+            Global.create_snapshot = True
+            self.check_presence_of_volname(snap_conf)
+            if not snap_conf.get('snapname'):
+                snap_conf['snapname'] = snap_conf['volname'] + '_snap'
+        if snap_conf.get('action') == 'delete':
+            Global.delete_snapshot = True
+            if not snap_conf.get('snapname'):
+                print "Error: Snapname not specified. Exiting!"
+                self.cleanup_and_quit()
+        return snap_conf
 
     def ganesha_conf_write(self):
         Global.setup_ganesha = True
+
+
+    def check_presence_of_volname(self, conf_dict):
+        if not self.present_in_yaml(self.filename, 'volname'
+                ) and not conf_dict['volname']:
+            print "Error: 'volname' not specified. Exiting!"
+            self.cleanup_and_quit()

@@ -102,7 +102,9 @@ class GlusterDeploy(PlaybookGen, Global):
                             ('gluster-client-mount.yml',
                                                  Global.do_volume_mount),
                             ('gluster-volume-delete.yml',
-                                                Global.do_volume_delete)
+                                                Global.do_volume_delete),
+                            ('client_volume_umount.yml',
+                                                 Global.do_volume_umount),
                             ])
         for yml, op in basic_operations.iteritems():
             if op:
@@ -113,6 +115,7 @@ class GlusterDeploy(PlaybookGen, Global):
         #here
         features = OrderedDict([
                    ('snapshot-setup.yml', Global.create_snapshot),
+                   ('gluster-snapshot-delete.yml', Global.delete_snapshot),
                    ('ganesha-setup.yml', Global.setup_ganesha)
                    ])
 

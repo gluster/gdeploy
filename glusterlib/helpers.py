@@ -26,6 +26,7 @@
 
 import os
 import sys
+import yaml
 from global_vars import Global
 
 
@@ -34,6 +35,12 @@ class Helpers(Global):
     '''
     Some helper methods to help in directory/file creation/removal etc.
     '''
+    def present_in_yaml(self, filename, item):
+        with open(filename, 'r') as f:
+            doc = yaml.load(f)
+        if item in doc:
+            return True
+        return False
 
     def cleanup_and_quit(self):
         if os.path.isdir(Global.base_dir):

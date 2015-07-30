@@ -97,9 +97,10 @@ class PlaybookGen(GlusterConfWriter):
             self.var_file = 'group_vars'
 
     def create_inventory(self):
-        self.write_config(Global.group, self.hosts, Global.inventory)
-        self.write_config('master', Global.master or [self.hosts[0]],
-                Global.inventory)
+        self.hosts and self.write_config(Global.group, self.hosts, Global.inventory)
+        if self.hosts or Global.master:
+            self.write_config('master', Global.master or [self.hosts[0]],
+                    Global.inventory)
 
     def host_vars_gen(self):
         '''

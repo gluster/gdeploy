@@ -30,9 +30,11 @@ class Global(object):
     do_volume_create = False
     do_volume_delete = False
     do_volume_mount = False
+    do_volume_umount = False
 
     #Features:
     create_snapshot = False
+    delete_snapshot = False
     setup_ganesha = False
     volume_set = False
     shell_cmd = False

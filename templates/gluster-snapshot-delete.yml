@@ -4,6 +4,11 @@
   gather_facts: no
 
   tasks:
+  - name: Deactivates a snapshot
+    snapshot: action=deactivate
+              snapname={{ snapname }}
+              force=yes
+
   - name: Deletes a snapshot
     snapshot: action=delete
-             snapname={{ snapname }}
+              snapname={{ snapname }}
