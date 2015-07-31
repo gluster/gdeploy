@@ -143,10 +143,6 @@ client_mount_points=/mnt/client1
 # default value is computed so that it generates an optimal configuration.
 
 
-# 'snapshot' option can be used if the user wants to create a snapshot for the
-# volume specified in the 'volname' option. The name of the snapshot can be
-# specified as the value to the snapshot option. More customizations will
-# follow soon!
 
 [volume]
 action=create
@@ -158,8 +154,20 @@ transport=tcp,rdma
 disperse=yes
 disperse_count=0
 redundancy_count=2
-snapshot=snapshot1
+
+# 'snapshot' section can be used if the user wants to create or delete
+# a snapshot.
+# The option 'action' is to be used to specify which snapshot action is to be
+# executed. The choices supported as of now are create and delete.
+# The name of the snapshot can be specified as the value to the snapname option.
+# If the action is create the name of the volume is to specified as the value
+# to the option 'volname'.(If not specified under the volume section).
+
+[snapshot]
+action=create
+snapname=glustersnap
 #---------------------------------
+
 
 
 
