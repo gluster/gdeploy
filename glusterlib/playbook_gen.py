@@ -62,7 +62,7 @@ class PlaybookGen(GlusterConfWriter):
     def get_hostnames(self):
         self.hosts = self.config_get_options(self.config, 'hosts', False)
         if not self.hosts:
-            print "Warning: Section 'hosts' not found. gluster-deploy will "\
+            print "Error: Section `hosts' not found.\ngluster-deploy will "\
                     "continue only if volume name is given in the format " \
                     "<hostname>:<volumename>"
 
