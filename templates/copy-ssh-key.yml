@@ -1,0 +1,15 @@
+---
+- hosts: rhs_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Copy the public key from local to remote
+    copy: src=/tmp/playbooks/{{ groups['master'][0]}}/var/lib/glusterd/nfs/secret.pem.pub
+          dest=/tmp/key
+
+  - name: Deploy the pubkey ~root/.ssh/authorized keys on all nodes
+    shell: cat /tmp/key >> ~/.ssh/authorized_keys
+
+  - name: Remove the unwanted copy of key
+    shell: rm -rf ~/tmp/key

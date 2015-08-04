@@ -1,0 +1,10 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Disable gluster.nfs
+    volume-set: action=set
+                volume="{{ volname }}"
+                key=nfs.disable value=on

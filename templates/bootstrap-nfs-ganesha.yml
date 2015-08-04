@@ -1,0 +1,6 @@
+---
+- include: check_package_installs_ganesha.yml
+- include: generate-public-key.yml
+- include: copy-ssh-key.yml
+- include: kernel-nfs-stop.yml
+- include: disable-gluster-nfs.yml
