@@ -46,7 +46,7 @@ class ConfigParseHelpers(Helpers):
         try:
             config_parse.read(config_file)
             return config_parse
-        except AttributeError as msg:
+        except:
             print "Sorry! Looks like the format of configuration " \
                 "file is not something we could read! \nTry removing " \
                 "whitespaces or unwanted characters in the configuration " \
