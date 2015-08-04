@@ -98,7 +98,10 @@ devices=/dev/vdb
 # deployment omit the following section
 
 # Specifies the client hosts and client_mount_points to mount the gluster
-# volume created. Cliend hosts field is mandatory. If mount points
+# volume created.
+# 'action' option is to be specified for the framework to understand
+# what action is to be done. The options are 'mount' and 'unmount'
+# Client hosts field is mandatory. If mount points
 # are not specified, default will be taken as /mnt/gluster
 # for all the hosts
 # The option fstype specifies how gluster volume is to be mounted.
@@ -107,9 +110,10 @@ devices=/dev/vdb
 # seperated.
 
 [clients]
+action=mount
 hosts=10.70.46.13
 fstype=glusterfs
-client_mount_points=/mnt/client1
+client_mount_points=/mnt/gluster
 #-----------------------------------
 
 # The section volume specifies the configuration options for the volume.
