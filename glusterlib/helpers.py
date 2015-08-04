@@ -36,11 +36,18 @@ class Helpers(Global):
     Some helper methods to help in directory/file creation/removal etc.
     '''
     def present_in_yaml(self, filename, item):
-        with open(filename, 'r') as f:
-            doc = yaml.load(f)
+        doc = self.read_yaml(filename)
         if item in doc:
             return True
         return False
+
+    def get_value_from_yaml(self, filename, item):
+        doc = self.read_yaml(filename)
+        return doc.get(item)
+
+    def read_yaml(self, filename):
+        with open(filename, 'r') as f:
+            return yaml.load(f)
 
     def cleanup_and_quit(self):
         if os.path.isdir(Global.base_dir):

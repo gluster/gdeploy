@@ -86,6 +86,7 @@ class ConfigParseHelpers(Helpers):
             if required:
                 print "Error: Section %s not found in the " \
                     "configuration file" % section
+                self.cleanup_and_quit()
             return []
 
     def config_get_sections(self, config_parse):

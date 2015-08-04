@@ -93,6 +93,20 @@ class GlusterConfWriter(YamlWriter):
         '''
         self.write_config('clients', self.clients, Global.inventory)
         del client_info['hosts']
+        '''
+        The subfeatures for the volume such as nfs-ganesha will be
+        defined in this list. Custom methods to  be called to customize the
+        params provided are also to be provided.
+        '''
+        subfeatures = ['nfs-ganesha']
+        custom_feature_functions = { 'nfs-ganesha': self.ganesha_conf_write
+                                   }
+        options = self.config_get_options(self.config, 'clients', False)
+        checked_features = [f for f in options if f in subfeatures]
+        for feature in checked_features:
+            subfeature_func = custom_feature_functions.get(feature)
+            if subfeature_func:
+                subfeature_func()
         if client_info.get('action') in ['mount']:
             '''
             This default value dictionary is used to populate the group var
@@ -132,21 +146,6 @@ class GlusterConfWriter(YamlWriter):
 
 
     def write_volume_conf_data(self, volume_confs):
-        '''
-        The subfeatures for the volume such as nfs-ganesha will be
-        defined in this list. Custom methods to  be called to customize the
-        params provided are also to be provided.
-        '''
-        subfeatures = ['nfs-ganesha']
-        custom_feature_functions = { 'nfs-ganesha': self.ganesha_conf_write
-                                   }
-        options = self.config_get_options(self.config, 'volume', False)
-        checked_features = [f for f in options if f in subfeatures]
-        for feature in checked_features:
-            subfeature_func = custom_feature_functions.get(feature)
-            if subfeature_func:
-                subfeature_func()
-
         if volume_confs.get('action') == 'delete':
             Global.do_volume_delete = True
             return volume_confs
@@ -201,12 +200,12 @@ class GlusterConfWriter(YamlWriter):
         Custom method to make sure snapshot works fine with the
         data read from the config file
         '''
-        if Global.do_volume_create:
-            print "Warning: Looks like you are just creating your volume. Creating a" \
-                    "snapshot now doesn't make much sense. Skipping snapshot "\
-                    "section."
-            return snap_conf
         if snap_conf.get('action') in ['create']:
+            if Global.do_volume_create:
+                print "Warning: Looks like you are just creating your volume. Creating a" \
+                        "snapshot now doesn't make much sense. Skipping snapshot "\
+                        "section."
+                return snap_conf
             Global.create_snapshot = True
             self.check_presence_of_volname(snap_conf)
             if not snap_conf.get('snapname'):
@@ -219,6 +218,9 @@ class GlusterConfWriter(YamlWriter):
         return snap_conf
 
     def ganesha_conf_write(self):
+        inventory = self.read_config(Global.inventory)
+        clients = self.config_get_options(inventory, 'clients', True)
+        self.write_config('master-client', [clients[0]], Global.inventory)
         Global.setup_ganesha = True
 
 
