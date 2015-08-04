@@ -9,8 +9,13 @@ setup(
     author_email="nandaja.varma@gmail.com",
 
     packages=[  'glusterlib',
-                'modules'
+                'modules',
+                'templates'
              ],
+
+    package_data={
+        "templates": [
+            "templates/*"]},
 
     scripts=[
         'bin/gluster-deploy'
