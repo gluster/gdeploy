@@ -9,14 +9,14 @@ setup(
     author_email="nandaja.varma@gmail.com",
 
     packages=[  'glusterlib',
-                'modules',
-                'templates'],
+                'modules'
+             ],
+
+    scripts=[
+        'bin/gluster-deploy'
+        ],
 
     include_package_data=True,
-    package_data={
-        "templates": [
-            "templates/*"]},
-
     url="https://github.com/nandajavarma/gluster-deploy",
 
     license="LICENSE",
