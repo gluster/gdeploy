@@ -155,6 +155,9 @@ class GlusterConfWriter(YamlWriter):
         if volume_confs.get('action') == 'create':
             volume_confs = self.volume_create_conf_write(volume_confs)
 
+        if volume_confs.get('action') in ['add-brick', 'remove-brick']:
+            volume_confs = self.volume_brick_change_conf_write(volume_confs)
+
         if 'volname' not in volume_confs:
             print "Error: Name of the volume('volname') not provided in 'volume' " \
                     "section. Can't proceed!"
@@ -195,6 +198,26 @@ class GlusterConfWriter(YamlWriter):
             self.cleanup_and_quit()
         return volume_confs
 
+    def volume_brick_change_conf_write(self, volume_confs):
+        if 'bricks' not in volume_confs:
+            print "Error: The name of the brick(s) not " \
+                    "specified. Can't proceed!"
+            self.cleanup_and_quit()
+        if volume_confs.get('action') == 'add-brick':
+            volume_confs['new_bricks'] = volume_confs.pop('bricks')
+            Global.volume_add_brick = True
+        if volume_confs.get('action') == 'remove-brick':
+            if 'state' not in volume_confs:
+                print "Error: State of the volume after remove-brick not " \
+                        "specified. Can't proceed!"
+                self.cleanup_and_quit()
+            sections_default_value = {'replica': 'no', 'replica_count': 0}
+            self.set_default_value_for_dict_key(volume_confs,
+                    sections_default_value)
+            volume_confs['old_bricks'] = volume_confs.pop('bricks')
+            Global.volume_remove_brick = True
+        return volume_confs
+
     def snapshot_conf_write(self, snap_conf):
         '''
         Custom method to make sure snapshot works fine with the
@@ -210,8 +233,16 @@ class GlusterConfWriter(YamlWriter):
             self.check_presence_of_volname(snap_conf)
             if not snap_conf.get('snapname'):
                 snap_conf['snapname'] = snap_conf['volname'] + '_snap'
-        if snap_conf.get('action') == 'delete':
-            Global.delete_snapshot = True
+        else:
+            if snap_conf.get('action') == 'delete':
+                Global.delete_snapshot = True
+            if snap_conf.get('action') == 'clone':
+                Global.clone_snapshot = True
+                if not snap_conf.get('clonename'):
+                    print "Error: Clonename not specified. Exiting!"
+                    self.cleanup_and_quit()
+            if snap_conf.get('action') == 'restore':
+                Global.restore_snapshot = True
             if not snap_conf.get('snapname'):
                 print "Error: Snapname not specified. Exiting!"
                 self.cleanup_and_quit()

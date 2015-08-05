@@ -304,7 +304,7 @@ class Gluster(object):
 
     def _get_output(self, rc, output, err):
         carryon = True if self.action in  ['stop',
-                'delete', 'detach'] else True
+                'delete', 'detach'] else False
         changed = 0 if (carryon and rc) else 1
         if not rc or carryon:
             self.module.exit_json(stdout=output, changed=changed)

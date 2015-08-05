@@ -6,6 +6,6 @@
   tasks:
   - name: Clones a snapshot
     snapshot: action=clone
-             snapname=snap2
-             clonename=snap1
+             snapname={{ snapname }}
+             clonename={{ clonename }}
              force=yes

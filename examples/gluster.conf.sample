@@ -119,8 +119,12 @@ client_mount_points=/mnt/gluster
 # The section volume specifies the configuration options for the volume.
 
 # 'action' option specifies what action id to be performed in the volume.
-# The choices can be create or delete. If delete is provided all the options
-#  other than 'volname' will be ignored.
+# The choices can be [create, delete, add-brick, remove-brick].
+# If delete is provided all the options other than 'volname' will be ignored.
+# If add-brick or remove-brick is chosen, extra option bricks with a
+# comma seperated list of brick names(in the format <hostname>:<brick path>
+# should be provided. In case of remove-brick, state option should also
+# be provided specifying the state of the volume after brick removal.
 #
 # 'volname' option specifies the volume name. Default is glustervol
 #  If the user wishes to do just a volume operation, she can omit the
@@ -162,14 +166,15 @@ redundancy_count=2
 # 'snapshot' section can be used if the user wants to create or delete
 # a snapshot.
 # The option 'action' is to be used to specify which snapshot action is to be
-# executed. The choices supported as of now are create and delete.
+# executed. The choices supported as of now are create, delete, clone
+# and restore.
 # The name of the snapshot can be specified as the value to the snapname option.
 # If the action is create the name of the volume is to specified as the value
 # to the option 'volname'.(If not specified under the volume section).
 
-[snapshot]
-action=create
-snapname=glustersnap
+# [snapshot]
+# action=create
+# snapname=glustersnap
 #---------------------------------
 
 

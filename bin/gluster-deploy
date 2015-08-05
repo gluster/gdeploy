@@ -114,8 +114,12 @@ class GlusterDeploy(PlaybookGen, Global):
         #Each additional feature like snapshot, NFS-Ganesha is to be added
         #here
         features = OrderedDict([
+                   ('gluster-add-brick.yml', Global.volume_add_brick),
+                   ('gluster-remove-brick.yml', Global.volume_remove_brick),
                    ('snapshot-setup.yml', Global.create_snapshot),
                    ('gluster-snapshot-delete.yml', Global.delete_snapshot),
+                   ('gluster-snapshot-clone.yml', Global.clone_snapshot),
+                   ('gluster-snapshot-restore.yml', Global.restore_snapshot),
                    ('ganesha-setup.yml', Global.setup_ganesha)
                    ])
 

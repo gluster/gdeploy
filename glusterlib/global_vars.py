@@ -31,10 +31,14 @@ class Global(object):
     do_volume_delete = False
     do_volume_mount = False
     do_volume_umount = False
+    volume_add_brick = False
+    volume_remove_brick = False
 
     #Features:
     create_snapshot = False
     delete_snapshot = False
+    clone_snapshot = False
+    restore_snapshot = False
     setup_ganesha = False
     volume_set = False
     shell_cmd = False

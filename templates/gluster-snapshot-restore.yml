@@ -6,4 +6,4 @@
   tasks:
   - name: Restores a snapshot
     snapshot:action=restore
-             snapname=snap2
+             snapname={{ snapname }}
