@@ -6,5 +6,5 @@
   tasks:
   - name: Activates a snapshot
     snapshot: action=activate
-             snapname="{{ snapshot }}"
+             snapname="{{ snapname }}"
              force=yes
