@@ -103,12 +103,12 @@ class YamlWriter(ConfigParseHelpers):
             return self.split_comma_seperated_options(options)
 
     def modify_mountpoints(self):
+        brick_dir = self.get_options('brick_dir', False)
         force = self.get_options('force', False)
         if force == 'yes':
             print "Warning: Using mountpoint itself as the brick since force" \
                     " is specified, although not recommended."
             return
-        brick_dir = self.get_options('brick_dir', False)
 
         if not brick_dir:
             brick_list = [self.get_file_dir_path(mntpath,
@@ -129,7 +129,7 @@ class YamlWriter(ConfigParseHelpers):
                         print "Error: The brick_dir length does not match with "\
                                 "the mountpoints available. Either give %d number " \
                                 "of brick_dir, provide a common one or leave this "\
-                                "empty."
+                                "empty." %(len(self.section_dict['mountpoints']))
                         self.cleanup_and_quit()
                     else:
                         brick_list = [self.get_file_dir_path(mntpath, brick_dir[0]) for
