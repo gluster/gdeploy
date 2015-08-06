@@ -1,4 +1,4 @@
-#gluster-deploy
+#gdeploy
 
 Tool to set-up and deploy glusterfs using ansible over multiple hosts
 
@@ -12,9 +12,9 @@ file to be defined by the user.
 
 ###Clone this repo:
 
-` git clone git@github.com:nandajavarma/gluster-deploy.git`
+` git clone git@github.com:nandajavarma/gdeploy.git`
 
-` cd gluster-deploy`
+` cd gdeploy`
 
 ###Install the requirements:
 
@@ -22,7 +22,7 @@ file to be defined by the user.
 
 ###Add ansible modules to ANSIBLE_LIBRARY environment variable
 
-` echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:'/path/to/gluster-deploy/modules/'" >> ~/.bashrc`
+` echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:'/path/to/gdeploy/modules/'" >> ~/.bashrc`
 
 ###To use the module you can either do:
 
@@ -34,24 +34,24 @@ OR
 
 ####Add the path to the module to the python path:
 
-` echo "export PYTHONPATH=$PYTHONPATH:'/path/to/gluster-deploy/glusterlib/'" >> ~/.bashrc`
+` echo "export PYTHONPATH=$PYTHONPATH:'/path/to/gdeploy/glusterlib/'" >> ~/.bashrc`
 
 
 
 ##Usage
 
 To use the framework create a configuration file as per your needs.
-Follow the instructions [here](https://github.com/nandajavarma/gluster-deploy/tree/master/examples/README.md)
+Follow the instructions [here](https://github.com/nandajavarma/gdeploy/tree/master/examples/README.md)
 to create your configuration file.
-An example configuration file can be found [here](//github.com/nandajavarma/gluster-deploy/tree/master/examples)
+An example configuration file can be found [here](//github.com/nandajavarma/gdeploy/tree/master/examples)
 
 > TODO: better README for the configuration file
 
 To set-up back-end and deploy GlusterFS in the specified host machines, run:
 
-` python bin/gluster-deploy.py -c <configuration file>`
+` gdeploy -c <configuration file>`
 
 For help and usage options, try:
 
-` python bin/gluster-deploy.py -h`
+` gdeploy -h`
 
