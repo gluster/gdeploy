@@ -6,4 +6,8 @@
   tasks:
   - name: Configures a snapshot
     snapshot: action=config
-             snap_max_soft_limit=95
+              volume="{{ volname }}"
+              snap_max_soft_limit="{{ snap_max_soft_limit }}"
+              snap_max_hard_limit="{{ snap_max_hard_limit }}"
+              activate_on_create="{{ activate_on_create }}"
+              auto_delete="{{ auto_delete }}"

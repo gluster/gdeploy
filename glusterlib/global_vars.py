@@ -39,6 +39,7 @@ class Global(object):
     delete_snapshot = False
     clone_snapshot = False
     restore_snapshot = False
+    config_snapshot = False
     setup_ganesha = False
     volume_set = False
     shell_cmd = False
@@ -47,7 +48,7 @@ class Global(object):
     master = None
     host_vars = 'host_vars'
     group_vars = 'group_vars'
-    group = 'rhs_servers'
+    group = 'gluster_servers'
     base_dir = '/tmp/playbooks'
     group_vars_dir = os.path.join(os.path.realpath(base_dir), group_vars)
     host_vars_dir = os.path.join(os.path.realpath(base_dir), host_vars)

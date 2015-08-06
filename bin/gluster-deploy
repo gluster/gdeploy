@@ -101,8 +101,6 @@ class GlusterDeploy(PlaybookGen, Global):
                                                  Global.do_volume_create),
                             ('gluster-client-mount.yml',
                                                  Global.do_volume_mount),
-                            ('gluster-volume-delete.yml',
-                                                Global.do_volume_delete),
                             ('client_volume_umount.yml',
                                                  Global.do_volume_umount),
                             ])
@@ -120,6 +118,7 @@ class GlusterDeploy(PlaybookGen, Global):
                    ('gluster-snapshot-delete.yml', Global.delete_snapshot),
                    ('gluster-snapshot-clone.yml', Global.clone_snapshot),
                    ('gluster-snapshot-restore.yml', Global.restore_snapshot),
+                   ('gluster-snapshot-config.yml', Global.config_snapshot),
                    ('ganesha-setup.yml', Global.setup_ganesha)
                    ])
 
@@ -127,6 +126,11 @@ class GlusterDeploy(PlaybookGen, Global):
             if feature:
                 the_playbook = self.get_file_dir_path(Global.base_dir, yml)
                 self.call_ansible_command(the_playbook)
+
+        #Volume delete should happen atlast no matter what. so moving here
+        volume_delete_yml = self.get_file_dir_path(Global.base_dir,'gluster-volume-delete.yml')
+        if Global.do_volume_delete:
+            self.call_ansible_command(volume_delete_yml)
 
     def call_ansible_command(self, playbooks):
         '''

@@ -37,7 +37,7 @@ class Helpers(Global):
     '''
     def present_in_yaml(self, filename, item):
         doc = self.read_yaml(filename)
-        if item in doc:
+        if doc and item in doc:
             return True
         return False
 

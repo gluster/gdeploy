@@ -220,31 +220,41 @@ class GlusterConfWriter(YamlWriter):
 
     def snapshot_conf_write(self, snap_conf):
         '''
-        Custom method to make sure snapshot works fine with the
+        custom method to make sure snapshot works fine with the
         data read from the config file
         '''
         if snap_conf.get('action') in ['create']:
             if Global.do_volume_create:
-                print "Warning: Looks like you are just creating your volume. Creating a" \
-                        "snapshot now doesn't make much sense. Skipping snapshot "\
+                print "warning: looks like you are just creating your volume. creating a" \
+                        "snapshot now doesn't make much sense. skipping snapshot "\
                         "section."
                 return snap_conf
             Global.create_snapshot = True
             self.check_presence_of_volname(snap_conf)
             if not snap_conf.get('snapname'):
                 snap_conf['snapname'] = snap_conf['volname'] + '_snap'
+        elif snap_conf.get('action') == 'config':
+            Global.config_snapshot = True
+            sections_default_value = {'snap_max_soft_limit': None,
+                                      'volname': None,
+                                      'snap_max_hard_limit': None,
+                                      'auto_delete': None,
+                                      'activate_on_create': None
+                                     }
+            self.set_default_value_for_dict_key(snap_conf,
+                    sections_default_value)
         else:
             if snap_conf.get('action') == 'delete':
                 Global.delete_snapshot = True
             if snap_conf.get('action') == 'clone':
                 Global.clone_snapshot = True
                 if not snap_conf.get('clonename'):
-                    print "Error: Clonename not specified. Exiting!"
+                    print "error: clonename not specified. exiting!"
                     self.cleanup_and_quit()
             if snap_conf.get('action') == 'restore':
                 Global.restore_snapshot = True
             if not snap_conf.get('snapname'):
-                print "Error: Snapname not specified. Exiting!"
+                print "error: snapname not specified. exiting!"
                 self.cleanup_and_quit()
         return snap_conf
 

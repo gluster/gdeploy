@@ -75,7 +75,7 @@
 # with the client data.
 
 # [mountpoints]
-# /rhs/brick
+# /gluster/brick
 #-------------------------------
 
 # Host specific data are to be given as follows

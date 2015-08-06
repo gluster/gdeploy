@@ -30,6 +30,7 @@ import yaml
 from conf_parser import ConfigParseHelpers
 from global_vars import Global
 from helpers import Helpers
+import os
 
 
 class YamlWriter(ConfigParseHelpers):
@@ -63,10 +64,11 @@ class YamlWriter(ConfigParseHelpers):
             self.section_dict['lvols'] = ['/dev/%s/%s' % (i, j) for i, j in
                                           zip(self.section_dict['vgs'],
                                               self.section_dict['lvs'])]
+            self.yaml_dict_data_write()
+            self.modify_mountpoints()
             listables_in_yaml = {key: self.section_dict[key]
                     for key in ['vgs', 'bricks', 'mountpoints', 'lvols'] }
             self.iterate_dicts_and_yaml_write(listables_in_yaml)
-            self.yaml_dict_data_write()
             self.perf_spec_data_write()
         else:
             '''
@@ -100,6 +102,51 @@ class YamlWriter(ConfigParseHelpers):
                     self.filename.split('/')[-1], section, required)
             return self.split_comma_seperated_options(options)
 
+    def modify_mountpoints(self):
+        force = self.get_options('force', False)
+        if force == 'yes':
+            print "Warning: Using mountpoint itself as the brick since force" \
+                    " is specified, although not recommended."
+            return
+        brick_dir = self.get_options('brick_dir', False)
+
+        if not brick_dir:
+            brick_list = [self.get_file_dir_path(mntpath,
+                os.path.basename(mntpath)) for
+                mntpath in self.section_dict['mountpoints']]
+
+        else:
+            if True in [brick.startswith('/')  for brick in brick_dir]:
+                print "Error: brick_dir should be relative to the " \
+                        "mountpoint. Looks like you have provided an " \
+                        "absolute path. "
+                self.cleanup_and_quit()
+
+
+            if type(brick_dir) is list:
+                if len(brick_dir) != len(self.section_dict['mountpoints']):
+                    if len(brick_dir) != 1:
+                        print "Error: The brick_dir length does not match with "\
+                                "the mountpoints available. Either give %d number " \
+                                "of brick_dir, provide a common one or leave this "\
+                                "empty."
+                        self.cleanup_and_quit()
+                    else:
+                        brick_list = [self.get_file_dir_path(mntpath, brick_dir[0]) for
+                                mntpath in self.section_dict['mountpoints']]
+                else:
+                    brick_list = [self.get_file_dir_path(mntpath, brick) for
+                            mntpath, brick in zip(self.section_dict['mountpoints'],
+                                brick_dir)]
+        for brick, mountpoint in zip(brick_list, self.section_dict['mountpoints']):
+            if brick == mountpoint and not force:
+                print "Error: Mount point cannot be brick. Provide 'brick_dir' " \
+                        "option or provide option 'force=True' under 'volume' " \
+                        "section."
+                self.cleanup_and_quit()
+        self.section_dict['mountpoints'] = brick_list
+
+
     def section_data_gen(self, section, section_name):
         options = self.get_options(section, False)
         if options:
@@ -108,10 +155,10 @@ class YamlWriter(ConfigParseHelpers):
                     section_name,
                     self.device_count)
         else:
-            pattern = {'vgs': 'RHS_vg',
-                       'pools': 'RHS_pool',
-                       'lvs': 'RHS_lv',
-                       'mountpoints': '/rhs/brick'
+            pattern = {'vgs': 'GLUSTER_vg',
+                       'pools': 'GLUSTER_pool',
+                       'lvs': 'GLUSTER_lv',
+                       'mountpoints': '/gluster/brick'
                        }[section]
             for i in range(1, self.device_count + 1):
                 options.append(pattern + str(i))

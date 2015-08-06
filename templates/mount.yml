@@ -1,12 +1,12 @@
 ---
-- hosts: rhs_servers
+- hosts: gluster_servers
   remote_user: root
   gather_facts: no
 
   tasks:
   - name: Create the backend disks, fails if present
-    shell: mkdir -p {{ item }}
-    with_items: mountpoints
+    shell: mkdir -p {{ item.path }}
+    with_items: mntpath
 
   - name: Mount the volumes
     mount: name={{ item.path }} src={{ item.device }} fstype=xfs

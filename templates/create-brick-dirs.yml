@@ -1,0 +1,10 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Create the brick dirs, fails if present
+    shell: mkdir -p {{ item }}
+    with_items: mountpoints
+
