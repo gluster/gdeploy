@@ -18,7 +18,7 @@ setup(
             "templates/*"]},
 
     scripts=[
-        'bin/gluster-deploy'
+        'bin/gdeploy'
         ],
 
     include_package_data=True,
