@@ -136,7 +136,7 @@ class PlaybookGen(GlusterConfWriter):
         /tmp/playbooks
         '''
         # Is the templates present as a part of ansible installation?
-        templates_path_pkg = '/usr/share/ansible/ansible-glusterfs/templates'
+        templates_path_pkg = '/usr/share/ansible/gdeploy/templates'
         # Or is it present in the source directory or installed via setuptools
         templates_path_bk = self.get_file_dir_path(self.uppath(__file__, 2),
                                                    'templates')
