@@ -1,0 +1,45 @@
+The configuration file currently supports the following sections:
+
+* [hosts]
+* [devices]
+* [disktype]
+* [diskcount]
+* [stripesize]
+* [vgs]
+* [pools]
+* [lvs]
+* [mountpoints]
+* {host-specific-data-for-above}
+* [clients]
+* [volume]
+* [snapshot]
+
+More to come.
+
+Of the above, the tool itself does not mandate most of the values. The above can
+be split into multiple files also called as `configurations'.
+
+* Brick configuration.
+* Volume configuration.
+* client configuration.
+* geo-replication configuration.
+* snapshot configuration.
+* NFS Ganesha configuration.
+* Samba configuration.
+
+The above configurations and the necessary minimal sections needed for each
+configurations are explained below.
+
+# Brick configuration:
+
+* [hosts]
+* [devices]
+* [disktype]
+* [diskcount]
+* [stripesize]
+
+# Volume configuration
+
+* [hosts]
+* [volume]
+
