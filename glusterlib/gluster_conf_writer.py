@@ -25,8 +25,8 @@ from helpers import Helpers
 from collections import OrderedDict
 import re
 
-class GlusterConfWriter(YamlWriter):
 
+class GlusterConfWriter(YamlWriter):
 
     def parse_gluster_info(self, config):
         self.config = config
@@ -40,7 +40,7 @@ class GlusterConfWriter(YamlWriter):
         and write a custom method which can be assigned to feature func to
         customize the data
         '''
-        group_sections = [ 'volume', 'clients', 'snapshot']
+        group_sections = ['volume', 'clients', 'snapshot']
         for section in group_sections:
             '''
             This try construct will make sure to continue if the
@@ -58,15 +58,16 @@ class GlusterConfWriter(YamlWriter):
                 multiple values
                 '''
                 if ',' in str(value) and key not in ['transport']:
-                    option_dict[key] = self.split_comma_seperated_options(value)
+                    option_dict[
+                        key] = self.split_comma_seperated_options(value)
             '''
             Custom methods for each of the feature to be added is written here.
             '''
-            feature_func= OrderedDict([
-                            ('volume', self.write_volume_conf_data),
-                            ('clients', self.write_client_conf_data),
-                            ('snapshot', self.snapshot_conf_write)
-                          ]).get(section)
+            feature_func = OrderedDict([
+                ('volume', self.write_volume_conf_data),
+                ('clients', self.write_client_conf_data),
+                ('snapshot', self.snapshot_conf_write)
+            ]).get(section)
             if feature_func:
                 option_dict = feature_func(option_dict)
             '''
@@ -75,17 +76,16 @@ class GlusterConfWriter(YamlWriter):
             '''
             if option_dict.get('volname'):
                 option_dict['volname'] = self.split_volname_and_hostname(
-                        option_dict['volname'])
+                    option_dict['volname'])
             self.filename = Global.group_file
             self.iterate_dicts_and_yaml_write(option_dict)
 
-
     def write_client_conf_data(self, client_info):
-        #Custom method to write client information
+        # Custom method to write client information
         self.clients = client_info['hosts']
         if not self.clients:
             return
-        if type(self.clients) is str:
+        if isinstance(self.clients, str):
             self.clients = [self.clients]
         '''
         client hostnames or IP should also be in the inventory file since
@@ -99,8 +99,8 @@ class GlusterConfWriter(YamlWriter):
         params provided are also to be provided.
         '''
         subfeatures = ['nfs-ganesha']
-        custom_feature_functions = { 'nfs-ganesha': self.ganesha_conf_write
-                                   }
+        custom_feature_functions = {'nfs-ganesha': self.ganesha_conf_write
+                                    }
         options = self.config_get_options(self.config, 'clients', False)
         checked_features = [f for f in options if f in subfeatures]
         for feature in checked_features:
@@ -113,9 +113,9 @@ class GlusterConfWriter(YamlWriter):
             with default data, if the data is not given by the user/
             '''
             sections_default_value = {'client_mount_points': '/mnt/gluster',
-                    'fstype': 'glusterfs'}
+                                      'fstype': 'glusterfs'}
             self.set_default_value_for_dict_key(client_info,
-                    sections_default_value)
+                                                sections_default_value)
             Global.do_volume_mount = True
             self.check_presence_of_volname(client_info)
 
@@ -130,28 +130,26 @@ class GlusterConfWriter(YamlWriter):
         '''
         for key, value in client_info.iteritems():
             gluster = dict()
-            if type(value) is list:
+            if isinstance(value, list):
                 if len(value) != len(self.clients):
                     print "Error: Provide %s in each client " \
-                            "or a common one for all the clients. " % key
+                        "or a common one for all the clients. " % key
                     self.cleanup_and_quit()
                 for client, conf in zip(self.clients, value):
                     self.filename = self.get_file_dir_path(
-                            Global.host_vars_dir, client)
+                        Global.host_vars_dir, client)
                     gluster[key] = conf
                     self.iterate_dicts_and_yaml_write(gluster)
                 del client_info[key]
 
         return client_info
 
-
     def write_volume_conf_data(self, volume_confs):
         if volume_confs.get('action') == 'delete':
             Global.do_volume_delete = True
             return volume_confs
 
-
-        #This takes in the parameters needed for volume create
+        # This takes in the parameters needed for volume create
         if volume_confs.get('action') == 'create':
             volume_confs = self.volume_create_conf_write(volume_confs)
 
@@ -160,7 +158,7 @@ class GlusterConfWriter(YamlWriter):
 
         if 'volname' not in volume_confs:
             print "Error: Name of the volume('volname') not provided in 'volume' " \
-                    "section. Can't proceed!"
+                "section. Can't proceed!"
             self.cleanup_and_quit()
 
         return volume_confs
@@ -184,14 +182,18 @@ class GlusterConfWriter(YamlWriter):
         This default value dictionary is used to populate the group var
         with default data, if the data is not given by the user/
         '''
-        sections_default_value = {'volname': 'glustervol',
-                'transport': 'tcp',
-                'replica': 'no', 'disperse': 'no', 'replica_count': 0,
-                'arbiter_count': 0, 'disperse_count': 0,
-                'redundancy_count': 0 }
+        sections_default_value = {
+            'volname': 'glustervol',
+            'transport': 'tcp',
+            'replica': 'no',
+            'disperse': 'no',
+            'replica_count': 0,
+            'arbiter_count': 0,
+            'disperse_count': 0,
+            'redundancy_count': 0}
         self.set_default_value_for_dict_key(volume_confs,
-                sections_default_value)
-        #Custom method for volume config specs
+                                            sections_default_value)
+        # Custom method for volume config specs
         if volume_confs['replica'].lower() == 'yes' and int(volume_confs[
                 'replica_count']) == 0:
             print "Error: Provide the replica count for the volume."
@@ -201,7 +203,7 @@ class GlusterConfWriter(YamlWriter):
     def volume_brick_change_conf_write(self, volume_confs):
         if 'bricks' not in volume_confs:
             print "Error: The name of the brick(s) not " \
-                    "specified. Can't proceed!"
+                "specified. Can't proceed!"
             self.cleanup_and_quit()
         if volume_confs.get('action') == 'add-brick':
             volume_confs['new_bricks'] = volume_confs.pop('bricks')
@@ -209,11 +211,11 @@ class GlusterConfWriter(YamlWriter):
         if volume_confs.get('action') == 'remove-brick':
             if 'state' not in volume_confs:
                 print "Error: State of the volume after remove-brick not " \
-                        "specified. Can't proceed!"
+                    "specified. Can't proceed!"
                 self.cleanup_and_quit()
             sections_default_value = {'replica': 'no', 'replica_count': 0}
             self.set_default_value_for_dict_key(volume_confs,
-                    sections_default_value)
+                                                sections_default_value)
             volume_confs['old_bricks'] = volume_confs.pop('bricks')
             Global.volume_remove_brick = True
         return volume_confs
@@ -226,8 +228,8 @@ class GlusterConfWriter(YamlWriter):
         if snap_conf.get('action') in ['create']:
             if Global.do_volume_create:
                 print "warning: looks like you are just creating your volume. creating a" \
-                        "snapshot now doesn't make much sense. skipping snapshot "\
-                        "section."
+                    "snapshot now doesn't make much sense. skipping snapshot "\
+                    "section."
                 return snap_conf
             Global.create_snapshot = True
             self.check_presence_of_volname(snap_conf)
@@ -240,9 +242,9 @@ class GlusterConfWriter(YamlWriter):
                                       'snap_max_hard_limit': None,
                                       'auto_delete': None,
                                       'activate_on_create': None
-                                     }
+                                      }
             self.set_default_value_for_dict_key(snap_conf,
-                    sections_default_value)
+                                                sections_default_value)
         else:
             if snap_conf.get('action') == 'delete':
                 Global.delete_snapshot = True
@@ -264,9 +266,8 @@ class GlusterConfWriter(YamlWriter):
         self.write_config('master-client', [clients[0]], Global.inventory)
         Global.setup_ganesha = True
 
-
     def check_presence_of_volname(self, conf_dict):
         if not self.present_in_yaml(self.filename, 'volname'
-                ) and not conf_dict['volname']:
+                                    ) and not conf_dict['volname']:
             print "Error: 'volname' not specified. Exiting!"
             self.cleanup_and_quit()

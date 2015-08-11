@@ -56,7 +56,7 @@ class YamlWriter(ConfigParseHelpers):
             section_names = ['Volume Group', 'Logical Volume',
                              'Logical Pool']
             self.section_dict = {'bricks': self.bricks,
-                    'mountpoints': self.mountpoints}
+                                 'mountpoints': self.mountpoints}
             for section, section_name in zip(sections, section_names):
                 self.section_dict[section] = self.section_data_gen(
                     section,
@@ -66,8 +66,12 @@ class YamlWriter(ConfigParseHelpers):
                                               self.section_dict['lvs'])]
             self.yaml_dict_data_write()
             self.modify_mountpoints()
-            listables_in_yaml = {key: self.section_dict[key]
-                    for key in ['vgs', 'bricks', 'mountpoints', 'lvols'] }
+            listables_in_yaml = {
+                key: self.section_dict[key] for key in [
+                    'vgs',
+                    'bricks',
+                    'mountpoints',
+                    'lvols']}
             self.iterate_dicts_and_yaml_write(listables_in_yaml)
             self.perf_spec_data_write()
         else:
@@ -79,7 +83,7 @@ class YamlWriter(ConfigParseHelpers):
             '''
             if self.mountpoints:
                 self.iterate_dicts_and_yaml_write(
-                        {'mountpoints': self.mountpoints})
+                    {'mountpoints': self.mountpoints})
             else:
                 Global.do_volume_create = False
             Global.do_setup_backend = False
@@ -98,8 +102,8 @@ class YamlWriter(ConfigParseHelpers):
         if self.filetype == 'group_vars':
             return self.config_get_options(self.config, section, required)
         else:
-            options = self.config_section_map(self.config,
-                    self.filename.split('/')[-1], section, required)
+            options = self.config_section_map(
+                self.config, self.filename.split('/')[-1], section, required)
             return self.split_comma_seperated_options(options)
 
     def modify_mountpoints(self):
@@ -107,45 +111,47 @@ class YamlWriter(ConfigParseHelpers):
         force = self.get_options('force', False)
         if force == 'yes':
             print "Warning: Using mountpoint itself as the brick since force" \
-                    " is specified, although not recommended."
+                " is specified, although not recommended."
             return
 
         if not brick_dir:
             brick_list = [self.get_file_dir_path(mntpath,
-                os.path.basename(mntpath)) for
-                mntpath in self.section_dict['mountpoints']]
+                                                 os.path.basename(mntpath)) for
+                          mntpath in self.section_dict['mountpoints']]
 
         else:
-            if True in [brick.startswith('/')  for brick in brick_dir]:
+            if True in [brick.startswith('/') for brick in brick_dir]:
                 print "Error: brick_dir should be relative to the " \
-                        "mountpoint. Looks like you have provided an " \
-                        "absolute path. "
+                    "mountpoint. Looks like you have provided an " \
+                    "absolute path. "
                 self.cleanup_and_quit()
 
-
-            if type(brick_dir) is list:
+            if isinstance(brick_dir, list):
                 if len(brick_dir) != len(self.section_dict['mountpoints']):
                     if len(brick_dir) != 1:
                         print "Error: The brick_dir length does not match with "\
-                                "the mountpoints available. Either give %d number " \
-                                "of brick_dir, provide a common one or leave this "\
-                                "empty." %(len(self.section_dict['mountpoints']))
+                            "the mountpoints available. Either give %d number " \
+                            "of brick_dir, provide a common one or leave this "\
+                            "empty." % (len(self.section_dict['mountpoints']))
                         self.cleanup_and_quit()
                     else:
-                        brick_list = [self.get_file_dir_path(mntpath, brick_dir[0]) for
-                                mntpath in self.section_dict['mountpoints']]
+                        brick_list = [
+                            self.get_file_dir_path(
+                                mntpath,
+                                brick_dir[0]) for mntpath in self.section_dict['mountpoints']]
                 else:
-                    brick_list = [self.get_file_dir_path(mntpath, brick) for
-                            mntpath, brick in zip(self.section_dict['mountpoints'],
-                                brick_dir)]
-        for brick, mountpoint in zip(brick_list, self.section_dict['mountpoints']):
+                    brick_list = [
+                        self.get_file_dir_path(
+                            mntpath, brick) for mntpath, brick in zip(
+                            self.section_dict['mountpoints'], brick_dir)]
+        for brick, mountpoint in zip(
+                brick_list, self.section_dict['mountpoints']):
             if brick == mountpoint and not force:
                 print "Error: Mount point cannot be brick. Provide 'brick_dir' " \
-                        "option or provide option 'force=True' under 'volume' " \
-                        "section."
+                    "option or provide option 'force=True' under 'volume' " \
+                    "section."
                 self.cleanup_and_quit()
         self.section_dict['mountpoints'] = brick_list
-
 
     def section_data_gen(self, section, section_name):
         options = self.get_options(section, False)
@@ -165,7 +171,7 @@ class YamlWriter(ConfigParseHelpers):
         return options
 
     def iterate_dicts_and_yaml_write(self, data_dict, keep_format=False):
-        #Just a pretty wrapper over create_yaml_dict to iterate over dicts
+        # Just a pretty wrapper over create_yaml_dict to iterate over dicts
         for key, value in data_dict.iteritems():
             if key not in ['__name__']:
                 self.create_yaml_dict(key, value, keep_format)
@@ -187,14 +193,14 @@ class YamlWriter(ConfigParseHelpers):
         section_dict is iterated keeping the associations intact, and
         multiple lists are created for vgs, lvs, pools, mountpoints
         '''
-        #Just a pretty way to initialise 4 empty lists
+        # Just a pretty way to initialise 4 empty lists
         vgnames, mntpaths, lvpools, pools = ([] for i in range(4))
         for i, vg in enumerate(self.section_dict['vgs']):
             vgnames.append({'brick': self.section_dict['bricks'][i], 'vg': vg})
             mntpaths.append({'path': self.section_dict['mountpoints'][i],
-                'device': self.section_dict['lvols'][i]})
+                             'device': self.section_dict['lvols'][i]})
             lvpools.append({'pool': self.section_dict['pools'][i], 'vg': vg,
-                'lv': self.section_dict['lvs'][i]})
+                            'lv': self.section_dict['lvs'][i]})
             pools.append({'pool': self.section_dict['pools'][i], 'vg': vg})
         data_dict = {
             'vgnames': vgnames,
@@ -202,7 +208,6 @@ class YamlWriter(ConfigParseHelpers):
             'mntpath': mntpaths,
             'pools': pools}
         self.iterate_dicts_and_yaml_write(data_dict, True)
-
 
     def perf_spec_data_write(self):
         '''
@@ -224,12 +229,13 @@ class YamlWriter(ConfigParseHelpers):
                 perf['diskcount'] = int(self.get_options('diskcount', True)[0])
                 stripe_size_necessary = {'raid10': False,
                                          'raid6': True
-                                        }[perf['disktype']]
+                                         }[perf['disktype']]
                 stripe_size = self.get_options('stripesize',
-                    stripe_size_necessary)
+                                               stripe_size_necessary)
                 if stripe_size:
                     perf['stripesize'] = int(stripe_size[0])
-                    if perf['disktype'] == 'raid10' and perf['stripesize'] != 256:
+                    if perf['disktype'] == 'raid10' and perf[
+                            'stripesize'] != 256:
                         print "Warning: We recommend a stripe unit size of 256KB " \
                             "for RAID 10"
                 else:
@@ -237,13 +243,15 @@ class YamlWriter(ConfigParseHelpers):
                 perf['dalign'] = {
                     'raid6': perf['stripesize'] * perf['diskcount'],
                     'raid10': perf['stripesize'] * perf['diskcount']
-                    }[perf['disktype']]
+                }[perf['disktype']]
         else:
             perf = dict(disktype='jbod')
             perf['dalign'] = 256
             perf['diskcount'] = perf['stripesize'] = 0
-        perf['profile'] = self.config_get_options(self.config,
-                'tune-profile', False) or 'rhs-high-throughput'
+        perf['profile'] = self.config_get_options(
+            self.config,
+            'tune-profile',
+            False) or 'rhs-high-throughput'
         self.iterate_dicts_and_yaml_write(perf)
 
     def write_host_names(self, config, hosts):

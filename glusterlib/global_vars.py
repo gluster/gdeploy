@@ -25,7 +25,7 @@ class Global(object):
         shared varibles between the
         modules
     '''
-    #Truth value of basic ops: backend setup, volume create and mount
+    # Truth value of basic ops: backend setup, volume create and mount
     do_setup_backend = True
     do_volume_create = False
     do_volume_delete = False
@@ -34,7 +34,7 @@ class Global(object):
     volume_add_brick = False
     volume_remove_brick = False
 
-    #Features:
+    # Features:
     create_snapshot = False
     delete_snapshot = False
     clone_snapshot = False
@@ -44,7 +44,7 @@ class Global(object):
     volume_set = False
     shell_cmd = False
 
-    #Required filenames and dir names
+    # Required filenames and dir names
     master = None
     host_vars = 'host_vars'
     group_vars = 'group_vars'

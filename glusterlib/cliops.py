@@ -26,12 +26,13 @@ from playbook_gen import PlaybookGen
 import re
 from helpers import Helpers
 
+
 class CliOps(PlaybookGen):
 
     def __init__(self, volumeset):
 
         if volumeset[0] == 'volumeset':
-            #for volumeset option (gluster volume set)
+            # for volumeset option (gluster volume set)
             try:
                 cmd, volume, key, value = volumeset
             except:
@@ -40,16 +41,16 @@ class CliOps(PlaybookGen):
             vol_group = re.match("(.*):(.*)", volume)
             if not vol_group:
                 print "Error: Provide volume name in the format " \
-                        "<hostname>:<volume name>"
+                    "<hostname>:<volume name>"
                 self.cleanup_and_quit()
             host_ip = [vol_group.group(1)]
             volname = vol_group.group(2)
             self.create_files_and_dirs()
             self.write_config('master', host_ip, Global.inventory)
-            variables = { 'key': key,
-                     'value': value,
-                     'volname': volname
-                   }
+            variables = {'key': key,
+                         'value': value,
+                         'volname': volname
+                         }
             Global.volume_set = True
         else:
             '''
@@ -57,6 +58,6 @@ class CliOps(PlaybookGen):
             module of ansible from CLI
             '''
             Global.shell_cmd = True
-            variables = { 'cmd': ' '.join(cmd for cmd in volumeset) }
+            variables = {'cmd': ' '.join(cmd for cmd in volumeset)}
         self.filename = Global.group_file
         self.write_yaml(variables, False)

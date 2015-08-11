@@ -58,13 +58,12 @@ class PlaybookGen(GlusterConfWriter):
         self.create_inventory()
         self.write_host_names(self.config, self.hosts)
 
-
     def get_hostnames(self):
         self.hosts = self.config_get_options(self.config, 'hosts', False)
         if not self.hosts:
             print "Error: Section `hosts' not found.\ngluster-deploy will "\
-                    "continue only if volume name is given in the format " \
-                    "<hostname>:<volumename>"
+                "continue only if volume name is given in the format " \
+                "<hostname>:<volumename>"
 
     def create_files_and_dirs(self):
         '''
@@ -97,10 +96,13 @@ class PlaybookGen(GlusterConfWriter):
             self.var_file = 'group_vars'
 
     def create_inventory(self):
-        self.hosts and self.write_config(Global.group, self.hosts, Global.inventory)
+        self.hosts and self.write_config(
+            Global.group,
+            self.hosts,
+            Global.inventory)
         if self.hosts or Global.master:
             self.write_config('master', Global.master or [self.hosts[0]],
-                    Global.inventory)
+                              Global.inventory)
 
     def host_vars_gen(self):
         '''
@@ -112,7 +114,7 @@ class PlaybookGen(GlusterConfWriter):
             host_file = self.get_file_dir_path(Global.host_vars_dir, host)
             self.touch_file(host_file)
             devices = self.config_section_map(self.config, host,
-                    'devices', False)
+                                              'devices', False)
             device_names = self.split_comma_seperated_options(devices)
             YamlWriter(device_names, self.config, host_file, self.var_file)
 

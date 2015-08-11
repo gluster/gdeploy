@@ -35,6 +35,7 @@ class Helpers(Global):
     '''
     Some helper methods to help in directory/file creation/removal etc.
     '''
+
     def present_in_yaml(self, filename, item):
         doc = self.read_yaml(filename)
         if doc and item in doc:

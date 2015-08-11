@@ -72,7 +72,7 @@ class GlusterDeploy(PlaybookGen, Global):
             args = parser.parse_args()
         except IOError as msg:
             parser.error(str(msg))
-        both_not_present =  not (args.config_file or args.volumeset)
+        both_not_present = not (args.config_file or args.volumeset)
         if both_not_present:
             parser.print_help()
             self.cleanup_and_quit()
@@ -85,50 +85,52 @@ class GlusterDeploy(PlaybookGen, Global):
         '''
         if Global.volume_set:
             the_playbook = self.get_file_dir_path(Global.base_dir,
-                    'gluster-volume-set.yml')
+                                                  'gluster-volume-set.yml')
             self.call_ansible_command(the_playbook)
             return
         elif Global.shell_cmd:
             the_playbook = self.get_file_dir_path(Global.base_dir,
-                    'shell_cmd.yml')
+                                                  'shell_cmd.yml')
             self.call_ansible_command(the_playbook)
             return
 
         playbooks = ' '
         basic_operations = OrderedDict([
-                            ('setup-backend.yml', Global.do_setup_backend),
-                            ('probe_and_create_volume.yml',
-                                                 Global.do_volume_create),
-                            ('gluster-client-mount.yml',
-                                                 Global.do_volume_mount),
-                            ('client_volume_umount.yml',
-                                                 Global.do_volume_umount),
-                            ])
+            ('setup-backend.yml', Global.do_setup_backend),
+            ('probe_and_create_volume.yml',
+             Global.do_volume_create),
+            ('gluster-client-mount.yml',
+             Global.do_volume_mount),
+            ('client_volume_umount.yml',
+             Global.do_volume_umount),
+        ])
         for yml, op in basic_operations.iteritems():
             if op:
                 playbooks += ' ' + self.get_file_dir_path(Global.base_dir, yml)
 
         self.call_ansible_command(playbooks)
-        #Each additional feature like snapshot, NFS-Ganesha is to be added
-        #here
+        # Each additional feature like snapshot, NFS-Ganesha is to be added
+        # here
         features = OrderedDict([
-                   ('gluster-add-brick.yml', Global.volume_add_brick),
-                   ('gluster-remove-brick.yml', Global.volume_remove_brick),
-                   ('snapshot-setup.yml', Global.create_snapshot),
-                   ('gluster-snapshot-delete.yml', Global.delete_snapshot),
-                   ('gluster-snapshot-clone.yml', Global.clone_snapshot),
-                   ('gluster-snapshot-restore.yml', Global.restore_snapshot),
-                   ('gluster-snapshot-config.yml', Global.config_snapshot),
-                   ('ganesha-setup.yml', Global.setup_ganesha)
-                   ])
+            ('gluster-add-brick.yml', Global.volume_add_brick),
+            ('gluster-remove-brick.yml', Global.volume_remove_brick),
+            ('snapshot-setup.yml', Global.create_snapshot),
+            ('gluster-snapshot-delete.yml', Global.delete_snapshot),
+            ('gluster-snapshot-clone.yml', Global.clone_snapshot),
+            ('gluster-snapshot-restore.yml', Global.restore_snapshot),
+            ('gluster-snapshot-config.yml', Global.config_snapshot),
+            ('ganesha-setup.yml', Global.setup_ganesha)
+        ])
 
         for yml, feature in features.iteritems():
             if feature:
                 the_playbook = self.get_file_dir_path(Global.base_dir, yml)
                 self.call_ansible_command(the_playbook)
 
-        #Volume delete should happen atlast no matter what. so moving here
-        volume_delete_yml = self.get_file_dir_path(Global.base_dir,'gluster-volume-delete.yml')
+        # Volume delete should happen atlast no matter what. so moving here
+        volume_delete_yml = self.get_file_dir_path(
+            Global.base_dir,
+            'gluster-volume-delete.yml')
         if Global.do_volume_delete:
             self.call_ansible_command(volume_delete_yml)
 
