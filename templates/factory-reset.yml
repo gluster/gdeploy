@@ -1,6 +1,5 @@
 ---
 - include: client_volume_umount.yml
-- include: gluster-volume-stop.yml
 - include: gluster-volume-delete.yml
 - include: gluster-peer-detach.yml
 - include: umount.yml
