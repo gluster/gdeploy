@@ -1,4 +1,33 @@
-The configuration file currently supports the following sections:
+           Gluster Deploy - Tool to install and configure GlusterFS
+
+Introduction
+============
+
+Gluster Deploy (gdeploy), deploys configurations. A configuration can be:
+
+* Backend setup configuration.
+* Gluster cluster setup (Volume configuration).
+* Client (mount) configuration.
+* Feature configurations like:
+  # NFS-Ganesha configuration
+  # Samba configuration
+  # Snapshot configuration.
+  # Geo-replication configuration.
+  # Quota configuration
+
+In addition to above configurations any volume set operation can be done from
+the remote host. The CLI will be explained later.
+
+The configurations can be put together or can be run individually. For example
+creating backend, setting up a GlusterFS volume, and configuring NFS-Ganesha can
+be one configuration or can be split up into three individual configurations.
+
+
+Configuration files
+===================
+
+The configuration file is made up of sections. Currently supported sections
+include:
 
 * [hosts]
 * [devices]
@@ -14,21 +43,10 @@ The configuration file currently supports the following sections:
 * [volume]
 * [snapshot]
 
-More to come.
+TODO: Explain all of the above
 
-Of the above, the tool itself does not mandate most of the values. The above can
-be split into multiple files also called as `configurations'.
-
-* Brick configuration.
-* Volume configuration.
-* client configuration.
-* geo-replication configuration.
-* snapshot configuration.
-* NFS Ganesha configuration.
-* Samba configuration.
-
-The above configurations and the necessary minimal sections needed for each
-configurations are explained below.
+Of the above mentioned configurations, the tool itself does not mandate most of
+the values.
 
 # Brick configuration:
 
@@ -42,4 +60,3 @@ configurations are explained below.
 
 * [hosts]
 * [volume]
-
