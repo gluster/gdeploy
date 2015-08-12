@@ -1,12 +1,12 @@
 ---
-- hosts: master
+- hosts: cluster_nodes
   remote_user: root
   gather_facts: no
 
   tasks:
   - name: Generate ssh key in one of the nodes in HA cluster
-    shell: ssh-keygen -f /var/lib/glusterd/nfs/secret.pem -y -t rsa -N ''
+    shell: echo -e  'y\n'|ssh-keygen -q -t rsa -N "" -f /var/lib/glusterd/nfs/secret.pem
 
   - name: Copy the public key to the local
     fetch: src=/var/lib/glusterd/nfs/secret.pem.pub
-           dest=/tmp/playbooks
+           dest=/tmp/playbooks/

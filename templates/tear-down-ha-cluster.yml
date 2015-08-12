@@ -1,0 +1,8 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Disable nfs-ganesha in all the nodes
+    shell: gluster nfs-ganesha disable --mode=script

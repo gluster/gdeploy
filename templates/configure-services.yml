@@ -1,5 +1,5 @@
 ---
-- hosts: clients
+- hosts: cluster_nodes
   remote_user: root
   gather_facts: no
 
@@ -18,5 +18,12 @@
   - name: Start network service
     service: name=network state=started
 
-  - name: Disable network service
+  - name: Enable network service
     shell: chkconfig network on
+
+  - name: Start pcsd service
+    service: name=pcsd state=started
+
+  - name: Enable pcsd service
+    shell: chkconfig pcsd on
+

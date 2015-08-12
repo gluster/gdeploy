@@ -29,7 +29,8 @@ class Global(object):
     do_setup_backend = True
     do_volume_create = False
     do_volume_delete = False
-    do_volume_mount = False
+    do_fuse_mount = False
+    do_nfs_mount = False
     do_volume_umount = False
     volume_add_brick = False
     volume_remove_brick = False
@@ -43,6 +44,11 @@ class Global(object):
     setup_ganesha = False
     volume_set = False
     shell_cmd = False
+
+    setup_ganesha = False
+    export_volume = False
+    destroy_cluster = False
+    unexport_volume = False
 
     # Required filenames and dir names
     master = None

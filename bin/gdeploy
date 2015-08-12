@@ -98,11 +98,14 @@ class GlusterDeploy(PlaybookGen, Global):
         basic_operations = OrderedDict([
             ('setup-backend.yml', Global.do_setup_backend),
             ('probe_and_create_volume.yml',
-             Global.do_volume_create),
-            ('gluster-client-mount.yml',
-             Global.do_volume_mount),
+                                 Global.do_volume_create),
+            ('ganesha-volume-configs.yml', Global.export_volume),
+            ('gluster-client-fuse-mount.yml',
+                                     Global.do_fuse_mount),
+            ('gluster-client-nfs-mount.yml',
+                                     Global.do_nfs_mount),
             ('client_volume_umount.yml',
-             Global.do_volume_umount),
+                                 Global.do_volume_umount),
         ])
         for yml, op in basic_operations.iteritems():
             if op:
@@ -119,7 +122,8 @@ class GlusterDeploy(PlaybookGen, Global):
             ('gluster-snapshot-clone.yml', Global.clone_snapshot),
             ('gluster-snapshot-restore.yml', Global.restore_snapshot),
             ('gluster-snapshot-config.yml', Global.config_snapshot),
-            ('ganesha-setup.yml', Global.setup_ganesha)
+            ('bootstrap-nfs-ganesha.yml', Global.setup_ganesha),
+            ('tear-down-ha-cluster.yml', Global.destroy_cluster),
         ])
 
         for yml, feature in features.iteritems():

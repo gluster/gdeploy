@@ -40,7 +40,7 @@ class GlusterConfWriter(YamlWriter):
         and write a custom method which can be assigned to feature func to
         customize the data
         '''
-        group_sections = ['volume', 'clients', 'snapshot']
+        group_sections = ['volume', 'clients', 'snapshot', 'nfs-ganesha']
         for section in group_sections:
             '''
             This try construct will make sure to continue if the
@@ -65,6 +65,7 @@ class GlusterConfWriter(YamlWriter):
             '''
             feature_func = OrderedDict([
                 ('volume', self.write_volume_conf_data),
+                ('nfs-ganesha', self.ganesha_conf_write),
                 ('clients', self.write_client_conf_data),
                 ('snapshot', self.snapshot_conf_write)
             ]).get(section)
@@ -93,30 +94,22 @@ class GlusterConfWriter(YamlWriter):
         '''
         self.write_config('clients', self.clients, Global.inventory)
         del client_info['hosts']
-        '''
-        The subfeatures for the volume such as nfs-ganesha will be
-        defined in this list. Custom methods to  be called to customize the
-        params provided are also to be provided.
-        '''
-        subfeatures = ['nfs-ganesha']
-        custom_feature_functions = {'nfs-ganesha': self.ganesha_conf_write
-                                    }
-        options = self.config_get_options(self.config, 'clients', False)
-        checked_features = [f for f in options if f in subfeatures]
-        for feature in checked_features:
-            subfeature_func = custom_feature_functions.get(feature)
-            if subfeature_func:
-                subfeature_func()
         if client_info.get('action') in ['mount']:
             '''
             This default value dictionary is used to populate the group var
             with default data, if the data is not given by the user/
             '''
-            sections_default_value = {'client_mount_points': '/mnt/gluster',
-                                      'fstype': 'glusterfs'}
+            sections_default_value = {'client_mount_points': '/mnt/gluster'}
+            section_default_value['\
+                    fstype'] = 'nfs' if Global.setup_ganesha else 'glsuterfs'
             self.set_default_value_for_dict_key(client_info,
                                                 sections_default_value)
-            Global.do_volume_mount = True
+            if client_info['fstype'] == 'nfs':
+                Global.do_nfs_mount = True
+                if not client_info.get('nfs-version'):
+                    conf_dict['nfs-version'] = 3
+            else:
+                Global.do_fuse_mount = True
             self.check_presence_of_volname(client_info)
 
         elif client_info.get('action') == 'unmount':
@@ -260,11 +253,20 @@ class GlusterConfWriter(YamlWriter):
                 self.cleanup_and_quit()
         return snap_conf
 
-    def ganesha_conf_write(self):
-        inventory = self.read_config(Global.inventory)
-        clients = self.config_get_options(inventory, 'clients', True)
-        self.write_config('master-client', [clients[0]], Global.inventory)
-        Global.setup_ganesha = True
+    def ganesha_conf_write(self, conf_dict):
+        if conf_dict.get('action') == 'create':
+            cluster_nodes = conf_dict['cluster-nodes']
+            self.write_config('cluster_nodes', cluster_nodes, Global.inventory)
+            self.write_config('master_node', [cluster_nodes[0]], Global.inventory)
+            Global.setup_ganesha = True
+        elif conf_dict.get('action') == 'destroy-cluster':
+            Global.destroy_cluster = True
+        elif conf_dict.get('action') == 'unexport-volume':
+            Global.unexport_volume = True
+        if self.present_in_yaml(self.filename, 'volname'
+                                    ) or conf_dict['volname']:
+            Global.export_volume = True
+        return conf_dict
 
     def check_presence_of_volname(self, conf_dict):
         if not self.present_in_yaml(self.filename, 'volname'
