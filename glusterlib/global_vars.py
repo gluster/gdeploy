@@ -27,6 +27,7 @@ class Global(object):
     '''
     sections = {}
     playbooks = []
+    do_nfs_mount = False
 
     # Required filenames and dir names
     master = None

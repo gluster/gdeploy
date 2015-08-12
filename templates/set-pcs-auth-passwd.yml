@@ -1,0 +1,15 @@
+---
+- hosts: cluster_nodes
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Create a user hacluster in all the cluster nodes if not already present
+    user: name=hacluster
+
+  - name: Set the hacluster user the same password on all machines
+    shell: echo hacluster | passwd --stdin hacluster
+
+  - name: Pcs cluster authenticate the hacluster users in all the nodes
+    shell: pcs cluster auth {{ item }} -u hacluster -p hacluster
+    with_items: groups['cluster_nodes']
