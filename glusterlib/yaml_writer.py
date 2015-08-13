@@ -1,6 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
-#
+# -*- coding: utf-8 -*- #
 #
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
 #
@@ -240,11 +239,6 @@ class YamlWriter(ConfigParseHelpers):
             'tune-profile',
             False) or 'rhs-high-throughput'
         self.iterate_dicts_and_yaml_write(perf)
-
-    def write_host_names(self, config, hosts):
-        self.config = config
-        self.filename = Global.group_file
-        self.create_yaml_dict('hosts', hosts, False)
 
     def write_yaml(self, data_dict, data_flow):
         with open(self.filename, 'a+') as outfile:

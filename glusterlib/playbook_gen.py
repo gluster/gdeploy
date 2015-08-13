@@ -38,6 +38,7 @@ from global_vars import Global
 from gluster_conf_writer import GlusterConfWriter
 from volume_management import VolumeManagement
 from client_management import ClientManagement
+from peer_management import PeerManagement
 
 
 class PlaybookGen(GlusterConfWriter):
@@ -57,10 +58,11 @@ class PlaybookGen(GlusterConfWriter):
         to the global_vars file no matter what, this method
         is called seperately
         '''
+        PeerManagement(self.config)
         VolumeManagement(self.config, self.var_file)
         ClientManagement(self.config)
         self.create_inventory()
-        self.write_host_names(self.config, self.hosts)
+        self.write_host_names()
 
     def get_hostnames(self):
         self.hosts = self.config_get_options(self.config, 'hosts', False)
@@ -133,6 +135,10 @@ class PlaybookGen(GlusterConfWriter):
         if device_names:
             YamlWriter(device_names, self.config, Global.group_file,
                     self.var_file)
+
+    def write_host_names(self):
+        self.filename = Global.group_file
+        self.create_yaml_dict('hosts', self.hosts, False)
 
     def template_files_create(self, temp_file):
         if not os.path.isdir(temp_file):

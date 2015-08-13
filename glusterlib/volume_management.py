@@ -92,6 +92,7 @@ class VolumeManagement(YamlWriter):
             print "Error: Provide the replica count for the volume."
             self.cleanup_and_quit()
         self.check_for_param_presence('volname', self.section_dict)
+        Global.playbooks.append('gluster-peer-probe.yml')
         Global.playbooks.append('gluster-volume-create.yml')
 
 
@@ -103,6 +104,7 @@ class VolumeManagement(YamlWriter):
         self.check_for_param_presence('bricks', self.section_dict)
         self.section_dict['new_bricks'] = self.section_dict.pop('bricks')
         self.check_for_param_presence('volname', self.section_dict)
+        Global.playbooks.append('gluster-peer-probe.yml')
         Global.playbooks.append('gluster-add-brick.yml')
 
     def remove_brick_from_volume(self):
