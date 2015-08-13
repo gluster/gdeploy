@@ -78,6 +78,22 @@
 # /gluster/brick
 #-------------------------------
 
+# brick_dir is the directory which is to be used as brick while creating the
+# volume. A mountpoint cannot be used as a brick directory, so brick_dir
+# specifies the directory to be made inside the LV mount point that will be
+# used as a brick.
+# This field can be left empty in which case a directory will be created
+# inside the mountpoint with a default name. If backend setup is not being done
+# this field will be ignored. An option or section force can be used, in case
+# mountpoints should be used as the brick directories, in which case also this
+# field can be omitted.
+
+# [brick_dirs]
+# gluster_brick
+
+# [force]
+# no
+
 # Host specific data are to be given as follows
 
 [10.70.46.13]
