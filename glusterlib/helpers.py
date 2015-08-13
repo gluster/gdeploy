@@ -74,10 +74,44 @@ class Helpers(Global):
         # To get the n the parent of a particular directory
         return os.sep.join(path.split(os.sep)[:-n])
 
+    def fix_format_of_values_in_config(self, option_dict, excemption=''):
+        '''
+        This method will split the values provided in config by user,
+        when parsed as a dictionary
+        '''
+        for key, value in option_dict.iteritems():
+            '''
+            HACK: The value for option 'transport' can have comma in it,
+            eg: tcp,rdma. so comma here doesn't mean that it can have
+            multiple values. Hence the excemption argument
+            '''
+            if ',' in str(value) and key not in [excemption]:
+                option_dict[
+                    key] = self.split_comma_seperated_options(value)
+
     def set_default_value_for_dict_key(self, dictname, default_value_dict):
         for key, value in default_value_dict.iteritems():
             if key not in dictname:
                 dictname[key] = value
+
+    def check_for_param_presence(self, param, section_dict):
+        if param not in section_dict:
+            print "Error: %s not provided in the config. " \
+                    "Cannot continue!" % param
+            self.cleanup_and_quit()
+
+    def split_volname_and_hostname(self, volname):
+        '''
+        This gives the user the flexibility to not give the hosts
+        section. Instead one can just specify the volume name
+        with one of the peer member's hostname or IP in the
+        format <hostname>:<volumename>
+        '''
+        vol_group = re.match("(.*):(.*)", volname)
+        if vol_group:
+            Global.master = [vol_group.group(1)]
+            return vol_group.group(2)
+        return volname
 
     def exec_cmds(self, cmd, opts):
         try:

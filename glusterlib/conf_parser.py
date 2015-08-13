@@ -79,6 +79,16 @@ class ConfigParseHelpers(Helpers):
                 self.cleanup_and_quit()
             return []
 
+    def get_option_dict(self, config_parse, section, required=False):
+        try:
+            return config_parse.items(section)
+        except:
+            if required:
+                print "Error: Section %s not found in the " \
+                    "configuration file" % section
+                self.cleanup_and_quit()
+            return []
+
     def config_get_options(self, config_parse, section, required):
         try:
             return config_parse.options(section)

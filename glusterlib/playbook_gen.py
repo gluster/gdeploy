@@ -36,6 +36,8 @@ import sys
 from yaml_writer import YamlWriter
 from global_vars import Global
 from gluster_conf_writer import GlusterConfWriter
+from volume_management import VolumeManagement
+from client_management import ClientManagement
 
 
 class PlaybookGen(GlusterConfWriter):
@@ -46,6 +48,7 @@ class PlaybookGen(GlusterConfWriter):
         self.get_hostnames()
         self.create_files_and_dirs()
         self.get_var_file_type()
+        Global.sections = self.config_get_sections(self.config)
         output = {'host_vars': self.host_vars_gen,
                   'group_vars': self.group_vars_gen
                   }[self.var_file]()
@@ -54,7 +57,8 @@ class PlaybookGen(GlusterConfWriter):
         to the global_vars file no matter what, this method
         is called seperately
         '''
-        self.parse_gluster_info(self.config)
+        VolumeManagement(self.config, self.var_file)
+        ClientManagement(self.config)
         self.create_inventory()
         self.write_host_names(self.config, self.hosts)
 
@@ -116,7 +120,9 @@ class PlaybookGen(GlusterConfWriter):
             devices = self.config_section_map(self.config, host,
                                               'devices', False)
             device_names = self.split_comma_seperated_options(devices)
-            YamlWriter(device_names, self.config, host_file, self.var_file)
+            if device_names:
+                YamlWriter(device_names, self.config, host_file,
+                        self.var_file)
 
     def group_vars_gen(self):
         '''
@@ -124,7 +130,9 @@ class PlaybookGen(GlusterConfWriter):
         '''
         device_names = self.config_get_options(self.config,
                                                'devices', False)
-        YamlWriter(device_names, self.config, Global.group_file, self.var_file)
+        if device_names:
+            YamlWriter(device_names, self.config, Global.group_file,
+                    self.var_file)
 
     def template_files_create(self, temp_file):
         if not os.path.isdir(temp_file):
