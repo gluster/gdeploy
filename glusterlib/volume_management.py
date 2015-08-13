@@ -54,22 +54,23 @@ class VolumeManagement(YamlWriter):
         have different brick_dirs for gluster volume
         '''
         if self.filetype == 'group_vars':
-            self.filename = Global.group_file
-            brick_dirs = self.get_options('brick_dirs', True)
-            self.create_yaml_dict('mountpoints', brick_dirs, False)
+            if not self.present_in_yaml(Global.group_file, 'mountpoints'):
+                self.filename = Global.group_file
+                brick_dirs = self.get_options('brick_dirs', True)
+                self.create_yaml_dict('mountpoints', brick_dirs, False)
         else:
             for host in self.hosts:
                 self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
-                self.touch_file(self.filename)
-                brick_dirs = self.get_options('brick_dirs', True)
-                self.create_yaml_dict('mountpoints', brick_dirs, False)
+                if not self.present_in_yaml(self.filename, 'mountpoints'):
+                    self.touch_file(self.filename)
+                    brick_dirs = self.get_options('brick_dirs', True)
+                    self.create_yaml_dict('mountpoints', brick_dirs, False)
 
     def create_volume(self):
         if not self.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
-        if not self.present_in_yaml(Global.group_file, 'mountpoints'):
-            self.write_brick_dirs()
+        self.write_brick_dirs()
         '''
         This default value dictionary is used to populate the group var
         with default data, if the data is not given by the user/
