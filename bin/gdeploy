@@ -38,6 +38,7 @@ class GlusterDeploy(PlaybookGen, Global):
 
     def __init__(self):
         args = self.parse_arguments()
+        self.check_ansible_installation()
         if args.config_file:
             config_file = args.config_file.name
             PlaybookGen(config_file)
@@ -50,6 +51,15 @@ class GlusterDeploy(PlaybookGen, Global):
         else:
             print "You can view the generated configuration files "\
                 "inside /tmp/playbooks/"
+
+    def check_ansible_installation(self):
+        ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
+        if ret:
+            print "Error: gdeploy requires Ansible to run. Please install " \
+                    "Ansible to continue. "\
+                    "Please refer: http://docs.ansible.com/ansible" \
+                            "/intro_installation.html"
+            self.cleanup_and_quit()
 
     def parse_arguments(self):
         '''
