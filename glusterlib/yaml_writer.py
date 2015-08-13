@@ -107,8 +107,9 @@ class YamlWriter(ConfigParseHelpers):
     def modify_mountpoints(self):
         brick_dir = self.get_options('brick_dir', False)
         force = self.get_options('force', False)
-        if force == 'yes':
-            print "Warning: Using mountpoint itself as the brick since force" \
+        if force == ['yes']:
+            print "Warning: Using mountpoint itself as the brick in one or " \
+                    "more hosts since force" \
                 " is specified, although not recommended."
             return
 
