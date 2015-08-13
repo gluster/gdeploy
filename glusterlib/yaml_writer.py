@@ -51,40 +51,29 @@ class YamlWriter(ConfigParseHelpers):
         can be maintained between all these things. Association as in,
         /dev/vgname1/lvname1 is to be mounted at mount_point1 etc
         '''
-        if self.bricks:
-            sections = ['vgs', 'lvs', 'pools']
-            section_names = ['Volume Group', 'Logical Volume',
-                             'Logical Pool']
-            self.section_dict = {'bricks': self.bricks,
-                                 'mountpoints': self.mountpoints}
-            for section, section_name in zip(sections, section_names):
-                self.section_dict[section] = self.section_data_gen(
-                    section,
-                    section_name)
-            self.section_dict['lvols'] = ['/dev/%s/%s' % (i, j) for i, j in
-                                          zip(self.section_dict['vgs'],
-                                              self.section_dict['lvs'])]
-            self.yaml_dict_data_write()
-            self.modify_mountpoints()
-            listables_in_yaml = {
-                key: self.section_dict[key] for key in [
-                    'vgs',
-                    'bricks',
-                    'mountpoints',
-                    'lvols']}
-            self.iterate_dicts_and_yaml_write(listables_in_yaml)
-            self.perf_spec_data_write()
-        else:
-            '''
-            If anyone wishes to just give the mountpoints directly
-            without setting up the backend, only mountpoints option
-            need to be given in the config file. It will skip
-            the back-end setup
-            '''
-            if self.mountpoints:
-                self.iterate_dicts_and_yaml_write(
-                    {'mountpoints': self.mountpoints})
-            Global.do_setup_backend = False
+        sections = ['vgs', 'lvs', 'pools']
+        section_names = ['Volume Group', 'Logical Volume',
+                         'Logical Pool']
+        self.section_dict = {'bricks': self.bricks,
+                             'mountpoints': self.mountpoints}
+        for section, section_name in zip(sections, section_names):
+            self.section_dict[section] = self.section_data_gen(
+                section,
+                section_name)
+        self.section_dict['lvols'] = ['/dev/%s/%s' % (i, j) for i, j in
+                                      zip(self.section_dict['vgs'],
+                                          self.section_dict['lvs'])]
+        self.yaml_dict_data_write()
+        self.modify_mountpoints()
+        listables_in_yaml = {
+            key: self.section_dict[key] for key in [
+                'vgs',
+                'bricks',
+                'mountpoints',
+                'lvols']}
+        self.iterate_dicts_and_yaml_write(listables_in_yaml)
+        self.perf_spec_data_write()
+        Global.playbooks.append('setup-backend.yml')
 
     def insufficient_param_count(self, section, count):
         print "Error: Please provide %s names for %s devices " \

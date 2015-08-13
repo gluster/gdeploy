@@ -51,13 +51,13 @@ class CliOps(PlaybookGen):
                          'value': value,
                          'volname': volname
                          }
-            Global.volume_set = True
+            Global.playbooks.append('gluster-volume-set.yml')
         else:
             '''
             This is a small hack to execute the shell
             module of ansible from CLI
             '''
-            Global.shell_cmd = True
+            Global.playbooks.append('shell_cmd.yml')
             variables = {'cmd': ' '.join(cmd for cmd in volumeset)}
         self.filename = Global.group_file
         self.write_yaml(variables, False)
