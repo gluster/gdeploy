@@ -35,7 +35,6 @@ import os
 import sys
 from yaml_writer import YamlWriter
 from global_vars import Global
-from gluster_conf_writer import GlusterConfWriter
 from volume_management import VolumeManagement
 from client_management import ClientManagement
 from peer_management import PeerManagement

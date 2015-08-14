@@ -9,4 +9,3 @@ from helpers import Helpers
 from cliops import CliOps
 from yaml_writer import YamlWriter
 from playbook_gen import PlaybookGen
-from gluster_conf_writer import GlusterConfWriter
