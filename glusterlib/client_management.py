@@ -27,32 +27,42 @@ class ClientManagement(YamlWriter):
 
     def __init__(self, config):
         self.config = config
+        self.filename = Global.group_file
         try:
             self.section_dict = self.config._sections['client']
             del self.section_dict['__name__']
         except KeyError:
             return
-        action = self.section_dict.get('action') or 'mount'
+        action = self.section_dict.get('action')
+        if not action:
+            self.iterate_dicts_and_yaml_write(self.section_dict)
+            return
         self.fix_format_of_values_in_config(self.section_dict)
-        self.clients =  self.section_dict,get('hosts')
+        self.clients =  self.section_dict.get('hosts')
         if not self.clients:
             return
         '''
         client hostnames or IP should also be in the inventory file since
         mounting is to be done in the client host machines
         '''
-        self.write_config('clients', self.clients, Global.inventory)
-        del self.section_dict['hosts']
         '''
         HACK: The format of the clients gets distorted if it is a single
         client host, as the config_parser returns a str instead of list
         '''
         if isinstance(self.clients, str):
             self.clients = [self.clients]
-        { 'mount': self.mount_volume,
-          'unmount': self.unmount_volume,
-        }[self.section_dict(action)]()
+        self.write_config('clients', self.clients, Global.inventory)
+        del self.section_dict['hosts']
+        try:
+            { 'mount': self.mount_volume,
+              'unmount': self.unmount_volume,
+            }[action]()
+        except:
+            print "Error: Unknown action provided. Use either `mount` " \
+                    "or `unmount`."
+            return
         self.write_client_info()
+        self.iterate_dicts_and_yaml_write(self.section_dict)
 
 
     def write_client_info(self):
@@ -79,16 +89,21 @@ class ClientManagement(YamlWriter):
         This default value dictionary is used to populate the group var
         with default data, if the data is not given by the user/
         '''
-        self.check_for_param_presence('volname', self.section_dict)
+        if not self.present_in_yaml(Global.group_file, 'volname'):
+            self.check_for_param_presence('volname', self.section_dict)
         sections_default_value = {'client_mount_points': '/mnt/gluster',
                                   'fstype': 'glusterfs'}
-        self.set_default_value_for_dict_key(client_info,
+        self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
         if self.section_dict['fstype'] == 'nfs':
-            if not client_info.get('nfs-version'):
-                conf_dict['nfs-version'] = 3
+            if not self.section_dict.get('nfs-version'):
+                self.section_dict['nfsversion'] = 3
+            else:
+                self.section_dict['nfsversion'] = self.section_dict.pop('nfs-version')
+            print "INFO: NFS mount of volume triggered."
             Global.playbooks.append('gluster-client-nfs-mount.yml')
         elif self.section_dict['fstype'] == 'glusterfs':
+            print "INFO: FUSE mount of volume triggered."
             Global.playbooks.append('gluster-client-fuse-mount.yml')
         else:
             print "Error: Unsupported mount type. Exiting!"
@@ -96,5 +111,6 @@ class ClientManagement(YamlWriter):
 
 
     def unmount_volume(self):
-        self.check_for_param_presence('client_mount_points', self.section_dict)
-        Global.playbooks.append('client_volume_umount.yml')
+        self.check_for_param_presence('client_mount_points',
+                self.section_dict)
+        Global.playbooks.insert(0, 'client_volume_umount.yml')

@@ -19,10 +19,10 @@
 
 DOCUMENTATION = '''
 ---
-module: gluster
+module: volume
 short_description: Implementaion of GlusterFS
 description:
-    - A module to set-up a GlusterFS cluster by creating a TSP and
+    - A module to set-up a GlusterFS cluster by
       creating volumes out of bricks. The host group on which
       playbooks will be written for this module should contain
       only one hostname which should be a part of the cluster
@@ -31,25 +31,13 @@ description:
 
 
 options:
-    command:
-        required: True
-        choices: [peer, volume]
-        description: Specifies if the operation is a peer operation or
-                     volume operation. A peer operation does peer probe
-                     and peer detach, whereas a volume operation does
-                     volume create, delete, start, stop, add-brick and
-                     remove-brick.
     action:
         required: True
-        choices: [probe, detach] (If the command is peer)
-                 [create, delete, start, stop, add-brick, remove-brick, set] (If
-                 the command is volume)
-        description: Specifies what exact action is to be done. Under peer
-                     command, it can do probing and detaching. For volume
-                     command, this can be create, delete, start, stop,
+        choices: [create, delete, start, stop, add-brick, remove-brick, set]
+                     This can be create, delete, start, stop,
                      add-brick or remove-brick.
     volume:
-        required: True (If command is volume)
+        required: True
         description: Specifies the name of the Gluster volume to be created.
 
     hosts:
@@ -58,7 +46,7 @@ options:
                      cluster.
 
     bricks:
-        required: True (If command is volume and action is in [create,
+        required: True (If and action is in [create,
                   add-brick, remove-brick])
         description: Specifies the bricks that constitutes the volume if
                      the action is volume create, the new bricks to be
@@ -73,12 +61,12 @@ options:
                      stop, add-brick}
 
     key:
-        required: True if command is volume and  action is set
+        required: True if action is set
         description: Set action sets options for the volume. Key
                      specifies which option is to be set
 
     value:
-        required: True if command is volume and action is set
+        required: True if action is set
         description: Specifies the value to be set for the option
                      specified bt key.
 
@@ -125,7 +113,7 @@ options:
         optimal configuration.
 
     state:
-        required: True if action is remove-brick for volume command
+        required: True if action is remove-brick
         choices: [start, stop, status, commit, force]
         description: Specifies the state of the volume if one or more
                      bricks are to be removed from the volume
@@ -135,16 +123,8 @@ options:
 
 EXAMPLES = '''
 ---
-#Creates a Trusted Storage Pool
-  - gluster: command=peer action=probe
-             hosts="{{ hosts }}"
-
-# Detaches peers form a Trusted Storage Pool
- -  gluster: command=peer action=detach
-             hosts="{{ hosts }}"
-
 # Creates a volume
-  - gluster: command=volume action=create
+  - volume: action=create
              volume="{{ volname }}"
              bricks='{% for host in hosts %}
              {{ hostvars[host]['mountpoints'] }};
@@ -155,11 +135,6 @@ EXAMPLES = '''
              replica_count=3
              arbiter_count=1
 
-# Sets options for volume
-  - gluster: command=volume action=set
-             volume="{{ volname }}"
-             key=cluster.nufa value=on
-
 '''
 
 import sys
@@ -168,16 +143,12 @@ from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
-class Gluster(object):
+class Volume(object):
     def __init__(self, module):
         self.module = module
-        self.command = self._validated_params('command')
         self.action = self._validated_params('action')
-        self.force = 'force' if self.module.params['force'] == 'yes' else ''
-        {
-            'peer': self.gluster_peer_ops,
-            'volume': self.gluster_volume_ops
-        }[self.command]()
+        self.force = 'force' if self.module.params.get('force') == 'yes' else ''
+        self.gluster_volume_ops()
 
     def get_playbook_params(self, opt):
         return self.module.params[opt]
@@ -231,17 +202,6 @@ class Gluster(object):
                                         bricks.split(';')])
         return ' '.join(brick_path for brick_path in
                 self.append_host_name())
-
-    def gluster_peer_ops(self):
-        if self.action in ['probe', 'detach']:
-            self.get_host_names(True)
-            for hostname in self.hosts:
-                rc, output, err = self.call_gluster_cmd('peer',
-                        self.action, self.force, hostname)
-        else:
-            rc, output, err = self.call_gluster_cmd('peer', self.action)
-            #This still doesn't print output to stdout sadly.
-        self._get_output(rc, output, err)
 
     def get_volume_configs(self):
         options = ' '
@@ -318,7 +278,6 @@ class Gluster(object):
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
-            command=dict(required=True),
             action=dict(required=True),
             current_host=dict(),
             hosts=dict(),
@@ -339,4 +298,4 @@ if __name__ == '__main__':
         ),
     )
 
-    Gluster(module)
+    Volume(module)

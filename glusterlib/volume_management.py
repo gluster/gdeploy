@@ -29,22 +29,36 @@ class VolumeManagement(YamlWriter):
     def __init__(self, config, filetype):
         self.config = config
         self.filetype = filetype
-        self.hosts = self.config_get_options(self.config, 'hosts', False)
         try:
             self.section_dict = self.config._sections['volume']
             del self.section_dict['__name__']
         except KeyError:
             return
-        action = self.section_dict.get('action') or 'create'
+        action = self.section_dict.get('action')
+        if not action:
+            self.filename = Global.group_file
+            self.iterate_dicts_and_yaml_write(self.section_dict)
+            return
         self.fix_format_of_values_in_config(self.section_dict, 'transport')
-        { 'create': self.create_volume,
-          'delete': self.delete_volume,
-          'add-brick': self.add_brick_to_volume,
-          'remove-brick': self.remove_brick_from_volume,
-          'rebalance': self.gfs_rebalance
-        }[action]()
-        if not self.hosts:
-            self.split_volname_and_hostname(self.section_dict['volname'])
+        try:
+            { 'create': self.create_volume,
+              'start': self.start_volume,
+              'delete': self.delete_volume,
+              'stop': self.stop_volume,
+              'add-brick': self.add_brick_to_volume,
+              'remove-brick': self.remove_brick_from_volume,
+              'rebalance': self.gfs_rebalance
+            }[action]()
+        except:
+            print "Error: Unknown action provided. Supported actions are:\n " \
+                    "create, delete, start, stop, add-brick, remove-brick, " \
+                    "and rebalance"
+            return
+        volname = self.split_volname_and_hostname(self.section_dict['volname'])
+        self.section_dict['volname'] = volname
+        if not Global.hosts:
+            print "Error: Hostnames not provided. Cannot continue!"
+            self.cleanup_and_quit()
         self.filename = Global.group_file
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
@@ -59,7 +73,7 @@ class VolumeManagement(YamlWriter):
                 brick_dirs = self.get_options('brick_dirs', True)
                 self.create_yaml_dict('mountpoints', brick_dirs, False)
         else:
-            for host in self.hosts:
+            for host in Global.hosts:
                 self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
                 if not self.present_in_yaml(self.filename, 'mountpoints'):
                     self.touch_file(self.filename)
@@ -67,9 +81,6 @@ class VolumeManagement(YamlWriter):
                     self.create_yaml_dict('mountpoints', brick_dirs, False)
 
     def create_volume(self):
-        if not self.hosts:
-            print "Error: Hostnames not provided. Cannot continue!"
-            self.cleanup_and_quit()
         self.write_brick_dirs()
         '''
         This default value dictionary is used to populate the group var
@@ -92,9 +103,19 @@ class VolumeManagement(YamlWriter):
             print "Error: Provide the replica count for the volume."
             self.cleanup_and_quit()
         self.check_for_param_presence('volname', self.section_dict)
-        Global.playbooks.append('gluster-peer-probe.yml')
+        if 'gluster-peer-probe.yml' not in Global.playbooks:
+            Global.playbooks.append('gluster-peer-probe.yml')
+        Global.playbooks.append('create-brick-dirs.yml')
         Global.playbooks.append('gluster-volume-create.yml')
+        self.start_volume()
 
+    def start_volume(self):
+        self.check_for_param_presence('volname', self.section_dict)
+        Global.playbooks.append('gluster-volume-start.yml')
+
+    def stop_volume(self):
+        self.check_for_param_presence('volname', self.section_dict)
+        Global.playbooks.append('gluster-volume-stop.yml')
 
     def delete_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
@@ -103,8 +124,11 @@ class VolumeManagement(YamlWriter):
     def add_brick_to_volume(self):
         self.check_for_param_presence('bricks', self.section_dict)
         self.section_dict['new_bricks'] = self.section_dict.pop('bricks')
+        for brick in self.section_dict['new_bricks']:
+            self.split_volname_and_hostname(brick)
         self.check_for_param_presence('volname', self.section_dict)
-        Global.playbooks.append('gluster-peer-probe.yml')
+        if 'gluster-peer-probe.yml' not in Global.playbooks:
+            Global.playbooks.append('gluster-peer-probe.yml')
         Global.playbooks.append('gluster-add-brick.yml')
 
     def remove_brick_from_volume(self):

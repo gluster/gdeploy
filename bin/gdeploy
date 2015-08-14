@@ -55,10 +55,8 @@ class GlusterDeploy(PlaybookGen, Global):
     def check_ansible_installation(self):
         ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
         if ret:
-            print "Error: gdeploy requires Ansible to run. Please install " \
-                    "Ansible to continue. "\
-                    "Please refer: http://docs.ansible.com/ansible" \
-                            "/intro_installation.html"
+            print "Error: gdeploy requires Ansible to run. \nPlease install " \
+                    "Ansible to continue."
             self.cleanup_and_quit()
 
     def parse_arguments(self):
@@ -90,7 +88,8 @@ class GlusterDeploy(PlaybookGen, Global):
 
     def deploy_gluster(self):
         for yml in Global.playbooks:
-            self.call_ansible_command(yml)
+            the_playbook = self.get_file_dir_path(Global.base_dir, yml)
+            self.call_ansible_command(the_playbook)
 
     def call_ansible_command(self, playbooks):
         '''

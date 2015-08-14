@@ -5,7 +5,7 @@
 
   tasks:
   - name: Create the dir to mount the volume, fails if present
-    shell: mkdir -p {{ item }}
+  shell: mkdir {{ item }} -p
 
     with_items: client_mount_points
 

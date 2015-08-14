@@ -26,7 +26,7 @@ class Snapshot(object):
     def __init__(self, module):
         self.module = module
         self.action = self._validated_params('action')
-        self.force = 'force' if self.module.params['force'] == 'yes' else ''
+        self.force = 'force' if self.module.params.get('force') == 'yes' else ''
         self.gluster_snapshot_ops()
 
     def get_playbook_params(self, opt):

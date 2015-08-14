@@ -5,7 +5,7 @@
 
   tasks:
   - name: Creates a volume
-    gluster: command=volume action=create
+    volume:  action=create
              volume="{{ volname }}"
              bricks='{% for host in hosts %}
              {{ hostvars[host]['mountpoints'] }};

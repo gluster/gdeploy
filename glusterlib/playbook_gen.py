@@ -65,11 +65,7 @@ class PlaybookGen(GlusterConfWriter):
         self.write_host_names()
 
     def get_hostnames(self):
-        self.hosts = self.config_get_options(self.config, 'hosts', False)
-        if not self.hosts:
-            print "Error: Section `hosts' not found.\ngluster-deploy will "\
-                "continue only if volume name is given in the format " \
-                "<hostname>:<volumename>"
+        Global.hosts = self.config_get_options(self.config, 'hosts', False)
 
     def create_files_and_dirs(self):
         '''
@@ -91,8 +87,8 @@ class PlaybookGen(GlusterConfWriter):
         present as sections in the configuration file, assumes
         we need host_vars. Fails accordingly.
         '''
-        if set(self.hosts).intersection(set(self.options)):
-            if set(self.hosts).issubset(set(self.options)):
+        if set(Global.hosts).intersection(set(self.options)):
+            if set(Global.hosts).issubset(set(self.options)):
                 self.var_file = 'host_vars'
             else:
                 print "Error: Looks like you missed to give configurations " \
@@ -102,12 +98,12 @@ class PlaybookGen(GlusterConfWriter):
             self.var_file = 'group_vars'
 
     def create_inventory(self):
-        self.hosts and self.write_config(
+        Global.hosts and self.write_config(
             Global.group,
-            self.hosts,
+            Global.hosts,
             Global.inventory)
-        if self.hosts or Global.master:
-            self.write_config('master', Global.master or [self.hosts[0]],
+        if Global.hosts or Global.master:
+            self.write_config('master', Global.master or [Global.hosts[0]],
                               Global.inventory)
 
     def host_vars_gen(self):
@@ -116,7 +112,10 @@ class PlaybookGen(GlusterConfWriter):
         each hosts and writes data to it, accorsing with the help of
         YAMLWriter
         '''
-        for host in self.hosts:
+        if not Global.hosts:
+            print "Warning: Section `hosts' not found. Skipping backend-setup"
+            return
+        for host in Global.hosts:
             host_file = self.get_file_dir_path(Global.host_vars_dir, host)
             self.touch_file(host_file)
             devices = self.config_section_map(self.config, host,
@@ -127,6 +126,9 @@ class PlaybookGen(GlusterConfWriter):
                         self.var_file)
 
     def group_vars_gen(self):
+        if not Global.hosts:
+            print "Warning: Section `hosts' not found. Skipping backend-setup"
+            return
         '''
         Calls YamlWriter for writing data to the group_vars file
         '''
@@ -138,7 +140,7 @@ class PlaybookGen(GlusterConfWriter):
 
     def write_host_names(self):
         self.filename = Global.group_file
-        self.create_yaml_dict('hosts', self.hosts, False)
+        self.create_yaml_dict('hosts', Global.hosts, False)
 
     def template_files_create(self, temp_file):
         if not os.path.isdir(temp_file):

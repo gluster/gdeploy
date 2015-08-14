@@ -5,9 +5,9 @@
 
   tasks:
   - name: Stops a volume
-    gluster: command=volume action=stop
+    volume: action=stop
              volume="{{ volname }}"
 
   - name: Deletes a volume
-    gluster: command=volume action=delete
+    volume:  action=delete
              volume="{{ volname }}"

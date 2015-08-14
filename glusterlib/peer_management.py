@@ -25,12 +25,23 @@ from helpers import Helpers
 
 class PeerManagement(YamlWriter):
 
-    def __init__(self, config, filetype):
+    def __init__(self, config):
         self.config = config
         if self.config.has_section('peer'):
             action = self.config_section_map(self.config, 'peer', 'manage', True)
-            self.hosts = self.config_get_options(self.config, 'hosts', True)
-            yml = {'probe': 'gluster-peer-probe.yml',
-                   'detach': 'gluster-peer-detach.yml'
-                  }[action]
+            self.hosts = self.config_get_options(self.config, 'hosts', False)
+            if not self.hosts:
+                print "Error: Although peer manage option is provided, " \
+                        "no hosts are provided in the section. " \
+                        "Skipping section `peer`"
+                return
+            try:
+                yml = {'probe': 'gluster-peer-probe.yml',
+                       'detach': 'gluster-peer-detach.yml'
+                      }[action]
+            except:
+                print "Error: Unknown action provided. Use either `probe` " \
+                        "or `detach`."
+            return
+            print "INFO: Peer management triggered"
             Global.playbooks.append(yml)

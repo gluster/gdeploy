@@ -7,4 +7,4 @@
   - name: Creates a Trusted Storage Pool
     peer: action=probe
           hosts="{{ hosts }}"
-          current_host={{ inventory_hostname }}
+          current_host={{inventory_hostname}}

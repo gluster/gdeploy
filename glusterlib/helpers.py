@@ -25,6 +25,7 @@
 #
 
 import os
+import re
 import sys
 import yaml
 from global_vars import Global
@@ -110,6 +111,8 @@ class Helpers(Global):
         vol_group = re.match("(.*):(.*)", volname)
         if vol_group:
             Global.master = [vol_group.group(1)]
+            if vol_group.group(1) not in Global.hosts:
+                Global.hosts.append(vol_group.group(1))
             return vol_group.group(2)
         return volname
 

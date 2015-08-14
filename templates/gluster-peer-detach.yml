@@ -5,5 +5,5 @@
 
   tasks:
   - name: Detaches a pool form a Trusted Storage Pool
-    gluster: command=peer action=detach
-             hosts="{{ hosts }}"
+    peer: action=detach
+          hosts="{{ hosts }}"

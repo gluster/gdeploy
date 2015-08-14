@@ -5,7 +5,7 @@
 
   tasks:
   - name: Add bricks to an existing volume
-    gluster: command=volume action=add-brick
+    volume:  action=add-brick
              volume="{{ volname }}"
              bricks="{{ new_bricks }}"
              replica=yes
