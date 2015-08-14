@@ -27,7 +27,11 @@
 import os
 import re
 import sys
-import yaml
+try:
+    import yaml
+except ImportError:
+    print "Error: Package PyYAML not found."
+    sys.exit(0)
 from global_vars import Global
 
 

@@ -25,10 +25,14 @@
 #    as per specified in the configuration file
 #
 
-import yaml
 from conf_parser import ConfigParseHelpers
 from global_vars import Global
 from helpers import Helpers
+try:
+    import yaml
+except ImportError:
+    print "Error: Package PyYAML not found."
+    sys.exit(0)
 import os
 
 
