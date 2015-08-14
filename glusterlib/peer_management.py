@@ -42,6 +42,6 @@ class PeerManagement(YamlWriter):
             except:
                 print "Error: Unknown action provided. Use either `probe` " \
                         "or `detach`."
-            return
+                return
             print "INFO: Peer management triggered"
             Global.playbooks.append(yml)

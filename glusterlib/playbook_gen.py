@@ -40,7 +40,7 @@ from client_management import ClientManagement
 from peer_management import PeerManagement
 
 
-class PlaybookGen(GlusterConfWriter):
+class PlaybookGen(YamlWriter):
 
     def __init__(self, config_file):
         self.config = self.read_config(config_file)
