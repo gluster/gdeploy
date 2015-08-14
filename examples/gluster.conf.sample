@@ -98,40 +98,52 @@
 
 [10.70.46.13]
 devices=/dev/sdb,/dev/vdb,/dev/vda
+vgs=CUSTOM_vg1,CUSTOM_vg2,CUSTOM_vg3
+pools=CUSTOM_pool1,CUSTOM_pool2,CUSTOM_pool3
+lvs=CUSTOM_lv1,CUSTOM_lv2,CUSTOM_lv3
+mountpoints=/gluster/brick1,/gluster/brick2,/gluster/brick3
+brick_dirs=glusterbrick
+force=no
 
 [10.70.46.15]
 devices=/dev/vdc,/dev/vdb
+vgs=CUSTOM_vg1,CUSTOM_vg2
+pools=CUSTOM_pool1,CUSTOM_pool2
+lvs=CUSTOM_lv1,CUSTOM_lv2
+mountpoints=/gluster/brick1,/gluster/brick2
+force=yes
 
 [10.70.46.17]
 devices=/dev/vdc,/dev/vdb
+vgs=CUSTOM_vg1,CUSTOM_vg2
+pools=CUSTOM_pool1,CUSTOM_pool2
+lvs=CUSTOM_lv1,CUSTOM_lv2
+mountpoints=/gluster/brick1,/gluster/brick2
+force=no
 
 [10.70.46.19]
 devices=/dev/vdb
+vgs=CUSTOM_vg1
+pools=CUSTOM_pool1
+lvs=CUSTOM_lv1
+mountpoints=/gluster/brick1
+force=no
 #----------------------------------
 
+# The section peer specifies the configurations for the Trusted Storage
+# Pool managament(TSP)
 
-# IMP: If only back-end setup is to be done but not GlusterFs
-# deployment omit the following section
+# This section helps in making all the hosts specified in the section 'hosts'
+# to either probe each other making the TSP or detach all of them from TSP
 
-# Specifies the client hosts and client_mount_points to mount the gluster
-# volume created.
-# 'action' option is to be specified for the framework to understand
-# what action is to be done. The options are 'mount' and 'unmount'
-# Client hosts field is mandatory. If mount points
-# are not specified, default will be taken as /mnt/gluster
-# for all the hosts
-# The option fstype specifies how gluster volume is to be mounted.
-# Default is glusterfs(FUSE mount). The volume can also be mounted as NFS.
-# Each client can have different types of volume mount. Just specify it comma
-# seperated.
+# The only option in this section is the option names 'manage' which can have
+# it's values to be  either probe or detach
 
-[clients]
-action=mount
-hosts=10.70.46.13
-fstype=glusterfs
-client_mount_points=/mnt/gluster
+[peer]
+manage=probe
+# manage=detach
+
 #-----------------------------------
-
 # The section volume specifies the configuration options for the volume.
 
 # 'action' option specifies what action id to be performed in the volume.
@@ -179,21 +191,28 @@ disperse=yes
 disperse_count=0
 redundancy_count=2
 
-# 'snapshot' section can be used if the user wants to create or delete
-# a snapshot.
-# The option 'action' is to be used to specify which snapshot action is to be
-# executed. The choices supported as of now are create, delete, clone
-# and restore.
-# The name of the snapshot can be specified as the value to the snapname option.
-# If the action is create the name of the volume is to specified as the value
-# to the option 'volname'.(If not specified under the volume section).
 
-# [snapshot]
-# action=create
-# snapname=glustersnap
-#---------------------------------
+#-----------------------------------
 
+# IMP: If only back-end setup is to be done but not GlusterFs
+# deployment omit the following section
 
+# Specifies the client hosts and client_mount_points to mount the gluster
+# volume created.
+# 'action' option is to be specified for the framework to understand
+# what action is to be done. The options are 'mount' and 'unmount'
+# Client hosts field is mandatory. If mount points
+# are not specified, default will be taken as /mnt/gluster
+# for all the hosts
+# The option fstype specifies how gluster volume is to be mounted.
+# Default is glusterfs(FUSE mount). The volume can also be mounted as NFS.
+# Each client can have different types of volume mount. Just specify it comma
+# seperated.
 
-
+[clients]
+action=mount
+hosts=10.70.46.13
+fstype=glusterfs
+client_mount_points=/mnt/gluster
+#-----------------------------------
 
