@@ -99,8 +99,7 @@ class GlusterDeploy(PlaybookGen, Global):
             try:
                 cmd = 'ansible-playbook -i %s %s' % (
                     Global.inventory, playbooks)
-                print cmd
-                #self.exec_cmds(cmd, '')
+                self.exec_cmds(cmd, '')
             except:
                 print "Error: Looks like there is something wrong with " \
                     "your ansible installation."
