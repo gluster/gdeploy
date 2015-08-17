@@ -114,6 +114,7 @@ class PlaybookGen(YamlWriter):
         if not Global.hosts:
             print "Warning: Section `hosts' not found. Skipping backend-setup"
             return
+        backend_setup = True
         for host in Global.hosts:
             host_file = self.get_file_dir_path(Global.host_vars_dir, host)
             self.touch_file(host_file)
@@ -121,8 +122,11 @@ class PlaybookGen(YamlWriter):
                                               'devices', False)
             device_names = self.split_comma_seperated_options(devices)
             if device_names:
-                YamlWriter(device_names, self.config, host_file,
+                backend_setup = backend_setup and YamlWriter(
+                        device_names, self.config, host_file,
                         self.var_file)
+        if backend_setup:
+            Global.playbooks.append('setup-backend.yml')
 
     def group_vars_gen(self):
         if not Global.hosts:
@@ -136,6 +140,7 @@ class PlaybookGen(YamlWriter):
         if device_names:
             YamlWriter(device_names, self.config, Global.group_file,
                     self.var_file)
+            Global.playbooks.append('setup-backend.yml')
 
     def write_host_names(self):
         self.filename = Global.group_file

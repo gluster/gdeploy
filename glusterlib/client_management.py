@@ -29,7 +29,7 @@ class ClientManagement(YamlWriter):
         self.config = config
         self.filename = Global.group_file
         try:
-            self.section_dict = self.config._sections['client']
+            self.section_dict = self.config._sections['clients']
             del self.section_dict['__name__']
         except KeyError:
             return

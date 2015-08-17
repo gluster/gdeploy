@@ -76,7 +76,7 @@ class YamlWriter(ConfigParseHelpers):
                 'lvols']}
         self.iterate_dicts_and_yaml_write(listables_in_yaml)
         self.perf_spec_data_write()
-        Global.playbooks.append('setup-backend.yml')
+        return True
 
     def insufficient_param_count(self, section, count):
         print "Error: Please provide %s names for %s devices " \
