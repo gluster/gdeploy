@@ -50,7 +50,7 @@ class VolumeManagement(YamlWriter):
               'rebalance': self.gfs_rebalance
             }[action]()
         except:
-            print "Error: Unknown action provided. Supported actions are:\n " \
+            print "\nError: Unknown action provided. \nSupported actions are:\n " \
                     "create, delete, start, stop, add-brick, remove-brick, " \
                     "and rebalance"
             return
@@ -62,9 +62,9 @@ class VolumeManagement(YamlWriter):
         self.filename = Global.group_file
         print "INFO: Volume management(action: %s) triggered" % action
         if self.section_dict.get('force') == 'yes':
-            print "Warning: Using mountpoint itself as the brick in one or " \
+            print "\nWarning: Using mountpoint itself as the brick in one or " \
                     "more hosts since force" \
-                " is specified, although not recommended."
+                " is specified, although not recommended.\n"
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def write_brick_dirs(self):
