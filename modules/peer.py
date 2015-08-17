@@ -51,14 +51,15 @@ class Peer(object):
     def gluster_peer_ops(self):
         self.get_host_names()
         if self.action == 'probe':
-            self.current_host = self._validated_params('current_host')
             self.hosts = self.get_to_be_probed_hosts()
+        self.current_host = self._validated_params('current_host')
+        self.hosts.remove(self.current_host)
         self.force = 'force' if self.module.params.get('force') == 'yes' else ''
         if self.hosts:
             rc, output, err = [0, 0, 0]
             for hostname in self.hosts:
                 rc, output, err = self.call_gluster_cmd('peer',
-                        self.action, self.force, hostname)
+                        self.action, hostname, self.force)
             self._get_output(rc, output, err)
         else:
             self.module.exit_json()
@@ -71,7 +72,6 @@ class Peer(object):
         peers_in_cluster.remove('localhost')
         hosts_to_be_probed = [host for host in self.hosts if host not in
                 peers_in_cluster]
-        hosts_to_be_probed.remove(self.current_host)
         return hosts_to_be_probed
 
 
@@ -100,6 +100,7 @@ if __name__ == '__main__':
             action=dict(required=True),
             current_host=dict(),
             hosts=dict(),
+            force=dict(),
         ),
     )
 

@@ -7,3 +7,5 @@
   - name: Detaches a pool form a Trusted Storage Pool
     peer: action=detach
           hosts="{{ hosts }}"
+          current_host={{inventory_hostname}}
+          force=yes
