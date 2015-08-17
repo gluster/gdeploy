@@ -78,21 +78,17 @@
 # /gluster/brick
 #-------------------------------
 
-# brick_dirs is the directory which is to be used as brick while creating the
+# brick_dir is the directory which is to be used as brick while creating the
 # volume. A mountpoint cannot be used as a brick directory, so brick_dir
 # specifies the directory to be made inside the LV mount point that will be
 # used as a brick.
 # This field can be left empty in which case a directory will be created
 # inside the mountpoint with a default name. If backend setup is not being done
-# this field will be ignored. An option or section force can be used, in case
-# mountpoints should be used as the brick directories, in which case also this
-# field can be omitted.
+# this field will be ignored.
 
-# [brick_dirs]
+# [brick_dir]
 # gluster_brick
 
-# [force]
-# no
 
 # Host specific data are to be given as follows
 
@@ -102,8 +98,7 @@ vgs=CUSTOM_vg1,CUSTOM_vg2,CUSTOM_vg3
 pools=CUSTOM_pool1,CUSTOM_pool2,CUSTOM_pool3
 lvs=CUSTOM_lv1,CUSTOM_lv2,CUSTOM_lv3
 mountpoints=/gluster/brick1,/gluster/brick2,/gluster/brick3
-brick_dirs=glusterbrick
-force=no
+brick_dir=glusterbrick
 
 [10.70.46.15]
 devices=/dev/vdc,/dev/vdb
@@ -111,7 +106,6 @@ vgs=CUSTOM_vg1,CUSTOM_vg2
 pools=CUSTOM_pool1,CUSTOM_pool2
 lvs=CUSTOM_lv1,CUSTOM_lv2
 mountpoints=/gluster/brick1,/gluster/brick2
-force=yes
 
 [10.70.46.17]
 devices=/dev/vdc,/dev/vdb
@@ -119,7 +113,6 @@ vgs=CUSTOM_vg1,CUSTOM_vg2
 pools=CUSTOM_pool1,CUSTOM_pool2
 lvs=CUSTOM_lv1,CUSTOM_lv2
 mountpoints=/gluster/brick1,/gluster/brick2
-force=no
 
 [10.70.46.19]
 devices=/dev/vdb
@@ -127,7 +120,6 @@ vgs=CUSTOM_vg1
 pools=CUSTOM_pool1
 lvs=CUSTOM_lv1
 mountpoints=/gluster/brick1
-force=no
 #----------------------------------
 
 # The section peer specifies the configurations for the Trusted Storage
@@ -177,6 +169,8 @@ manage=probe
 # disperse_count value.
 # If 'redundancy_count' is not specified, and if 'disperse' is yes,  it's
 # default value is computed so that it generates an optimal configuration.
+# An option 'force' can be used, in case the brick_dirs specified are
+# some mountpoints and must be used anyway.
 
 
 
@@ -190,6 +184,7 @@ transport=tcp,rdma
 disperse=yes
 disperse_count=0
 redundancy_count=2
+force=yes
 
 
 #-----------------------------------

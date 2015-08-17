@@ -98,14 +98,11 @@ class YamlWriter(ConfigParseHelpers):
 
     def modify_mountpoints(self):
         brick_dir = self.get_options('brick_dir', False)
-        force = self.get_options('force', False)
-        if force == ['yes']:
-            print "Warning: Using mountpoint itself as the brick in one or " \
-                    "more hosts since force" \
-                " is specified, although not recommended."
-            return
 
         if not brick_dir:
+            force = self.config_section_map(self.config, 'volume', 'force', False)
+            Global.force_create = Global.force_create or (force == 'yes')
+            return
             brick_list = [self.get_file_dir_path(mntpath,
                                                  os.path.basename(mntpath)) for
                           mntpath in self.section_dict['mountpoints']]

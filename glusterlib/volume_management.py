@@ -61,6 +61,10 @@ class VolumeManagement(YamlWriter):
             self.cleanup_and_quit()
         self.filename = Global.group_file
         print "INFO: Volume management(action: %s) triggered" % action
+        if Global.force_create:
+            print "Warning: Using mountpoint itself as the brick in one or " \
+                    "more hosts since force" \
+                " is specified, although not recommended."
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def write_brick_dirs(self):
