@@ -101,8 +101,8 @@ class YamlWriter(ConfigParseHelpers):
 
         if not brick_dir:
             force = self.config_section_map(self.config, 'volume', 'force', False)
-            Global.force_create = Global.force_create or (force == 'yes')
-            return
+            if force == 'yes':
+                return
             brick_list = [self.get_file_dir_path(mntpath,
                                                  os.path.basename(mntpath)) for
                           mntpath in self.section_dict['mountpoints']]

@@ -40,4 +40,3 @@ class Global(object):
     group_file = os.path.join(group_vars_dir, 'all')
 
 
-    force_create = False

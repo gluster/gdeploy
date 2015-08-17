@@ -61,7 +61,7 @@ class VolumeManagement(YamlWriter):
             self.cleanup_and_quit()
         self.filename = Global.group_file
         print "INFO: Volume management(action: %s) triggered" % action
-        if Global.force_create:
+        if self.section_dict.get('force') == 'yes':
             print "Warning: Using mountpoint itself as the brick in one or " \
                     "more hosts since force" \
                 " is specified, although not recommended."
