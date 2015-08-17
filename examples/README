@@ -151,9 +151,25 @@ own specific data. The following are the variables that are supported for hosts.
 
 Host specific data can be:
   * devices - List of devices to use
-  * diskcount
-  * stripesize
+  * vgs - Custom VG names
+  * pools - Custom POOL names
+  * lvs - Custom LV names
+  * mountpoints - Mount points for the logical names
 
+`peer'
+------
+
+The section peer specifies the configurations for the Trusted Storage
+Pool managament(TSP)
+
+This section helps in making all the hosts specified in the section 'hosts'
+to either probe each other making the TSP or detach all of them from TSP
+
+The only option in this section is the option names 'manage' which can have
+it's values to be  either probe or detach
+
+Conf data:
+  * manage [Possible options are `probe' or `detach']
 
 `clients'
 ---------
@@ -225,6 +241,7 @@ Fields allowed in this section:
   * disperse=yes
   * disperse_count=0
   * redundancy_count=2
+  * force - Pass force option to volume create
 
 `snapshot'
 ----------
