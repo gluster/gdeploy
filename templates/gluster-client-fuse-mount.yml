@@ -1,5 +1,5 @@
 ---
-- hosts: clients
+- hosts: fuse_clients
   remote_user: root
   gather_facts: no
 

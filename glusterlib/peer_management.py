@@ -44,4 +44,5 @@ class PeerManagement(YamlWriter):
                         "or `detach`."
                 return
             print "INFO: Peer management triggered"
+            Global.playbooks.append('glusterd-start.yml')
             Global.playbooks.append(yml)

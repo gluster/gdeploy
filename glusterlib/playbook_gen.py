@@ -152,22 +152,22 @@ class PlaybookGen(YamlWriter):
         Templates directory in this codebase's repo will be moved to
         /tmp/playbooks
         '''
-        # Is the templates present as a part of ansible installation?
         templates_path_pkg = '/usr/share/ansible/gdeploy/templates'
-        # Or is it present in the source directory or installed via setuptools
-        templates_path_bk = self.get_file_dir_path(os.getenv(
-            'GDEPLOY_TEMPLATES'), 'templates') or ''
-        templates_dir = [
-            path for path in [
-                templates_path_bk,
-                templates_path_pkg] if os.path.isdir(path)]
-        if not templates_dir:
+        templates_env_var = os.getenv('GDEPLOY_TEMPLATES')
+        # Is environment variable GDEPLOY_TEMPLATES set
+        if templates_env_var:
+            templates_dir = self.get_file_dir_path(templates_env_var,
+                    'templates')
+        # Or assumes the templates are present as a part of ansible installation
+        else:
+            templates_dir = templates_path_pkg
+        if not os.path.isdir(templates_dir):
             print "Error: Template files not found.\n\n" \
                 "Gdeploy looks inside the directory %s or \n" \
                 "wants the environment varible GDEPLOY_TEMPLATES set."\
                  % (templates_path_pkg)
             self.cleanup_and_quit()
-        self.template_files_create(templates_dir[0])
+        self.template_files_create(templates_dir)
 
 
 if __name__ == '__main__':

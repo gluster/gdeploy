@@ -58,9 +58,10 @@ class ClientManagement(YamlWriter):
               'unmount': self.unmount_volume,
             }[action]()
         except:
-            print "Error: Unknown action provided. Use either `mount` " \
+            print "Error: Unknown action provided for client section. Exiting!\n " \
+                    "Use either `mount` " \
                     "or `unmount`."
-            return
+            self.cleanup_and_quit()
         self.write_client_info()
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
@@ -70,6 +71,8 @@ class ClientManagement(YamlWriter):
         host_var files are to be created if multiple clients
         have different mount points for gluster volume
         '''
+        self.nfs_clients = []
+        self.fuse_clients = []
         for key, value in self.section_dict.iteritems():
             gluster = dict()
             if isinstance(value, list):
@@ -80,9 +83,52 @@ class ClientManagement(YamlWriter):
                 for client, conf in zip(self.clients, value):
                     self.filename = self.get_file_dir_path(
                         Global.host_vars_dir, client)
-                    gluster[key] = conf
+                    if key == 'fstype':
+                        gluster = self.client_fstype_listing(conf, client)
+                    else:
+                        gluster[key] = conf
                     self.iterate_dicts_and_yaml_write(gluster)
                 del self.section_dict[key]
+        if 'fstype' in self.section_dict:
+            if isinstance(self.clients, list):
+                self.nfs_clients += self.clients
+                self.fuse_clients += self.clients
+            else:
+                self.nfs_clients.append(self.clients)
+                self.fuse_clients.append(self.clients)
+            self.section_dict = self.fstype_validation(self.section_dict)
+        self.write_config('nfs_clients', self.nfs_clients, Global.inventory)
+        self.write_config('fuse_clients', self.fuse_clients, Global.inventory)
+
+
+    def client_fstype_listing(self, conf, client):
+        filetype_conf = {'fstype': conf, 'nfs-version': self.section_dict.get('nfs-version')}
+        gluster = self.fstype_validation(filetype_conf)
+        if conf == 'nfs':
+            self.nfs_clients.append(client)
+        else:
+            self.fuse_clients.append(client)
+        try:
+            self.section_dict.pop('nfs-version')
+        except:
+            pass
+        return gluster
+
+    def fstype_validation(self, section_dict):
+        if section_dict['fstype'] == 'nfs':
+            if not section_dict.get('nfs-version'):
+                section_dict['nfsversion'] = 3
+            else:
+                section_dict['nfsversion'] = section_dict.pop('nfs-version')
+            print "INFO: NFS mount of volume triggered."
+            Global.playbooks.append('gluster-client-nfs-mount.yml')
+        elif section_dict['fstype'] == 'glusterfs':
+            print "INFO: FUSE mount of volume triggered."
+            Global.playbooks.append('gluster-client-fuse-mount.yml')
+        else:
+            print "Error: Unsupported mount type. Exiting!"
+            self.cleanup_and_quit()
+        return section_dict
 
     def mount_volume(self):
         '''
@@ -95,19 +141,6 @@ class ClientManagement(YamlWriter):
                                   'fstype': 'glusterfs'}
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
-        if self.section_dict['fstype'] == 'nfs':
-            if not self.section_dict.get('nfs-version'):
-                self.section_dict['nfsversion'] = 3
-            else:
-                self.section_dict['nfsversion'] = self.section_dict.pop('nfs-version')
-            print "INFO: NFS mount of volume triggered."
-            Global.playbooks.append('gluster-client-nfs-mount.yml')
-        elif self.section_dict['fstype'] == 'glusterfs':
-            print "INFO: FUSE mount of volume triggered."
-            Global.playbooks.append('gluster-client-fuse-mount.yml')
-        else:
-            print "Error: Unsupported mount type. Exiting!"
-            self.cleanup_and_quit()
 
 
     def unmount_volume(self):

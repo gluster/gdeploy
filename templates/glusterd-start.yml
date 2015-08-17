@@ -6,5 +6,5 @@
   tasks:
   # Start glusterd in all the nodes
   - name: Start glusterd in all the hosts (if not started already)
-    service: name=glusterd state=started
+    service: name=glusterd state=restarted
              enabled=yes
