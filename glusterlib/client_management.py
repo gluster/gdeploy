@@ -40,7 +40,8 @@ class ClientManagement(YamlWriter):
         self.fix_format_of_values_in_config(self.section_dict)
         self.clients =  self.section_dict.get('hosts')
         if not self.clients:
-            return
+            print "Error: Client hostnames not provided. Exiting!"
+            self.cleanup_and_quit()
         '''
         client hostnames or IP should also be in the inventory file since
         mounting is to be done in the client host machines
