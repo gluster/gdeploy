@@ -127,11 +127,21 @@ class VolumeManagement(YamlWriter):
         self.check_for_param_presence('volname', self.section_dict)
         Global.playbooks.append('gluster-volume-delete.yml')
 
+    def set_default_replica_type(self):
+        sections_default_value = {
+            'replica': 'no',
+            'replica_count': 0}
+        self.set_default_value_for_dict_key(self.section_dict,
+                                            sections_default_value)
     def add_brick_to_volume(self):
         self.check_for_param_presence('bricks', self.section_dict)
         self.section_dict['new_bricks'] = self.section_dict.pop('bricks')
-        for brick in self.section_dict['new_bricks']:
-            self.split_volname_and_hostname(brick)
+        if isinstance(self.section_dict['new_bricks'], list):
+            for brick in self.section_dict['new_bricks']:
+                self.split_volname_and_hostname(brick)
+        else:
+            self.split_volname_and_hostname(self.section_dict['new_bricks'])
+        self.set_default_replica_type()
         self.check_for_param_presence('volname', self.section_dict)
         if 'gluster-peer-probe.yml' not in Global.playbooks:
             Global.playbooks.append('gluster-peer-probe.yml')
@@ -144,9 +154,7 @@ class VolumeManagement(YamlWriter):
                 "specified. Can't proceed!\n" \
                 "Available options are: {start, stop, force, commit }"
             self.cleanup_and_quit()
-        sections_default_value = {'replica': 'no', 'replica_count': 0}
-        self.set_default_value_for_dict_key(self.section_dict,
-                                            sections_default_value)
+        self.set_default_replica_type()
         self.section_dict['old_bricks'] = self.section_dict.pop('bricks')
         self.check_for_param_presence('volname', self.section_dict)
         Global.playbooks.append('gluster-remove-brick.yml')

@@ -8,6 +8,6 @@
     volume:  action=add-brick
              volume="{{ volname }}"
              bricks="{{ new_bricks }}"
-             replica=yes
-             replica_count=2
+             replica="{{ replica }}"
+             replica_count="{{ replica_count }}"
              force=yes

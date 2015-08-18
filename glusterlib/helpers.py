@@ -112,7 +112,7 @@ class Helpers(Global):
         with one of the peer member's hostname or IP in the
         format <hostname>:<volumename>
         '''
-        vol_group = re.match("(.*):(.*)", volname)
+        vol_group = re.search("(.*):(.*)", volname)
         if vol_group:
             Global.master = [vol_group.group(1)]
             if vol_group.group(1) not in Global.hosts:
