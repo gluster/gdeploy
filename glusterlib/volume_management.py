@@ -1,5 +1,5 @@
-
-#!/usr/bin/python # -*- coding: utf-8 -*-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
 #
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
@@ -35,6 +35,9 @@ class VolumeManagement(YamlWriter):
         except KeyError:
             return
         action = self.section_dict.get('action')
+        volume = self.section_dict.get('volname')
+        volname = self.split_volname_and_hostname(volume)
+        self.section_dict['volname'] = volname
         if not action:
             self.filename = Global.group_file
             self.iterate_dicts_and_yaml_write(self.section_dict)
