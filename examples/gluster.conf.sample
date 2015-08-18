@@ -139,18 +139,25 @@ manage=probe
 # The section volume specifies the configuration options for the volume.
 
 # 'action' option specifies what action id to be performed in the volume.
-# The choices can be [create, delete, add-brick, remove-brick].
+# The choices are: [create, delete, add-brick, remove-brick, rebalance].
+
 # If delete is provided all the options other than 'volname' will be ignored.
+
 # If add-brick or remove-brick is chosen, extra option bricks with a
 # comma seperated list of brick names(in the format <hostname>:<brick path>
-# should be provided. In case of remove-brick, state option should also
-# be provided specifying the state of the volume after brick removal.
-#
+# should be provided.
+
+# In case of remove-brick and rebalance, 'state' option should also
+# be provided. Choices for 'state' are:
+# For remove-brick: [start, stop, commit, force]
+# For rebalance: [start, stop, fix-layout]
+
 # 'volname' option specifies the volume name. Default is glustervol
 #  If the user wishes to do just a volume operation, she can omit the
 #  'hosts' section if the volname is provided in the format
 #  <hostname>:<volname>, where hostname is the hostname or IP of one of
 #  the nodes in the cluster
+
 #  IMP: Only single volume creation/deletion/configuration is supported
 #  as of now.
 
@@ -195,14 +202,21 @@ force=yes
 # Specifies the client hosts and client_mount_points to mount the gluster
 # volume created.
 # 'action' option is to be specified for the framework to understand
-# what action is to be done. The options are 'mount' and 'unmount'
-# Client hosts field is mandatory. If mount points
-# are not specified, default will be taken as /mnt/gluster
-# for all the hosts
-# The option fstype specifies how gluster volume is to be mounted.
-# Default is glusterfs(FUSE mount). The volume can also be mounted as NFS.
+# what action is to be done.
+# The choices are: ['mount', 'unmount']
+# 'hosts' field is mandatory.
+# The option 'fstype' specifies how gluster volume is to be mounted.
+# Choices are: [glusterfs, nfs] (Default is glusterfs)
 # Each client can have different types of volume mount. Just specify it comma
 # seperated.
+
+# Option 'client_mount_points' specifies where the clients are to be mounted
+# in each host. Each host can have a seperate mountpoint, in which case it will
+# be given comma seperated or else every mountpoint can have a mountpoint of the
+# same name. If 'client_mount_points'
+# are not specified, default will be taken as /mnt/gluster
+# for all the hosts
+
 
 [clients]
 action=mount

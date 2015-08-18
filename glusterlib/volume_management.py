@@ -140,8 +140,9 @@ class VolumeManagement(YamlWriter):
     def remove_brick_from_volume(self):
         self.check_for_param_presence('bricks', self.section_dict)
         if 'state' not in self.section_dict:
-            print "Error: State of the volume after remove-brick not " \
-                "specified. Can't proceed!"
+            print "Error: State of the remove-brick process not " \
+                "specified. Can't proceed!\n" \
+                "Available options are: {start, stop, force, commit }"
             self.cleanup_and_quit()
         sections_default_value = {'replica': 'no', 'replica_count': 0}
         self.set_default_value_for_dict_key(self.section_dict,
@@ -152,7 +153,14 @@ class VolumeManagement(YamlWriter):
 
 
     def gfs_rebalance(self):
-        return
+        if 'state' not in self.section_dict:
+            print "Error: State of the rebalance process not " \
+                "specified. Can't proceed!\n" \
+                "Available options are: {start, stop, fix-layout}."
+            self.cleanup_and_quit()
+        if 'gluster-volume-start.yml' not in Global.playbooks:
+            Global.playbooks.append('gluster-volume-start.yml')
+        Global.playbooks.append('gluster-volume-rebalance.yml')
 
 
 

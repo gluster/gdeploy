@@ -33,7 +33,7 @@ description:
 options:
     action:
         required: True
-        choices: [create, delete, start, stop, add-brick, remove-brick, set]
+        choices: [create, delete, start, stop, add-brick, remove-brick, rebalance]
                      This can be create, delete, start, stop,
                      add-brick or remove-brick.
     volume:
@@ -113,8 +113,9 @@ options:
         optimal configuration.
 
     state:
-        required: True if action is remove-brick
-        choices: [start, stop, status, commit, force]
+        required: True if action is remove-brick and rebalance
+        choices: [start, stop, commit, force] for remove-brick
+        choices: [start, stop, fix-layout] for rebalance
         description: Specifies the state of the volume if one or more
                      bricks are to be removed from the volume
 
@@ -242,6 +243,8 @@ class Volume(object):
         if self.action in ['delete', 'remove-brick']:
             self.force = ''
         volume = self._validated_params('volume')
+        if self.action == 'rebalance':
+            option_str = self.rebalance_volume()
         if self.action == 'create':
             self.get_host_names()
             option_str = self.get_volume_configs()
@@ -251,6 +254,18 @@ class Volume(object):
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
+
+    def rebalance_volume(self):
+        state = self._validated_params('state')
+        if state not in ['start', 'stop', 'fix-layout']:
+            self.module.fail_json(msg="Invalid state for rebalance action. \n" \
+                    "Available options are: start, stop, fix-layout.")
+        if state != 'start':
+            self.force = ''
+        if state == 'fix-layout':
+            return state + ' start '
+        else:
+            return state
 
     def create_params_dict(self, param_list):
         return OrderedDict((param, self.get_playbook_params(param))
