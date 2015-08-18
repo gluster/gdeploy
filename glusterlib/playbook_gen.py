@@ -38,6 +38,7 @@ from global_vars import Global
 from volume_management import VolumeManagement
 from client_management import ClientManagement
 from peer_management import PeerManagement
+from snapshot_management import SanpshotManagement
 
 
 class PlaybookGen(YamlWriter):
@@ -59,6 +60,7 @@ class PlaybookGen(YamlWriter):
         '''
         PeerManagement(self.config)
         VolumeManagement(self.config, self.var_file)
+        SnapshotManagement(self.config)
         ClientManagement(self.config)
         self.create_inventory()
         self.write_host_names()
