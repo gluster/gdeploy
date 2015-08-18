@@ -87,9 +87,16 @@ class GlusterDeploy(PlaybookGen, Global):
         return args
 
     def deploy_gluster(self):
+        self.validate_playbook_order(Global.playbooks)
         for yml in Global.playbooks:
             the_playbook = self.get_file_dir_path(Global.base_dir, yml)
             self.call_ansible_command(the_playbook)
+
+    def validate_playbook_order(self, yml):
+        if 'gluster-peer-detach.yml' in yml:
+            yml.remove('gluster-peer-detach.yml')
+            yml.append('gluster-peer-detach.yml')
+        return yml
 
     def call_ansible_command(self, playbooks):
         '''
