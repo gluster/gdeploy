@@ -1,5 +1,5 @@
-#!/usr/bin/python # -*- coding: utf-8 -*-
-#
+#!/usr/bin/python
+# -*- coding: utf-8 -*- #
 #
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
 #
@@ -36,7 +36,7 @@ class PeerManagement(YamlWriter):
                         "Skipping section `peer`"
                 return
             try:
-                yml = {'probe': 'glusterd-start.yml gluster-peer-probe.yml',
+                yml = {'probe': 'gluster-peer-probe.yml',
                        'detach': 'gluster-peer-detach.yml'
                       }[action]
             except:
@@ -44,4 +44,6 @@ class PeerManagement(YamlWriter):
                         "or `detach`."
                 return
             print "INFO: Peer management(action: %s) triggered" % action
+            if action == 'probe':
+                Global.playbooks.append('glusterd-start.yml')
             Global.playbooks.append(yml)
