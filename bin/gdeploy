@@ -40,6 +40,7 @@ class GlusterDeploy(PlaybookGen, Global):
     def __init__(self):
         args = self.parse_arguments()
         self.check_ansible_installation()
+        self.verbose = args.verbose
         if args.config_file:
             config_file = args.config_file.name
             PlaybookGen(config_file)
@@ -65,7 +66,7 @@ class GlusterDeploy(PlaybookGen, Global):
         This method uses argparser to parse the command line inputs
         to the gluster-deploy script
         '''
-        usage = 'gluster-deploy.py [-h] [-v] [-c CONFIG_FILE] ' \
+        usage = 'gluster-deploy.py [-h] [-v] [-vv] [-c CONFIG_FILE] ' \
             '[-k] [volumeset <hostIP>:<volumename> <key> <value>]'
         parser = argparse.ArgumentParser(usage=usage, version='1.0')
         parser.add_argument('-c', dest='config_file',
@@ -77,6 +78,9 @@ class GlusterDeploy(PlaybookGen, Global):
         parser.add_argument('-k', dest='keep',
                             action='store_true',
                             help="Keep the generated ansible utility files")
+        parser.add_argument('-vv', dest='verbose',
+                            action='store_true',
+                            help="verbose mode")
         try:
             args = parser.parse_args()
         except IOError as msg:
@@ -106,10 +110,11 @@ class GlusterDeploy(PlaybookGen, Global):
         '''
         Calls the ansible-playbook command on necessary yamls
         '''
+        verbose = ' -vvv ' if self.verbose else ' '
         if playbooks.strip():
             try:
-                cmd = 'ansible-playbook -i %s %s' % (
-                    Global.inventory, playbooks)
+                cmd = 'ansible-playbook %s -i %s %s' % (
+                    verbose, Global.inventory, playbooks)
                 self.exec_cmds(cmd, '')
             except:
                 print "Error: Looks like there is something wrong with " \
