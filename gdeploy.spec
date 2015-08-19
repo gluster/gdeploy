@@ -1,6 +1,6 @@
 %define name gdeploy
 %define version 1
-%define release 0
+%define release 1
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/doc/ansible/gdeploy
@@ -16,7 +16,6 @@ URL:		http://www.redhat.com/storage
 Source0:	%{name}-%{version}.%{release}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}.%{release}-buildroot
-Requires:	ansible >= 1.9 python >= 2.6
 
 %description
 This package provides ansible modules to setup and configure GluterFS. With
@@ -64,5 +63,8 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Tue Aug 18 2015 Sachidananda Urs <sac@redhat.com> 1.1
+- Major changes to rebalance.
+
 * Mon Aug 3 2015 Sachidananda Urs <sac@redhat.com> 1.0
 - Initial release.
