@@ -225,3 +225,17 @@ fstype=glusterfs
 client_mount_points=/mnt/gluster
 #-----------------------------------
 
+# 'snapshot' section can be used if the user wants to create or delete
+# a snapshot.
+# The option 'action' is to be used to specify which snapshot action is to be
+# executed.
+# The choices are [create, delete, clone, config, and restore]
+
+# The name of the snapshot can be specified as the value to the snapname option.
+# If the action is create the name of the volume is to specified as the value
+# to the option 'volname'.(If not specified under the volume section).
+
+# [snapshot]
+# action=create
+# snapname=glustersnap
+

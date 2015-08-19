@@ -24,30 +24,30 @@ from global_vars import Global
 from helpers import Helpers
 
 
-class SanpshotManagement(YamlWriter):
+class SnapshotManagement(YamlWriter):
 
     def __init__(self, config):
         self.config = config
         try:
-            self.section_dict = self.config._sections['volume']
+            self.section_dict = self.config._sections['snapshot']
             del self.section_dict['__name__']
         except KeyError:
             return
         action = self.section_dict.get('action')
         self.fix_format_of_values_in_config(self.section_dict)
-        try:
-            {'create': self.snapshot_create,
-             'delete': self.snapshot_delete,
-             'config': self.snapshot_config,
-             'restore': self.snapshot_restore,
-             'clone': self.snapshot_clone,
-             'activate': self.snapshot_activate,
-             'deactivate': self.snapshot_deactivate
-            }[action]()
-        except:
+        action_func =  {'create': self.snapshot_create,
+                         'delete': self.snapshot_delete,
+                         'config': self.snapshot_config,
+                         'restore': self.snapshot_restore,
+                         'clone': self.snapshot_clone,
+                         'activate': self.snapshot_activate,
+                         'deactivate': self.snapshot_deactivate
+                        }[action]
+        if not action_func:
             print "Error: Unknown action for snapshot.\n Supported actions " \
                     "are: [create, delete, config, restore, clone]. Exiting!"
-            self.cleanup-and_quit()
+            self.cleanup_and_quit()
+        action_func()
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
