@@ -19,6 +19,8 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}.%{release}-buildroot
 
 BuildRequires:  python-setuptools
 
+BuildRequires:  python-setuptools
+
 %description
 This package provides ansible modules to setup and configure GluterFS. With
 these modules you can:
