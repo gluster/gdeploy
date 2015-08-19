@@ -43,20 +43,21 @@ class VolumeManagement(YamlWriter):
             self.iterate_dicts_and_yaml_write(self.section_dict)
             return
         self.fix_format_of_values_in_config(self.section_dict, 'transport')
-        try:
-            { 'create': self.create_volume,
-              'start': self.start_volume,
-              'delete': self.delete_volume,
-              'stop': self.stop_volume,
-              'add-brick': self.add_brick_to_volume,
-              'remove-brick': self.remove_brick_from_volume,
-              'rebalance': self.gfs_rebalance
-            }[action]()
-        except:
-            print "\nError: Unknown action provided. \nSupported actions are:\n " \
+        action_func =  { 'create': self.create_volume,
+                          'start': self.start_volume,
+                          'delete': self.delete_volume,
+                          'stop': self.stop_volume,
+                          'add-brick': self.add_brick_to_volume,
+                          'remove-brick': self.remove_brick_from_volume,
+                          'rebalance': self.gfs_rebalance
+                        }[action]
+        if not action_func:
+            print "\nError: Unknown action provided for volume. \nSupported " \
+                    "actions are:\n " \
                     "create, delete, start, stop, add-brick, remove-brick, " \
                     "and rebalance"
             return
+        action_func()
         volname = self.split_volname_and_hostname(self.section_dict['volname'])
         self.section_dict['volname'] = volname
         if not Global.hosts:
@@ -78,14 +79,23 @@ class VolumeManagement(YamlWriter):
         if self.filetype == 'group_vars':
             if not self.present_in_yaml(Global.group_file, 'mountpoints'):
                 self.filename = Global.group_file
-                brick_dirs = self.get_options('brick_dirs', True)
+                brick_dirs = self.get_options('brick_dirs', False)
+                if not brick_dirs:
+                    print "Error: Section 'brick_dirs' or 'mountpoints' " \
+                            "not found.\nCannot continue volume creation!"
+                    self.cleanup_and_quit()
                 self.create_yaml_dict('mountpoints', brick_dirs, False)
         else:
             for host in Global.hosts:
                 self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
                 if not self.present_in_yaml(self.filename, 'mountpoints'):
                     self.touch_file(self.filename)
-                    brick_dirs = self.get_options('brick_dirs', True)
+                    brick_dirs = self.get_options('brick_dirs', False)
+                    if not brick_dirs:
+                        print "Error: Option 'brick_dirs' or 'mountpoints' " \
+                                "not found for host %s.\nCannot continue " \
+                                "volume creation!" % host
+                        self.cleanup_and_quit()
                     self.create_yaml_dict('mountpoints', brick_dirs, False)
 
     def create_volume(self):
