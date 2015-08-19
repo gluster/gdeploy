@@ -54,15 +54,15 @@ class ClientManagement(YamlWriter):
             self.clients = [self.clients]
         self.write_config('clients', self.clients, Global.inventory)
         del self.section_dict['hosts']
-        try:
-            { 'mount': self.mount_volume,
-              'unmount': self.unmount_volume,
-            }[action]()
-        except:
+        action_func = { 'mount': self.mount_volume,
+                          'unmount': self.unmount_volume,
+                        }[action]
+        if not action_func:
             print "Error: Unknown action provided for client section. Exiting!\n " \
                     "Use either `mount` " \
                     "or `unmount`."
             self.cleanup_and_quit()
+        action_func()
         self.write_client_info()
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
