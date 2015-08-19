@@ -6,7 +6,7 @@
   tasks:
   - name: Unmount the volumes
     mount: name={{ item.path }} src={{ item.path }} fstype=xfs
-           state=unmounted
+           state=absent
     with_items: mntpath
 
   - name: Delete the mount points
