@@ -8,3 +8,6 @@
     peer: action=probe
           hosts="{{ hosts }}"
           current_host={{inventory_hostname}}
+
+  - name: Pause for some seconds
+    pause: seconds=5

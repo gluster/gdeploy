@@ -56,7 +56,7 @@ class ClientManagement(YamlWriter):
         del self.section_dict['hosts']
         action_func = { 'mount': self.mount_volume,
                           'unmount': self.unmount_volume,
-                        }[action]
+                        }.get(action)
         if not action_func:
             print "Error: Unknown action provided for client section. Exiting!\n " \
                     "Use either `mount` " \
@@ -64,6 +64,7 @@ class ClientManagement(YamlWriter):
             self.cleanup_and_quit()
         action_func()
         self.write_client_info()
+        self.filename = Global.group_file
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
 
@@ -103,7 +104,7 @@ class ClientManagement(YamlWriter):
 
 
     def client_fstype_listing(self, conf, client):
-        filetype_conf = {'fstype': conf, 'nfs-version': self.section_dict.get('nfs-version')}
+        filetype_conf = {'fstype': conf, 'nfsversion': self.section_dict.get('nfs-version')}
         gluster = self.fstype_validation(filetype_conf)
         if conf == 'nfs':
             self.nfs_clients.append(client)

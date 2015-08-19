@@ -47,7 +47,7 @@ class VolumeManagement(YamlWriter):
                           'add-brick': self.add_brick_to_volume,
                           'remove-brick': self.remove_brick_from_volume,
                           'rebalance': self.gfs_rebalance
-                        }[action]
+                        }.get(action)
         if not action_func:
             print "\nError: Unknown action provided for volume. \nSupported " \
                     "actions are:\n " \

@@ -92,7 +92,6 @@ class GlusterDeploy(PlaybookGen, Global):
         for yml in Global.playbooks:
             the_playbook = self.get_file_dir_path(Global.base_dir, yml)
             self.call_ansible_command(the_playbook)
-            time.sleep(4)
 
     def validate_playbook_order(self, yml):
         if 'gluster-volume-delete.yml' in yml:
