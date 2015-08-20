@@ -196,9 +196,9 @@ class LvOps(object):
             poolname = ''
         metadatasize, pool_sz = self.compute()
         if not error:
-            options = {'thin': ' -L %sK -n %s %s' % (metadatasize,
+            options = {'thick': ' -L %sK -n %s %s' % (metadatasize,
                                              lvname, self.vgname),
-                       'thick': ' -L %sK -n %s %s' % (pool_sz,
+                       'thin': ' -L %sK -n %s %s' % (pool_sz,
                                                     lvname, self.vgname),
                        'virtual': ' -V %sK -T /dev/%s/%s -n %s'
                        % (pool_sz, self.vgname, poolname, lvname)
