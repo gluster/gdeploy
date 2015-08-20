@@ -5,7 +5,7 @@
 
   tasks:
   - name: Remove bricks from an existing volume
-    volume: command=volume action=remove-brick
+    volume:  action=remove-brick
              volume="{{ volname }}"
              bricks="{{ old_bricks }}"
              replica="{{ replica }}"
