@@ -18,6 +18,8 @@ BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}.%{release}-buildroot
 Requires:	ansible >= 1.9 python >= 2.6
 
+BuildRequires:  python-setuptools
+
 %description
 This package provides ansible modules to setup and configure GluterFS. With
 these modules you can:
