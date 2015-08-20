@@ -12,7 +12,7 @@ file to be defined by the user.
 
 ###Clone this repo:
 
-` git clone git@github.com:nandajavarma/gdeploy.git`
+` git clone git@github.com:gluster/gdeploy.git`
 
 ` cd gdeploy`
 
