@@ -126,9 +126,12 @@ class PlaybookGen(YamlWriter):
             devices = self.config_section_map(self.config, host,
                                               'devices', False)
             device_names = self.split_comma_seperated_options(devices)
-            if device_names:
+            devices = []
+            for option in device_names:
+                devices += self.parse_patterns(option)
+            if devices:
                 backend_setup = backend_setup and YamlWriter(
-                        device_names, self.config, host_file,
+                        devices, self.config, host_file,
                         self.var_file)
         if backend_setup:
             Global.playbooks.append('setup-backend.yml')
@@ -142,8 +145,11 @@ class PlaybookGen(YamlWriter):
         '''
         device_names = self.config_get_options(self.config,
                                                'devices', False)
+        devices = []
+        for option in device_names:
+            devices.append(self.parse_patterns(option))
         if device_names:
-            YamlWriter(device_names, self.config, Global.group_file,
+            YamlWriter(devices, self.config, Global.group_file,
                     self.var_file)
             Global.playbooks.append('setup-backend.yml')
 

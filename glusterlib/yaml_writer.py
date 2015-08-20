@@ -139,7 +139,10 @@ class YamlWriter(ConfigParseHelpers):
         self.section_dict['mountpoints'] = brick_list
 
     def section_data_gen(self, section, section_name):
-        options = self.get_options(section, False)
+        opts = self.get_options(section, False)
+        options = []
+        for option in options:
+            options += self.parse_patterns(option)
         if options:
             if len(options) < self.device_count:
                 return self.insufficient_param_count(
