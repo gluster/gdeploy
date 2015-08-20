@@ -26,8 +26,8 @@ class Global(object):
         modules
     '''
     hosts = []
+    brick_hosts = []
     playbooks = []
-    do_nfs_mount = False
 
     # Required filenames and dir names
     master = None

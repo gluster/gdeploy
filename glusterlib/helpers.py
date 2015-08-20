@@ -121,21 +121,21 @@ class Helpers(Global):
                 for host in hostname:
                     if host not in Global.hosts:
                         Global.hosts.append(host)
+                        Global.brick_hosts.append(host)
                 return val_group.group(2)
         return val
 
 
     def format_brick_names(self, bricks):
         ultimate_brickname = []
-        self.unwanted_hostnames = Global.hosts
+        brick_list, whole_bricks = [], []
+        if not isinstance(bricks, list):
+            bricks = [bricks]
         for brick in bricks:
-            brick_list, whole_bricks = [], []
             brick_list.append(self.split_val_and_hostname(brick))
             for brk in brick_list:
                 whole_bricks += self.parse_patterns(brk)
-            hosts = [host for host in Global.hosts if host
-                    not in self.unwanted_hostnames]
-            for brk, hst in itertools.product(whole_bricks, hosts):
+            for brk, hst in itertools.product(whole_bricks, Global.brick_hosts):
                 ultimate_brickname.append(hst + ":" + brk)
         return ultimate_brickname
 
