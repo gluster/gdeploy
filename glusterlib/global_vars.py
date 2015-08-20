@@ -25,9 +25,9 @@ class Global(object):
         shared varibles between the
         modules
     '''
-    sections = {}
+    hosts = []
+    brick_hosts = []
     playbooks = []
-    do_nfs_mount = False
 
     # Required filenames and dir names
     master = None

@@ -160,7 +160,7 @@ Host specific data can be:
 ------
 
 The section peer specifies the configurations for the Trusted Storage
-Pool managament(TSP)
+Pool management(TSP)
 
 This section helps in making all the hosts specified in the section 'hosts'
 to either probe each other making the TSP or detach all of them from TSP

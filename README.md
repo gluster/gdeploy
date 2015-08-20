@@ -2,7 +2,7 @@
 
 Tool to set-up and deploy glusterfs using ansible over multiple hosts
 
-gluster-deploy can be used to set-up the backend, create a glusterfs volume
+gluster-deploy can be used to set-up the back-end, create a glusterfs volume
 and mount it to a client over n-number of clients from an ansible installed
 machine. The framework takes the configurations for this from a configuration
 file to be defined by the user.

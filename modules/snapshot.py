@@ -27,6 +27,8 @@ class Snapshot(object):
         self.module = module
         self.action = self._validated_params('action')
         self.force = 'force' if self.module.params.get('force') == 'yes' else ''
+        if self.action == 'config':
+            self.snapshot_config()
         self.gluster_snapshot_ops()
 
     def get_playbook_params(self, opt):
@@ -49,7 +51,6 @@ class Snapshot(object):
                                             'options'],
                                 'clone': ['snapname', 'clonename'],
                                 'restore': ['snapname'],
-                                'config': ['volume'],
                                 'delete': ['snapname'],
                                 'activate': ['snapname'],
                                 'deactivate': ['snapname']
@@ -61,9 +62,6 @@ class Snapshot(object):
 
         try:
             keyword_needed_params = { 'create': ['description'],
-                                      'config': ['snap_max_hard_limit',
-                                         'snap_max_soft_limit', 'auto_delete',
-                                          'activate_on_create'],
                                       'delete': ['volume']
                                     }[self.action]
             keyword_param_dict = self.create_params_dict(keyword_needed_params)
@@ -82,8 +80,29 @@ class Snapshot(object):
             self.force = ''
 
         rc, output, err = self.call_gluster_cmd('snapshot', self.action,
-                                                option_str, self.force)
+                                                    option_str, self.force)
         self._get_output(rc, output, err)
+
+    def snapshot_config(self):
+        option_str = []
+        max_hard_limit = self.module.params['snap_max_hard_limit']
+        if max_hard_limit:
+            option_str.append('snap-max-hard-limit %s ' % max_hard_limit)
+        max_soft_limit = self.module.params['snap_max_soft_limit']
+        if max_soft_limit:
+            option_str.append('snap-max-soft-limit %s ' % max_soft_limit)
+        auto_delete = self.module.params['auto_delete']
+        if auto_delete:
+            option_str.append('auto-delete %s ' % auto_delete)
+        act_on_create = self.module.params['activate_on_create']
+        if act_on_create:
+            option_str.append('activate-on-create %s ' % act_on_create)
+        for option in option_str:
+            rc, output, err = self.call_gluster_cmd('snapshot', self.action,
+                                                    option, self.force)
+        self._get_output(rc, output, err)
+
+
 
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
@@ -93,7 +112,7 @@ class Snapshot(object):
 
     def _get_output(self, rc, output, err):
         carryon = True if self.action in  ['stop',
-                'delete', 'detach'] else False
+                'delete', 'deactivate'] else False
         changed = 0 if (carryon and rc) else 1
         if not rc or carryon:
             self.module.exit_json(stdout=output, changed=changed)

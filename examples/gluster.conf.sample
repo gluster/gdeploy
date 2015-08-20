@@ -5,6 +5,12 @@
 10.70.46.19
 #------------------------------
 
+# NOTE: Patterns are supported for all the multiple values options and sections.
+# For example: hosts can be given as 10.70.46.1{3..7} specifying the 4 hosts
+# ranging from 10.70.46.13 to 10.70.46.27
+
+
+
 # Generic section [devices] is applicable to all the hosts listed in the [hosts]
 # section. However, if sections of hosts [hostname] or [ip-address] is present,
 # then the data in generic sections like [devices] are ignored. Host specific
@@ -17,7 +23,7 @@
 #------------------------------
 
 # Section [disktype] specifies which disk configuration is used while
-# setting up the backend. Supports RAID 10, RAID 6 and JBOD configurations.
+# setting up the back-end. Supports RAID 10, RAID 6 and JBOD configurations.
 # If this field is left empty, it will be by default taken as JBOD.
 # This is common for all the hosts.
 
@@ -98,14 +104,19 @@ vgs=CUSTOM_vg1,CUSTOM_vg2,CUSTOM_vg3
 pools=CUSTOM_pool1,CUSTOM_pool2,CUSTOM_pool3
 lvs=CUSTOM_lv1,CUSTOM_lv2,CUSTOM_lv3
 mountpoints=/gluster/brick1,/gluster/brick2,/gluster/brick3
-brick_dir=glusterbrick
+brick_dir=glusterbrick{1..3}
+
+# NOTE: The host specific data of 10.70.46.15 and 10.70.46.17 are
+# the same. It can be fed either of the ways. Two separate
+# ways defines are just to demonstrate the format of
+# patterns usage
 
 [10.70.46.15]
-devices=/dev/vdc,/dev/vdb
-vgs=CUSTOM_vg1,CUSTOM_vg2
-pools=CUSTOM_pool1,CUSTOM_pool2
-lvs=CUSTOM_lv1,CUSTOM_lv2
-mountpoints=/gluster/brick1,/gluster/brick2
+devices=/dev/vd{b..c}
+vgs=CUSTOM_vg{1..2}
+pools=CUSTOM_pool{1..2}
+lvs=CUSTOM_lv{1..2}
+mountpoints=/gluster/brick{1..2}
 
 [10.70.46.17]
 devices=/dev/vdc,/dev/vdb
@@ -122,8 +133,12 @@ lvs=CUSTOM_lv1
 mountpoints=/gluster/brick1
 #----------------------------------
 
+
+                            ##-- Peer --##
+
+
 # The section peer specifies the configurations for the Trusted Storage
-# Pool managament(TSP)
+# Pool management(TSP)
 
 # This section helps in making all the hosts specified in the section 'hosts'
 # to either probe each other making the TSP or detach all of them from TSP
@@ -131,11 +146,23 @@ mountpoints=/gluster/brick1
 # The only option in this section is the option names 'manage' which can have
 # it's values to be  either probe or detach
 
+# To do a peer probe
+
 [peer]
 manage=probe
+
+# To do a peer detach
+
+# [peer]
 # manage=detach
 
 #-----------------------------------
+
+
+                            ##-- Volume --##
+
+
+
 # The section volume specifies the configuration options for the volume.
 
 # 'action' option specifies what action id to be performed in the volume.
@@ -144,7 +171,7 @@ manage=probe
 # If delete is provided all the options other than 'volname' will be ignored.
 
 # If add-brick or remove-brick is chosen, extra option bricks with a
-# comma seperated list of brick names(in the format <hostname>:<brick path>
+# comma separated list of brick names(in the format <hostname>:<brick path>
 # should be provided.
 
 # In case of remove-brick and rebalance, 'state' option should also
@@ -185,16 +212,46 @@ manage=probe
 action=create
 volname=glustervol
 transport=tcp,rdma
-# replica=yes
-# replica_count=2
-# arbiter_count=2
 disperse=yes
 disperse_count=0
 redundancy_count=2
 force=yes
 
+# For creating a volume of type replicate add the following in 'volume' section
+# instead of disperse:
+
+# replica=yes
+# replica_count=2
+# arbiter_count=2
+
+# Add brick operation can be done by using:
+
+# [volume]
+# action=add-brick
+# volname=glustervol
+# bricks=10.70.46.13:/mnt/new_brick{1..8}
+
+# Remove brick operation can be done by using:
+
+# [volume]
+# action=remove-brick
+# volname=10.70.46.13:glustervol
+# bricks=10.70.46.17:/mnt/brick{1..8}
+# state=commit
+
+# Rebalance operation can be done by using:
+
+# [volume]
+# action=rebalance
+# volname=10.70.46.13:glustervol
+# state=start
+
 
 #-----------------------------------
+
+
+                            ##-- Clients --##
+
 
 # IMP: If only back-end setup is to be done but not GlusterFs
 # deployment omit the following section
@@ -208,11 +265,11 @@ force=yes
 # The option 'fstype' specifies how gluster volume is to be mounted.
 # Choices are: [glusterfs, nfs] (Default is glusterfs)
 # Each client can have different types of volume mount. Just specify it comma
-# seperated.
+# separated.
 
 # Option 'client_mount_points' specifies where the clients are to be mounted
-# in each host. Each host can have a seperate mountpoint, in which case it will
-# be given comma seperated or else every mountpoint can have a mountpoint of the
+# in each host. Each host can have a separate mountpoint, in which case it will
+# be given comma separated or else every mountpoint can have a mountpoint of the
 # same name. If 'client_mount_points'
 # are not specified, default will be taken as /mnt/gluster
 # for all the hosts
@@ -220,10 +277,14 @@ force=yes
 
 [clients]
 action=mount
-hosts=10.70.46.13
+hosts=10.70.46.1{3..5}
 fstype=glusterfs
-client_mount_points=/mnt/gluster
+client_mount_points=/mnt/gluster{1..3}
 #-----------------------------------
+
+
+                            ##-- Snapshot --##
+
 
 # 'snapshot' section can be used if the user wants to create or delete
 # a snapshot.
@@ -231,11 +292,43 @@ client_mount_points=/mnt/gluster
 # executed.
 # The choices are [create, delete, clone, config, and restore]
 
+
+# For snapshot creation:
+
 # The name of the snapshot can be specified as the value to the snapname option.
 # If the action is create the name of the volume is to specified as the value
 # to the option 'volname'.(If not specified under the volume section).
 
 # [snapshot]
 # action=create
+# snapname=glustersnap
+
+# For snapshot deletion:
+
+# [snapshot]
+# action=delete
+# snapname=glustersnap
+## volname=glustervol [alternative]
+
+# For snapshot cloning:
+
+# [snapshot]
+# action=delete
+# snapname=glustersnap
+# clonename=an_old_snap
+
+# For snapshot configure:
+
+# [snapshot]
+# action=config
+# snap_max_soft_limit=92
+# snap_max_hard_limit=95
+# auto_delete=disable
+# activate_on_create=enable
+
+# For snapshot restore:
+
+# [snapshot]
+# action=restore
 # snapname=glustersnap
 

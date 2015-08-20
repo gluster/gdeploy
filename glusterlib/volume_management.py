@@ -36,9 +36,11 @@ class VolumeManagement(YamlWriter):
             return
         action = self.section_dict.get('action')
         volume = self.section_dict.get('volname')
-        volname = self.split_volname_and_hostname(volume)
+        volname = self.split_val_and_hostname(volume)
         self.section_dict['volname'] = volname
         if not action:
+            print "Warning: Section 'volume' without any action option " \
+                    "found. \nNoting the data given and skipping this section!"
             self.filename = Global.group_file
             self.iterate_dicts_and_yaml_write(self.section_dict)
             return
@@ -58,18 +60,23 @@ class VolumeManagement(YamlWriter):
                     "and rebalance"
             return
         action_func()
-        volname = self.split_volname_and_hostname(self.section_dict['volname'])
-        self.section_dict['volname'] = volname
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
         self.filename = Global.group_file
-        print "INFO: Volume management(action: %s) triggered" % action
+        print "\nINFO: Volume management(action: %s) triggered" % action
         if self.section_dict.get('force') == 'yes':
             print "\nWarning: Using mountpoint itself as the brick in one or " \
                     "more hosts since force" \
                 " is specified, although not recommended.\n"
         self.iterate_dicts_and_yaml_write(self.section_dict)
+
+    def get_brick_dirs(self):
+        opts = self.get_options('brick_dirs', False)
+        options = []
+        for option in opts:
+            options += self.parse_patterns(option)
+        return options
 
     def write_brick_dirs(self):
         '''
@@ -79,7 +86,7 @@ class VolumeManagement(YamlWriter):
         if self.filetype == 'group_vars':
             if not self.present_in_yaml(Global.group_file, 'mountpoints'):
                 self.filename = Global.group_file
-                brick_dirs = self.get_options('brick_dirs', False)
+                brick_dirs = self.get_brick_dirs()
                 if not brick_dirs:
                     print "Error: Section 'brick_dirs' or 'mountpoints' " \
                             "not found.\nCannot continue volume creation!"
@@ -90,7 +97,7 @@ class VolumeManagement(YamlWriter):
                 self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
                 if not self.present_in_yaml(self.filename, 'mountpoints'):
                     self.touch_file(self.filename)
-                    brick_dirs = self.get_options('brick_dirs', False)
+                    brick_dirs = self.get_brick_dirs()
                     if not brick_dirs:
                         print "Error: Option 'brick_dirs' or 'mountpoints' " \
                                 "not found for host %s.\nCannot continue " \
@@ -147,13 +154,11 @@ class VolumeManagement(YamlWriter):
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
     def add_brick_to_volume(self):
+        self.check_for_param_presence('volname', self.section_dict)
         self.check_for_param_presence('bricks', self.section_dict)
-        self.section_dict['new_bricks'] = self.section_dict.pop('bricks')
-        if isinstance(self.section_dict['new_bricks'], list):
-            for brick in self.section_dict['new_bricks']:
-                self.split_volname_and_hostname(brick)
-        else:
-            self.split_volname_and_hostname(self.section_dict['new_bricks'])
+        bricks = self.section_dict.pop('bricks')
+        bricks = self.format_brick_names(bricks)
+        self.section_dict['new_bricks'] = bricks
         self.set_default_replica_type()
         self.check_for_param_presence('volname', self.section_dict)
         if 'gluster-peer-probe.yml' not in Global.playbooks:
@@ -161,6 +166,7 @@ class VolumeManagement(YamlWriter):
         Global.playbooks.append('gluster-add-brick.yml')
 
     def remove_brick_from_volume(self):
+        self.check_for_param_presence('volname', self.section_dict)
         self.check_for_param_presence('bricks', self.section_dict)
         if 'state' not in self.section_dict:
             print "Error: State of the remove-brick process not " \

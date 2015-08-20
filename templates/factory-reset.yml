@@ -1,4 +1,5 @@
 ---
+- include: gluster-snapshot-delete.yml
 - include: client_volume_umount.yml
 - include: gluster-volume-delete.yml
 - include: gluster-peer-detach.yml
