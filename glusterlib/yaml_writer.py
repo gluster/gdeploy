@@ -68,12 +68,9 @@ class YamlWriter(ConfigParseHelpers):
                                           self.section_dict['lvs'])]
         self.yaml_dict_data_write()
         self.modify_mountpoints()
-        listables_in_yaml = {
-            key: self.section_dict[key] for key in [
-                'vgs',
-                'bricks',
-                'mountpoints',
-                'lvols']}
+        listables_in_yaml = {}
+        for key in [ 'vgs', 'bricks', 'mountpoints', 'lvols']:
+            listables_in_yaml[key] = self.section_dict[key]
         self.iterate_dicts_and_yaml_write(listables_in_yaml)
         self.perf_spec_data_write()
         return True
