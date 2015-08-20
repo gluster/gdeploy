@@ -36,7 +36,7 @@ class VolumeManagement(YamlWriter):
             return
         action = self.section_dict.get('action')
         volume = self.section_dict.get('volname')
-        volname = self.split_volname_and_hostname(volume)
+        volname = self.split_val_and_hostname(volume)
         self.section_dict['volname'] = volname
         if not action:
             self.filename = Global.group_file
@@ -58,8 +58,6 @@ class VolumeManagement(YamlWriter):
                     "and rebalance"
             return
         action_func()
-        volname = self.split_volname_and_hostname(self.section_dict['volname'])
-        self.section_dict['volname'] = volname
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
@@ -147,13 +145,11 @@ class VolumeManagement(YamlWriter):
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
     def add_brick_to_volume(self):
+        self.check_for_param_presence('volname', self.section_dict)
         self.check_for_param_presence('bricks', self.section_dict)
-        self.section_dict['new_bricks'] = self.section_dict.pop('bricks')
-        if isinstance(self.section_dict['new_bricks'], list):
-            for brick in self.section_dict['new_bricks']:
-                self.split_volname_and_hostname(brick)
-        else:
-            self.split_volname_and_hostname(self.section_dict['new_bricks'])
+        bricks = self.section_dict.pop('bricks')
+        bricks = self.format_brick_names(bricks)
+        self.section_dict['new_bricks'] = bricks
         self.set_default_replica_type()
         self.check_for_param_presence('volname', self.section_dict)
         if 'gluster-peer-probe.yml' not in Global.playbooks:
@@ -161,6 +157,7 @@ class VolumeManagement(YamlWriter):
         Global.playbooks.append('gluster-add-brick.yml')
 
     def remove_brick_from_volume(self):
+        self.check_for_param_presence('volname', self.section_dict)
         self.check_for_param_presence('bricks', self.section_dict)
         if 'state' not in self.section_dict:
             print "Error: State of the remove-brick process not " \

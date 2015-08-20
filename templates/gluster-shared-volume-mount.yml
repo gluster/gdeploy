@@ -1,0 +1,15 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Create the dir to mount the volume, fails if present
+    shell: mkdir /var/run/gluster/shared_storage -p
+
+  - name: Mount the volumes
+    mount: name=/var/run/gluster/shared_storage
+           src={{ inventory_hostname }}:"{{ volname }}"
+           fstype=glusterfs
+           state=mounted
+

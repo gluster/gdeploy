@@ -25,7 +25,7 @@ class Global(object):
         shared varibles between the
         modules
     '''
-    sections = {}
+    hosts = []
     playbooks = []
     do_nfs_mount = False
 

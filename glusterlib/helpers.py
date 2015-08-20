@@ -27,6 +27,7 @@
 import os
 import re
 import sys
+import itertools
 try:
     import yaml
 except ImportError:
@@ -100,25 +101,70 @@ class Helpers(Global):
                 dictname[key] = value
 
     def check_for_param_presence(self, param, section_dict):
-        if param not in section_dict:
+        if not section_dict.get(param):
             print "Error: %s not provided in the config. " \
                     "Cannot continue!" % param
             self.cleanup_and_quit()
 
-    def split_volname_and_hostname(self, volname):
+    def split_val_and_hostname(self, val):
         '''
         This gives the user the flexibility to not give the hosts
         section. Instead one can just specify the volume name
         with one of the peer member's hostname or IP in the
         format <hostname>:<volumename>
         '''
-        vol_group = re.search("(.*):(.*)", volname)
-        if vol_group:
-            Global.master = [vol_group.group(1)]
-            if vol_group.group(1) not in Global.hosts:
-                Global.hosts.append(vol_group.group(1))
-            return vol_group.group(2)
-        return volname
+        if val:
+            val_group = re.search("(.*):(.*)", val)
+            if val_group:
+                hostname = self.parse_patterns(val_group.group(1))
+                Global.master = [hostname[0]]
+                for host in hostname:
+                    if host not in Global.hosts:
+                        Global.hosts.append(host)
+                return val_group.group(2)
+        return val
+
+
+    def format_brick_names(self, bricks):
+        ultimate_brickname = []
+        self.unwanted_hostnames = Global.hosts
+        for brick in bricks:
+            brick_list, whole_bricks = [], []
+            brick_list.append(self.split_val_and_hostname(brick))
+            for brk in brick_list:
+                whole_bricks += self.parse_patterns(brk)
+            hosts = [host for host in Global.hosts if host
+                    not in self.unwanted_hostnames]
+            for brk, hst in itertools.product(whole_bricks, hosts):
+                ultimate_brickname.append(hst + ":" + brk)
+        return ultimate_brickname
+
+
+    def parse_patterns(self, pattern):
+        '''
+        This method can be used to parse patterns given in
+        hostnames, IPs ets. patterns should be of the format
+        10.70.46.1{3..7} or myvm.remote.in.vm{a..f}
+        '''
+        pat_group = re.search("(.*){(.*)}(.*)", pattern)
+        if not pat_group:
+            return [pattern]
+        pat_string = pat_group.group(2).split('..')
+        try:
+            pat_string = map(int, pat_string)
+            pat_string[-1] += 1
+            range_func = range
+        except:
+            range_func = self.char_range
+        pattern_string = [str(val) for val in range_func(pat_string[0], pat_string[1])]
+        names = [pat_group.group(1) + name + pat_group.group(3) for name in pattern_string]
+        return names
+
+
+    def char_range(self, c1, c2):
+        """Generates the characters from `c1` to `c2`, inclusive."""
+        for c in xrange(ord(c1), ord(c2)+1):
+            yield chr(c)
 
     def exec_cmds(self, cmd, opts):
         try:

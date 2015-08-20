@@ -39,6 +39,7 @@ from volume_management import VolumeManagement
 from client_management import ClientManagement
 from peer_management import PeerManagement
 from snapshot_management import SnapshotManagement
+from ganesha_management import GaneshaManagement
 
 
 class PlaybookGen(YamlWriter):
@@ -61,13 +62,15 @@ class PlaybookGen(YamlWriter):
         PeerManagement(self.config)
         VolumeManagement(self.config, self.var_file)
         SnapshotManagement(self.config)
+        GaneshaManagement(self.config)
         ClientManagement(self.config)
         self.create_inventory()
         self.write_host_names()
 
     def get_hostnames(self):
-        Global.hosts = self.config_get_options(self.config, 'hosts', False)
-
+        hosts = self.config_get_options(self.config, 'hosts', False)
+        for host in hosts:
+            Global.hosts += self.parse_patterns(host)
     def create_files_and_dirs(self):
         '''
         Creates required directories for all the configuration files

@@ -50,8 +50,13 @@ class ClientManagement(YamlWriter):
         HACK: The format of the clients gets distorted if it is a single
         client host, as the config_parser returns a str instead of list
         '''
-        if isinstance(self.clients, str):
-            self.clients = [self.clients]
+        client_list = []
+        if not isinstance(self.clients, list):
+            self.clients = self.parse_patterns(self.clients)
+        else:
+            for client in self.clients:
+                client_list += self.parse_patterns(client)
+            self.clients = client_list
         self.write_config('clients', self.clients, Global.inventory)
         del self.section_dict['hosts']
         action_func = { 'mount': self.mount_volume,
@@ -139,8 +144,10 @@ class ClientManagement(YamlWriter):
         '''
         if not self.present_in_yaml(Global.group_file, 'volname'):
             self.check_for_param_presence('volname', self.section_dict)
+        default_fstype = 'nfs' if self.config.has_section(
+                'nfs-ganesha') else 'glusterfs'
         sections_default_value = {'client_mount_points': '/mnt/gluster',
-                                  'fstype': 'glusterfs'}
+                                  'fstype': default_fstype }
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
 
