@@ -1,6 +1,6 @@
 %define name gdeploy
-%define version 1
-%define release 1
+%define version 1.0
+%define release 3
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/doc/ansible/gdeploy
@@ -13,9 +13,10 @@ Summary:	Tool to deploy and manage GlusterFS cluster.
 Group:		Applications/System
 License:	GPLv3
 URL:		http://www.redhat.com/storage
-Source0:	%{name}-%{version}.%{release}.tar.gz
+Source0:	%{name}-%{version}-%{release}.tar.gz
 BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}.%{release}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Requires:	ansible >= 1.9 python >= 2.6
 
 BuildRequires:  python-setuptools
 
@@ -31,7 +32,7 @@ these modules you can:
  Tool to generate the playbooks, group_vars/host_vars
 
 %prep
-%setup -n %{name}-%{version}.%{release}
+%setup -n %{name}-%{version}-%{release}
 
 %build
 python setup.py build
@@ -65,6 +66,9 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Fri Aug 21 2015 Sachidananda Urs <sac@redhat.com> 1.0-3
+- Change the release number to 1.0 and bump the version to 3
+
 * Tue Aug 18 2015 Sachidananda Urs <sac@redhat.com> 1.1
 - Major changes to rebalance.
 

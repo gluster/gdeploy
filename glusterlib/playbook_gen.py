@@ -38,6 +38,8 @@ from global_vars import Global
 from volume_management import VolumeManagement
 from client_management import ClientManagement
 from peer_management import PeerManagement
+from snapshot_management import SnapshotManagement
+from ganesha_management import GaneshaManagement
 
 
 class PlaybookGen(YamlWriter):
@@ -59,13 +61,16 @@ class PlaybookGen(YamlWriter):
         '''
         PeerManagement(self.config)
         VolumeManagement(self.config, self.var_file)
+        SnapshotManagement(self.config)
+        GaneshaManagement(self.config)
         ClientManagement(self.config)
         self.create_inventory()
         self.write_host_names()
 
     def get_hostnames(self):
-        Global.hosts = self.config_get_options(self.config, 'hosts', False)
-
+        hosts = self.config_get_options(self.config, 'hosts', False)
+        for host in hosts:
+            Global.hosts += self.parse_patterns(host)
     def create_files_and_dirs(self):
         '''
         Creates required directories for all the configuration files
@@ -121,10 +126,15 @@ class PlaybookGen(YamlWriter):
             devices = self.config_section_map(self.config, host,
                                               'devices', False)
             device_names = self.split_comma_seperated_options(devices)
-            if device_names:
+            devices = []
+            for option in device_names:
+                devices += self.parse_patterns(option)
+            if devices:
                 backend_setup = backend_setup and YamlWriter(
-                        device_names, self.config, host_file,
+                        devices, self.config, host_file,
                         self.var_file)
+            else:
+                backend_setup = False
         if backend_setup:
             Global.playbooks.append('setup-backend.yml')
 
@@ -137,8 +147,11 @@ class PlaybookGen(YamlWriter):
         '''
         device_names = self.config_get_options(self.config,
                                                'devices', False)
+        devices = []
+        for option in device_names:
+            devices.append(self.parse_patterns(option))
         if device_names:
-            YamlWriter(device_names, self.config, Global.group_file,
+            YamlWriter(devices, self.config, Global.group_file,
                     self.var_file)
             Global.playbooks.append('setup-backend.yml')
 

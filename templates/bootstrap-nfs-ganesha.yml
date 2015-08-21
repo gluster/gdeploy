@@ -1,6 +1,8 @@
 ---
 - include: check_package_installs_ganesha.yml
+- include: configure-services.yml
 - include: generate-public-key.yml
 - include: copy-ssh-key.yml
-- include: kernel-nfs-stop.yml
-- include: disable-gluster-nfs.yml
+- include: set-pcs-auth-passwd.yml
+- include: enable-nfs-ganesha.yml
+

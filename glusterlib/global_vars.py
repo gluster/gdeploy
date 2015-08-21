@@ -25,7 +25,8 @@ class Global(object):
         shared varibles between the
         modules
     '''
-    sections = {}
+    hosts = []
+    brick_hosts = []
     playbooks = []
 
     # Required filenames and dir names

@@ -17,5 +17,3 @@
            state=mounted
 
     with_items: client_mount_points
-
-

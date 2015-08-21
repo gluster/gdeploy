@@ -1,0 +1,8 @@
+---
+- hosts: cluster_nodes
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Enable nfs-ganesha in all the nodes in the cluster
+    shell: gluster nfs-ganesha enable --mode=script
