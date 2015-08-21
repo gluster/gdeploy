@@ -140,6 +140,15 @@ class Helpers(Global):
         return ultimate_brickname
 
 
+    def pattern_stripping(self, values):
+        value_list = []
+        if not isinstance(values, list):
+            return self.parse_patterns(values)
+        else:
+            for value in values:
+                value_list += self.parse_patterns(value)
+            return value_list
+
     def parse_patterns(self, pattern):
         '''
         This method can be used to parse patterns given in
@@ -158,7 +167,7 @@ class Helpers(Global):
             range_func = self.char_range
         pattern_string = [str(val) for val in range_func(pat_string[0], pat_string[1])]
         names = [pat_group.group(1) + name + pat_group.group(3) for name in pattern_string]
-        return names
+        return filter(None, names)
 
 
     def char_range(self, c1, c2):

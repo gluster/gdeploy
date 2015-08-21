@@ -34,6 +34,18 @@ class SnapshotManagement(YamlWriter):
         except KeyError:
             return
         action = self.section_dict.get('action')
+        if not action:
+            print "Warning: Section 'snapshot' without any action option " \
+                    "found. Skipping this section!"
+            return
+        if self.config.has_section('volume'):
+            if self.config_section_map(self.config, 'volume', 'action',
+                    False) == 'create' and action == 'create':
+                print "\nWarning: looks like you are just creating your " \
+                        "volume. \nCreating a" \
+                        " snapshot now doesn't make much sense. skipping snapshot "\
+                        "section.\n"
+                return
         self.fix_format_of_values_in_config(self.section_dict)
         action_func =  {'create': self.snapshot_create,
                          'delete': self.snapshot_delete,
@@ -52,20 +64,17 @@ class SnapshotManagement(YamlWriter):
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
         self.filename = Global.group_file
-        print "INFO: Snapshot management(action: %s) triggered" % action
+        print "\nINFO: Snapshot management(action: %s) triggered" % action
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def snapshot_create(self):
-        if self.config.has_section('volume'):
-            if self.config_section_map('volume', 'action', False) == 'create':
-                print "warning: looks like you are just creating your volume. \ncreating a" \
-                    "snapshot now doesn't make much sense. skipping snapshot "\
-                    "section."
-                return
         if not self.present_in_yaml(Global.group_file, 'volname'):
             self.check_for_param_presence('volname', self.section_dict)
+            self.section_dict['volname'] = self.split_val_and_hostname(
+                    self.section_dict['volname'])
         if not self.section_dict.get('snapname'):
-            self.section_dict['snapname'] = self.section_dict['volname'] + '_snap'
+            self.section_dict['snapname'] = self.get_value_from_yaml(
+                    Global.group_file, 'volname') + '_snap'
         Global.playbooks.append('gluster-snapshot-create.yml')
 
 
@@ -108,6 +117,6 @@ class SnapshotManagement(YamlWriter):
                                   'auto_delete': None,
                                   'activate_on_create': None
                                   }
-        self.set_default_value_for_dict_key(snap_conf,
+        self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
         Global.playbooks.append('gluster-snapshot-config.yml')

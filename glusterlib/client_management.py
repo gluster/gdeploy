@@ -35,7 +35,8 @@ class ClientManagement(YamlWriter):
             return
         action = self.section_dict.get('action')
         if not action:
-            self.iterate_dicts_and_yaml_write(self.section_dict)
+            print "Warning: Section 'clients' without any action option " \
+                    "found. Skipping this section!"
             return
         self.fix_format_of_values_in_config(self.section_dict)
         self.clients =  self.section_dict.get('hosts')
@@ -43,31 +44,41 @@ class ClientManagement(YamlWriter):
             print "Error: Client hostnames not provided. Exiting!"
             self.cleanup_and_quit()
         '''
+        Supporting patterns for client hosts and client_mount_points only
+        in clients section.
+        '''
+        self.clients = self.pattern_stripping(self.clients)
+        client_mount_points = self.section_dict.get('client_mount_points')
+        if client_mount_points:
+            client_points = self.pattern_stripping( client_mount_points)
+        '''
+        HACK: If the client_points list is singleton, further methods
+        expect it to be a string rather than a list
+        '''
+        if len(client_points) == 1:
+            self.section_dict['client_mount_points'] = client_points[0]
+        else:
+            self.section_dict['client_mount_points'] = client_points
+
+        '''
         client hostnames or IP should also be in the inventory file since
         mounting is to be done in the client host machines
         '''
-        '''
-        HACK: The format of the clients gets distorted if it is a single
-        client host, as the config_parser returns a str instead of list
-        '''
-        client_list = []
-        if not isinstance(self.clients, list):
-            self.clients = self.parse_patterns(self.clients)
-        else:
-            for client in self.clients:
-                client_list += self.parse_patterns(client)
-            self.clients = client_list
         self.write_config('clients', self.clients, Global.inventory)
+
+
         del self.section_dict['hosts']
+
         action_func = { 'mount': self.mount_volume,
-                          'unmount': self.unmount_volume,
-                        }.get(action)
+                        'unmount': self.unmount_volume,
+                      }.get(action)
         if not action_func:
             print "Error: Unknown action provided for client section. Exiting!\n " \
                     "Use either `mount` " \
                     "or `unmount`."
             self.cleanup_and_quit()
         action_func()
+
         self.write_client_info()
         self.filename = Global.group_file
         self.iterate_dicts_and_yaml_write(self.section_dict)
@@ -127,10 +138,10 @@ class ClientManagement(YamlWriter):
                 section_dict['nfsversion'] = 3
             else:
                 section_dict['nfsversion'] = section_dict.pop('nfs-version')
-            print "INFO: NFS mount of volume triggered."
+            print "\nINFO: NFS mount of volume triggered."
             Global.playbooks.append('gluster-client-nfs-mount.yml')
         elif section_dict['fstype'] == 'glusterfs':
-            print "INFO: FUSE mount of volume triggered."
+            print "\nINFO: FUSE mount of volume triggered."
             Global.playbooks.append('gluster-client-fuse-mount.yml')
         else:
             print "Error: Unsupported mount type. Exiting!"

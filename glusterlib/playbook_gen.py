@@ -133,6 +133,8 @@ class PlaybookGen(YamlWriter):
                 backend_setup = backend_setup and YamlWriter(
                         devices, self.config, host_file,
                         self.var_file)
+            else:
+                backend_setup = False
         if backend_setup:
             Global.playbooks.append('setup-backend.yml')
 

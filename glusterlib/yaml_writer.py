@@ -94,7 +94,12 @@ class YamlWriter(ConfigParseHelpers):
             return self.split_comma_seperated_options(options)
 
     def modify_mountpoints(self):
-        brick_dir = self.get_options('brick_dir', False)
+        opts = self.get_options('brick_dir', False)
+        brick_dir = []
+        for option in opts:
+            brick_dir += self.parse_patterns(option)
+        if len(brick_dir) == 1:
+            brick_dir = brick_dir[0]
 
         if not brick_dir:
             force = self.config_section_map(self.config, 'volume', 'force', False)
@@ -141,7 +146,7 @@ class YamlWriter(ConfigParseHelpers):
     def section_data_gen(self, section, section_name):
         opts = self.get_options(section, False)
         options = []
-        for option in options:
+        for option in opts:
             options += self.parse_patterns(option)
         if options:
             if len(options) < self.device_count:

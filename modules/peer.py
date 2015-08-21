@@ -69,7 +69,10 @@ class Peer(object):
                 "gluster pool list")
         peers_in_cluster = [line.split('\t')[1].strip() for
                 line in filter(None, output.split('\n')[1:])]
-        peers_in_cluster.remove('localhost')
+        try:
+            peers_in_cluster.remove('localhost')
+        except:
+            pass
         hosts_to_be_probed = [host for host in self.hosts if host not in
                 peers_in_cluster]
         return hosts_to_be_probed
