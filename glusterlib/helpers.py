@@ -100,11 +100,13 @@ class Helpers(Global):
             if key not in dictname:
                 dictname[key] = value
 
-    def check_for_param_presence(self, param, section_dict):
+    def check_for_param_presence(self, param, section_dict, reqd=True):
         if not section_dict.get(param):
-            print "Error: %s not provided in the config. " \
-                    "Cannot continue!" % param
-            self.cleanup_and_quit()
+            if reqd:
+                print "Error: %s not provided in the config. " \
+                        "Cannot continue!" % param
+                self.cleanup_and_quit()
+            return False
 
     def split_val_and_hostname(self, val):
         '''
@@ -155,6 +157,8 @@ class Helpers(Global):
         hostnames, IPs ets. patterns should be of the format
         10.70.46.1{3..7} or myvm.remote.in.vm{a..f}
         '''
+        if not pattern:
+            return None
         pat_group = re.search("(.*){(.*)}(.*)", pattern)
         if not pat_group:
             return [pattern]

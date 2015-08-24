@@ -28,6 +28,10 @@ class ClientManagement(YamlWriter):
     def __init__(self, config):
         self.config = config
         self.filename = Global.group_file
+        self.get_client_data()
+
+
+    def get_client_data(self)
         try:
             self.section_dict = self.config._sections['clients']
             del self.section_dict['__name__']
@@ -35,14 +39,18 @@ class ClientManagement(YamlWriter):
             return
         action = self.section_dict.get('action')
         if not action:
-            print "Warning: Section 'clients' without any action option " \
+            print "\nWarning: Section 'clients' without any action option " \
                     "found. Skipping this section!"
             return
-        self.fix_format_of_values_in_config(self.section_dict)
         self.clients =  self.section_dict.get('hosts')
         if not self.clients:
-            print "Error: Client hostnames not provided. Exiting!"
+            print "\nError: Client hostnames not provided. Exiting!"
             self.cleanup_and_quit()
+        self.format_client_data()
+
+
+    def format_client_data(self):
+        self.fix_format_of_values_in_config(self.section_dict)
         '''
         Supporting patterns for client hosts and client_mount_points only
         in clients section.
@@ -73,7 +81,7 @@ class ClientManagement(YamlWriter):
                         'unmount': self.unmount_volume,
                       }.get(action)
         if not action_func:
-            print "Error: Unknown action provided for client section. Exiting!\n " \
+            print "\nError: Unknown action provided for client section. Exiting!\n " \
                     "Use either `mount` " \
                     "or `unmount`."
             self.cleanup_and_quit()
@@ -95,7 +103,7 @@ class ClientManagement(YamlWriter):
             gluster = dict()
             if isinstance(value, list):
                 if len(value) != len(self.clients):
-                    print "Error: Provide %s in each client " \
+                    print "\nError: Provide %s in each client " \
                         "or a common one for all the clients. " % key
                     self.cleanup_and_quit()
                 for client, conf in zip(self.clients, value):
@@ -144,7 +152,7 @@ class ClientManagement(YamlWriter):
             print "\nINFO: FUSE mount of volume triggered."
             Global.playbooks.append('gluster-client-fuse-mount.yml')
         else:
-            print "Error: Unsupported mount type. Exiting!"
+            print "\nError: Unsupported mount type. Exiting!"
             self.cleanup_and_quit()
         return section_dict
 

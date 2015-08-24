@@ -1,0 +1,14 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Creating ganesha-ha.conf file
+    template: src=/tmp/playbooks/ganesha-ha.conf
+              dest=/etc
+
+  - name: Replacing quotes in conf file
+    replace: dest=/etc/ganesha-ha.conf
+             regexp='"(((VIP.*)\n*)*)"$'
+             replace='\1'
