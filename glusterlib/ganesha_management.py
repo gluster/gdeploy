@@ -41,7 +41,8 @@ class GaneshaManagement(YamlWriter):
             print "\nWarning: Section 'nfs-ganesha' without any action option " \
                     "found. Skipping this section!"
             return
-        self.fix_format_of_values_in_config(self.section_dict)
+        del self.section_dict['action']
+        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
         action_func = { 'create-cluster': self.create_cluster,
                         'destroy-cluster': self.destroy_cluster,
                         'export-volume': self.export_volume,

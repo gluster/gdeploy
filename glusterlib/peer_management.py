@@ -33,6 +33,7 @@ class PeerManagement(YamlWriter):
                 print "Warning: Section 'peers' without any action option " \
                         "found. Skipping this section!"
                 return
+            del self.section_dict['action']
             self.hosts = self.config_get_options(self.config, 'hosts', False)
             if not self.hosts:
                 print "\nError: Although peer manage option is provided, " \

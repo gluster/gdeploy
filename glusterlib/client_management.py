@@ -31,26 +31,27 @@ class ClientManagement(YamlWriter):
         self.get_client_data()
 
 
-    def get_client_data(self)
+    def get_client_data(self):
         try:
             self.section_dict = self.config._sections['clients']
             del self.section_dict['__name__']
         except KeyError:
             return
-        action = self.section_dict.get('action')
-        if not action:
+        self.action = self.section_dict.get('action')
+        if not self.action:
             print "\nWarning: Section 'clients' without any action option " \
                     "found. Skipping this section!"
             return
-        self.clients =  self.section_dict.get('hosts')
-        if not self.clients:
-            print "\nError: Client hostnames not provided. Exiting!"
-            self.cleanup_and_quit()
+        del self.section_dict['action']
         self.format_client_data()
 
 
     def format_client_data(self):
-        self.fix_format_of_values_in_config(self.section_dict)
+        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
+        self.clients =  self.section_dict.get('hosts')
+        if not self.clients:
+            print "\nError: Client hostnames not provided. Exiting!"
+            self.cleanup_and_quit()
         '''
         Supporting patterns for client hosts and client_mount_points only
         in clients section.
@@ -79,7 +80,7 @@ class ClientManagement(YamlWriter):
 
         action_func = { 'mount': self.mount_volume,
                         'unmount': self.unmount_volume,
-                      }.get(action)
+                      }.get(self.action)
         if not action_func:
             print "\nError: Unknown action provided for client section. Exiting!\n " \
                     "Use either `mount` " \

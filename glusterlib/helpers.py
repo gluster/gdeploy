@@ -94,6 +94,7 @@ class Helpers(Global):
             if ',' in str(value) and key not in [excemption]:
                 option_dict[
                     key] = self.split_comma_seperated_options(value)
+        return option_dict
 
     def set_default_value_for_dict_key(self, dictname, default_value_dict):
         for key, value in default_value_dict.iteritems():

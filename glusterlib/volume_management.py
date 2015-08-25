@@ -44,7 +44,8 @@ class VolumeManagement(YamlWriter):
             self.filename = Global.group_file
             self.iterate_dicts_and_yaml_write(self.section_dict)
             return
-        self.fix_format_of_values_in_config(self.section_dict, 'transport')
+        del self.section_dict['action']
+        self.section_dict = self.fix_format_of_values_in_config(self.section_dict, 'transport')
         action_func =  { 'create': self.create_volume,
                           'start': self.start_volume,
                           'delete': self.delete_volume,

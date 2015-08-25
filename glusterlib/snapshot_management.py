@@ -33,11 +33,16 @@ class SnapshotManagement(YamlWriter):
             del self.section_dict['__name__']
         except KeyError:
             return
+        self.get_snapshot_data()
+
+
+    def get_snapshot_data(self):
         action = self.section_dict.get('action')
         if not action:
             print "Warning: Section 'snapshot' without any action option " \
                     "found. Skipping this section!"
             return
+        del self.section_dict['action']
         if self.config.has_section('volume'):
             if self.config_section_map(self.config, 'volume', 'action',
                     False) == 'create' and action == 'create':
@@ -46,7 +51,7 @@ class SnapshotManagement(YamlWriter):
                         " snapshot now doesn't make much sense. skipping snapshot "\
                         "section.\n"
                 return
-        self.fix_format_of_values_in_config(self.section_dict)
+        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
         action_func =  {'create': self.snapshot_create,
                          'delete': self.snapshot_delete,
                          'config': self.snapshot_config,

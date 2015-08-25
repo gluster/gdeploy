@@ -40,6 +40,7 @@ from client_management import ClientManagement
 from peer_management import PeerManagement
 from snapshot_management import SnapshotManagement
 from ganesha_management import GaneshaManagement
+from quota_management import QuotaManagement
 
 
 class PlaybookGen(YamlWriter):
@@ -64,6 +65,7 @@ class PlaybookGen(YamlWriter):
         SnapshotManagement(self.config)
         GaneshaManagement(self.config)
         ClientManagement(self.config)
+        QuotaManagement(self.config)
         self.create_inventory()
         self.write_host_names()
 
@@ -117,7 +119,6 @@ class PlaybookGen(YamlWriter):
         YAMLWriter
         '''
         if not Global.hosts:
-            print "Warning: Section `hosts' not found. Skipping backend-setup"
             return
         backend_setup = True
         for host in Global.hosts:
@@ -136,11 +137,11 @@ class PlaybookGen(YamlWriter):
             else:
                 backend_setup = False
         if backend_setup:
+            print("\nINFO: Back-end setup triggered")
             Global.playbooks.append('setup-backend.yml')
 
     def group_vars_gen(self):
         if not Global.hosts:
-            print "Warning: Section `hosts' not found. Skipping backend-setup"
             return
         '''
         Calls YamlWriter for writing data to the group_vars file
@@ -154,6 +155,7 @@ class PlaybookGen(YamlWriter):
             YamlWriter(devices, self.config, Global.group_file,
                     self.var_file)
             Global.playbooks.append('setup-backend.yml')
+            print("\nINFO: Back-end setup triggered")
 
     def write_host_names(self):
         self.filename = Global.group_file

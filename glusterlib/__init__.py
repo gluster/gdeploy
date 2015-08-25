@@ -6,6 +6,7 @@ from client_management import ClientManagement
 from peer_management import PeerManagement
 from snapshot_management import SnapshotManagement
 from ganesha_management import GaneshaManagement
+from quota_management import QuotaManagement
 from conf_parser import ConfigParseHelpers
 from helpers import Helpers
 from cliops import CliOps
