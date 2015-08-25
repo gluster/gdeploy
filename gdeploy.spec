@@ -1,13 +1,13 @@
 %define name gdeploy
 %define version 1.0
-%define release 3
+%define release 5
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/doc/ansible/gdeploy
 
 Name:		%{name}
 Version:	%{version}
-Release:	%{?release}
+Release:	%{release}%{?dist}
 Summary:	Tool to deploy and manage GlusterFS cluster.
 
 Group:		Applications/System
@@ -65,6 +65,9 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Tue Aug 25 2015 Sachidananda Urs <sac@redhat.com> 1.0-5
+- Bump the release and fix dist tag
+
 * Fri Aug 21 2015 Sachidananda Urs <sac@redhat.com> 1.0-3
 - Changed the spec version to 1.0, and release number to 3
 
