@@ -332,3 +332,101 @@ client_mount_points=/mnt/gluster{1..3}
 # action=restore
 # snapname=glustersnap
 
+#-----------------------------------
+
+
+                            ##-- Quota --##
+
+# 'quota' section can be used to set quota limits on mounted
+# volume directories and sub directories. The actions supported are
+#     [enable, disable, remove, remove-objects, default-soft-limit,
+#     limit-usage, limit-objects, alert-time, soft-timeout, hard-timeout].
+#
+# For enabling quota:
+#
+# [quota]
+# action=enable
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+#
+#
+# For disabling quota:
+#
+# [quota]
+# action=disable
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+#
+#
+# For removing quota limits on a path
+#
+# [quota]
+# action=remove
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+# path=/,/dir1
+#
+#
+# For removing quota objects on a path
+#
+# [quota]
+# action=remove-objects
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+# path=/,/dir1
+#
+# For setting default soft limits
+#
+# [quota]
+# action=default-soft-limit
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+# percent=85
+#
+#
+# For limiting usage for volume
+#
+# [quota]
+# action=limit-usage
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+# path=/,/dir1
+# size=5MB,6MB
+#
+#
+# For limiting object count for volume
+#
+# [quota]
+# action=limit-objects
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+# path=/,/dir1
+# number=10,20
+#
+#
+# For setting alert-time
+#
+# [quota]
+# action=alert-time
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+# time=1W
+#
+#
+# For setting soft-timeout
+#
+# [quota]
+# action=soft-timeout
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+# time=100
+#
+#
+#
+# For setting hard-timeout
+#
+# [quota]
+# action=hard-timeout
+# volname=glustervol
+# client_hosts=10.70.46.23,10.70.46.24
+# time=100
