@@ -207,6 +207,7 @@ manage=probe
 # some mountpoints and must be used anyway.
 
 
+# For creating a volume of type disperse:
 
 [volume]
 action=create
@@ -216,6 +217,8 @@ disperse=yes
 disperse_count=0
 redundancy_count=2
 force=yes
+
+
 
 # For creating a volume of type replicate:
 
@@ -227,6 +230,32 @@ force=yes
 # replica_count=2
 # arbiter_count=1
 # force=yes
+
+
+
+# To start a volume
+
+# [volume]
+# action=start
+# volname=10.70.46.13:glustervol
+
+
+
+# To stop a volume
+
+# [volume]
+# action=stop
+# volname=10.70.46.13:glustervol
+
+
+
+# To delete a volume
+
+# [volume]
+# action=delete
+# volname=10.70.46.13:glustervol
+
+
 
 # Add brick operation can be done by using:
 
