@@ -217,12 +217,16 @@ disperse_count=0
 redundancy_count=2
 force=yes
 
-# For creating a volume of type replicate add the following in 'volume' section
-# instead of disperse:
+# For creating a volume of type replicate:
 
+# [volume]
+# action=create
+# volname=glustervol
+# transport=tcp,rdma
 # replica=yes
 # replica_count=2
-# arbiter_count=2
+# arbiter_count=1
+# force=yes
 
 # Add brick operation can be done by using:
 
