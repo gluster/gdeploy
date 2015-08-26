@@ -92,10 +92,9 @@ class GlusterDeploy(PlaybookGen, Global):
         return args
 
     def deploy_gluster(self):
-        self.validate_playbook_order(Global.playbooks)
-        for yml in Global.playbooks:
-            the_playbook = self.get_file_dir_path(Global.base_dir, yml)
-            self.call_ansible_command(the_playbook)
+        Global.playbooks = self.validate_playbook_order(Global.playbooks)
+        self.write_ansible_playbook()
+        self.call_ansible_command(Global.playbooks_file)
 
     def validate_playbook_order(self, yml):
         if 'gluster-volume-delete.yml' in yml:
@@ -106,11 +105,16 @@ class GlusterDeploy(PlaybookGen, Global):
             yml.append('gluster-peer-detach.yml')
         return yml
 
+    def write_ansible_playbook(self):
+        playbooks = '---\n- include: ' + '\n- include: '.join(Global.playbooks)
+        with open(Global.playbooks_file, 'w') as fd:
+            fd.write(playbooks)
+
     def call_ansible_command(self, playbooks):
         '''
         Calls the ansible-playbook command on necessary yamls
         '''
-        verbose = ' -vvv ' if self.verbose else ' '
+        verbose = ' -vv ' if self.verbose else ' '
         if playbooks.strip():
             try:
                 cmd = 'ansible-playbook %s -i %s %s' % (

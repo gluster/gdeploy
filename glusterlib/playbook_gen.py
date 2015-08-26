@@ -125,8 +125,11 @@ class PlaybookGen(YamlWriter):
                 backend_setup = backend_setup and YamlWriter(
                         device_names, self.config, host_file,
                         self.var_file)
+            else:
+                backend_setup = False
         if backend_setup:
-            Global.playbooks.append('setup-backend.yml')
+            print("\nINFO: Back-end setup triggered")
+            Global.playbooks = Global.backend_setup_playbooks
 
     def group_vars_gen(self):
         if not Global.hosts:
@@ -140,7 +143,8 @@ class PlaybookGen(YamlWriter):
         if device_names:
             YamlWriter(device_names, self.config, Global.group_file,
                     self.var_file)
-            Global.playbooks.append('setup-backend.yml')
+            print("\nINFO: Back-end setup triggered")
+            Global.playbooks = Global.backend_setup_playbooks
 
     def write_host_names(self):
         self.filename = Global.group_file

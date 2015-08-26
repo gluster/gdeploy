@@ -38,5 +38,9 @@ class Global(object):
     host_vars_dir = os.path.join(os.path.realpath(base_dir), host_vars)
     inventory = os.path.join(os.path.realpath(base_dir), 'ansible_hosts')
     group_file = os.path.join(group_vars_dir, 'all')
+    backend_setup_playbooks = ['pvcreate.yml', 'vgcreate.yml', 'lvcreate.yml',
+            'fscreate.yml', 'mount.yml', 'tune-profile.yml']
+    playbooks_file = os.path.join(os.path.realpath(base_dir),
+            'ansible_playbooks.yml')
 
 
