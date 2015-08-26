@@ -207,6 +207,11 @@ force=yes
 # 'hosts' field is mandatory.
 # The option 'fstype' specifies how gluster volume is to be mounted.
 # Choices are: [glusterfs, nfs] (Default is glusterfs)
+
+# If the fstype is given as nfs, the version by default will be taken as
+# 3. This can be changed by providing the option 'nfs-version'.
+# eg: nfs-version=4
+
 # Each client can have different types of volume mount. Just specify it comma
 # seperated.
 
@@ -218,10 +223,25 @@ force=yes
 # for all the hosts
 
 
+# Mounting a volume using native fuse
+
 [clients]
 action=mount
+# volname=glustervol (If not specified earlier in 'volume' section
 hosts=10.70.46.13
 fstype=glusterfs
 client_mount_points=/mnt/gluster
+
+
+# Mounting a volume using nfs
+
+# [clients]
+# action=mount
+# # volname=glustervol (If not specified earlier in 'volume' section
+# hosts=10.70.46.13
+# fstype=nfs
+# nfs-version=4
+# client_mount_points=/mnt/gluster
+
 #-----------------------------------
 
