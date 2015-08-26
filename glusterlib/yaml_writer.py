@@ -103,17 +103,22 @@ class YamlWriter(ConfigParseHelpers):
 
         if not brick_dir:
             force = self.config_section_map(self.config, 'volume', 'force', False)
-            if force == 'yes':
+            if (force and force.lower() == 'yes'):
                 return
             brick_list = [self.get_file_dir_path(mntpath,
                                                  os.path.basename(mntpath)) for
                           mntpath in self.section_dict['mountpoints']]
 
         else:
+            if (force and force.lower() == 'no'):
+                print "\nError: Mountpoints cannot be brick directories.\n " \
+                        "Provide 'brick_dirs' option/section or use force=yes"\
+                        " in your configuration file. Exiting!"
+                self.cleanup_and_quit()
             if True in [brick.startswith('/') for brick in brick_dir]:
                 print "Error: brick_dir should be relative to the " \
-                    "mountpoint. Looks like you have provided an " \
-                    "absolute path. "
+                    "mountpoint. \nLooks like you have provided an " \
+                    "absolute path. Exiting!"
                 self.cleanup_and_quit()
 
             if isinstance(brick_dir, list):
