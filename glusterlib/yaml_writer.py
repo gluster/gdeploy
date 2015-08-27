@@ -96,8 +96,8 @@ class YamlWriter(ConfigParseHelpers):
     def modify_mountpoints(self):
         brick_dir = self.get_options('brick_dir', False)
 
+        force = self.config_section_map(self.config, 'volume', 'force', False)
         if not brick_dir:
-            force = self.config_section_map(self.config, 'volume', 'force', False)
             if (force and force.lower() == 'yes'):
                 return
             brick_list = [self.get_file_dir_path(mntpath,
