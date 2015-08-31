@@ -60,14 +60,14 @@ class ClientManagement(YamlWriter):
         client_mount_points = self.section_dict.get('client_mount_points')
         if client_mount_points:
             client_points = self.pattern_stripping( client_mount_points)
-        '''
-        HACK: If the client_points list is singleton, further methods
-        expect it to be a string rather than a list
-        '''
-        if len(client_points) == 1:
-            self.section_dict['client_mount_points'] = client_points[0]
-        else:
-            self.section_dict['client_mount_points'] = client_points
+            '''
+            HACK: If the client_points list is singleton, further methods
+            expect it to be a string rather than a list
+            '''
+            if len(client_points) == 1:
+                self.section_dict['client_mount_points'] = client_points[0]
+            else:
+                self.section_dict['client_mount_points'] = client_points
 
         '''
         client hostnames or IP should also be in the inventory file since
