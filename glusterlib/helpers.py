@@ -133,7 +133,10 @@ class Helpers(Global):
             val_group = re.search("(.*):(.*)", val)
             if val_group:
                 hostname = self.parse_patterns(val_group.group(1))
-                Global.master = [hostname[0]]
+                try:
+                    Global.master = [Global.hosts[0]]
+                except:
+                    Global.master = [hostname[0]]
                 for host in hostname:
                     if host not in Global.hosts:
                         Global.hosts.append(host)
