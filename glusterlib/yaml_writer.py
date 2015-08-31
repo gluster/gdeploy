@@ -44,57 +44,85 @@ class YamlWriter(ConfigParseHelpers):
         self.filetype = filetype
         self.bricks = bricks
         self.device_count = len(bricks)
-        self.mountpoints = self.section_data_gen('mountpoints', 'Mount Point')
         self.write_sections()
 
     def write_sections(self):
-        '''
-        device names, vg names, lv names, pool names, mount point,
-        everything is read into a dictionary section_dict, so the association
-        can be maintained between all these things. Association as in,
-        /dev/vgname1/lvname1 is to be mounted at mount_point1 etc
-        '''
-        sections = ['vgs', 'lvs', 'pools']
-        section_names = ['Volume Group', 'Logical Volume',
-                         'Logical Pool']
-        self.section_dict = {'bricks': self.bricks,
-                             'mountpoints': self.mountpoints}
-        for section, section_name in zip(sections, section_names):
-            self.section_dict[section] = self.section_data_gen(
-                section,
-                section_name)
-        self.section_dict['lvols'] = ['/dev/%s/%s' % (i, j) for i, j in
-                                      zip(self.section_dict['vgs'],
-                                          self.section_dict['lvs'])]
-        self.yaml_dict_data_write()
-        self.modify_mountpoints()
-        listables_in_yaml = {}
-        for key in [ 'vgs', 'bricks', 'mountpoints', 'lvols']:
-            listables_in_yaml[key] = self.section_dict[key]
-        self.iterate_dicts_and_yaml_write(listables_in_yaml)
+        self.write_brick_names()
+        self.write_vg_names()
+        self.write_pool_names()
+        self.write_lv_names()
+        self.write_lvol_names()
+        self.write_mount_options()
         self.perf_spec_data_write()
+        self.tune_profile()
         return True
 
-    def insufficient_param_count(self, section, count):
-        print "Error: Please provide %s names for %s devices " \
-            "else leave the field empty" % (section, count)
-        self.cleanup_and_quit()
+    def write_brick_names(self):
+        self.create_yaml_dict('bricks', self.bricks, False)
+        Global.playbooks.append('pvcreate.yml')
 
-    def split_comma_seperated_options(self, options):
-        if options:
-            return filter(None, options.split(','))
-        return []
+    def write_vg_names(self):
+        self.vgs = self.section_data_gen(self.config, 'vgs', 'Volume Groups')
+        if self.vgs:
+            self.create_yaml_dict('vgs', self.vgs, False)
+            data = []
+            for i, j in zip(self.bricks, self.vgs):
+                vgnames = {}
+                vgnames['brick'] = i
+                vgnames['vg'] = j
+                data.append(vgnames)
+            self.create_yaml_dict('vgnames', data, True)
+            Global.playbooks.append('vgcreate.yml')
 
-    def get_options(self, section, required):
-        if self.filetype == 'group_vars':
-            return self.config_get_options(self.config, section, required)
-        else:
-            options = self.config_section_map(
-                self.config, self.filename.split('/')[-1], section, required)
-            return self.split_comma_seperated_options(options)
+
+    def write_lv_names(self):
+        self.lvs = self.section_data_gen(self.config, 'lvs', 'Logical Volumes')
+        if self.lvs:
+            data = []
+            for i, j, k in zip(self.pools, self.vgs, self.lvs):
+                pools = {}
+                pools['pool'] = i
+                pools['vg'] = j
+                pools['lv'] = k
+                data.append(pools)
+            self.create_yaml_dict('lvpools', data, True)
+        Global.playbooks.append('lvcreate.yml')
+
+    def write_pool_names(self):
+        self.pools = self.section_data_gen(self.config, 'pools', 'Logical Pools')
+        if self.pools:
+            data = []
+            for i, j in zip(self.pools, self.vgs):
+                pools = {}
+                pools['pool'] = i
+                pools['vg'] = j
+                data.append(pools)
+            self.create_yaml_dict('pools', data, True)
+
+    def write_lvol_names(self):
+        self.lvols = ['/dev/%s/%s' % (i, j) for i, j in
+                                      zip(self.vgs, self.lvs)]
+        if self.lvols:
+            self.create_yaml_dict('lvols', self.lvols, False)
+        Global.playbooks.append('fscreate.yml')
+
+    def write_mount_options(self):
+        self.mountpoints = self.section_data_gen(self.config,
+                'mountpoints', 'Mount Point')
+        data = []
+        for i, j in zip(self.mountpoints, self.lvols):
+            mntpath = {}
+            mntpath['path'] = i
+            mntpath['device'] = j
+            data.append(mntpath)
+        self.create_yaml_dict('mntpath', data, True)
+        self.modify_mountpoints()
+        self.create_yaml_dict('mountpoints', self.mountpoints, False)
+        Global.playbooks.append('mount.yml')
+
 
     def modify_mountpoints(self):
-        opts = self.get_options('brick_dir', False)
+        opts = self.get_options(self.config, 'brick_dir', False)
         brick_dir = []
         for option in opts:
             brick_dir += self.parse_patterns(option)
@@ -107,7 +135,7 @@ class YamlWriter(ConfigParseHelpers):
                 return
             brick_list = [self.get_file_dir_path(mntpath,
                                                  os.path.basename(mntpath)) for
-                          mntpath in self.section_dict['mountpoints']]
+                          mntpath in self.mountpoints]
 
         else:
             if (force and force.lower() == 'no'):
@@ -122,34 +150,45 @@ class YamlWriter(ConfigParseHelpers):
                 self.cleanup_and_quit()
 
             if isinstance(brick_dir, list):
-                if len(brick_dir) != len(self.section_dict['mountpoints']):
+                if len(brick_dir) != len(self.mountpoints):
                     if len(brick_dir) != 1:
                         print "Error: The brick_dir length does not match with "\
                             "the mountpoints available. Either give %d number " \
                             "of brick_dir, provide a common one or leave this "\
-                            "empty." % (len(self.section_dict['mountpoints']))
+                            "empty." % (len(self.mountpoints))
                         self.cleanup_and_quit()
                     else:
                         brick_list = [
                             self.get_file_dir_path(
                                 mntpath,
-                                brick_dir[0]) for mntpath in self.section_dict['mountpoints']]
+                                brick_dir[0]) for mntpath in self.mountpoints]
                 else:
                     brick_list = [
                         self.get_file_dir_path(
                             mntpath, brick) for mntpath, brick in zip(
-                            self.section_dict['mountpoints'], brick_dir)]
+                            self.mountpoints, brick_dir)]
         for brick, mountpoint in zip(
-                brick_list, self.section_dict['mountpoints']):
+                brick_list, self.mountpoints):
             if brick == mountpoint and not force:
                 print "Error: Mount point cannot be brick. Provide 'brick_dir' " \
                     "option or provide option 'force=True' under 'volume' " \
                     "section."
                 self.cleanup_and_quit()
-        self.section_dict['mountpoints'] = brick_list
+        self.mountpoints = brick_list
 
-    def section_data_gen(self, section, section_name):
-        opts = self.get_options(section, False)
+    def tune_profile(self):
+        profile = self.config_get_options(self.config, 'tune-profile', False)
+        profile = 'rhs-high-throughput' if not profile else profile
+        self.create_yaml_dict('profile', profile, False)
+        Global.playbooks.append('tune-profile.yml')
+
+    def insufficient_param_count(self, section, count):
+        print "Error: Please provide %s names for %s devices " \
+            "else leave the field empty" % (section, count)
+        self.cleanup_and_quit()
+
+    def section_data_gen(self, config, section, section_name):
+        opts = self.get_options(config, section, False)
         options = []
         for option in opts:
             options += self.parse_patterns(option)
@@ -183,29 +222,6 @@ class YamlWriter(ConfigParseHelpers):
         data_dict[section] = data
         self.write_yaml(data_dict, keep_format)
 
-    def yaml_dict_data_write(self):
-        '''
-        Matter complicates when the data are to be written as a dictionary
-        in the yaml. for the data with above mentioned associations are
-        to be written as a dictionary itself in the yaml, the dictionary
-        section_dict is iterated keeping the associations intact, and
-        multiple lists are created for vgs, lvs, pools, mountpoints
-        '''
-        # Just a pretty way to initialise 4 empty lists
-        vgnames, mntpaths, lvpools, pools = ([] for i in range(4))
-        for i, vg in enumerate(self.section_dict['vgs']):
-            vgnames.append({'brick': self.section_dict['bricks'][i], 'vg': vg})
-            mntpaths.append({'path': self.section_dict['mountpoints'][i],
-                             'device': self.section_dict['lvols'][i]})
-            lvpools.append({'pool': self.section_dict['pools'][i], 'vg': vg,
-                            'lv': self.section_dict['lvs'][i]})
-            pools.append({'pool': self.section_dict['pools'][i], 'vg': vg})
-        data_dict = {
-            'vgnames': vgnames,
-            'lvpools': lvpools,
-            'mntpath': mntpaths,
-            'pools': pools}
-        self.iterate_dicts_and_yaml_write(data_dict, True)
 
     def perf_spec_data_write(self):
         '''
@@ -224,11 +240,12 @@ class YamlWriter(ConfigParseHelpers):
                 print "Error: Unsupported disk type!"
                 self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
-                perf['diskcount'] = int(self.get_options('diskcount', True)[0])
+                perf['diskcount'] = int(self.get_options(self.config,
+                    'diskcount', True)[0])
                 stripe_size_necessary = {'raid10': False,
                                          'raid6': True
                                          }[perf['disktype']]
-                stripe_size = self.get_options('stripesize',
+                stripe_size = self.get_options(self.config, 'stripesize',
                                                stripe_size_necessary)
                 if stripe_size:
                     perf['stripesize'] = int(stripe_size[0])

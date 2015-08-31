@@ -73,7 +73,7 @@ class VolumeManagement(YamlWriter):
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def get_brick_dirs(self):
-        opts = self.get_options('brick_dirs', False)
+        opts = self.get_options(self.config, 'brick_dirs', False)
         options = []
         for option in opts:
             options += self.parse_patterns(option)

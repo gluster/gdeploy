@@ -109,6 +109,19 @@ class Helpers(Global):
                 self.cleanup_and_quit()
             return False
 
+    def get_options(self, config, section, required):
+        if self.filetype == 'group_vars':
+            return self.config_get_options(config, section, required)
+        else:
+            options = self.config_section_map(
+                config, self.filename.split('/')[-1], section, required)
+            return self.split_comma_seperated_options(options)
+
+    def split_comma_seperated_options(self, options):
+        if options:
+            return filter(None, options.split(','))
+        return []
+
     def split_val_and_hostname(self, val):
         '''
         This gives the user the flexibility to not give the hosts

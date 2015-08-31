@@ -155,7 +155,6 @@ class PlaybookGen(YamlWriter):
             YamlWriter(devices, self.config, Global.group_file,
                     self.var_file)
             print("\nINFO: Back-end setup triggered")
-            Global.playbooks = Global.backend_setup_playbooks
 
     def write_host_names(self):
         self.filename = Global.group_file
