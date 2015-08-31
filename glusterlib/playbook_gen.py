@@ -33,8 +33,8 @@
 
 import os
 import sys
-from yaml_writer import YamlWriter
 from global_vars import Global
+from backend_setup import BackendSetup
 from volume_management import VolumeManagement
 from client_management import ClientManagement
 from peer_management import PeerManagement
@@ -43,7 +43,7 @@ from ganesha_management import GaneshaManagement
 from quota_management import QuotaManagement
 
 
-class PlaybookGen(YamlWriter):
+class PlaybookGen(BackendSetup):
 
     def __init__(self, config_file):
         self.config = self.read_config(config_file)
@@ -116,7 +116,7 @@ class PlaybookGen(YamlWriter):
         '''
         If decided to create host, this will create host_vars file for
         each hosts and writes data to it, accorsing with the help of
-        YAMLWriter
+        BackendSetup
         '''
         if not Global.hosts:
             return
@@ -131,20 +131,19 @@ class PlaybookGen(YamlWriter):
             for option in device_names:
                 devices += self.parse_patterns(option)
             if devices:
-                backend_setup = backend_setup and YamlWriter(
+                backend_setup = backend_setup and BackendSetup(
                         devices, self.config, host_file,
                         self.var_file)
             else:
                 backend_setup = False
         if backend_setup:
             print("\nINFO: Back-end setup triggered")
-            Global.playbooks = Global.backend_setup_playbooks
 
     def group_vars_gen(self):
         if not Global.hosts:
             return
         '''
-        Calls YamlWriter for writing data to the group_vars file
+        Calls Backendsetup for writing data to the group_vars file
         '''
         device_names = self.config_get_options(self.config,
                                                'devices', False)
@@ -152,7 +151,7 @@ class PlaybookGen(YamlWriter):
         for option in device_names:
             devices.append(self.parse_patterns(option))
         if device_names:
-            YamlWriter(devices, self.config, Global.group_file,
+            BackendSetup(devices, self.config, Global.group_file,
                     self.var_file)
             print("\nINFO: Back-end setup triggered")
 
