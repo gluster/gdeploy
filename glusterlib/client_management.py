@@ -63,12 +63,12 @@ class ClientManagement(YamlWriter):
                     "or `unmount`."
             self.cleanup_and_quit()
         action_func()
-        self.write_client_info()
+        self.write_client_info(action)
         self.filename = Global.group_file
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
 
-    def write_client_info(self):
+    def write_client_info(self, action):
         '''
         host_var files are to be created if multiple clients
         have different mount points for gluster volume
@@ -85,13 +85,13 @@ class ClientManagement(YamlWriter):
                 for client, conf in zip(self.clients, value):
                     self.filename = self.get_file_dir_path(
                         Global.host_vars_dir, client)
-                    if key == 'fstype':
+                    if key == 'fstype' and action == 'mount':
                         gluster = self.client_fstype_listing(conf, client)
                     else:
                         gluster[key] = conf
                     self.iterate_dicts_and_yaml_write(gluster)
                 del self.section_dict[key]
-        if 'fstype' in self.section_dict:
+        if 'fstype' in self.section_dict and action == 'mount':
             if isinstance(self.clients, list):
                 self.nfs_clients += self.clients
                 self.fuse_clients += self.clients
