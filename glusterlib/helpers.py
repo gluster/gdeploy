@@ -114,7 +114,10 @@ class Helpers(Global):
         '''
         vol_group = re.search("(.*):(.*)", volname)
         if vol_group:
-            Global.master = [vol_group.group(1)]
+            try:
+                Global.master = [Global.hosts[0]]
+            except:
+                Global.master = [vol_group.group(1)]
             if vol_group.group(1) not in Global.hosts:
                 Global.hosts.append(vol_group.group(1))
             return vol_group.group(2)
