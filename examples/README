@@ -47,8 +47,10 @@ include:
 `hosts'
 -------
 
-This is a mandatory section which will contain ip addresses or hostnames. Each
+This section will contain ip addresses or hostnames. Each
 hostname or ip address should be listed in a separate line.
+For operations like back-end setup, peer probe, volume create etc.,
+this is a mandatory section.
 
 `devices'
 ---------
@@ -70,7 +72,7 @@ setting up the backend. Supports RAID 10, RAID 6 and JBOD configurations.
 If this field is left empty, it will be by default taken as JBOD.
 This is common for all the hosts.
 
-This is an optional section with RAID10 as default.
+This is an optional section with JBOD as default.
 
 `diskcount'
 -----------
