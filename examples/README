@@ -135,7 +135,7 @@ with the client data.
 ------------
 
 brick_dirs is the directory which is to be used as brick while creating the
-volume. A mountpoint cannot be used as a brick directory, so brick_dir
+volume. A mountpoint cannot be used as a brick directory, so brick_dirs
 specifies the directory to be made inside the LV mount point that will be
 used as a brick.
 

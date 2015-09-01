@@ -84,15 +84,15 @@
 # /gluster/brick
 #-------------------------------
 
-# brick_dir is the directory which is to be used as brick while creating the
-# volume. A mountpoint cannot be used as a brick directory, so brick_dir
+# brick_dirs is the directory which is to be used as brick while creating the
+# volume. A mountpoint cannot be used as a brick directory, so brick_dirs
 # specifies the directory to be made inside the LV mount point that will be
 # used as a brick.
 # This field can be left empty in which case a directory will be created
 # inside the mountpoint with a default name. If backend setup is not being done
 # this field will be ignored.
 
-# [brick_dir]
+# [brick_dirs]
 # gluster_brick
 
 
@@ -104,7 +104,7 @@ vgs=CUSTOM_vg1,CUSTOM_vg2,CUSTOM_vg3
 pools=CUSTOM_pool1,CUSTOM_pool2,CUSTOM_pool3
 lvs=CUSTOM_lv1,CUSTOM_lv2,CUSTOM_lv3
 mountpoints=/gluster/brick1,/gluster/brick2,/gluster/brick3
-brick_dir=glusterbrick{1..3}
+brick_dirs=glusterbrick{1..3}
 
 # NOTE: The host specific data of 10.70.46.15 and 10.70.46.17 are
 # the same. It can be fed either of the ways. Two separate

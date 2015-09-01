@@ -133,6 +133,8 @@ class Helpers(Global):
             val_group = re.search("(.*):(.*)", val)
             if val_group:
                 hostname = self.parse_patterns(val_group.group(1))
+                Global.hosts = [host for host in Global.hosts if
+                        host not in hostname]
                 if grorep:
                     return hostname, val_group.group(2)
                 try:
@@ -140,9 +142,8 @@ class Helpers(Global):
                 except:
                     Global.master = [hostname[0]]
                 for host in hostname:
-                    if host not in Global.hosts:
-                        Global.hosts.append(host)
-                        Global.brick_hosts.append(host)
+                    Global.hosts.append(host)
+                    Global.brick_hosts.append(host)
                 return val_group.group(2)
         return val
 

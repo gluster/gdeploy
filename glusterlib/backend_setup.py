@@ -123,7 +123,7 @@ class BackendSetup(YamlWriter):
 
 
     def modify_mountpoints(self):
-        opts = self.get_options(self.config, 'brick_dir', False)
+        opts = self.get_options(self.config, 'brick_dirs', False)
         brick_dir = []
         for option in opts:
             brick_dir += self.parse_patterns(option)
@@ -145,7 +145,7 @@ class BackendSetup(YamlWriter):
                         " in your configuration file. Exiting!"
                 self.cleanup_and_quit()
             if True in [brick.startswith('/') for brick in brick_dir]:
-                print "Error: brick_dir should be relative to the " \
+                print "Error: brick_dirs should be relative to the " \
                     "mountpoint. \nLooks like you have provided an " \
                     "absolute path. Exiting!"
                 self.cleanup_and_quit()
@@ -153,9 +153,9 @@ class BackendSetup(YamlWriter):
             if isinstance(brick_dir, list):
                 if len(brick_dir) != len(self.mountpoints):
                     if len(brick_dir) != 1:
-                        print "Error: The brick_dir length does not match with "\
+                        print "Error: The brick_dirs length does not match with "\
                             "the mountpoints available. Either give %d number " \
-                            "of brick_dir, provide a common one or leave this "\
+                            "of brick_dirs, provide a common one or leave this "\
                             "empty." % (len(self.mountpoints))
                         self.cleanup_and_quit()
                     else:
@@ -171,7 +171,7 @@ class BackendSetup(YamlWriter):
         for brick, mountpoint in zip(
                 brick_list, self.mountpoints):
             if brick == mountpoint and not force:
-                print "Error: Mount point cannot be brick. Provide 'brick_dir' " \
+                print "Error: Mount point cannot be brick. Provide 'brick_dirs' " \
                     "option or provide option 'force=True' under 'volume' " \
                     "section."
                 self.cleanup_and_quit()
