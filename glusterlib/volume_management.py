@@ -161,9 +161,11 @@ class VolumeManagement(YamlWriter):
         bricks = self.format_brick_names(bricks)
         if not Global.hosts:
             print "\nError: We can't identify the cluster in which volume"\
-                        " %s is a part of.\n Either give volname in the format"\
-                        " <hostname>:<volname> or give atleast one host which "\
-                        "is part of the pool under 'hosts' section."
+                        " %s is a part of.\n\nEither give volname in the format"\
+                        " <hostname>:<volname> \nor give atleast one host which "\
+                        "is part of the pool under 'hosts' "\
+                        "section." % self.section_dict['volname']
+
             self.cleanup_and_quit()
         self.section_dict['new_bricks'] = bricks
         self.set_default_replica_type()
