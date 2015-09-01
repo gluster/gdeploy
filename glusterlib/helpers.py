@@ -123,9 +123,10 @@ class Helpers(Global):
                     Global.master = [vol_group.group(1)]
                 else:
                     print "\nError: We can't identify the cluster in which volume"\
-                            " %s is a part of.\n Either give volname in the format"\
-                            " <hostname>:<volname> or give atleast one host which "\
-                            "is part of the pool under 'hosts' section."
+                                " is a part of.\n\nEither give volname in the format"\
+                                " <hostname>:<volname> \nor give atleast one host which "\
+                                "is part of the pool under 'hosts' "\
+                                "section."
                     self.cleanup_and_quit()
             if vol_group.group(1) not in Global.hosts:
                 Global.hosts.append(vol_group.group(1))

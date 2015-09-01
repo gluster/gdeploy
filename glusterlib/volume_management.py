@@ -40,6 +40,8 @@ class VolumeManagement(YamlWriter):
             self.iterate_dicts_and_yaml_write(self.section_dict)
             return
         self.fix_format_of_values_in_config(self.section_dict, 'transport')
+        volname = self.split_volname_and_hostname(self.section_dict['volname'])
+        self.section_dict['volname'] = volname
         action_func =  { 'create': self.create_volume,
                           'start': self.start_volume,
                           'delete': self.delete_volume,
@@ -55,8 +57,6 @@ class VolumeManagement(YamlWriter):
                     "and rebalance"
             return
         action_func()
-        volname = self.split_volname_and_hostname(self.section_dict['volname'])
-        self.section_dict['volname'] = volname
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
