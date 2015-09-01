@@ -98,6 +98,11 @@ class ClientManagement(YamlWriter):
         host_var files are to be created if multiple clients
         have different mount points for gluster volume
         '''
+        '''
+        This nfs-clients and fuse-clients distinction is used only for
+        the mount option. Seperate playbooks are run is each case as nfs
+        has an extra parameter version
+        '''
         self.nfs_clients = []
         self.fuse_clients = []
         for key, value in self.section_dict.iteritems():
@@ -116,16 +121,21 @@ class ClientManagement(YamlWriter):
                         gluster[key] = conf
                     self.iterate_dicts_and_yaml_write(gluster)
                 del self.section_dict[key]
-        if 'fstype' in self.section_dict and action == 'mount':
-            if isinstance(self.clients, list):
-                self.nfs_clients += self.clients
-                self.fuse_clients += self.clients
-            else:
-                self.nfs_clients.append(self.clients)
-                self.fuse_clients.append(self.clients)
-            self.section_dict = self.fstype_validation(self.section_dict)
-        self.write_config('nfs_clients', self.nfs_clients, Global.inventory)
-        self.write_config('fuse_clients', self.fuse_clients, Global.inventory)
+        if action == 'mount':
+            '''
+            If fstype option still exist in the config, then fstype is common
+            to all the clients. For that the following.
+            '''
+            if 'fstype' in self.section_dict:
+                if isinstance(self.clients, list):
+                    self.nfs_clients += self.clients
+                    self.fuse_clients += self.clients
+                else:
+                    self.nfs_clients.append(self.clients)
+                    self.fuse_clients.append(self.clients)
+                self.section_dict = self.fstype_validation(self.section_dict)
+            self.write_config('nfs_clients', self.nfs_clients, Global.inventory)
+            self.write_config('fuse_clients', self.fuse_clients, Global.inventory)
 
 
     def client_fstype_listing(self, conf, client):
