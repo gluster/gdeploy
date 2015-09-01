@@ -88,7 +88,7 @@ class ClientManagement(YamlWriter):
             self.cleanup_and_quit()
         action_func()
 
-        self.write_client_info(action)
+        self.write_client_info(self.action)
         self.filename = Global.group_file
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
