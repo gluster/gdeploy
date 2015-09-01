@@ -135,7 +135,7 @@ class Helpers(Global):
                 hostname = self.parse_patterns(val_group.group(1))
                 Global.hosts = [host for host in Global.hosts if
                         host not in hostname]
-                if grorep:
+                if georep:
                     return hostname, val_group.group(2)
                 try:
                     Global.master = [Global.hosts[0]]
