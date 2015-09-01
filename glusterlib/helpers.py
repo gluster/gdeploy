@@ -105,7 +105,7 @@ class Helpers(Global):
                     "Cannot continue!" % param
             self.cleanup_and_quit()
 
-    def split_volname_and_hostname(self, volname):
+    def split_volname_and_hostname(self, volname, brickdata=False):
         '''
         This gives the user the flexibility to not give the hosts
         section. Instead one can just specify the volume name
@@ -114,10 +114,19 @@ class Helpers(Global):
         '''
         vol_group = re.search("(.*):(.*)", volname)
         if vol_group:
+            Global.hosts = [host for host in Global.hosts if
+                    host not in vol_group.group(1)]
             try:
                 Global.master = [Global.hosts[0]]
             except:
-                Global.master = [vol_group.group(1)]
+                if not brickdata:
+                    Global.master = [vol_group.group(1)]
+                else:
+                    print "\nError: We can't identify the cluster in which volume"\
+                            " %s is a part of.\n Either give volname in the format"\
+                            " <hostname>:<volname> or give atleast one host which "\
+                            "is part of the pool under 'hosts' section."
+                    self.cleanup_and_quit()
             if vol_group.group(1) not in Global.hosts:
                 Global.hosts.append(vol_group.group(1))
             return vol_group.group(2)

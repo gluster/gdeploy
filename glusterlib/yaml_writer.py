@@ -94,7 +94,7 @@ class YamlWriter(ConfigParseHelpers):
             return self.split_comma_seperated_options(options)
 
     def modify_mountpoints(self):
-        brick_dir = self.get_options('brick_dir', False)
+        brick_dir = self.get_options('brick_dirs', False)
 
         force = self.config_section_map(self.config, 'volume', 'force', False)
         if not brick_dir:
@@ -111,7 +111,7 @@ class YamlWriter(ConfigParseHelpers):
                         " in your configuration file. Exiting!"
                 self.cleanup_and_quit()
             if True in [brick.startswith('/') for brick in brick_dir]:
-                print "Error: brick_dir should be relative to the " \
+                print "Error: brick_dirs should be relative to the " \
                     "mountpoint. \nLooks like you have provided an " \
                     "absolute path. Exiting!"
                 self.cleanup_and_quit()
@@ -119,9 +119,9 @@ class YamlWriter(ConfigParseHelpers):
             if isinstance(brick_dir, list):
                 if len(brick_dir) != len(self.section_dict['mountpoints']):
                     if len(brick_dir) != 1:
-                        print "Error: The brick_dir length does not match with "\
+                        print "Error: The brick_dirs length does not match with "\
                             "the mountpoints available. Either give %d number " \
-                            "of brick_dir, provide a common one or leave this "\
+                            "of brick_dirs, provide a common one or leave this "\
                             "empty." % (len(self.section_dict['mountpoints']))
                         self.cleanup_and_quit()
                     else:
@@ -137,7 +137,7 @@ class YamlWriter(ConfigParseHelpers):
         for brick, mountpoint in zip(
                 brick_list, self.section_dict['mountpoints']):
             if brick == mountpoint and not force:
-                print "Error: Mount point cannot be brick. Provide 'brick_dir' " \
+                print "Error: Mount point cannot be brick. Provide 'brick_dirs' " \
                     "option or provide option 'force=True' under 'volume' " \
                     "section."
                 self.cleanup_and_quit()

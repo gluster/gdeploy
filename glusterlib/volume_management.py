@@ -148,9 +148,9 @@ class VolumeManagement(YamlWriter):
         self.section_dict['new_bricks'] = self.section_dict.pop('bricks')
         if isinstance(self.section_dict['new_bricks'], list):
             for brick in self.section_dict['new_bricks']:
-                self.split_volname_and_hostname(brick)
+                self.split_volname_and_hostname(brick, True)
         else:
-            self.split_volname_and_hostname(self.section_dict['new_bricks'])
+            self.split_volname_and_hostname(self.section_dict['new_bricks'], True)
         self.set_default_replica_type()
         self.check_for_param_presence('volname', self.section_dict)
         if 'gluster-peer-probe.yml' not in Global.playbooks:
