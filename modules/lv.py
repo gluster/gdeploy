@@ -198,7 +198,7 @@ class LvOps(object):
         if not error:
             options = {'thick': ' -L %sK -n %s %s' % (metadatasize,
                                              lvname, self.vgname),
-                       'thin': ' -L %sK -n %s %s' % (pool_sz,
+                       'thin': ' -L %sK -Wy -n %s %s' % (pool_sz,
                                                     lvname, self.vgname),
                        'virtual': ' -V %sK -T /dev/%s/%s -n %s'
                        % (pool_sz, self.vgname, poolname, lvname)
