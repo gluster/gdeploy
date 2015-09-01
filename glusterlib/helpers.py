@@ -149,7 +149,7 @@ class Helpers(Global):
 
 
     def format_brick_names(self, bricks):
-        ultimate_brickname = []
+        ultimate_brickname, Global.brick_hosts = [], []
         brick_list, whole_bricks = [], []
         if not isinstance(bricks, list):
             bricks = [bricks]
