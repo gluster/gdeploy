@@ -1,0 +1,20 @@
+---
+- hosts: georep_master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Generate ssh key in one of Geo-replication master nodes
+    user: name=root generate_ssh_key=yes
+
+  - name: Copy the public key to the local
+    fetch: src=/root/.ssh/id_rsa.pub
+           dest=/tmp/playbooks/id_rsa.tmp
+           flat=yes
+
+  - name: Copying local key to slave node
+    local_action: shell cat /tmp/playbooks/id_rsa.tmp | ssh  root@{{ item }} "cat >> /root/.ssh/authorized_keys"
+    with_items: groups['georep_slave']
+
+  - name: Deleting temporal files
+    local_action: file  path=/tmp/playbooks/id_rsa.tmp state=absent

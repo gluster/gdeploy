@@ -1,0 +1,15 @@
+---
+- hosts: georep_master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Generate a common pem pub file
+    shell: gluster system:: execute gsec_create
+
+
+  - name: Create the geo-rep session
+    georep: action=create
+            master_vol="{{ mastervolname }}"
+            slave_vol="{{ slave_vol }}"
+            force="{{ force }}"

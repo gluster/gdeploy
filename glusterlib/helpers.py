@@ -122,7 +122,7 @@ class Helpers(Global):
             return filter(None, options.split(','))
         return []
 
-    def split_val_and_hostname(self, val):
+    def split_val_and_hostname(self, val, georep=False):
         '''
         This gives the user the flexibility to not give the hosts
         section. Instead one can just specify the volume name
@@ -133,6 +133,8 @@ class Helpers(Global):
             val_group = re.search("(.*):(.*)", val)
             if val_group:
                 hostname = self.parse_patterns(val_group.group(1))
+                if grorep:
+                    return hostname, val_group.group(2)
                 try:
                     Global.master = [Global.hosts[0]]
                 except:
