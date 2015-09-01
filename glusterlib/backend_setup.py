@@ -60,7 +60,8 @@ class BackendSetup(YamlWriter):
 
     def write_brick_names(self):
         self.create_yaml_dict('bricks', self.bricks, False)
-        Global.playbooks.append('pvcreate.yml')
+        if 'pvcreate.yml' not in Global.playbooks:
+            Global.playbooks.append('pvcreate.yml')
 
     def write_vg_names(self):
         self.vgs = self.section_data_gen(self.config, 'vgs', 'Volume Groups')
@@ -73,7 +74,8 @@ class BackendSetup(YamlWriter):
                 vgnames['vg'] = j
                 data.append(vgnames)
             self.create_yaml_dict('vgnames', data, True)
-            Global.playbooks.append('vgcreate.yml')
+            if 'vgcreate.yml' not in Global.playbooks:
+                Global.playbooks.append('vgcreate.yml')
 
 
     def write_lv_names(self):
@@ -87,7 +89,8 @@ class BackendSetup(YamlWriter):
                 pools['lv'] = k
                 data.append(pools)
             self.create_yaml_dict('lvpools', data, True)
-        Global.playbooks.append('lvcreate.yml')
+            if 'lvcreate.yml' not in Global.playbooks:
+                Global.playbooks.append('lvcreate.yml')
 
     def write_pool_names(self):
         self.pools = self.section_data_gen(self.config, 'pools', 'Logical Pools')
@@ -105,7 +108,8 @@ class BackendSetup(YamlWriter):
                                       zip(self.vgs, self.lvs)]
         if self.lvols:
             self.create_yaml_dict('lvols', self.lvols, False)
-        Global.playbooks.append('fscreate.yml')
+            if 'fscreate.yml' not in Global.playbooks:
+                Global.playbooks.append('fscreate.yml')
 
     def write_mount_options(self):
         self.mountpoints = self.section_data_gen(self.config,
@@ -119,7 +123,8 @@ class BackendSetup(YamlWriter):
         self.create_yaml_dict('mntpath', data, True)
         self.modify_mountpoints()
         self.create_yaml_dict('mountpoints', self.mountpoints, False)
-        Global.playbooks.append('mount.yml')
+        if 'mount.yml' not in Global.playbooks:
+            Global.playbooks.append('mount.yml')
 
 
     def modify_mountpoints(self):
@@ -181,7 +186,8 @@ class BackendSetup(YamlWriter):
         profile = self.config_get_options(self.config, 'tune-profile', False)
         profile = 'rhs-high-throughput' if not profile else profile
         self.create_yaml_dict('profile', profile, False)
-        Global.playbooks.append('tune-profile.yml')
+        if 'tune-profile.yml' not in Global.playbooks:
+            Global.playbooks.append('tune-profile.yml')
 
 
 
