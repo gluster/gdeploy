@@ -58,7 +58,7 @@ class GlusterDeploy(PlaybookGen, Global):
         ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
         if ret:
             print "Error: gdeploy requires Ansible to run. \nPlease install " \
-                    "Ansible to continue."
+                    "Ansible(version >= 1.9.2) to continue."
             self.cleanup_and_quit()
 
     def parse_arguments(self):
