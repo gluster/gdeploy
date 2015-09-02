@@ -235,6 +235,8 @@ class BackendSetup(YamlWriter):
             self.config,
             'tune-profile',
             False) or 'rhs-high-throughput'
+        if perf['profile'].lower() == 'none':
+            return
         self.iterate_dicts_and_yaml_write(perf)
 
     def insufficient_param_count(self, section, count):
