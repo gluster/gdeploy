@@ -129,7 +129,7 @@ class BackendSetup(YamlWriter):
 
     def modify_mountpoints(self):
         opts = self.get_options(self.config, 'brick_dirs', False)
-        brick_dir = []
+        brick_dir, brick_list = [], []
         for option in opts:
             brick_dir += self.parse_patterns(option)
         if len(brick_dir) == 1:
