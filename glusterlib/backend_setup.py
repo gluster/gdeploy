@@ -184,7 +184,9 @@ class BackendSetup(YamlWriter):
 
     def tune_profile(self):
         profile = self.config_get_options(self.config, 'tune-profile', False)
-        profile = 'rhs-high-throughput' if not profile else profile
+        profile = 'rhs-high-throughput' if not profile else profile[0]
+        if profile.lower() == 'none':
+            return
         self.create_yaml_dict('profile', profile, False)
         if 'tune-profile.yml' not in Global.playbooks:
             Global.playbooks.append('tune-profile.yml')
@@ -231,12 +233,6 @@ class BackendSetup(YamlWriter):
             perf = dict(disktype='jbod')
             perf['dalign'] = 256
             perf['diskcount'] = perf['stripesize'] = 0
-        perf['profile'] = self.config_get_options(
-            self.config,
-            'tune-profile',
-            False) or 'rhs-high-throughput'
-        if perf['profile'].lower() == 'none':
-            return
         self.iterate_dicts_and_yaml_write(perf)
 
     def insufficient_param_count(self, section, count):
