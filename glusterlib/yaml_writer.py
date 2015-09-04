@@ -136,9 +136,9 @@ class YamlWriter(ConfigParseHelpers):
                             self.section_dict['mountpoints'], brick_dir)]
         for brick, mountpoint in zip(
                 brick_list, self.section_dict['mountpoints']):
-            if brick == mountpoint and not force:
+            if brick == mountpoint and not (force == 'yes'):
                 print "Error: Mount point cannot be brick. Provide 'brick_dirs' " \
-                    "option or provide option 'force=True' under 'volume' " \
+                    "option or provide option 'force=yes' under 'volume' " \
                     "section."
                 self.cleanup_and_quit()
         self.section_dict['mountpoints'] = brick_list
