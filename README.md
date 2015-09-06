@@ -24,6 +24,10 @@ file to be defined by the user.
 
 ` echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:'/path/to/gdeploy/modules/'" >> ~/.bashrc`
 
+###Add ansible playbooks(inside the templates directory) to GDEPLOY_TEMPLATES environment variable
+
+ ` echo "export GDEPLOY_TEMPLATES='path/to/gdeploy'" >> ~/.bashrc`
+
 ###To use the module you can either do:
 
 ####Install using setuptools:
