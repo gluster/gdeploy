@@ -52,7 +52,7 @@ class GlusterDeploy(PlaybookGen, Global):
             self.cleanup_and_quit()
         else:
             print "You can view the generated configuration files "\
-                "inside /tmp/playbooks/"
+                "inside /var/tmp/playbooks/"
 
     def check_ansible_installation(self):
         ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
