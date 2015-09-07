@@ -213,7 +213,7 @@ class Helpers(Global):
 
     def exec_cmds(self, cmd):
         try:
-            subprocess.call([cmd], shell=True)
-        except (OSError, subprocess.CalledProcessError) as e:
-            print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
+            os.system(cmd)
+        except:
+            print "Error: Command %s failed." % (cmd)
             sys.exit()
