@@ -147,8 +147,9 @@ class Helpers(Global):
         return volname
 
     def exec_cmds(self, cmd):
+        command = filter(None, cmd.split(' '))
         try:
-            subprocess.call([cmd], shell=True)
+            subprocess.call(command, shell=False)
         except (OSError, subprocess.CalledProcessError) as e:
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()
