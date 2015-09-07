@@ -34,7 +34,7 @@ class Global(object):
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'gluster_servers'
-    base_dir = '/tmp/playbooks'
+    base_dir = '/var/tmp/playbooks'
     group_vars_dir = os.path.join(os.path.realpath(base_dir), group_vars)
     host_vars_dir = os.path.join(os.path.realpath(base_dir), host_vars)
     inventory = os.path.join(os.path.realpath(base_dir), 'ansible_hosts')

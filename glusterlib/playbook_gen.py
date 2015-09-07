@@ -27,7 +27,7 @@
 #
 #    This script can be called seperately even, providing the configuration
 #    file and the directory to which the ansible playbooks and variable files
-#    are to be generated(this is optional.Default is '/tmp/playbooks'
+#    are to be generated(this is optional.Default is '/var/tmp/playbooks'
 #    Usage: ./playbook_gen.py <configuration_file> [<directory name>]
 #
 
@@ -168,7 +168,7 @@ class PlaybookGen(BackendSetup):
     def move_templates_to_playbooks(self):
         '''
         Templates directory in this codebase's repo will be moved to
-        /tmp/playbooks
+        /var/tmp/playbooks
         '''
         templates_path_pkg = '/usr/share/ansible/gdeploy/templates'
         templates_env_var = os.getenv('GDEPLOY_TEMPLATES')
