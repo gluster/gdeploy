@@ -123,6 +123,15 @@ lvs=CUSTOM_lv1
 mountpoints=/gluster/brick1
 #----------------------------------
 
+
+# The section 'tune-profile' specifies the performace tune profile to be
+# set. By default this is 'rhs-high-throughput'. To override this, in case
+# no profile is to be set, explicitly give the value as 'none'
+#
+# [tune-profile]
+# none
+#----------------------------------
+
 # The section peer specifies the configurations for the Trusted Storage
 # Pool managament(TSP)
 

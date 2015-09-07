@@ -238,10 +238,11 @@ class YamlWriter(ConfigParseHelpers):
             perf = dict(disktype='jbod')
             perf['dalign'] = 256
             perf['diskcount'] = perf['stripesize'] = 0
-        perf['profile'] = self.config_get_options(
-            self.config,
-            'tune-profile',
-            False) or 'rhs-high-throughput'
+        profile = self.config_get_options(
+            self.config, 'tune-profile', False)
+        perf['profile'] = 'rhs-high-throughput' if not profile else profile[0]
+        if perf['profile'].lower() == 'none':
+            Global.backend_setup_playbooks.remove('tune-profile.yml')
         self.iterate_dicts_and_yaml_write(perf)
 
     def write_yaml(self, data_dict, data_flow):
