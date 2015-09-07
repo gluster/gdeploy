@@ -212,8 +212,9 @@ class Helpers(Global):
             yield chr(c)
 
     def exec_cmds(self, cmd):
+        command = filter(None, cmd.split(' '))
         try:
-            os.system(cmd)
-        except:
-            print "Error: Command %s failed." % (cmd)
+            subprocess.call(command, shell=False)
+        except (OSError, subprocess.CalledProcessError) as e:
+            print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()
