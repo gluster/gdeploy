@@ -22,6 +22,7 @@ import argparse
 import sys
 import os
 import time
+import shutil
 from glusterlib import Global
 from glusterlib import PlaybookGen
 from glusterlib import CliOps
@@ -49,10 +50,10 @@ class GlusterDeploy(PlaybookGen, Global):
             CliOps(args.volumeset)
             self.deploy_gluster()
         if not args.keep:
-            self.cleanup_and_quit()
+            shutil.rmtree(Global.base_dir)
         else:
             print "You can view the generated configuration files "\
-                "inside /var/tmp/playbooks/"
+                "inside %s" % Global.base_dir
 
     def check_ansible_installation(self):
         ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
