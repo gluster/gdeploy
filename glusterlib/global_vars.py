@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 import os
+import tempfile
 
 
 class Global(object):
@@ -34,7 +35,7 @@ class Global(object):
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'gluster_servers'
-    base_dir = '/var/tmp/playbooks'
+    base_dir = tempfile.mkdtemp()
     group_vars_dir = os.path.join(os.path.realpath(base_dir), group_vars)
     host_vars_dir = os.path.join(os.path.realpath(base_dir), host_vars)
     inventory = os.path.join(os.path.realpath(base_dir), 'ansible_hosts')

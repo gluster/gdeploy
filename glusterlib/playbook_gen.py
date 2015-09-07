@@ -79,7 +79,6 @@ class PlaybookGen(BackendSetup):
         to go in. Since the client data for gluster confs are common for all the
         hosts, creating a group var file anyway.
         '''
-        self.mk_dir(Global.base_dir)
         self.mk_dir(Global.group_vars_dir)
         self.touch_file(Global.group_file)
         self.move_templates_to_playbooks()
