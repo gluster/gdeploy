@@ -25,9 +25,11 @@
 #
 
 import os
+import subprocess
 import re
 import sys
 import itertools
+import shutil
 try:
     import yaml
 except ImportError:
@@ -58,20 +60,30 @@ class Helpers(Global):
 
     def cleanup_and_quit(self):
         if os.path.isdir(Global.base_dir):
-            self.exec_cmds('rm -rf', Global.base_dir)
+            os.removedirs(Global.base_dir)
         sys.exit(0)
 
     def mk_dir(self, direc):
         if os.path.isdir(direc):
-            self.exec_cmds('rm -rf', direc)
-        self.exec_cmds('mkdir', direc)
+            os.removedirs(direc)
+        os.makedirs(direc)
 
     def touch_file(self, filename):
         try:
             os.remove(filename)
         except OSError:
             pass
-        self.exec_cmds('touch', filename)
+        os.mknod(filename)
+
+    def copy_files(self, source_dir):
+        files = os.listdir(source_dir)
+        files_to_move = [self.get_file_dir_path(source_dir, f) for f in files]
+        for each in files_to_move:
+            try:
+                shutil.copy(each, Global.base_dir)
+            except IOError as e:
+                print "\nError: File copying failed(%s)" % e
+                self.cleanup_and_quit()
 
     def get_file_dir_path(self, basedir, newdir):
         return os.path.join(os.path.realpath(basedir), newdir)
@@ -199,9 +211,9 @@ class Helpers(Global):
         for c in xrange(ord(c1), ord(c2)+1):
             yield chr(c)
 
-    def exec_cmds(self, cmd, opts):
+    def exec_cmds(self, cmd):
         try:
-            os.system(cmd + ' ' + opts)
-        except:
-            print "Error: Command %s failed. Exiting!" % cmd
+            subprocess.call([cmd], shell=True)
+        except (OSError, subprocess.CalledProcessError) as e:
+            print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()
