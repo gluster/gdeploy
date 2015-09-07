@@ -152,7 +152,7 @@ class PlaybookGen(YamlWriter):
     def template_files_create(self, temp_file):
         if not os.path.isdir(temp_file):
             return False
-        self.exec_cmds('cp %s/*' % temp_file, Global.base_dir)
+        templates = self.copy_files(temp_file)
         return True
 
     def move_templates_to_playbooks(self):
