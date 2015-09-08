@@ -95,7 +95,7 @@ class GlusterDeploy(PlaybookGen, Global):
     def deploy_gluster(self):
         Global.playbooks = self.validate_playbook_order(Global.playbooks)
         self.write_ansible_playbook()
-        self.call_ansible_command(Global.playbooks_file)
+        self.call_ansible_command()
 
     def validate_playbook_order(self, yml):
         if 'gluster-volume-delete.yml' in yml:
@@ -111,19 +111,16 @@ class GlusterDeploy(PlaybookGen, Global):
         with open(Global.playbooks_file, 'w') as fd:
             fd.write(playbooks)
 
-    def call_ansible_command(self, playbooks):
+    def call_ansible_command(self):
         '''
         Calls the ansible-playbook command on necessary yamls
         '''
-        verbose = ' -vv ' if self.verbose else ' '
-        if playbooks.strip():
-            try:
-                cmd = 'ansible-playbook %s -i %s %s' % (
-                    verbose, Global.inventory, playbooks)
-                self.exec_cmds(cmd)
-            except:
-                print "Error: Looks like there is something wrong with " \
-                    "your ansible installation."
+        verbose = ' -vv ' if self.verbose else ''
+        try:
+            self.exec_ansible_cmd(verbose)
+        except:
+            print "Error: Looks like there is something wrong with " \
+                "your ansible installation."
 
 
 if __name__ == '__main__':
