@@ -95,14 +95,16 @@ class YamlWriter(ConfigParseHelpers):
 
     def modify_mountpoints(self):
         brick_dir = self.get_options('brick_dirs', False)
-
         force = self.config_section_map(self.config, 'volume', 'force', False)
+        brick_list = []
         if not brick_dir:
             if (force and force.lower() == 'yes'):
                 return
-            brick_list = [self.get_file_dir_path(mntpath,
-                                                 os.path.basename(mntpath)) for
-                          mntpath in self.section_dict['mountpoints']]
+            for mntpath in self.section_dict['mountpoints']:
+                if mntpath.endswith('/'):
+                    mntpath = mntpath[:-1]
+                brick_list.append(self.get_file_dir_path(mntpath,
+                                                 os.path.basename(mntpath)))
 
         else:
             if (force and force.lower() == 'no'):
@@ -110,21 +112,29 @@ class YamlWriter(ConfigParseHelpers):
                         "Provide 'brick_dirs' option/section or use force=yes"\
                         " in your configuration file. Exiting!"
                 self.cleanup_and_quit()
-            if True in [brick.startswith('/') for brick in brick_dir]:
-                print "Error: brick_dirs should be relative to the " \
-                    "mountpoint. \nLooks like you have provided an " \
-                    "absolute path. Exiting!"
-                self.cleanup_and_quit()
 
-            if isinstance(brick_dir, list):
-                if len(brick_dir) != len(self.section_dict['mountpoints']):
-                    if len(brick_dir) != 1:
-                        print "Error: The brick_dirs length does not match with "\
-                            "the mountpoints available. Either give %d number " \
-                            "of brick_dirs, provide a common one or leave this "\
-                            "empty." % (len(self.section_dict['mountpoints']))
+
+            if (len(brick_dir) != len(self.section_dict[
+                'mountpoints']) and len(brick_dir) != 1):
+                    print "\nError: The brick_dirs length does not match with "\
+                        "the mountpoints available.\n Either give %d " \
+                        "brick_dirs or provide a common one or leave this "\
+                        "empty." % (len(self.section_dict['mountpoints']))
+                    self.cleanup_and_quit()
+
+
+            for sub, mnt in zip(brick_dir, self.section_dict['mountpoints']):
+                if sub.startswith('/'):
+                    if self.not_subdir(mnt, sub):
+                        print "\nError: brick_dirs should be a directory " \
+                            "inside mountpoint(%s).\nProvide absolute" \
+                            " path of a directory inside %s or just give the"\
+                            " path relative to it. " \
+                            "Exiting!" %(mnt, mnt)
                         self.cleanup_and_quit()
-                    else:
+                    brick_list = brick_dir
+            if not brick_list:
+                if len(brick_dir) != 1:
                         brick_list = [
                             self.get_file_dir_path(
                                 mntpath,
@@ -134,12 +144,15 @@ class YamlWriter(ConfigParseHelpers):
                         self.get_file_dir_path(
                             mntpath, brick) for mntpath, brick in zip(
                             self.section_dict['mountpoints'], brick_dir)]
+
+
         for brick, mountpoint in zip(
                 brick_list, self.section_dict['mountpoints']):
             if brick == mountpoint and not (force == 'yes'):
-                print "Error: Mount point cannot be brick. Provide 'brick_dirs' " \
+                print "\nError: Mount point cannot be brick.\n Provide a "\
+                    "directory inside %s under the 'brick_dirs' " \
                     "option or provide option 'force=yes' under 'volume' " \
-                    "section."
+                    "section." % mountpoint
                 self.cleanup_and_quit()
         self.section_dict['mountpoints'] = brick_list
 

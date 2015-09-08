@@ -60,12 +60,12 @@ class Helpers(Global):
 
     def cleanup_and_quit(self):
         if os.path.isdir(Global.base_dir):
-            os.removedirs(Global.base_dir)
+            shutil.rmtree(Global.base_dir)
         sys.exit(0)
 
     def mk_dir(self, direc):
         if os.path.isdir(direc):
-            os.removedirs(direc)
+            shutil.rmtree(direc)
         os.makedirs(direc)
 
     def touch_file(self, filename):
@@ -145,6 +145,17 @@ class Helpers(Global):
                 Global.hosts.append(vol_group.group(1))
             return vol_group.group(2)
         return volname
+
+
+
+    def not_subdir(self, path, directory):
+        if path.endswith('/'):
+            path = path[:-1]
+        base_dir = os.path.abspath(directory)
+        is_subdir =  base_dir.startswith(path +
+                '/') and base_dir != path
+        return not is_subdir
+
 
     def exec_ansible_cmd(self, verbose):
         executable = 'ansible-playbook'
