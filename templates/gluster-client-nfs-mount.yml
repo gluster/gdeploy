@@ -4,7 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: Create the dir to mount the volume, fails if present
+  - name: Create the dir to mount the volume, skips if present
     shell: mkdir {{ item }} -p
 
     with_items: client_mount_points
