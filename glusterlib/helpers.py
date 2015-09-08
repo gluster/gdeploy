@@ -146,8 +146,11 @@ class Helpers(Global):
             return vol_group.group(2)
         return volname
 
-    def exec_cmds(self, cmd):
-        command = filter(None, cmd.split(' '))
+    def exec_ansible_cmd(self, verbose):
+        executable = 'ansible-playbook'
+        command = [executable, '-i', Global.inventory, verbose,
+                Global.playbooks_file]
+        command = filter(None, command)
         try:
             subprocess.call(command, shell=False)
         except (OSError, subprocess.CalledProcessError) as e:
