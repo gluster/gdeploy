@@ -93,9 +93,10 @@ class GlusterDeploy(PlaybookGen, Global):
         return args
 
     def deploy_gluster(self):
-        Global.playbooks = self.validate_playbook_order(Global.playbooks)
-        self.write_ansible_playbook()
-        self.call_ansible_command()
+        if Global.playbooks:
+            Global.playbooks = self.validate_playbook_order(Global.playbooks)
+            self.write_ansible_playbook()
+            self.call_ansible_command()
 
     def validate_playbook_order(self, yml):
         if 'gluster-volume-delete.yml' in yml:
