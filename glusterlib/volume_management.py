@@ -81,6 +81,10 @@ class VolumeManagement(YamlWriter):
                     print "Error: Section 'brick_dirs' or 'mountpoints' " \
                             "not found.\nCannot continue volume creation!"
                     self.cleanup_and_quit()
+                if False in [brick.startswith('/') for brick in brick_dirs]:
+                    print "\nError: values to 'brick_dirs' should be absolute"\
+                            " path. Relative given. Exiting!"
+                    self.cleanup_and_quit()
                 self.create_yaml_dict('mountpoints', brick_dirs, False)
         else:
             for host in Global.hosts:
@@ -89,9 +93,13 @@ class VolumeManagement(YamlWriter):
                     self.touch_file(self.filename)
                     brick_dirs = self.get_options('brick_dirs', False)
                     if not brick_dirs:
-                        print "Error: Option 'brick_dirs' or 'mountpoints' " \
+                        print "\nError: Option 'brick_dirs' or 'mountpoints' " \
                                 "not found for host %s.\nCannot continue " \
                                 "volume creation!" % host
+                        self.cleanup_and_quit()
+                    if False in [brick.startswith('/') for brick in brick_dirs]:
+                        print "\nError: values to 'brick_dirs' should be absolute"\
+                                " path. Relative given. Exiting!"
                         self.cleanup_and_quit()
                     self.create_yaml_dict('mountpoints', brick_dirs, False)
 

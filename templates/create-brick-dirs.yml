@@ -4,7 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: Create the brick dirs, fails if present
+  - name: Create the brick dirs, skips if present
     shell: mkdir -p {{ item }}
     with_items: mountpoints
 
