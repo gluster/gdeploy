@@ -178,9 +178,9 @@ manage=probe
 
 # If delete is provided all the options other than 'volname' will be ignored.
 
-# If add-brick or remove-brick is chosen, extra option bricks with a
-# comma separated list of brick names(in the format <hostname>:<brick path>
-# should be provided.
+# If 'add-brick' or 'remove-brick' is chosen, extra option 'bricks' with a
+# comma separated list of brick names(in the format <hostname>:<brick path>)
+# is be provided.
 
 # In case of remove-brick and rebalance, 'state' option should also
 # be provided. Choices for 'state' are:
