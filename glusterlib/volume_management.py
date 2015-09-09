@@ -40,7 +40,7 @@ class VolumeManagement(YamlWriter):
             self.iterate_dicts_and_yaml_write(self.section_dict)
             return
         self.fix_format_of_values_in_config(self.section_dict, 'transport')
-        volname = self.split_volname_and_hostname(self.section_dict['volname'])
+        volname = self.split_volname_and_hostname(self.section_dict.get('volname'))
         self.section_dict['volname'] = volname
         action_func =  { 'create': self.create_volume,
                           'start': self.start_volume,
@@ -110,7 +110,6 @@ class VolumeManagement(YamlWriter):
         with default data, if the data is not given by the user/
         '''
         sections_default_value = {
-            'volname': 'glustervol',
             'transport': 'tcp',
             'replica': 'no',
             'disperse': 'no',
@@ -120,6 +119,8 @@ class VolumeManagement(YamlWriter):
             'redundancy_count': 0}
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
+        if not self.section_dict.get('volname'):
+            self.section_dict['volname'] = 'glustervol'
         # Custom method for volume config specs
         if self.section_dict['replica'].lower() == 'yes' and int(
                 self.section_dict['replica_count']) == 0:

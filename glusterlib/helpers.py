@@ -125,6 +125,8 @@ class Helpers(Global):
         with one of the peer member's hostname or IP in the
         format <hostname>:<volumename>
         '''
+        if not volname:
+            return None
         vol_group = re.search("(.*):(.*)", volname)
         if vol_group:
             Global.hosts = [host for host in Global.hosts if
