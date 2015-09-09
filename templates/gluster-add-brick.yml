@@ -10,4 +10,4 @@
              bricks="{{ new_bricks }}"
              replica="{{ replica }}"
              replica_count="{{ replica_count }}"
-             force=yes
+             force="{{ force }}"

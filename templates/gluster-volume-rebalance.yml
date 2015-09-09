@@ -8,4 +8,4 @@
     volume:  action=rebalance
              volume="{{ volname }}"
              state="{{ state }}"
-             force=yes
+             force="{{ force }}"

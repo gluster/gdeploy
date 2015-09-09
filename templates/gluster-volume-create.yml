@@ -18,4 +18,4 @@
              disperse="{{ disperse }}"
              disperse_count="{{ disperse_count }}"
              redundancy_count="{{ redundancy_count }}"
-             force=yes
+             force="{{ force }}"

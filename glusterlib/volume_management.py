@@ -93,7 +93,7 @@ class VolumeManagement(YamlWriter):
                     self.touch_file(self.filename)
                     brick_dirs = self.get_options('brick_dirs', False)
                     if not brick_dirs:
-                        print "\nError: Option 'brick_dirs' or 'mountpoints' " \
+                        print "\nError: Option 'brick_dirs' " \
                                 "not found for host %s.\nCannot continue " \
                                 "volume creation!" % host
                         self.cleanup_and_quit()

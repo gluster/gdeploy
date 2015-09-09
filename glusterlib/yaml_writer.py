@@ -96,6 +96,7 @@ class YamlWriter(ConfigParseHelpers):
     def modify_mountpoints(self):
         force = self.config_section_map(self.config, 'volume', 'force', False)
         if (force and force.lower() == 'yes'):
+            self.create_yaml_dict('force', 'yes', False)
             return
 
         brick_dir = self.get_options('brick_dirs', False)
@@ -155,7 +156,9 @@ class YamlWriter(ConfigParseHelpers):
                     "option or provide option 'force=yes' under 'volume' " \
                     "section." % mountpoint
                 self.cleanup_and_quit()
+        self.create_yaml_dict('force', 'no', False)
         self.section_dict['mountpoints'] = brick_list
+
 
     def section_data_gen(self, section, section_name):
         options = self.get_options(section, False)
