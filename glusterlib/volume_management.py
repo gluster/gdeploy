@@ -121,7 +121,6 @@ class VolumeManagement(YamlWriter):
         with default data, if the data is not given by the user/
         '''
         sections_default_value = {
-            'volname': 'glustervol',
             'transport': 'tcp',
             'replica': 'no',
             'disperse': 'no',
@@ -131,6 +130,8 @@ class VolumeManagement(YamlWriter):
             'redundancy_count': 0}
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
+        if not self.section_dict['volname']:
+            self.section_dict['volname'] = 'glustervol'
         # Custom method for volume config specs
         if self.section_dict['replica'].lower() == 'yes' and int(
                 self.section_dict['replica_count']) == 0:
