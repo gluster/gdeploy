@@ -6,4 +6,4 @@
   tasks:
   - name: Starts a volume
     volume:  action=start volume="{{ volname }}"
-             force=yes
+             force="{{ force }}"

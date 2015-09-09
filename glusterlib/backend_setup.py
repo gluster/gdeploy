@@ -130,6 +130,7 @@ class BackendSetup(YamlWriter):
     def modify_mountpoints(self):
         force = self.config_section_map(self.config, 'volume', 'force', False)
         if (force and force.lower() == 'yes'):
+            self.create_yaml_dict('force', 'yes', False)
             return
         opts = self.get_options(self.config, 'brick_dirs', False)
         brick_dir, brick_list = [], []
@@ -187,6 +188,7 @@ class BackendSetup(YamlWriter):
                     "option or provide option 'force=yes' under 'volume' " \
                     "section." % mountpoint
                 self.cleanup_and_quit()
+        self.create_yaml_dict('force', 'no', False)
         self.mountpoints = brick_list
 
     def tune_profile(self):
