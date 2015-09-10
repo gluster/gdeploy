@@ -258,7 +258,8 @@ class YamlWriter(ConfigParseHelpers):
         profile = self.config_get_options(
             self.config, 'tune-profile', False)
         perf['profile'] = 'rhs-high-throughput' if not profile else profile[0]
-        if perf['profile'].lower() == 'none':
+        if perf['profile'].lower() == 'none' and (
+                'tune-profile.yml' in Global.backend_setup_playbooks):
             Global.backend_setup_playbooks.remove('tune-profile.yml')
         self.iterate_dicts_and_yaml_write(perf)
 
