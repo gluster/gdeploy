@@ -131,7 +131,7 @@ class PlaybookGen(BackendSetup):
             device_names = self.split_comma_seperated_options(devices)
             devices = []
             for option in device_names:
-                devices += self.parse_patterns(option)
+                devices.extend(disk for disk in self.parse_patterns(option))
             if devices:
                 backend_setup = backend_setup and BackendSetup(
                         devices, self.config, host_file,
@@ -151,7 +151,7 @@ class PlaybookGen(BackendSetup):
                                                'devices', False)
         devices = []
         for option in device_names:
-            devices.append(self.parse_patterns(option))
+            devices.extend(disk for disk in self.parse_patterns(option))
         if device_names:
             BackendSetup(devices, self.config, Global.group_file,
                     self.var_file)
