@@ -38,17 +38,17 @@ class GeorepManagement(YamlWriter):
             del self.section_dict['__name__']
         except KeyError:
             return
-        #self.action = self.section_dict.get('action')
-        #if not self.action:
-            #print "\nWarning: Section 'geo-replication' without any action "\
-                    #"option found. Skipping this section!"
-            #return
-        #del self.section_dict['action']
-        self.parse_georep_section()
+        self.action = self.section_dict.get('action')
+        if not self.action:
+            print "\nWarning: Section 'geo-replication' without any action "\
+                    "option found. Skipping this section!"
+            return
+        del self.section_dict['action']
+        self.create_georep_section()
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
 
-    def parse_georep_section(self):
+    def create_georep_section(self):
         self.check_for_param_presence('mastervol', self.section_dict, True)
         self.check_for_param_presence('slavevol', self.section_dict, True)
         self.validate_hostname_volume_pattern(self.section_dict['mastervol'])
