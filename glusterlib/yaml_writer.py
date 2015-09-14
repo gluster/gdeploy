@@ -251,6 +251,9 @@ class YamlWriter(ConfigParseHelpers):
                     'raid6': perf['stripesize'] * perf['diskcount'],
                     'raid10': perf['stripesize'] * perf['diskcount']
                 }[perf['disktype']]
+            else:
+                perf['dalign'] = 256
+                perf['diskcount'] = perf['stripesize'] = 0
         else:
             perf = dict(disktype='jbod')
             perf['dalign'] = 256
