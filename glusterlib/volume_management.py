@@ -70,6 +70,8 @@ class VolumeManagement(YamlWriter):
             print "\nWarning: Using mountpoint itself as the brick in one or " \
                     "more hosts since force" \
                 " is specified, although not recommended.\n"
+        else:
+            self.section_dict['force'] = 'no'
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def get_brick_dirs(self):
