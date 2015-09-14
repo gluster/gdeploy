@@ -45,17 +45,26 @@ class GeorepManagement(YamlWriter):
             #return
         #del self.section_dict['action']
         self.parse_georep_section()
+        self.iterate_dicts_and_yaml_write(self.section_dict)
 
 
     def parse_georep_section(self):
         self.check_for_param_presence('mastervol', self.section_dict, True)
         self.check_for_param_presence('slavevol', self.section_dict, True)
-        master, mastervolname = self.split_val_and_hostname(self.section_dict(
-            'mastervol'), True)
-        slave, slavevolname = self.split_val_and_hostname(self.section_dict(
-            'slavevol'), True)
+        self.validate_hostname_volume_pattern(self.section_dict['mastervol'])
+        self.validate_hostname_volume_pattern(self.section_dict['slavevol'])
+        force = self.section_dict.get('force')
+        self.section_dict['force'] = 'yes' if (
+                force and force == 'yes') else 'no'
+        master, mastervolname = self.split_val_and_hostname(self.section_dict[
+            'mastervol'], True)
+        slave, slavevolname = self.split_val_and_hostname(self.section_dict[
+            'slavevol'], True)
         self.write_config('georep_master', [master[0]], Global.inventory)
         self.write_config('georep_slave', [slave[0]], Global.inventory)
         self.section_dict['mastervolname'] = mastervolname
         self.section_dict['slavevolname'] = slavevolname
+        Global.playbooks.append('georep_common_public_key.yml')
+        Global.playbooks.append('georep-session-create.yml')
+        return
 

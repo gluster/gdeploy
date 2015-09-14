@@ -41,6 +41,8 @@ from peer_management import PeerManagement
 from snapshot_management import SnapshotManagement
 from ganesha_management import GaneshaManagement
 from quota_management import QuotaManagement
+from georep_management import GeorepManagement
+
 
 
 class PlaybookGen(BackendSetup):
@@ -66,6 +68,7 @@ class PlaybookGen(BackendSetup):
         GaneshaManagement(self.config)
         ClientManagement(self.config)
         QuotaManagement(self.config)
+        GeorepManagement(self.config)
         self.create_inventory()
         self.write_host_names()
 

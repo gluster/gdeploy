@@ -5,11 +5,17 @@
 
   tasks:
   - name: Generate a common pem pub file
-    shell: gluster system:: execute gsec_create
+    shell: "gluster system:: execute gsec_create"
 
 
   - name: Create the geo-rep session
     georep: action=create
-            master_vol="{{ mastervolname }}"
-            slave_vol="{{ slave_vol }}"
+            mastervol="{{ mastervolname }}"
+            slavevol="{{ slavevol }}"
+            force="{{ force }}"
+
+  - name: Create the geo-rep session
+    georep: action=start
+            mastervol="{{ mastervolname }}"
+            slavevol="{{ slavevol }}"
             force="{{ force }}"

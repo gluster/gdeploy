@@ -134,6 +134,13 @@ class Helpers(Global):
             return filter(None, options.split(','))
         return []
 
+    def validate_hostname_volume_pattern(self, val):
+        val_group = re.search("(.*):(.*)", val)
+        if not val_group:
+            return False
+        return True
+
+
     def split_val_and_hostname(self, val, georep=False):
         '''
         This gives the user the flexibility to not give the hosts
