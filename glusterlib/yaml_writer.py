@@ -94,24 +94,25 @@ class YamlWriter(ConfigParseHelpers):
             return self.split_comma_seperated_options(options)
 
     def modify_mountpoints(self):
-        force = self.config_section_map(self.config, 'volume', 'force', False)
-        if (force and force.lower() == 'yes'):
-            self.create_yaml_dict('force', 'yes', False)
-            return
-
+        force = self.config_section_map(self.config, 'volume',
+                'force', False) or ''
         brick_dir = self.get_options('brick_dirs', False)
         brick_list = []
+
         if not brick_dir:
-            if (force and force.lower() == 'no'):
+            if force.lower() == 'no':
                 print "\nError: Mountpoints cannot be brick directories.\n " \
                         "Provide 'brick_dirs' option/section or use force=yes"\
                         " in your configuration file. Exiting!"
                 self.cleanup_and_quit()
-            for mntpath in self.section_dict['mountpoints']:
-                if mntpath.endswith('/'):
-                    mntpath = mntpath[:-1]
-                brick_list.append(self.get_file_dir_path(mntpath,
-                                                 os.path.basename(mntpath)))
+            elif force.lower() == 'yes':
+                brick_list = self.section_dict['mountpoints']
+            else:
+                for mntpath in self.section_dict['mountpoints']:
+                    if mntpath.endswith('/'):
+                        mntpath = mntpath[:-1]
+                    brick_list.append(self.get_file_dir_path(mntpath,
+                                                     os.path.basename(mntpath)))
 
         else:
 
@@ -151,12 +152,18 @@ class YamlWriter(ConfigParseHelpers):
         for brick, mountpoint in zip(
                 brick_list, self.section_dict['mountpoints']):
             if brick == mountpoint:
-                print "\nError: Mount point cannot be brick.\nProvide a "\
-                    "directory inside %s under the 'brick_dirs' " \
-                    "option or provide option 'force=yes' under 'volume' " \
-                    "section." % mountpoint
-                self.cleanup_and_quit()
-        self.create_yaml_dict('force', 'no', False)
+                if force.lower() != 'yes':
+                    print "\nError: Mount point cannot be brick.\nProvide a "\
+                        "directory inside %s under the 'brick_dirs' " \
+                        "option or provide option 'force=yes' under 'volume' " \
+                        "section." % mountpoint
+                    self.cleanup_and_quit()
+                else:
+                    print "\nWarning: Using mountpoint itself as the brick in one or " \
+                            "more hosts since force" \
+                        " is specified, although not recommended.\n"
+        force = 'yes' if force.lower() == 'yes' else 'no'
+        self.create_yaml_dict('force', force, False)
         self.section_dict['mountpoints'] = brick_list
 
 
