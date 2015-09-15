@@ -67,7 +67,7 @@ class GlusterDeploy(PlaybookGen, Global):
         This method uses argparser to parse the command line inputs
         to the gluster-deploy script
         '''
-        usage = 'gluster-deploy.py [-h] [-v] [-vv] [-c CONFIG_FILE] ' \
+        usage = 'gdeploy [-h] [-v] [-vv] [-c CONFIG_FILE] ' \
             '[-k] [volumeset <hostIP>:<volumename> <key> <value>]'
         parser = argparse.ArgumentParser(usage=usage, version='1.0')
         parser.add_argument('-c', dest='config_file',
