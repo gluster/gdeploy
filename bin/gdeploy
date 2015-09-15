@@ -116,7 +116,7 @@ class GlusterDeploy(PlaybookGen, Global):
         '''
         Calls the ansible-playbook command on necessary yamls
         '''
-        verbose = ' -vv ' if self.verbose else ''
+        verbose = '-vv' if self.verbose else ''
         try:
             self.exec_ansible_cmd(verbose)
         except:
