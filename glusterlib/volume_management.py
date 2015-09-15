@@ -66,12 +66,10 @@ class VolumeManagement(YamlWriter):
             self.cleanup_and_quit()
         self.filename = Global.group_file
         print "\nINFO: Volume management(action: %s) triggered" % action
-        if self.section_dict.get('force') == 'yes':
-            print "\nWarning: Using mountpoint itself as the brick in one or " \
-                    "more hosts since force" \
-                " is specified, although not recommended.\n"
-        else:
-            self.section_dict['force'] = 'no'
+        if not self.present_in_yaml(self.filename, 'force'):
+            force = self.section_dict.get('force') or ''
+            force = 'yes' if force.lower() == 'yes' else 'no'
+            self.section_dict['force'] = force
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def get_brick_dirs(self):

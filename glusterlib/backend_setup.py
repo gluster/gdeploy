@@ -134,63 +134,66 @@ class BackendSetup(YamlWriter):
         brick_dir, brick_list = [], []
         brick_dir = self.pattern_stripping(opts)
 
-        if force.lower() != 'yes':
-            if not opts:
-                '''
-                If force option is not specified or is 'no' default brick_dirs
-                will be created unded mountpoints
-                '''
-                # if force.lower() == 'no':
-                    # print "\nError: Mountpoints cannot be brick directories.\n " \
-                            # "Provide 'brick_dirs' option/section or use force=yes"\
-                            # " in your configuration file. Exiting!"
-                    # self.cleanup_and_quit()
+        if not opts:
+            if force.lower() == 'no':
+                print "\nError: Mountpoints cannot be brick directories.\n " \
+                        "Provide 'brick_dirs' option/section or use force=yes"\
+                        " in your configuration file. Exiting!"
+                self.cleanup_and_quit()
+            elif force.lower() == 'yes':
+                brick_list = self.section_dict['mountpoints']
+            else:
                 for mntpath in self.mountpoints:
                     if mntpath.endswith('/'):
                         mntpath = mntpath[:-1]
                     brick_list.append(self.get_file_dir_path(mntpath,
                                                      os.path.basename(mntpath)))
 
-            else:
-                if (len(brick_dir) != len(self.mountpoints
-                                        ) and len(brick_dir) != 1):
-                        print "\nError: The number of brick_dirs is different "\
-                            "from that of " \
-                            "the mountpoints available.\nEither give %d " \
-                            "brick_dirs or provide a common one or leave this "\
-                            "empty." % (len(self.mountpoints))
+        else:
+            if (len(brick_dir) != len(self.mountpoints
+                                    ) and len(brick_dir) != 1):
+                    print "\nError: The number of brick_dirs is different "\
+                        "from that of " \
+                        "the mountpoints available.\nEither give %d " \
+                        "brick_dirs or provide a common one or leave this "\
+                        "empty." % (len(self.mountpoints))
+                    self.cleanup_and_quit()
+
+            for sub, mnt in zip(brick_dir, self.mountpoints):
+                if sub.startswith('/'):
+                    if self.not_subdir(mnt, sub):
+                        print "\nError: brick_dirs should be a directory " \
+                            "inside mountpoint(%s).\nProvide absolute" \
+                            " path of a directory inside %s or just give the"\
+                            " path relative to it. " \
+                            "Exiting!" %(mnt, mnt)
                         self.cleanup_and_quit()
+                    brick_list = brick_dir
 
-                for sub, mnt in zip(brick_dir, self.mountpoints):
-                    if sub.startswith('/'):
-                        if self.not_subdir(mnt, sub):
-                            print "\nError: brick_dirs should be a directory " \
-                                "inside mountpoint(%s).\nProvide absolute" \
-                                " path of a directory inside %s or just give the"\
-                                " path relative to it. " \
-                                "Exiting!" %(mnt, mnt)
-                            self.cleanup_and_quit()
-                        brick_list = brick_dir
-
-                if not brick_list:
-                    if len(brick_dir) != 1:
-                        brick_list = [
-                            self.get_file_dir_path(
-                                mntpath,
-                                brick_dir[0]) for mntpath in self.mountpoints]
-                    else:
-                        brick_list = [
-                            self.get_file_dir_path(
-                                mntpath, brick) for mntpath, brick in zip(
-                                self.mountpoints, brick_dir)]
+            if not brick_list:
+                if len(brick_dir) != 1:
+                    brick_list = [
+                        self.get_file_dir_path(
+                            mntpath,
+                            brick_dir[0]) for mntpath in self.mountpoints]
+                else:
+                    brick_list = [
+                        self.get_file_dir_path(
+                            mntpath, brick) for mntpath, brick in zip(
+                            self.mountpoints, brick_dir)]
 
         for brick, mountpoint in zip( brick_list, self.mountpoints):
-            if brick == mountpoint and force.lower() != 'yes':
-                print "\nError: Mount point cannot be brick.\nProvide a "\
-                    "directory inside %s under the 'brick_dirs' " \
-                    "option or provide option 'force=yes' under 'volume' " \
-                    "section." % mountpoint
-                self.cleanup_and_quit()
+            if brick == mountpoint:
+                if force.lower() != 'yes':
+                    print "\nError: Mount point cannot be brick.\nProvide a "\
+                        "directory inside %s under the 'brick_dirs' " \
+                        "option or provide option 'force=yes' under 'volume' " \
+                        "section." % mountpoint
+                    self.cleanup_and_quit()
+                else:
+                    print "\nWarning: Using mountpoint itself as the brick in one or " \
+                            "more hosts since force" \
+                        " is specified, although not recommended.\n"
         force = 'yes' if force.lower() == 'yes' else 'no'
         self.create_yaml_dict('force', force, False)
         self.mountpoints = brick_list
