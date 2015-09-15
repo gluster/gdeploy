@@ -4,7 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: Detaches a pool form a Trusted Storage Pool
+  - name: Detach hosts form a Trusted Storage Pool
     peer: action=detach
           hosts="{{ hosts }}"
           current_host={{inventory_hostname}}

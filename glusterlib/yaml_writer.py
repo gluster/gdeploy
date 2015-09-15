@@ -125,32 +125,36 @@ class YamlWriter(ConfigParseHelpers):
                     self.cleanup_and_quit()
 
 
-            for sub, mnt in zip(brick_dir, self.section_dict['mountpoints']):
-                if sub.startswith('/'):
-                    if self.not_subdir(mnt, sub):
-                        print "\nError: brick_dirs should be a directory " \
-                            "inside mountpoint(%s).\nProvide absolute" \
-                            " path of a directory inside %s or just give the"\
-                            " path relative to it. " \
-                            "Exiting!" %(mnt, mnt)
-                        self.cleanup_and_quit()
-                    brick_list = brick_dir
+            if len(brick_dir) == 1:
+                if brick_dir[0].startswith('/'):
+                    for mntpath in self.section_dict['mountpoints']:
+                        if self.not_subdir(mntpath, brick_dir[0]):
+                            print "\nError: brick_dirs should be a directory " \
+                                "inside mountpoint(%s).\nMake sure " \
+                                "relative paths for all the %s mountpoints "\
+                                "are given separately. "\
+                                "Exiting!" %(mntpath, len(
+                                    self.section_dict['mountpoints']))
+                            self.cleanup_and_quit()
+                for mntpath in self.section_dict['mountpoints']:
+                    brick_list.append(self.get_file_dir_path(
+                        mntpath, brick_dir[0]))
+            else:
+                for mntpath, brick in zip(
+                        self.section_dict['mountpoints'], brick_dir):
+                    if brick.startswith('/'):
+                        if self.not_subdir(mntpath, brick):
+                            print "\nError: brick_dirs should be a directory " \
+                                "inside mountpoint(%s).\nProvide absolute" \
+                                " path of a directory inside %s or just give the"\
+                                " path relative to it. " \
+                                "Exiting!" %(mntpath, mntpath)
+                            self.cleanup_and_quit()
+                    brick_list.append(self.get_file_dir_path(mntpath, brick))
 
-            if not brick_list:
-                if len(brick_dir) != 1:
-                        brick_list = [
-                            self.get_file_dir_path(
-                                mntpath,
-                                brick_dir[0]) for mntpath in self.section_dict['mountpoints']]
-                else:
-                    brick_list = [
-                        self.get_file_dir_path(
-                            mntpath, brick) for mntpath, brick in zip(
-                            self.section_dict['mountpoints'], brick_dir)]
 
-
-        for brick, mountpoint in zip(
-                brick_list, self.section_dict['mountpoints']):
+        for brick, mountpoint in zip(brick_list,
+                self.section_dict['mountpoints']):
             if brick == mountpoint:
                 if force.lower() != 'yes':
                     print "\nError: Mount point cannot be brick.\nProvide a "\
@@ -159,9 +163,11 @@ class YamlWriter(ConfigParseHelpers):
                         "section." % mountpoint
                     self.cleanup_and_quit()
                 else:
-                    print "\nWarning: Using mountpoint itself as the brick in one or " \
+                    warn = "\nWarning: Using mountpoint itself as the brick in one or " \
                             "more hosts since force" \
                         " is specified, although not recommended.\n"
+                    if warn not in Global.warnings:
+                        Global.warnings.append(warn)
         force = 'yes' if force.lower() == 'yes' else 'no'
         self.create_yaml_dict('force', force, False)
         self.section_dict['mountpoints'] = brick_list
@@ -240,18 +246,21 @@ class YamlWriter(ConfigParseHelpers):
                 print "Error: Unsupported disk type!"
                 self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
-                perf['diskcount'] = int(self.get_options('diskcount', True)[0])
+                perf['diskcount'] = int(self.config_get_options(self.config,
+                    'diskcount', True)[0])
                 stripe_size_necessary = {'raid10': False,
                                          'raid6': True
                                          }[perf['disktype']]
-                stripe_size = self.get_options('stripesize',
+                stripe_size = self.config_get_options(self.config, 'stripesize',
                                                stripe_size_necessary)
                 if stripe_size:
                     perf['stripesize'] = int(stripe_size[0])
                     if perf['disktype'] == 'raid10' and perf[
                             'stripesize'] != 256:
-                        print "Warning: We recommend a stripe unit size of 256KB " \
+                        warn = "Warning: We recommend a stripe unit size of 256KB " \
                             "for RAID 10"
+                        if warn not in Global.warnings:
+                            Global.warnings.append(warn)
                 else:
                     perf['stripesize'] = 256
                 perf['dalign'] = {

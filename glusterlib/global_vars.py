@@ -31,6 +31,8 @@ class Global(object):
 
     # Required filenames and dir names
     master = None
+    brick_hosts = []
+    warnings = []
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'gluster_servers'

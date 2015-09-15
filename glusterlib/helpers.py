@@ -118,7 +118,7 @@ class Helpers(Global):
                     "Cannot continue!" % param
             self.cleanup_and_quit()
 
-    def split_volname_and_hostname(self, volname, brickdata=False):
+    def split_volname_and_hostname(self, volname):
         '''
         This gives the user the flexibility to not give the hosts
         section. Instead one can just specify the volume name
@@ -129,25 +129,26 @@ class Helpers(Global):
             return None
         vol_group = re.search("(.*):(.*)", volname)
         if vol_group:
-            Global.hosts = [host for host in Global.hosts if
-                    host not in vol_group.group(1)]
-            try:
-                Global.master = [Global.hosts[0]]
-            except:
-                if not brickdata:
-                    Global.master = [vol_group.group(1)]
-                else:
-                    print "\nError: We can't identify the cluster in which volume"\
-                                " is a part of.\n\nEither give volname in the format"\
-                                " <hostname>:<volname> \nor give atleast one host which "\
-                                "is part of the pool under 'hosts' "\
-                                "section."
-                    self.cleanup_and_quit()
-            if vol_group.group(1) not in Global.hosts:
+            if not self.config_section_map(self.config,
+                    'volume', 'action', False) == 'add-brick' and (
+                            vol_group.group(1) not in Global.hosts):
                 Global.hosts.append(vol_group.group(1))
+            Global.master = [vol_group.group(1)]
             return vol_group.group(2)
         return volname
 
+
+    def split_brickname_and_hostname(self, brick):
+        if not brick:
+            return None
+        brk_group = re.search("(.*):(.*)", brick)
+        if not brk_group:
+            print "\nError: Brick names should be in the format " \
+                    "<hostname>:<brickname>. Exiting!"
+            self.cleanup_and_quit()
+        if brk_group.group(1) not in Global.brick_hosts:
+            Global.brick_hosts.append(brk_group.group(1))
+        return brk_group.group(2)
 
 
     def not_subdir(self, path, directory):

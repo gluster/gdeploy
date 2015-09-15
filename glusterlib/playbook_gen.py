@@ -52,6 +52,10 @@ class PlaybookGen(YamlWriter):
         output = {'host_vars': self.host_vars_gen,
                   'group_vars': self.group_vars_gen
                   }[self.var_file]()
+        #To avoid repeatation in warnings, we keep a global lost
+        for warn in Global.warnings:
+            print warn
+
         '''
         since the client configuration data are to be written
         to the global_vars file no matter what, this method
@@ -111,7 +115,6 @@ class PlaybookGen(YamlWriter):
         YAMLWriter
         '''
         if not Global.hosts:
-            print "Warning: Section `hosts' not found. Skipping backend-setup"
             return
         backend_setup = True
         for host in Global.hosts:
@@ -132,7 +135,6 @@ class PlaybookGen(YamlWriter):
 
     def group_vars_gen(self):
         if not Global.hosts:
-            print "Warning: Section `hosts' not found. Skipping backend-setup"
             return
         '''
         Calls YamlWriter for writing data to the group_vars file
@@ -147,7 +149,9 @@ class PlaybookGen(YamlWriter):
 
     def write_host_names(self):
         self.filename = Global.group_file
+        to_be_probed = Global.hosts + Global.brick_hosts
         self.create_yaml_dict('hosts', Global.hosts, False)
+        self.create_yaml_dict('to_be_probed', to_be_probed, False)
 
     def template_files_create(self, temp_file):
         if not os.path.isdir(temp_file):

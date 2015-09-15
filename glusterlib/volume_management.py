@@ -57,9 +57,23 @@ class VolumeManagement(YamlWriter):
                     "and rebalance"
             return
         action_func()
-        if not Global.hosts:
-            print "Error: Hostnames not provided. Cannot continue!"
+
+        if action == 'add-brick':
+            if not Global.master and not (
+                    set(Global.hosts) - set(Global.brick_hosts)):
+                print "\nError: We cannot identify which cluster volume '%s' " \
+                        "belongs to.\n\nWe recommend providing " \
+                        "'volname' option in the format "\
+                        "<hostname>:<volume name>."\
+                        "\nElse try giving another host in the cluster under "\
+                        "'hosts' section which is not the hostname of the "\
+                        "new bricks." \
+                        "\nExiting!" % self.section_dict.get('volname')
+                self.cleanup_and_quit()
+        elif not Global.hosts:
+            print "\nError: Hostnames not found. Exiting!"
             self.cleanup_and_quit()
+
         self.filename = Global.group_file
         print "INFO: Volume management(action: %s) triggered" % action
         if not self.present_in_yaml(self.filename, 'force'):
@@ -156,9 +170,9 @@ class VolumeManagement(YamlWriter):
         self.section_dict['new_bricks'] = self.section_dict.pop('bricks')
         if isinstance(self.section_dict['new_bricks'], list):
             for brick in self.section_dict['new_bricks']:
-                self.split_volname_and_hostname(brick, True)
+                self.split_brickname_and_hostname(brick)
         else:
-            self.split_volname_and_hostname(self.section_dict['new_bricks'], True)
+            self.split_brickname_and_hostname(self.section_dict['new_bricks'])
         self.set_default_replica_type()
         self.check_for_param_presence('volname', self.section_dict)
         if 'gluster-peer-probe.yml' not in Global.playbooks:

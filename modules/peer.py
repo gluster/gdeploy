@@ -53,7 +53,10 @@ class Peer(object):
         if self.action == 'probe':
             self.hosts = self.get_to_be_probed_hosts()
         self.current_host = self._validated_params('current_host')
-        self.hosts.remove(self.current_host)
+        try:
+            self.hosts.remove(self.current_host)
+        except:
+            pass
         self.force = 'force' if self.module.params.get('force') == 'yes' else ''
         if self.hosts:
             rc, output, err = [0, 0, 0]
@@ -69,7 +72,10 @@ class Peer(object):
                 "gluster pool list")
         peers_in_cluster = [line.split('\t')[1].strip() for
                 line in filter(None, output.split('\n')[1:])]
-        peers_in_cluster.remove('localhost')
+        try:
+            peers_in_cluster.remove('localhost')
+        except:
+            pass
         hosts_to_be_probed = [host for host in self.hosts if host not in
                 peers_in_cluster]
         return hosts_to_be_probed
