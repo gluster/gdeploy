@@ -104,6 +104,12 @@ class PlaybookGen(YamlWriter):
             Global.group,
             Global.hosts,
             Global.inventory)
+        if not Global.master or Global.master in Global.brick_hosts:
+            try:
+                Global.master = [list(set(Global.hosts) - set(
+                    Global.brick_hosts))[0]]
+            except:
+                Global.master = None
         if Global.hosts or Global.master:
             self.write_config('master', Global.master or [Global.hosts[0]],
                               Global.inventory)

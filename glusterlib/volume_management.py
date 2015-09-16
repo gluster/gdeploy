@@ -62,13 +62,14 @@ class VolumeManagement(YamlWriter):
             if not Global.master and not (
                     set(Global.hosts) - set(Global.brick_hosts)):
                 print "\nError: We cannot identify which cluster volume '%s' " \
-                        "belongs to.\n\nWe recommend providing " \
+                        "belongs to.\n\nINFO: We recommend providing " \
                         "'volname' option in the format "\
                         "<hostname>:<volume name>."\
-                        "\nElse try giving another host in the cluster under "\
-                        "'hosts' section which is not the hostname of the "\
-                        "new bricks." \
-                        "\nExiting!" % self.section_dict.get('volname')
+                        "\nElse try giving the name of a different host which "\
+                        "is a part of the cluster as value for "\
+                        "'hosts' section.\nMake sure it is not the name of the "\
+                        "host having the new bricks." \
+                        " Exiting!" % self.section_dict.get('volname')
                 self.cleanup_and_quit()
         elif not Global.hosts:
             print "\nError: Hostnames not found. Exiting!"
