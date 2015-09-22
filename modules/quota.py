@@ -80,7 +80,7 @@ class Quota(object):
         self._get_output(rc, out, err)
 
     def quota_default_soft_limit(self):
-        percent = self._validated_params['percent']
+        percent = self._validated_params('percent')
         return ' default-soft-limit %s ' % percent
 
 
@@ -96,7 +96,7 @@ class Quota(object):
         number = self._validated_params('number')
         percent = self.get_playbook_params('percent')
         percent = ' ' if not percent else percent
-        return ' limit-objects %s %s %s ' %(path, size, percent)
+        return ' limit-objects %s %s %s ' %(path, number, percent)
 
     def quota_remove_action(self):
         path = self._validated_params('path')

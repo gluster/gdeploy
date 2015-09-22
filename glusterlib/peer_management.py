@@ -41,11 +41,14 @@ class PeerManagement(YamlWriter):
                 return
             try:
                 yml = {'probe': 'gluster-peer-probe.yml',
-                       'detach': 'gluster-peer-detach.yml'
+                       'detach': 'gluster-peer-detach.yml',
+                       'ignore': None
                       }[action]
             except:
                 print "Error: Unknown action provided. Use either `probe` " \
                         "or `detach`."
+                return
+            if not yml:
                 return
             print "\nINFO: Peer management(action: %s) triggered" % action
             if action == 'probe':

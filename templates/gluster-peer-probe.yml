@@ -6,7 +6,7 @@
   tasks:
   - name: Creates a Trusted Storage Pool
     peer: action=probe
-          hosts="{{ hosts }}"
+          hosts="{{ to_be_probed }}"
           current_host={{inventory_hostname}}
 
   - name: Pause for some seconds

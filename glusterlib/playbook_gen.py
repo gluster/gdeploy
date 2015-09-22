@@ -57,6 +57,8 @@ class PlaybookGen(BackendSetup):
         output = {'host_vars': self.host_vars_gen,
                   'group_vars': self.group_vars_gen
                   }[self.var_file]()
+        for warn in Global.warnings:
+            print warn
         '''
         since the client configuration data are to be written
         to the global_vars file no matter what, this method
@@ -68,7 +70,7 @@ class PlaybookGen(BackendSetup):
         GaneshaManagement(self.config)
         ClientManagement(self.config)
         QuotaManagement(self.config)
-        GeorepManagement(self.config)
+        # GeorepManagement(self.config)
         self.create_inventory()
         self.write_host_names()
 
@@ -110,6 +112,12 @@ class PlaybookGen(BackendSetup):
             Global.group,
             Global.hosts,
             Global.inventory)
+        if not Global.master or Global.master in Global.brick_hosts:
+            try:
+                Global.master = [list(set(Global.hosts) - set(
+                    Global.brick_hosts))[0]]
+            except:
+                Global.master = None
         if Global.hosts or Global.master:
             self.write_config('master', Global.master or [Global.hosts[0]],
                               Global.inventory)
@@ -159,7 +167,9 @@ class PlaybookGen(BackendSetup):
 
     def write_host_names(self):
         self.filename = Global.group_file
+        to_be_probed = Global.hosts + Global.brick_hosts
         self.create_yaml_dict('hosts', Global.hosts, False)
+        self.create_yaml_dict('to_be_probed', to_be_probed, False)
 
     def template_files_create(self, temp_file):
         if not os.path.isdir(temp_file):

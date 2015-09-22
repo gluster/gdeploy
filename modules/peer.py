@@ -53,7 +53,10 @@ class Peer(object):
         if self.action == 'probe':
             self.hosts = self.get_to_be_probed_hosts()
         self.current_host = self._validated_params('current_host')
-        self.hosts.remove(self.current_host)
+        try:
+            self.hosts.remove(self.current_host)
+        except:
+            pass
         self.force = 'force' if self.module.params.get('force') == 'yes' else ''
         if self.hosts:
             rc, output, err = [0, 0, 0]

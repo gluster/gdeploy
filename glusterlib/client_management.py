@@ -186,3 +186,4 @@ class ClientManagement(YamlWriter):
         self.check_for_param_presence('client_mount_points',
                 self.section_dict)
         Global.playbooks.insert(0, 'client_volume_umount.yml')
+        print "\nINFO: Client management(action: unmount) triggered."

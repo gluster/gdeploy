@@ -141,7 +141,7 @@ class Helpers(Global):
         return True
 
 
-    def split_val_and_hostname(self, val, georep=False):
+    def split_volume_and_hostname(self, val):
         '''
         This gives the user the flexibility to not give the hosts
         section. Instead one can just specify the volume name
@@ -152,19 +152,30 @@ class Helpers(Global):
             val_group = re.search("(.*):(.*)", val)
             if val_group:
                 hostname = self.parse_patterns(val_group.group(1))
-                Global.hosts = [host for host in Global.hosts if
-                        host not in hostname]
-                if georep:
-                    return hostname, val_group.group(2)
+                if not self.config_section_map(self.config, 'volume',
+                        'action', False) == 'add-brick':
+                    for host in hostname:
+                        if host not in Global.hosts:
+                            Global.hosts.append(host)
                 try:
-                    Global.master = [Global.hosts[0]]
-                except:
                     Global.master = [hostname[0]]
-                for host in hostname:
-                    Global.hosts.append(host)
-                    Global.brick_hosts.append(host)
+                except:
+                    pass
                 return val_group.group(2)
         return val
+
+
+    def split_brickname_and_hostname(self, brick):
+        if not brick:
+            return None
+        brk_group = re.search("(.*):(.*)", brick)
+        if not brk_group:
+            print "\nError: Brick names should be in the format " \
+                    "<hostname>:<brickname>. Exiting!"
+            self.cleanup_and_quit()
+        if brk_group.group(1) not in Global.brick_hosts:
+            Global.brick_hosts.append(brk_group.group(1))
+        return brk_group.group(2)
 
 
     def format_brick_names(self, bricks):
@@ -173,7 +184,7 @@ class Helpers(Global):
         if not isinstance(bricks, list):
             bricks = [bricks]
         for brick in bricks:
-            brick_list.append(self.split_val_and_hostname(brick))
+            brick_list.append(self.split_brickname_and_hostname(brick))
             for brk in brick_list:
                 whole_bricks += self.parse_patterns(brk)
             for brk, hst in itertools.product(whole_bricks, Global.brick_hosts):

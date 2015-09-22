@@ -53,7 +53,7 @@ class QuotaManagement(YamlWriter):
 
         if not self.present_in_yaml(Global.group_file, 'volname'):
             self.check_for_param_presence('volname', self.section_dict)
-            self.section_dict['volname'] = self.split_val_and_hostname(
+            self.section_dict['volname'] = self.split_volume_and_hostname(
                     self.section_dict['volname'])
 
         sections_default_value = {

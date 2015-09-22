@@ -141,7 +141,7 @@ class BackendSetup(YamlWriter):
                         " in your configuration file. Exiting!"
                 self.cleanup_and_quit()
             elif force.lower() == 'yes':
-                brick_list = self.section_dict['mountpoints']
+                brick_list = self.mountpoints
             else:
                 for mntpath in self.mountpoints:
                     if mntpath.endswith('/'):
@@ -159,28 +159,11 @@ class BackendSetup(YamlWriter):
                         "empty." % (len(self.mountpoints))
                     self.cleanup_and_quit()
 
-            for sub, mnt in zip(brick_dir, self.mountpoints):
-                if sub.startswith('/'):
-                    if self.not_subdir(mnt, sub):
-                        print "\nError: brick_dirs should be a directory " \
-                            "inside mountpoint(%s).\nProvide absolute" \
-                            " path of a directory inside %s or just give the"\
-                            " path relative to it. " \
-                            "Exiting!" %(mnt, mnt)
-                        self.cleanup_and_quit()
-                    brick_list = brick_dir
-
-            if not brick_list:
-                if len(brick_dir) != 1:
-                    brick_list = [
-                        self.get_file_dir_path(
-                            mntpath,
-                            brick_dir[0]) for mntpath in self.mountpoints]
-                else:
-                    brick_list = [
-                        self.get_file_dir_path(
-                            mntpath, brick) for mntpath, brick in zip(
-                            self.mountpoints, brick_dir)]
+            brick_dir = self.sub_directory_check(brick_dir)
+            brick_list = [
+                self.get_file_dir_path(
+                    mntpath, brick) for mntpath, brick in zip(
+                    self.mountpoints, brick_dir)]
 
         for brick, mountpoint in zip( brick_list, self.mountpoints):
             if brick == mountpoint:
@@ -191,12 +174,29 @@ class BackendSetup(YamlWriter):
                         "section." % mountpoint
                     self.cleanup_and_quit()
                 else:
-                    print "\nWarning: Using mountpoint itself as the brick in one or " \
+                    warn = "\nWarning: Using mountpoint itself as the brick in one or " \
                             "more hosts since force" \
                         " is specified, although not recommended.\n"
+                    if warn not in Global.warnings:
+                        Global.warnings.append(warn)
+
         force = 'yes' if force.lower() == 'yes' else 'no'
         self.create_yaml_dict('force', force, False)
         self.mountpoints = brick_list
+
+
+    def sub_directory_check(brick_dir):
+        if len(brick_dir) == 1:
+            brick_dir = brick_dir * len(self.mountpoints)
+        for mnt, brick in zip(self.mountpoints, brick_dir):
+                if self.not_subdir(mnt, brick):
+                    print "\nError: brick_dirs should be a directory " \
+                        "inside mountpoint(%s).\nMake sure " \
+                        "relative paths for all the %s mountpoints "\
+                        "are given separately. "\
+                        "Exiting!" %(mnt, len(self.mountpoints))
+                self.cleanup_and_quit()
+        return brick_dir
 
     def tune_profile(self):
         profile = self.config_get_options(self.config, 'tune-profile', False)
@@ -226,19 +226,21 @@ class BackendSetup(YamlWriter):
                 print "Error: Unsupported disk type!"
                 self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
-                perf['diskcount'] = int(self.get_options(self.config,
+                perf['diskcount'] = int(self.config_get_options(self.config,
                     'diskcount', True)[0])
                 stripe_size_necessary = {'raid10': False,
                                          'raid6': True
                                          }[perf['disktype']]
-                stripe_size = self.get_options(self.config, 'stripesize',
+                stripe_size = self.config_get_options(self.config, 'stripesize',
                                                stripe_size_necessary)
                 if stripe_size:
                     perf['stripesize'] = int(stripe_size[0])
                     if perf['disktype'] == 'raid10' and perf[
                             'stripesize'] != 256:
-                        print "Warning: We recommend a stripe unit size of 256KB " \
+                        warn = "Warning: We recommend a stripe unit size of 256KB " \
                             "for RAID 10"
+                        if warn not in Global.warnings:
+                            Global.warnings.append(warn)
                 else:
                     perf['stripesize'] = 256
                 perf['dalign'] = {

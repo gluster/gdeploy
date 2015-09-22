@@ -36,7 +36,7 @@ class VolumeManagement(YamlWriter):
             return
         action = self.section_dict.get('action')
         volume = self.section_dict.get('volname')
-        volname = self.split_val_and_hostname(volume)
+        volname = self.split_volume_and_hostname(volume)
         self.section_dict['volname'] = volname
         if not action:
             print "Warning: Section 'volume' without any action option " \
@@ -138,9 +138,9 @@ class VolumeManagement(YamlWriter):
             print "Error: Provide the replica count for the volume."
             self.cleanup_and_quit()
         self.check_for_param_presence('volname', self.section_dict)
-        if 'gluster-peer-probe.yml' not in Global.playbooks:
+        self.call_peer_probe()
+        if 'glusterd-start.yml' not in Global.playbooks:
             Global.playbooks.append('glusterd-start.yml')
-            Global.playbooks.append('gluster-peer-probe.yml')
         Global.playbooks.append('create-brick-dirs.yml')
         Global.playbooks.append('gluster-volume-create.yml')
         self.start_volume()
@@ -168,19 +168,31 @@ class VolumeManagement(YamlWriter):
         self.check_for_param_presence('bricks', self.section_dict)
         bricks = self.section_dict.pop('bricks')
         bricks = self.format_brick_names(bricks)
-        if not list(set(Global.hosts) - set(Global.brick_hosts)):
-            print "\nError: We can't identify the cluster in which volume"\
-                    " %s is a part of.\n\nEither give volname in the format"\
-                    " <hostname>:<volname> \nor give atleast one host which "\
-                    "is part of the pool under 'hosts' "\
-                    "section." % self.section_dict['volname']
+        if not Global.master and not list(
+            set(Global.hosts) - set(Global.brick_hosts)):
+            print "\nError: We cannot identify which cluster volume '%s' " \
+                    "belongs to.\n\nINFO: We recommend providing " \
+                    "'volname' option in the format "\
+                    "<hostname>:<volume name>."\
+                    "\nElse try giving the name of a different host which "\
+                    "is a part of the cluster as value for "\
+                    "'hosts' section.\nMake sure it is not the name of the "\
+                    "host having the new bricks." \
+                    "Exiting!" % self.section_dict.get('volname')
             self.cleanup_and_quit()
+
         self.section_dict['new_bricks'] = bricks
         self.set_default_replica_type()
         self.check_for_param_presence('volname', self.section_dict)
-        if 'gluster-peer-probe.yml' not in Global.playbooks:
-            Global.playbooks.append('gluster-peer-probe.yml')
+        self.call_peer_probe()
         Global.playbooks.append('gluster-add-brick.yml')
+
+    def call_peer_probe(self):
+        peer_action = self.config_section_map(self.config,
+                'peer', 'manage', False) or 'True'
+        if peer_action != 'ignore' and (
+                'gluster-peer-probe.yml' not in Global.playbooks):
+            Global.playbooks.append('gluster-peer-probe.yml')
 
     def remove_brick_from_volume(self):
         self.check_for_param_presence('volname', self.section_dict)

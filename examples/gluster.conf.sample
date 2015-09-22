@@ -152,7 +152,10 @@ rhs-high-throughput
 # to either probe each other making the TSP or detach all of them from TSP
 
 # The only option in this section is the option names 'manage' which can have
-# it's values to be  either probe or detach
+# it's values to be  [probe, detach, ignore]
+
+# If provided 'ignore' it will skip the peer probing completely even for volume
+# creation and add-brick for which usually they run by default
 
 # To do a peer probe
 
@@ -362,6 +365,19 @@ client_mount_points=/mnt/gluster{1..3}
 
 # [snapshot]
 # action=create
+# volname=10.70.46.13:glustervol
+# snapname=glustersnap
+
+# For snapshot activation:
+
+# [snapshot]
+# action=activate
+# snapname=glustersnap
+
+# For snapshot deactivation:
+
+# [snapshot]
+# action=deactivate
 # snapname=glustersnap
 
 # For snapshot deletion:
@@ -374,7 +390,7 @@ client_mount_points=/mnt/gluster{1..3}
 # For snapshot cloning:
 
 # [snapshot]
-# action=delete
+# action=clone
 # snapname=glustersnap
 # clonename=an_old_snap
 
