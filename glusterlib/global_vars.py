@@ -30,6 +30,7 @@ class Global(object):
     brick_hosts = []
     playbooks = []
     warnings = []
+    logger = None
 
     # Required filenames and dir names
     master = None

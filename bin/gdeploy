@@ -27,6 +27,8 @@ from glusterlib import Global
 from glusterlib import PlaybookGen
 from glusterlib import CliOps
 from collections import OrderedDict
+from glusterlib import logger
+from glusterlib import log_event
 
 
 class GlusterDeploy(PlaybookGen, Global):
@@ -39,6 +41,11 @@ class GlusterDeploy(PlaybookGen, Global):
     '''
 
     def __init__(self):
+        '''
+        logger object of Global class can be used anywhere
+        now to do the logging
+        '''
+        Global.logger = log_event()
         args = self.parse_arguments()
         self.check_ansible_installation()
         self.verbose = args.verbose
@@ -85,10 +92,12 @@ class GlusterDeploy(PlaybookGen, Global):
         try:
             args = parser.parse_args()
         except IOError as msg:
+            Global.logger.error(str(msg))
             parser.error(str(msg))
         both_not_present = not (args.config_file or args.volumeset)
         if both_not_present:
             parser.print_help()
+            Global.logger.error("Wrong usage")
             self.cleanup_and_quit()
         return args
 
@@ -118,10 +127,13 @@ class GlusterDeploy(PlaybookGen, Global):
         '''
         verbose = '-vv' if self.verbose else ''
         try:
+            Global.logger.info("Calling ansible-playbook command")
             self.exec_ansible_cmd(verbose)
         except:
-            print "Error: Looks like there is something wrong with " \
+            error = "Error: Looks like there is something wrong with " \
                 "your ansible installation."
+            print error
+            Global.logger.error(error)
 
 
 if __name__ == '__main__':

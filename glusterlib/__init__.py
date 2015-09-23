@@ -13,3 +13,5 @@ from cliops import CliOps
 from yaml_writer import YamlWriter
 from playbook_gen import PlaybookGen
 from backend_setup import BackendSetup
+from gdeploy_logging import logger
+from gdeploy_logging import log_event
