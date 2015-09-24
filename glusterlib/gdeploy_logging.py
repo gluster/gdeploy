@@ -23,7 +23,6 @@ def logger(f, name=None):
         name = f.func_name
     def wrapped(*args, **kwargs):
         now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print now
         func = inspect.currentframe().f_back.f_code
         logger.fhwr.write(now +' - ' + func.co_filename + ':'
             + str(func.co_firstlineno) + ' - TRACE - Calling ' +name+" "+str(f))

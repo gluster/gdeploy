@@ -31,7 +31,9 @@ from helpers import Helpers
 try:
     import yaml
 except ImportError:
-    print "Error: Package PyYAML not found."
+    msg = "Package PyYAML not found."
+    print "\nError: " + msg
+    Global.logger.error(msg)
     sys.exit(0)
 import os
 

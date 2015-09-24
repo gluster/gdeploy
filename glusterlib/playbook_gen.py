@@ -42,6 +42,7 @@ from snapshot_management import SnapshotManagement
 from ganesha_management import GaneshaManagement
 from quota_management import QuotaManagement
 from georep_management import GeorepManagement
+from gdeploy_logging import log_event
 
 
 
@@ -85,6 +86,7 @@ class PlaybookGen(BackendSetup):
         to go in. Since the client data for gluster confs are common for all the
         hosts, creating a group var file anyway.
         '''
+        Global.logger.info("Creating necessary files and folders")
         self.mk_dir(Global.group_vars_dir)
         self.touch_file(Global.group_file)
         self.move_templates_to_playbooks()
@@ -104,7 +106,7 @@ class PlaybookGen(BackendSetup):
             else:
                 msg =  "Looks like you missed to give configurations " \
                     "for one or many host(s). Exiting!"
-                print "Error: " + msg
+                print "\nError: " + msg
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
         else:
@@ -150,7 +152,9 @@ class PlaybookGen(BackendSetup):
             else:
                 backend_setup = False
         if backend_setup:
-            print("\nINFO: Back-end setup triggered")
+            msg = "Back-end setup triggered"
+            print "\nINFO: " + msg
+            Global.logger.info(msg)
 
     def group_vars_gen(self):
         if not Global.hosts:
@@ -166,7 +170,9 @@ class PlaybookGen(BackendSetup):
         if device_names:
             BackendSetup(devices, self.config, Global.group_file,
                     self.var_file)
-            print("\nINFO: Back-end setup triggered")
+            msg = "Back-end setup triggered"
+            print "\nINFO: " + msg
+            Global.logger.info(msg)
 
     def write_host_names(self):
         self.filename = Global.group_file
@@ -195,16 +201,19 @@ class PlaybookGen(BackendSetup):
         else:
             templates_dir = templates_path_pkg
         if not os.path.isdir(templates_dir):
-            print "Error: Template files not found.\n\n" \
+            msg = "Template files not found.\n\n" \
                 "Gdeploy looks inside the directory %s or \n" \
                 "wants the environment varible GDEPLOY_TEMPLATES set."\
                  % (templates_path_pkg)
+            print "\nError: " + msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
         self.template_files_create(templates_dir)
 
 
 if __name__ == '__main__':
     # For playbook_gen to be standalone script.
+    log_event()
     if len(sys.argv) < 2:
         print "Usage: var_populate configuration_file"
         sys.exit(0)

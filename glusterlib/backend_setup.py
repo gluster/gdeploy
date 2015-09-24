@@ -32,7 +32,9 @@ from yaml_writer import YamlWriter
 try:
     import yaml
 except ImportError:
-    print "Error: Package PyYAML not found."
+    msg = "Package PyYAML not found."
+    print "\nError: " + msg
+    Global.logger.error(msg)
     sys.exit(0)
 import os
 
@@ -48,6 +50,7 @@ class BackendSetup(YamlWriter):
         self.write_sections()
 
     def write_sections(self):
+        Global.logger.trace("Setting up back-end")
         self.write_brick_names()
         self.write_vg_names()
         self.write_pool_names()
@@ -136,9 +139,11 @@ class BackendSetup(YamlWriter):
 
         if not opts:
             if force.lower() == 'no':
-                print "\nError: Mountpoints cannot be brick directories.\n " \
+                msg = "Mountpoints cannot be brick directories.\n " \
                         "Provide 'brick_dirs' option/section or use force=yes"\
                         " in your configuration file. Exiting!"
+                print "\nError: " + msg
+                Global.logger.error(msg)
                 self.cleanup_and_quit()
             elif force.lower() == 'yes':
                 brick_list = self.mountpoints
@@ -152,11 +157,13 @@ class BackendSetup(YamlWriter):
         else:
             if (len(brick_dir) != len(self.mountpoints
                                     ) and len(brick_dir) != 1):
-                    print "\nError: The number of brick_dirs is different "\
+                    msg = "The number of brick_dirs is different "\
                         "from that of " \
                         "the mountpoints available.\nEither give %d " \
                         "brick_dirs or provide a common one or leave this "\
                         "empty." % (len(self.mountpoints))
+                    print "\nError:  " + msg
+                    Global.logger.error(msg)
                     self.cleanup_and_quit()
 
             brick_dir = self.sub_directory_check(brick_dir)
@@ -168,15 +175,18 @@ class BackendSetup(YamlWriter):
         for brick, mountpoint in zip( brick_list, self.mountpoints):
             if brick == mountpoint:
                 if force.lower() != 'yes':
-                    print "\nError: Mount point cannot be brick.\nProvide a "\
+                    msg = "Mount point cannot be brick.\nProvide a "\
                         "directory inside %s under the 'brick_dirs' " \
                         "option or provide option 'force=yes' under 'volume' " \
                         "section." % mountpoint
+                    print "\nError: " + msg
+                    Global.logger.error(msg)
                     self.cleanup_and_quit()
                 else:
                     warn = "\nWarning: Using mountpoint itself as the brick in one or " \
                             "more hosts since force" \
                         " is specified, although not recommended.\n"
+                    Global.logger.warning(warn)
                     if warn not in Global.warnings:
                         Global.warnings.append(warn)
 
@@ -190,12 +200,14 @@ class BackendSetup(YamlWriter):
             brick_dir = brick_dir * len(self.mountpoints)
         for mnt, brick in zip(self.mountpoints, brick_dir):
                 if self.not_subdir(mnt, brick):
-                    print "\nError: brick_dirs should be a directory " \
+                    msg = "brick_dirs should be a directory " \
                         "inside mountpoint(%s).\nMake sure " \
                         "relative paths for all the %s mountpoints "\
                         "are given separately. "\
                         "Exiting!" %(mnt, len(self.mountpoints))
-                self.cleanup_and_quit()
+                    print "\nError: " + msg
+                    Global.logger.error(msg)
+                    self.cleanup_and_quit()
         return brick_dir
 
     def tune_profile(self):
@@ -223,7 +235,9 @@ class BackendSetup(YamlWriter):
         if disktype:
             perf = dict(disktype=disktype[0].lower())
             if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
-                print "Error: Unsupported disk type!"
+                msg = "Unsupported disk type!"
+                print "\nError: " + msg
+                Global.logger.error(msg)
                 self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
                 perf['diskcount'] = int(self.config_get_options(self.config,
@@ -239,6 +253,7 @@ class BackendSetup(YamlWriter):
                             'stripesize'] != 256:
                         warn = "Warning: We recommend a stripe unit size of 256KB " \
                             "for RAID 10"
+                        Global.logger.warning(warn)
                         if warn not in Global.warnings:
                             Global.warnings.append(warn)
                 else:
@@ -257,8 +272,10 @@ class BackendSetup(YamlWriter):
         self.iterate_dicts_and_yaml_write(perf)
 
     def insufficient_param_count(self, section, count):
-        print "Error: Please provide %s names for %s devices " \
+        msg = "Please provide %s names for %s devices " \
             "else leave the field empty" % (section, count)
+        print "Error: " + msg
+        Global.logger.error(msg)
         self.cleanup_and_quit()
 
     def section_data_gen(self, config, section, section_name):
