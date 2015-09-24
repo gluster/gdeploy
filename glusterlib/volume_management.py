@@ -34,13 +34,16 @@ class VolumeManagement(YamlWriter):
             del self.section_dict['__name__']
         except KeyError:
             return
+        Global.logger.info("Reading volume section in config")
         action = self.section_dict.get('action')
         volume = self.section_dict.get('volname')
         volname = self.split_volume_and_hostname(volume)
         self.section_dict['volname'] = volname
         if not action:
-            print "Warning: Section 'volume' without any action option " \
+            msg = "Section 'volume' without any action option " \
                     "found. \nNoting the data given and skipping this section!"
+            print "\nWarning: " + msg
+            Global.logger.warning(msg)
             self.filename = Global.group_file
             self.iterate_dicts_and_yaml_write(self.section_dict)
             return
@@ -55,17 +58,23 @@ class VolumeManagement(YamlWriter):
                           'rebalance': self.gfs_rebalance
                         }.get(action)
         if not action_func:
-            print "\nError: Unknown action provided for volume. \nSupported " \
+            msg = "Unknown action provided for volume. \nSupported " \
                     "actions are:\n " \
                     "create, delete, start, stop, add-brick, remove-brick, " \
                     "and rebalance"
+            print "\nError: " + msg
+            Global.logger.error(msg)
             return
         action_func()
         if not Global.hosts:
-            print "Error: Hostnames not provided. Cannot continue!"
+            msg = "Hostnames not provided. Cannot continue!"
+            print "\nError: " + msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
         self.filename = Global.group_file
-        print "\nINFO: Volume management(action: %s) triggered" % action
+        msg = "Volume management(action: %s) triggered" % action
+        print "\nINFO: " + msg
+        Global.logger.info(msg)
         if not self.present_in_yaml(self.filename, 'force'):
             force = self.section_dict.get('force') or ''
             force = 'yes' if force.lower() == 'yes' else 'no'
@@ -89,12 +98,16 @@ class VolumeManagement(YamlWriter):
                 self.filename = Global.group_file
                 brick_dirs = self.get_brick_dirs()
                 if not brick_dirs:
-                    print "Error: Section 'brick_dirs' or 'mountpoints' " \
+                    msg = "Section 'brick_dirs' or 'mountpoints' " \
                             "not found.\nCannot continue volume creation!"
+                    print "\nError: " + msg
+                    Global.logger.error(msg)
                     self.cleanup_and_quit()
                 if False in [brick.startswith('/') for brick in brick_dirs]:
-                    print "\nError: values to 'brick_dirs' should be absolute"\
+                    msg = "values to 'brick_dirs' should be absolute"\
                             " path. Relative given. Exiting!"
+                    print "\nError: " + msg
+                    Global.logger.error(msg)
                     self.cleanup_and_quit()
                 self.create_yaml_dict('mountpoints', brick_dirs, False)
         else:
@@ -104,13 +117,17 @@ class VolumeManagement(YamlWriter):
                     self.touch_file(self.filename)
                     brick_dirs = self.get_brick_dirs()
                     if not brick_dirs:
-                        print "\nError: Option 'brick_dirs' " \
+                        msg = "Option 'brick_dirs' " \
                                 "not found for host %s.\nCannot continue " \
                                 "volume creation!" % host
+                        print "\nError:  " + msg
+                        Global.logger.error(msg)
                         self.cleanup_and_quit()
                     if False in [brick.startswith('/') for brick in brick_dirs]:
-                        print "\nError: values to 'brick_dirs' should be absolute"\
+                        msg = "values to 'brick_dirs' should be absolute"\
                                 " path. Relative given. Exiting!"
+                        print "\nError: " + msg
+                        Global.logger.error(msg)
                         self.cleanup_and_quit()
                     self.create_yaml_dict('mountpoints', brick_dirs, False)
 
@@ -135,7 +152,9 @@ class VolumeManagement(YamlWriter):
         # Custom method for volume config specs
         if self.section_dict['replica'].lower() == 'yes' and int(
                 self.section_dict['replica_count']) == 0:
-            print "Error: Provide the replica count for the volume."
+            msg = "Provide the replica count for the volume."
+            print "\nError: " + msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
         self.check_for_param_presence('volname', self.section_dict)
         self.call_peer_probe()
@@ -170,7 +189,7 @@ class VolumeManagement(YamlWriter):
         bricks = self.format_brick_names(bricks)
         if not Global.master and not list(
             set(Global.hosts) - set(Global.brick_hosts)):
-            print "\nError: We cannot identify which cluster volume '%s' " \
+            msg = "We cannot identify which cluster volume '%s' " \
                     "belongs to.\n\nINFO: We recommend providing " \
                     "'volname' option in the format "\
                     "<hostname>:<volume name>."\
@@ -179,6 +198,8 @@ class VolumeManagement(YamlWriter):
                     "'hosts' section.\nMake sure it is not the name of the "\
                     "host having the new bricks." \
                     "Exiting!" % self.section_dict.get('volname')
+            print "\nError: " + msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
 
         self.section_dict['new_bricks'] = bricks
@@ -198,9 +219,11 @@ class VolumeManagement(YamlWriter):
         self.check_for_param_presence('volname', self.section_dict)
         self.check_for_param_presence('bricks', self.section_dict)
         if 'state' not in self.section_dict:
-            print "Error: State of the remove-brick process not " \
+            msg = "State of the remove-brick process not " \
                 "specified. Can't proceed!\n" \
                 "Available options are: {start, stop, force, commit }"
+            print "\nError: " + msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
         self.set_default_replica_type()
         self.section_dict['old_bricks'] = self.section_dict.pop('bricks')
@@ -210,9 +233,11 @@ class VolumeManagement(YamlWriter):
 
     def gfs_rebalance(self):
         if 'state' not in self.section_dict:
-            print "Error: State of the rebalance process not " \
+            msg = "State of the rebalance process not " \
                 "specified. Can't proceed!\n" \
                 "Available options are: {start, stop, fix-layout}."
+            print "\nError: " + msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
         if 'gluster-volume-start.yml' not in Global.playbooks:
             Global.playbooks.append('gluster-volume-start.yml')

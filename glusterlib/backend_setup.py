@@ -50,7 +50,7 @@ class BackendSetup(YamlWriter):
         self.write_sections()
 
     def write_sections(self):
-        Global.logger.trace("Setting up back-end")
+        Global.logger.info("Reading configuration for backend setup")
         self.write_brick_names()
         self.write_vg_names()
         self.write_pool_names()

@@ -49,6 +49,7 @@ class GlusterDeploy(PlaybookGen, Global):
         args = self.parse_arguments()
         self.check_ansible_installation()
         self.verbose = args.verbose
+        self.test = args.test
         if args.config_file:
             config_file = args.config_file.name
             PlaybookGen(config_file)
@@ -59,10 +60,10 @@ class GlusterDeploy(PlaybookGen, Global):
         if not args.keep:
             shutil.rmtree(Global.base_dir)
         else:
-            print "You can view the generated configuration files "\
+            print "\nYou can view the generated configuration files "\
                 "inside %s" % Global.base_dir
             Global.logger.info("Configuration saved inside %s" %Global.base_dir)
-        Global.logger.info("Operation completed")
+        Global.logger.info("GDeploy completed!")
 
     def check_ansible_installation(self):
         ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
@@ -79,7 +80,7 @@ class GlusterDeploy(PlaybookGen, Global):
         to the gdeploy script
         '''
         usage = 'gdeploy [-h] [-v] [-vv] [-c CONFIG_FILE] ' \
-            '[-k] [volumeset <hostIP>:<volumename> <key> <value>]'
+            '[-k] [-t] [volumeset <hostIP>:<volumename> <key> <value>]'
         parser = argparse.ArgumentParser(usage=usage, version='1.0')
         parser.add_argument('-c', dest='config_file',
                             help="Configuration file",
@@ -90,6 +91,10 @@ class GlusterDeploy(PlaybookGen, Global):
         parser.add_argument('-k', dest='keep',
                             action='store_true',
                             help="Keep the generated ansible utility files")
+        parser.add_argument('-t', dest='test',
+                            action='store_true',
+                            help="Test the configuration file without " \
+                                    "calling ansible")
         parser.add_argument('-vv', dest='verbose',
                             action='store_true',
                             help="verbose mode")
@@ -109,7 +114,11 @@ class GlusterDeploy(PlaybookGen, Global):
         if Global.playbooks:
             Global.playbooks = self.validate_playbook_order(Global.playbooks)
             self.write_ansible_playbook()
-            self.call_ansible_command()
+            if not self.test:
+                self.call_ansible_command()
+            else:
+                print "\nINFO: Looks like your configuration file is pretty " \
+                        "good."
 
     def validate_playbook_order(self, yml):
         if 'gluster-volume-delete.yml' in yml:

@@ -33,11 +33,14 @@ class PeerManagement(YamlWriter):
                 print "Warning: Section 'peers' without any action option " \
                         "found. Skipping this section!"
                 return
+            Global.logger.info("Reading configuration in peer section")
             self.hosts = self.config_get_options(self.config, 'hosts', False)
             if not self.hosts:
-                print "\nError: Although peer manage option is provided, " \
+                msg = "Although peer manage option is provided, " \
                         "no hosts are provided in the section. \n " \
                         "Skipping section `peer`"
+                print "\nError: " + msg
+                Global.logger.error(msg)
                 return
             try:
                 yml = {'probe': 'gluster-peer-probe.yml',
@@ -45,12 +48,16 @@ class PeerManagement(YamlWriter):
                        'ignore': None
                       }[action]
             except:
-                print "Error: Unknown action provided. Use either `probe` " \
+                mag = "Unknown action provided. Use either `probe` " \
                         "or `detach`."
+                print "\nError: " + msg
+                Global.logger.error(msg)
                 return
             if not yml:
                 return
-            print "\nINFO: Peer management(action: %s) triggered" % action
+            msg = "Peer management(action: %s) triggered" % action
+            print "\nINFO: " + msg
+            Global.logger.info(msg)
             if action == 'probe':
                 Global.playbooks.append('glusterd-start.yml')
             Global.playbooks.append(yml)
