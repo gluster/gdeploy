@@ -78,6 +78,7 @@ class PlaybookGen(BackendSetup):
         hosts = self.config_get_options(self.config, 'hosts', False)
         for host in hosts:
             Global.hosts += self.parse_patterns(host)
+
     def create_files_and_dirs(self):
         '''
         Creates required directories for all the configuration files
@@ -101,8 +102,10 @@ class PlaybookGen(BackendSetup):
             if set(Global.hosts).issubset(set(self.options)):
                 self.var_file = 'host_vars'
             else:
-                print "Error: Looks like you missed to give configurations " \
+                msg =  "Looks like you missed to give configurations " \
                     "for one or many host(s). Exiting!"
+                print "Error: " + msg
+                Global.logger.error(msg)
                 self.cleanup_and_quit()
         else:
             self.var_file = 'group_vars'

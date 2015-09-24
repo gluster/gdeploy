@@ -42,10 +42,10 @@ class GlusterDeploy(PlaybookGen, Global):
 
     def __init__(self):
         '''
-        logger object of Global class can be used anywhere
-        now to do the logging
+        log_event() sets the logger object of Global class
+        which can be used anywhere now to do the logging
         '''
-        Global.logger = log_event()
+        log_event()
         args = self.parse_arguments()
         self.check_ansible_installation()
         self.verbose = args.verbose
@@ -61,12 +61,16 @@ class GlusterDeploy(PlaybookGen, Global):
         else:
             print "You can view the generated configuration files "\
                 "inside %s" % Global.base_dir
+            Global.logger.info("Configuration saved inside %s" %Global.base_dir)
+        Global.logger.info("Operation completed")
 
     def check_ansible_installation(self):
         ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
         if ret:
-            print "Error: gdeploy requires Ansible to run. \nPlease install " \
+            msg =  "gdeploy requires Ansible to run. \nPlease install " \
                     "Ansible(version >= 1.9.2) to continue."
+            print "Error: " + msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
 
     def parse_arguments(self):
@@ -97,7 +101,7 @@ class GlusterDeploy(PlaybookGen, Global):
         both_not_present = not (args.config_file or args.volumeset)
         if both_not_present:
             parser.print_help()
-            Global.logger.error("Wrong usage")
+            Global.logger.error("Invalid usage")
             self.cleanup_and_quit()
         return args
 
@@ -130,10 +134,10 @@ class GlusterDeploy(PlaybookGen, Global):
             Global.logger.info("Calling ansible-playbook command")
             self.exec_ansible_cmd(verbose)
         except:
-            error = "Error: Looks like there is something wrong with " \
+            msg = "Looks like there is something wrong with " \
                 "your ansible installation."
-            print error
-            Global.logger.error(error)
+            print "Error: " + msg
+            Global.logger.error(msg)
 
 
 if __name__ == '__main__':

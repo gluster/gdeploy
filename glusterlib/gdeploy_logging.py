@@ -3,6 +3,8 @@ import logging.config
 import os
 import datetime
 import time
+import inspect
+from global_vars import Global
 
 def logger(f, name=None):
     '''
@@ -20,13 +22,29 @@ def logger(f, name=None):
     if name is None:
         name = f.func_name
     def wrapped(*args, **kwargs):
-        now = str(datetime.datetime.now())
-        logger.fhwr.write(now +' - gdeploy - INFO - Calling ' +name+" "+str(f))
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print now
+        func = inspect.currentframe().f_back.f_code
+        logger.fhwr.write(now +' - ' + func.co_filename + ':'
+            + str(func.co_firstlineno) + ' - TRACE - Calling ' +name+" "+str(f))
         result = f(*args, **kwargs)
         return result
     wrapped.__doc__ = f.__doc__
     return wrapped
 
+
+class MyFormatter(logging.Formatter):
+
+    converter = datetime.datetime.fromtimestamp
+
+    def formatTime(self, record, datefmt=None):
+        ct = self.converter(record.created)
+        if datefmt:
+            s = ct.strftime(datefmt)
+        else:
+            t = ct.strftime("%Y-%m-%d %H:%M:%S")
+            s = "%s,%03d" % (t, record.msecs)
+        return s
 
 def log_event():
     '''
@@ -43,13 +61,15 @@ def log_event():
     # create the logging file handler
     fh = logging.FileHandler(log_file)
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = MyFormatter('[%(asctime)s -  ' \
+            '%(filename)s:%(lineno)s - %(funcName)20s]: ' \
+            '%(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     fh.setFormatter(formatter)
 
     # add handler to logger object
     logger.addHandler(fh)
-
-    return logger
+    Global.logger = logger
+    return
 
 
 def rotate_log_file(log):
