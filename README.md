@@ -59,3 +59,19 @@ For help and usage options, try:
 
 ` gdeploy -h`
 
+##Testing
+
+> As of now, gdeploy has very limited test cases, all of which checking the
+format of the configuration file. We try running gdeploy against some
+standard configuration files, which should all essentially succeed.
+This will be soon expanded to do a dry run in the remote machine.
+
+To run the tests, do:
+
+` gdeploy -t -c tests/*`
+
+where -t specifies that this is a test run.
+
+Alternatively, one can run each test configuration separately:
+
+` gdeploy -t -c tests/bug-1264772.conf`
