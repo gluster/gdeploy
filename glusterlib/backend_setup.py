@@ -195,10 +195,11 @@ class BackendSetup(YamlWriter):
         self.mountpoints = brick_list
 
 
-    def sub_directory_check(brick_dir):
+    def sub_directory_check(self, brick_dir):
         if len(brick_dir) == 1:
             brick_dir = brick_dir * len(self.mountpoints)
         for mnt, brick in zip(self.mountpoints, brick_dir):
+            if brick.startswith('/'):
                 if self.not_subdir(mnt, brick):
                     msg = "brick_dirs should be a directory " \
                         "inside mountpoint(%s).\nMake sure " \
