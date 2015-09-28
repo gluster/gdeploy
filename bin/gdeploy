@@ -65,7 +65,9 @@ class GlusterDeploy(PlaybookGen, Global):
 
     def run_gdeploy(self, conf):
         try:
-            Global.logger.info("Parsing config file %s" % conf.name)
+            msg = "***Parsing config file %s***" % conf.name
+            Global.logger.info(msg)
+            print "\n" + msg
             config_file = conf.name
         except:
             msg = "Failed to parse arguments for option -c. Please verify"
@@ -127,8 +129,7 @@ class GlusterDeploy(PlaybookGen, Global):
             if not self.test:
                 self.call_ansible_command()
             else:
-                print "\nINFO: Looks like your configuration file '%s' is pretty " \
-                        "good." % conf
+                print "\nRESULT: %s.................................OK " % conf
 
     def validate_playbook_order(self, yml):
         if 'gluster-volume-delete.yml' in yml:
