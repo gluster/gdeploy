@@ -51,12 +51,10 @@ class GlusterDeploy(PlaybookGen, Global):
         self.verbose = args.verbose
         self.test = args.test
         if args.config_file:
-            config_file = args.config_file.name
-            PlaybookGen(config_file)
-            self.deploy_gluster()
+            map(self.run_gdeploy, args.config_file)
         if args.volumeset:
             CliOps(args.volumeset)
-            self.deploy_gluster()
+            self.deploy_gluster(None)
         if not args.keep:
             shutil.rmtree(Global.base_dir)
         else:
@@ -64,6 +62,17 @@ class GlusterDeploy(PlaybookGen, Global):
                 "inside %s" % Global.base_dir
             Global.logger.info("Configuration saved inside %s" %Global.base_dir)
         Global.logger.info("GDeploy completed!")
+
+    def run_gdeploy(self, conf):
+        try:
+            Global.logger.info("Parsing config file %s" % conf.name)
+            config_file = conf.name
+        except:
+            msg = "Failed to parse arguments for option -c. Please verify"
+            print "Error: " + msg
+            Global.logger.error(msg)
+        PlaybookGen(config_file)
+        self.deploy_gluster(config_file)
 
     def check_ansible_installation(self):
         ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
@@ -84,6 +93,7 @@ class GlusterDeploy(PlaybookGen, Global):
         parser = argparse.ArgumentParser(usage=usage, version='1.0')
         parser.add_argument('-c', dest='config_file',
                             help="Configuration file",
+                            nargs='+',
                             type=argparse.FileType('rt'))
         parser.add_argument('volumeset',
                             help="Set options for the volume",
@@ -110,15 +120,15 @@ class GlusterDeploy(PlaybookGen, Global):
             self.cleanup_and_quit()
         return args
 
-    def deploy_gluster(self):
+    def deploy_gluster(self, conf):
         if Global.playbooks:
             Global.playbooks = self.validate_playbook_order(Global.playbooks)
             self.write_ansible_playbook()
             if not self.test:
                 self.call_ansible_command()
             else:
-                print "\nINFO: Looks like your configuration file is pretty " \
-                        "good."
+                print "\nINFO: Looks like your configuration file '%s' is pretty " \
+                        "good." % conf
 
     def validate_playbook_order(self, yml):
         if 'gluster-volume-delete.yml' in yml:

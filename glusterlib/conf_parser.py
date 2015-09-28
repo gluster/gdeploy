@@ -48,9 +48,9 @@ class ConfigParseHelpers(Helpers):
             return config_parse
         except:
             print "Sorry! Looks like the format of configuration " \
-                "file is not something we could read! \nTry removing " \
+                "file %s is not something we could read! \nTry removing " \
                 "whitespaces or unwanted characters in the configuration " \
-                "file."
+                "file." % config_file
             self.cleanup_and_quit()
 
     def write_config(self, section, options, filename):
