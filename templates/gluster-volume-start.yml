@@ -7,3 +7,4 @@
   - name: Starts a volume
     volume:  action=start volume="{{ volname }}"
              force="{{ force }}"
+    ignore_errors: True
