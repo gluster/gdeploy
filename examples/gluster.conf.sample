@@ -507,3 +507,76 @@ client_mount_points=/mnt/gluster{1..3}
 # volname=glustervol
 # client_hosts=10.70.46.23,10.70.46.24
 # time=100
+
+
+#-----------------------------------
+
+
+                            ##-- Geo-replication --##
+
+# section 'geo-replication' can be used to setup geo-replication.
+# The option 'action' specifies which geo-replication operation is
+# to be performed. The choices available are: [create, start, stop, delete,
+# pause, resume]
+#
+# To create a geo-rep session
+#
+# [geo-replication]
+# action=create
+# mastervol=10.70.46.13:mastervolname
+# slavevol=10.70.46.15:slavevolname
+# force=yes
+#
+# This will automatically enable password less ssh between master and slave and
+# creates the geo-rep session
+#
+#
+#
+# To start a geo-rep session
+#
+# [geo-replication]
+# action=start
+# mastervol=10.70.46.13:mastervolname
+# slavevol=10.70.46.15:slavevolname
+# force=yes
+#
+#
+#
+# To pause a geo-rep session
+#
+# [geo-replication]
+# action=pause
+# mastervol=10.70.46.13:mastervolname
+# slavevol=10.70.46.15:slavevolname
+# force=yes
+#
+#
+#
+# To resume a geo-rep session
+#
+# [geo-replication]
+# action=resume
+# mastervol=10.70.46.13:mastervolname
+# slavevol=10.70.46.15:slavevolname
+# force=yes
+#
+#
+#
+# To stop a geo-rep session
+#
+# [geo-replication]
+# action=stop
+# mastervol=10.70.46.13:mastervolname
+# slavevol=10.70.46.15:slavevolname
+# force=yes
+#
+#
+#
+# To delete a geo-rep session
+#
+# [geo-replication]
+# action=stop
+# mastervol=10.70.46.13:mastervolname
+# slavevol=10.70.46.15:slavevolname
+# force=yes
+#
