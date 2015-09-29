@@ -42,12 +42,30 @@ class GeoRep(object):
     def gluster_georep_ops(self):
         mastervol = self._validated_params('mastervol')
         slavevol = self._validated_params('slavevol')
-        force = self._validated_params('force')
-        force = 'force' if force == 'yes' else ' '
-        push_pem = 'push-pem' if self.action == 'create' else ' '
+        slavevol = self.check_pool_exclusiveness(mastervol, slavevol)
+        if self.action == 'delete':
+            force = ''
+        else:
+            force = self._validated_params('force')
+            force = 'force' if force == 'yes' else ' '
+        push_pem = 'push-pem' if self.action == 'create' else ''
         rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
                 mastervol, slavevol, self.action, push_pem, force)
         self._get_output(rc, output, err)
+
+    def check_pool_exclusiveness(self, mastervol, slavevol):
+        rc, output, err = self.module.run_command(
+                "gluster pool list")
+        peers_in_cluster = [line.split('\t')[1].strip() for
+                line in filter(None, output.split('\n')[1:])]
+        val_group = re.search("(.*):(.*)", slavevol)
+        if not val_group:
+            self.module.fail_json(msg="Slave volume in Unknown format. "\
+                    "Correct format: <hostname>:<volume name>")
+        if val_group.group(1) in peers_in_cluster:
+            self.module.fail_json(msg="slave volume is in the trusted " \
+                    "storage pool of master")
+        return val_group.group(1) + '::' + val_group.group(2)
 
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
@@ -57,7 +75,7 @@ class GeoRep(object):
 
     def _get_output(self, rc, output, err):
         carryon = True if self.action in  ['stop',
-                'delete', 'detach'] else False
+                'delete', 'resume'] else False
         changed = 0 if (carryon and rc) else 1
         if not rc or carryon:
             self.module.exit_json(stdout=output, changed=changed)
@@ -71,7 +89,8 @@ class GeoRep(object):
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
-            action=dict(required=True, choices=['create', 'start']),
+            action=dict(required=True, choices=['create', 'start',
+                'stop', 'delete', 'pause', 'resume']),
             mastervol=dict(),
             slavevol=dict(),
             force=dict(),

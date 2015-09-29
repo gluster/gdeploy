@@ -165,6 +165,24 @@ class Helpers(Global):
         return val
 
 
+    def split_georep_volname(self, val):
+        if val:
+            val_group = re.search("(.*):(.*)", val)
+            if val_group:
+                hostname = self.parse_patterns(val_group.group(1))
+                if not len(hostname) == 1:
+                    err = "Provide only one hostname for master or slave volume"
+                    print "\nError: " + err
+                    Global.logger.error(msg)
+                    self.cleanup_and_quit()
+                return hostname, val_group.group(2)
+            err = "Provide master volume name and slave volume name in the "\
+                    "format <hostname>:<volume name>"
+            print "\nError: " + msg
+            Global.logger.error(msg)
+            self.cleanup_and_quit()
+
+
     def split_brickname_and_hostname(self, brick):
         if not brick:
             return None

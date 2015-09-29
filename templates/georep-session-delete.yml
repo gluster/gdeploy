@@ -1,0 +1,10 @@
+---
+- hosts: georep_master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Delete the geo-rep session
+    georep: action=delete
+            mastervol="{{ mastervolname }}"
+            slavevol="{{ slavevol }}"

@@ -50,20 +50,16 @@ class GlusterDeploy(PlaybookGen, Global):
         self.check_ansible_installation()
         self.verbose = args.verbose
         self.test = args.test
+        self.keep = args.keep
         if args.config_file:
             map(self.run_gdeploy, args.config_file)
         if args.volumeset:
             CliOps(args.volumeset)
             self.deploy_gluster(None)
-        if not args.keep:
-            shutil.rmtree(Global.base_dir)
-        else:
-            print "\nYou can view the generated configuration files "\
-                "inside %s" % Global.base_dir
-            Global.logger.info("Configuration saved inside %s" %Global.base_dir)
         Global.logger.info("GDeploy completed!")
 
     def run_gdeploy(self, conf):
+        self.init_global_values()
         try:
             msg = "***Parsing config file %s***" % conf.name
             Global.logger.info(msg)
@@ -75,6 +71,23 @@ class GlusterDeploy(PlaybookGen, Global):
             Global.logger.error(msg)
         PlaybookGen(config_file)
         self.deploy_gluster(config_file)
+        if not self.keep:
+            shutil.rmtree(Global.base_dir)
+        else:
+            print "\nYou can view the generated configuration files "\
+                "inside %s" % Global.base_dir
+            Global.logger.info("Configuration saved inside %s" %Global.base_dir)
+
+    def init_global_values(self):
+        Global.config_count += 1
+        Global.playbooks = []
+        Global.hosts = []
+        Global.brick_hosts = []
+        Global.master = None
+        if Global.config_count > 1 and self.keep:
+            Global.logger.info("Since more than 1 config files are provided, "\
+                    "we can't keep the configuration files. Deleting them...")
+            self.keep = None
 
     def check_ansible_installation(self):
         ret = os.system('ansible --version 1>/dev/null 2>/dev/null')

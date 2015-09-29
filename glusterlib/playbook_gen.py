@@ -71,7 +71,7 @@ class PlaybookGen(BackendSetup):
         GaneshaManagement(self.config)
         ClientManagement(self.config)
         QuotaManagement(self.config)
-        # GeorepManagement(self.config)
+        GeorepManagement(self.config)
         self.create_inventory()
         self.write_host_names()
 

@@ -31,9 +31,10 @@ class Global(object):
     playbooks = []
     warnings = []
     logger = None
+    config_count = 0
+    master = None
 
     # Required filenames and dir names
-    master = None
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'gluster_servers'
