@@ -76,9 +76,6 @@
 # Brick mountpoints for the logical volumes
 # The number of mountpoints should match the number of logical volumes listed
 # above.
-# IMP: If only gluster deployment is to be done and not back-end setup, just
-# give this data about the hosts specified in the [hosts] section along
-# with the client data.
 
 # [mountpoints]
 # /gluster/brick
@@ -91,6 +88,10 @@
 # This field can be left empty in which case a directory will be created
 # inside the mountpoint with a default name. If backend setup is not being done
 # this field will be ignored.
+
+# IMP: If only gluster deployment is to be done and not back-end setup, just
+# provide value for 'brick_dirs' option, skipping all the above data other than
+# 'hosts' and skip ahead to the 'volume' section
 
 # [brick_dirs]
 # gluster_brick
