@@ -72,6 +72,8 @@ def log_event():
 
 
 def rotate_log_file(log):
+    if not os.path.exists(log):
+        return
     created= creation_date(log)
     now = datetime.datetime.now().date()
     days = (created - now).days
