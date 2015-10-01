@@ -20,26 +20,22 @@ file to be defined by the user.
 
 ` pip install -r requirements.txt`
 
-###Add ansible modules to ANSIBLE_LIBRARY environment variable
+###Setup GDeploy
 
-` echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:'/path/to/gdeploy/modules/'" >> ~/.bashrc`
+**Run the gdeploy_setup.sh file from the root directory of gdeploy**
 
-###Add ansible playbooks(inside the templates directory) to GDEPLOY_TEMPLATES environment variable
+` ./gdeploy_setup.sh`
 
- ` echo "export GDEPLOY_TEMPLATES='path/to/gdeploy'" >> ~/.bashrc`
+***OR***
 
-###To use the module you can either do:
+**Setup manually as follows**
 
-####Install using setuptools:
-
-` python setup.py install`
-
-OR
-
-####Add the path to the module to the python path:
-
-` echo "export PYTHONPATH=$PYTHONPATH:'/path/to/gdeploy/glusterlib/'" >> ~/.bashrc`
-
+1. Add ansible modules to ANSIBLE_LIBRARY environment variable
+<br/>` echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:'/path/to/gdeploy/modules/'" >> ~/.bashrc`<br/>
+2. Add ansible playbooks(inside the templates directory) to GDEPLOY_TEMPLATES environment variable
+<br/>` echo "export GDEPLOY_TEMPLATES='path/to/gdeploy'" >> ~/.bashrc`<br/>
+3. Install glusterlib module using setuptools
+<br/>` python setup.py install`<br/>
 
 
 ##Usage
