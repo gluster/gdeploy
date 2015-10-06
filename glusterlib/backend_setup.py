@@ -62,8 +62,7 @@ class BackendSetup(YamlWriter):
         return True
 
     def write_brick_names(self):
-        if self.bricks == ['setup']:
-            self.auto_setup = True
+        self.auto_setup = True if self.bricks == ['setup'] else False
         self.create_yaml_dict('bricks', self.bricks, False)
         if 'pvcreate.yml' not in Global.playbooks:
             Global.playbooks.append('pvcreate.yml')
