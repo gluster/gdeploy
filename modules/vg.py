@@ -97,19 +97,58 @@ class VgOps(object):
         self.module = module
         self.action = self.validated_params('action')
         self.op = 'vg' + self.action
+        self.init_values()
+
+    def init_values(self):
         if self.action == 'create':
             self.disks = self.validated_params('disks')
-            self.options = self.module.params['options'] or ''
             self.vgname = self.validated_params('vgname')
-            output = self.vg_create()
-            if output[0]:
-                self.module.fail_json(msg=output[2])
+            self.options = self.module.params['options'] or ''
+            if self.disks == "['setup']" or self.disks == 'setup':
+                self.find_disks()
             else:
-                self.module.exit_json(msg=output[1], changed=1)
+                output = self.vg_create()
+                if output[0]:
+                    self.module.fail_json(msg=output[2])
+                else:
+                    self.module.exit_json(msg=output[1], changed=1)
         else:
             self.vgname = literal_eval(self.validated_params('vgname'))
             output = map(self.vg_remove, self.vgname)
             self.get_output(output)
+
+    def find_disks(self):
+        rc, output, err = self.module.run_command(
+                "lsblk -o name,mountpoint")
+        disks = [line.strip().split(' ') for
+            line in output.split('\n') if len(line.strip().split(' ')) == 1]
+        disks = [s[0].decode('unicode_escape').encode(
+            'ascii','ignore') for s in filter(None, disks)]
+        for disk in disks:
+            dgroup = re.match('([v,s]d.)[0-9]*.*', disk)
+            if dgroup:
+                root_partition = dgroup.group(1)
+                break
+        all_disks = filter(lambda x: not re.match(
+            root_partition + '.*', x), filter(None, disks))
+        disks = map(lambda x: '/dev/' + x, all_disks)
+        options = []
+        for i in range(1, len(self.disks) + 1):
+            options.append(self.vgname + str(i))
+        vgname = options
+        error, success = [], []
+        for disk, vg in zip(disks, vgname):
+            self.vgname  = vg
+            self.disks = disk
+            output = self.vg_create()
+            if output[0] != 0:
+                error.append(output[2])
+            else:
+                success.append(output[1])
+        if error:
+            self.module.fail_json(msg=error)
+        else:
+            self.module.exit_json(msg=success, changed=1)
 
     def get_output(self, output):
         for each in output:

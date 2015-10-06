@@ -63,7 +63,9 @@ EXAMPLES = '''
 '''
 from ansible.module_utils.basic import *
 import json
+import re
 from ast import literal_eval
+import subprocess
 
 
 class PvOps(object):
@@ -115,12 +117,33 @@ class PvOps(object):
         return ret
 
     def iterate_disk_names(self):
-        self.disks = literal_eval(self.validated_params('disks'))
+        disks = self.validated_params('disks')
+        if disks == "['setup']":
+            self.find_disks()
+        else:
+            self.disks = literal_eval(disks)
         map(self.call_ansible_run_command, self.disks)
+
+    def find_disks(self):
+        rc, output, err = self.module.run_command(
+                "lsblk -o name,mountpoint")
+        disks = [line.strip().split(' ') for
+            line in output.split('\n') if len(line.strip().split(' ')) == 1]
+        disks = [s[0].decode('unicode_escape').encode(
+            'ascii','ignore') for s in filter(None, disks)]
+        for disk in disks:
+            dgroup = re.match('([v,s]d.)[0-9]*.*', disk)
+            if dgroup:
+                root_partition = dgroup.group(1)
+                break
+        all_disks = filter(lambda x: not re.match(
+            root_partition + '.*', x), filter(None, disks))
+        self.disks = map(lambda x: '/dev/' + x, all_disks)
 
     def get_resize_params(self, disk):
         size = self.validated_params('size')
-        params = " %s --setphysicalvolumesize %s %s " % (self.options, size, disk)
+        params = " %s --setphysicalvolumesize %s %s " % (
+                self.options, size, disk)
         if self.pv_presence_check(disk):
             self.run_command('pvresize', params)
 

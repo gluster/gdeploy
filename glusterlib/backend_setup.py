@@ -62,6 +62,8 @@ class BackendSetup(YamlWriter):
         return True
 
     def write_brick_names(self):
+        if self.bricks == ['setup']:
+            self.auto_setup = True
         self.create_yaml_dict('bricks', self.bricks, False)
         if 'pvcreate.yml' not in Global.playbooks:
             Global.playbooks.append('pvcreate.yml')
@@ -295,7 +297,10 @@ class BackendSetup(YamlWriter):
                        'lvs': 'GLUSTER_lv',
                        'mountpoints': '/gluster/brick'
                        }[section]
-            for i in range(1, self.device_count + 1):
-                options.append(pattern + str(i))
+            if not self.auto_setup:
+                for i in range(1, self.device_count + 1):
+                    options.append(pattern + str(i))
+            else:
+                return [pattern]
         return options
 
