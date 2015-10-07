@@ -1,3 +1,5 @@
+## This is just a sample configuration. Passing it directly to gdeploy will throw error ##
+
 [hosts]
 10.70.46.13
 10.70.46.15
@@ -581,3 +583,52 @@ client_mount_points=/mnt/gluster{1..3}
 # slavevol=10.70.46.15:slavevolname
 # force=yes
 #
+#
+#
+# To configure a geo-rep session
+#
+# Available configuration options are:
+#
+# gluster-log-file        - The path to the geo-replication glusterfs log file.
+# gluster-log-level       - The log level for glusterfs processes.
+# log-file                - The path to the geo-replication log file.
+# log-level               - The log level for geo-replication.
+# ssh-command             - The SSH command to connect to the remote machine (the default is SSH).
+# rsync-command           - The rsync command to use for synchronizing the files (the default is rsync).
+# use-tarssh              - The use-tarssh option allows tar over Secure Shell protocol.
+#                           Use this option to handle workloads of files that have not
+#                           undergone edits. Value of this option can be [true, false]
+# volume-id               - The option to delete the existing master UID for the
+#                           intermediate/slave node. Value to this option should be a UID
+# timeout                 - The timeout period in seconds.
+# sync-jobs               - The number of simultaneous files/directories that can be synchronized.
+# ignore-deletes          - If this option is set to 1, a file deleted on the master will
+#                           not trigger a delete operation on the slave.
+# checkpoint              - Sets a checkpoint with the given value. If the option is set as
+#                           now, then the current time will be used as the label.
+#
+# Use only one configuration option at a time.
+#
+# If the value of any of the above option(other than volume-id) in set to 'reset', the setting
+# of that config option will be deleted
+#
+# Examples:
+#
+#
+# To reset log-level to the default value:
+#
+# [geo-replication]
+# action=config
+# mastervol=10.70.46.13:mastervolname
+# slavevol=10.70.46.15:slavevolname
+# log-level=reset
+
+
+
+# To to set checkpoint as the current time
+#
+# [geo-replication]
+# action=config
+# mastervol=10.70.46.13:mastervolname
+# slavevol=10.70.46.15:slavevolname
+# checkpoint=now
