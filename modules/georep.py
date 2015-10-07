@@ -43,15 +43,29 @@ class GeoRep(object):
         mastervol = self._validated_params('mastervol')
         slavevol = self._validated_params('slavevol')
         slavevol = self.check_pool_exclusiveness(mastervol, slavevol)
-        if self.action == 'delete':
+        if self.action in ['delete', 'config']:
             force = ''
         else:
             force = self._validated_params('force')
             force = 'force' if force == 'yes' else ' '
-        push_pem = 'push-pem' if self.action == 'create' else ''
+        options = 'push-pem' if self.action == 'create' else self.config_georep()
         rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
-                mastervol, slavevol, self.action, push_pem, force)
+                mastervol, slavevol, self.action, options, force)
         self._get_output(rc, output, err)
+
+    def config_georep(self):
+        if self.action != 'config':
+            return ''
+        options = [ 'gluster_log_file', 'gluster_log_level',
+                'log_file', 'log_level', 'ssh_command', 'rsync_command',
+                'use_tarssh', 'volume_id', 'timeout', 'sync_jobs',
+                'ignore_deletes', 'checkpoint']
+        for opt in options:
+           value = self._validated_params(opt)
+           if value:
+               if value == 'reset':
+                   return "'!" + opt.replace('_', '-') + "'"
+               return opt.replace('_', '-') + ' ' + value
 
     def check_pool_exclusiveness(self, mastervol, slavevol):
         rc, output, err = self.module.run_command(
@@ -84,16 +98,29 @@ class GeoRep(object):
 
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
+        self.module.fail_json(msg=cmd)
         return self.module.run_command(cmd)
 
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
             action=dict(required=True, choices=['create', 'start',
-                'stop', 'delete', 'pause', 'resume']),
+                'stop', 'delete', 'pause', 'resume', 'config']),
             mastervol=dict(),
             slavevol=dict(),
             force=dict(),
+            gluster_log_file=dict(),
+            gluster_log_level=dict(),
+            log_file=dict(),
+            log_level=dict(),
+            ssh_command=dict(),
+            rsync_command=dict(),
+            use_tarssh=dict(),
+            volume_id=dict(),
+            timeout=dict(),
+            sync_jobs=dict(),
+            ignore_deletes=dict(),
+            checkpoint=dict(),
         ),
     )
 
