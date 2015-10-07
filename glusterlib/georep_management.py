@@ -51,7 +51,8 @@ class GeorepManagement(YamlWriter):
                           'stop': self.stop_session,
                           'delete': self.delete_session,
                           'pause': self.pause_session,
-                          'resume': self.resume_session
+                          'resume': self.resume_session,
+                          'config': self.config_session
                         }.get(action)
         if not action_func:
             msg = "Unknown action provided for volume. \nSupported " \
@@ -102,3 +103,28 @@ class GeorepManagement(YamlWriter):
 
     def resume_session(self):
         Global.playbooks.append('georep-session-resume.yml')
+
+    def config_session(self):
+        sections_default_value = {
+            'gluster-log-file' : None,
+            'gluster-log-level' : None,
+            'log-file' : None,
+            'log-level' : None,
+            'ssh-command' : None,
+            'rsync-command' : None,
+            'use-tarssh' : None,
+            'volume-id' : None,
+            'timeout' : None,
+            'sync-jobs' : None,
+            'ignore-deletes' : None,
+            'checkpoint' : None}
+        self.set_default_value_for_dict_key(self.section_dict,
+                                            sections_default_value)
+        config_options = sections_default_value.keys()
+        for key in config_options:
+            if '-' in key:
+                new_key = key.replace('-', '_')
+                self.section_dict[new_key] = self.section_dict.get(key)
+                del self.section_dict[key]
+
+        Global.playbooks.append('georep-session-config.yml')
