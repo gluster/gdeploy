@@ -213,8 +213,8 @@ class BackendSetup(YamlWriter):
 
     def tune_profile(self):
         profile = self.config_get_options(self.config, 'tune-profile', False)
-        profile = 'rhs-high-throughput' if not profile else profile[0]
-        if profile.lower() == 'none':
+        profile = None if not profile else profile[0]
+        if not profile:
             return
         self.create_yaml_dict('profile', profile, False)
         if 'tune-profile.yml' not in Global.playbooks:
