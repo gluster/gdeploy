@@ -48,10 +48,17 @@ class GeoRep(object):
         else:
             force = self._validated_params('force')
             force = 'force' if force == 'yes' else ' '
+        self.action = 'create' if self.action == 'secure-session' else self.action
         options = 'push-pem' if self.action == 'create' else self.config_georep()
         rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
                 mastervol, slavevol, self.action, options, force)
         self._get_output(rc, output, err)
+        if self.action in ['stop', 'delete'] and self.user == 'root':
+            self.user = 'geoaccount'
+            rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
+                    mastervol, slavevol.replace('root', 'geoaccount'),
+                    self.action, options, force)
+            self._get_output(rc, output, err)
 
     def config_georep(self):
         if self.action != 'config':
@@ -79,7 +86,11 @@ class GeoRep(object):
         if val_group.group(1) in peers_in_cluster:
             self.module.fail_json(msg="slave volume is in the trusted " \
                     "storage pool of master")
-        return val_group.group(1) + '::' + val_group.group(2)
+        if self.module.params['secure'] =='yes':
+            self.user = 'geoaccount'
+        else:
+            self.user = 'root'
+        return self.user + '@' + val_group.group(1) + '::' + val_group.group(2)
 
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
@@ -91,6 +102,9 @@ class GeoRep(object):
         carryon = True if self.action in  ['stop',
                 'delete', 'resume'] else False
         changed = 0 if (carryon and rc) else 1
+        if self.action in ['stop', 'delete'] and (
+                self.user == 'root' and changed == 0):
+            return
         if not rc or carryon:
             self.module.exit_json(stdout=output, changed=changed)
         else:
@@ -120,6 +134,7 @@ if __name__ == '__main__':
             sync_jobs=dict(),
             ignore_deletes=dict(),
             checkpoint=dict(),
+            secure=dict()
         ),
     )
 

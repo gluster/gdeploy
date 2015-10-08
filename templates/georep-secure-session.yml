@@ -1,0 +1,61 @@
+---
+- hosts: georep_slaves
+  remote_user: root
+  gather_facts: no
+
+  vars:
+    slavevol: slavevol
+
+  tasks:
+  - name: Create a new group
+    group: name=geogroup state=present
+
+  - name: Create a new user
+    user: name=geoaccount group=geogroup generate_ssh_key=yes
+
+  - name: Install ssh public key from current account
+    authorized_key: user=geoaccount key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  - name: Create the mountbrocker-root diroctory
+    file: path=/var/mountbrocker-root state=directory mode=0711
+
+  - name: Checks if /etc/glusterfs/glusterd.vol exists
+    stat: path=/etc/glusterfs/glusterd.vol
+    register: file_exists
+    ignore_errors: True
+    changed_when: False
+
+  - name: Create /etc/glusterfs/glusterd.vol exists
+    file: path=/etc/glusterfs/glusterd.vol state=touch
+    when: file_exists.stat.exists != True
+
+  - name: Add basic configurations if the file didn't exist before
+    lineinfile:
+        dest=/etc/glusterfs/glusterd.vol
+        line="volume management\n
+               type mgmt/glusterd\n
+               option working-directory /var/lib/glusterd\n
+               option transport-type socket,rdma\n
+               option transport.socket.keepalive-time 10\n
+               option transport.socket.keepalive-interval 2\n
+               option transport.socket.read-fail-log off\n
+               option rpc-auth-allow-insecure on\n
+               end-volume"
+        insertbefore='^'
+    when: file_exists.stat.exists != True
+
+  - name: Check whether configuration data exists or not
+    command: grep "option mountbroker-geo-replication.geoaccount {{ slavevol }}" /etc/glusterfs/glusterd.vol
+    register: checkmyconf
+    always_run: True
+    ignore_errors: True
+    changed_when: False
+
+  - name: Add confs to glusterd.vol
+    lineinfile:
+        dest=/etc/glusterfs/glusterd.vol
+        line="    option mountbroker-root /var/mountbroker-root\n
+                  option mountbroker-geo-replication.geoaccount {{ slavevol }}\n
+                  option geo-replication-log-group geogroup"
+        insertbefore='end-volume'
+    when: checkmyconf.rc != 0

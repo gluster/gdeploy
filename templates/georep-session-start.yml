@@ -9,3 +9,4 @@
             mastervol="{{ mastervolname }}"
             slavevol="{{ slavevol }}"
             force="{{ force }}"
+            secure="{{secure}}"
