@@ -52,12 +52,8 @@ class CliOps(PlaybookGen):
                          'volname': volname
                          }
             Global.playbooks.append('gluster-volume-set.yml')
+            self.filename = Global.group_file
+            self.write_yaml(variables, False)
         else:
-            '''
-            This is a small hack to execute the shell
-            module of ansible from CLI
-            '''
-            Global.playbooks.append('shell_cmd.yml')
-            variables = {'cmd': ' '.join(cmd for cmd in volumeset)}
-        self.filename = Global.group_file
-        self.write_yaml(variables, False)
+            print "Error: Invalid Argument. Use gdeploy -h for the help message"
+            self.cleanup_and_quit()

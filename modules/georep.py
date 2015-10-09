@@ -50,8 +50,13 @@ class GeoRep(object):
             force = 'force' if force == 'yes' else ' '
         self.action = 'create' if self.action == 'secure-session' else self.action
         options = 'push-pem' if self.action == 'create' else self.config_georep()
-        rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
-                mastervol, slavevol, self.action, options, force)
+        if type(options) is list:
+            for opt in options:
+                rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
+                        mastervol, slavevol, self.action, opt, force)
+        else:
+            rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
+                    mastervol, slavevol, self.action, options, force)
         self._get_output(rc, output, err)
         if self.action in ['stop', 'delete'] and self.user == 'root':
             self.user = 'geoaccount'
@@ -67,12 +72,18 @@ class GeoRep(object):
                 'log_file', 'log_level', 'ssh_command', 'rsync_command',
                 'use_tarssh', 'volume_id', 'timeout', 'sync_jobs',
                 'ignore_deletes', 'checkpoint']
+        configs = []
         for opt in options:
            value = self._validated_params(opt)
            if value:
                if value == 'reset':
-                   return "'!" + opt.replace('_', '-') + "'"
-               return opt.replace('_', '-') + ' ' + value
+                   configs.append("'!" + opt.replace('_', '-') + "'")
+               configs.append(opt.replace('_', '-') + ' ' + value)
+        if configs:
+            return configs
+        value = self._validated_params('config')
+        op = self._validated_params('op')
+        return value + ' ' + op
 
     def check_pool_exclusiveness(self, mastervol, slavevol):
         rc, output, err = self.module.run_command(
@@ -134,7 +145,9 @@ if __name__ == '__main__':
             sync_jobs=dict(),
             ignore_deletes=dict(),
             checkpoint=dict(),
-            secure=dict()
+            secure=dict(),
+            config=dict(),
+            op=dict()
         ),
     )
 

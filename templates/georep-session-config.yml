@@ -20,5 +20,7 @@
             sync_jobs="{{sync_jobs}}"
             ignore_deletes="{{ignore_deletes}}"
             checkpoint="{{checkpoint}}"
+            config="{{config}}"
+            op="{{op}}"
 
 
