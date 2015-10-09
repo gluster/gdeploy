@@ -27,7 +27,7 @@ class VolumeSet(object):
     def __init__(self, module):
         self.module = module
         self.action = self._validated_params('action')
-        self.snapshot_op()
+        self.volume_set()
 
     def _validated_params(self, opt):
         value = self.module.params[opt]
@@ -36,13 +36,14 @@ class VolumeSet(object):
             self.module.fail_json(msg=msg)
         return value
 
-    def snapshot_op(self):
+    def volume_set(self):
         volume = self._validated_params('volume')
         key = self._validated_params('key')
-        value = self._validated_params('value')
+        value = self.module.params['value'] or ''
+        force = self.module.params['force'] or ''
         option_str = ' %s %s ' % (key, value)
         rc, output, err = self.call_gluster_cmd('volume', self.action,
-                                               volume, option_str)
+                                               volume, option_str, force)
         self._get_output(rc, output, err)
 
     def call_gluster_cmd(self, *args, **kwargs):
@@ -52,10 +53,8 @@ class VolumeSet(object):
         return self._run_command('gluster', ' ' + params + ' ' + key_value_pair)
 
     def _get_output(self, rc, output, err):
-        carryon = True if self.action in  ['stop',
-                'delete', 'detach'] else True
-        changed = 0 if (carryon and rc) else 1
-        if not rc or carryon:
+        changed = 0 if rc else 1
+        if not rc:
             self.module.exit_json(stdout=output, changed=changed)
         else:
             self.module.fail_json(msg=err)
@@ -70,7 +69,8 @@ if __name__ == '__main__':
             action=dict(required=True),
             volume=dict(),
             key=dict(),
-            value=dict()
+            value=dict(),
+            force=dict()
         ),
     )
 

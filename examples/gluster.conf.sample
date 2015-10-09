@@ -138,7 +138,8 @@ mountpoints=/gluster/brick1
                             ##-- Tune profile --##
 
 # The section 'tune-profile' takes in the name of the performance tuning
-# profile to be used. If not specified, tune profile setting will not happen.
+# profile to be used. If not specified, this will be set to 'rhs-high-throughput'
+# If performance tuning profile is not to be set give the value as 'none'
 
 [tune-profile]
 rhs-high-throughput
@@ -604,24 +605,31 @@ client_mount_points=/mnt/gluster{1..3}
 # gluster-log-level       - The log level for glusterfs processes.
 # log-file                - The path to the geo-replication log file.
 # log-level               - The log level for geo-replication.
-# ssh-command             - The SSH command to connect to the remote machine (the default is SSH).
-# rsync-command           - The rsync command to use for synchronizing the files (the default is rsync).
-# use-tarssh              - The use-tarssh option allows tar over Secure Shell protocol.
-#                           Use this option to handle workloads of files that have not
-#                           undergone edits. Value of this option can be [true, false]
+# ssh-command             - The SSH command to connect to the remote machine
+#                           (the default is SSH).
+# rsync-command           - The rsync command to use for synchronizing the files
+#                           (the default is rsync).
+# use-tarssh              - The use-tarssh option allows tar over Secure Shell
+#                           protocol. Use this option to handle workloads of
+#                           files that have not undergone edits. Value of
+#                           this option can be [true, false]
 # volume-id               - The option to delete the existing master UID for the
-#                           intermediate/slave node. Value to this option should be a UID
+#                           intermediate/slave node. Value to this option should
+#                           be a UID
 # timeout                 - The timeout period in seconds.
-# sync-jobs               - The number of simultaneous files/directories that can be synchronized.
-# ignore-deletes          - If this option is set to 1, a file deleted on the master will
+# sync-jobs               - The number of simultaneous files/directories that
+#                           can be synchronized.
+# ignore-deletes          - If this option is set to 1, a file deleted on the
+#                           master will
 #                           not trigger a delete operation on the slave.
-# checkpoint              - Sets a checkpoint with the given value. If the option is set as
-#                           now, then the current time will be used as the label.
+# checkpoint              - Sets a checkpoint with the given value. If the
+#                           option is set as now, then the current time will
+#                           be used as the label.
 #
 # Use only one configuration option at a time.
 #
-# If the value of any of the above option(other than volume-id) in set to 'reset', the setting
-# of that config option will be deleted
+# If the value of any of the above option(other than volume-id) in set to
+# 'reset', the setting of that config option will be deleted
 #
 # Examples:
 #
@@ -633,9 +641,10 @@ client_mount_points=/mnt/gluster{1..3}
 # mastervol=10.70.46.13:mastervolname
 # slavevol=10.70.46.15:slavevolname
 # log-level=reset
-
-
-
+#
+#
+#
+#
 # To to set checkpoint as the current time
 #
 # [geo-replication]
@@ -643,3 +652,34 @@ client_mount_points=/mnt/gluster{1..3}
 # mastervol=10.70.46.13:mastervolname
 # slavevol=10.70.46.15:slavevolname
 # checkpoint=now
+#
+#
+#
+#
+# Disaster Recovery
+#
+#
+#  1. Failover
+#  [geo-replication]
+#  action=failover
+#  mastervol=10.70.46.13:mastervolname
+#  slavevol=10.70.46.15:slavevolname
+#
+#  Here mastervol and slavevol are the original master and slave volumes
+#  respectively.
+#
+#  This configuration will first promote the slave to be the master and
+#  then sets necessary configurations
+#
+#
+#  2. Failback
+#  [geo-replication]
+#  action=failback
+#  mastervol=10.70.46.13:mastervolname
+#  slavevol=10.70.46.15:slavevolname
+#
+#  Here mastervol and slavevol are the original master and slave volumes
+#  respectively.
+#
+#  This will make the original master be master again and depromote the
+#  original slave

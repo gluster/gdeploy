@@ -38,8 +38,8 @@ class GeorepManagement(YamlWriter):
             del self.section_dict['__name__']
         except KeyError:
             return
-        action = self.section_dict.get('action')
-        if not action:
+        self.action = self.section_dict.get('action')
+        if not self.action:
             print "\nWarning: Section 'geo-replication' without any action "\
                     "option found. Skipping this section!"
             return
@@ -58,8 +58,10 @@ class GeorepManagement(YamlWriter):
                           'pause': self.pause_session,
                           'resume': self.resume_session,
                           'config': self.config_session,
-                          'secure-session': self.secure_session
-                        }.get(action)
+                          'secure-session': self.secure_session,
+                          'failover': self.fail_over,
+                          'failback': self.fail_back
+                        }.get(self.action)
         if not action_func:
             msg = "Unknown action provided for volume. \nSupported " \
                     "actions are:\n " \
@@ -69,7 +71,7 @@ class GeorepManagement(YamlWriter):
             Global.logger.error(msg)
             return
         action_func()
-        msg = "Geo-replication management (action: %s) triggered" % action
+        msg = "Geo-replication management (action: %s) triggered" % self.action
         Global.logger.info(msg)
         print "\nINFO: " + msg
         force = self.section_dict.get('force')
@@ -82,13 +84,20 @@ class GeorepManagement(YamlWriter):
         self.check_for_param_presence('slavevol', self.section_dict, True)
         master, mastervolname = self.split_georep_volname(self.section_dict.get(
             'mastervol'))
-        slave, slavevolname = self.split_georep_volname(self.section_dict.get(
+        self.slave, slavevolname = self.split_georep_volname(self.section_dict.get(
             'slavevol'))
-        self.write_config('georep_master', [master[0]], Global.inventory)
-        self.write_config('georep_slave', [slave[0]], Global.inventory)
-        self.write_config('georep_slaves', slave, Global.inventory)
-        self.section_dict['mastervolname'] = mastervolname
-        self.section_dict['slavevolname'] = slavevolname
+        if self.action != 'fail-over':
+            self.write_config('georep_master', [master[0]], Global.inventory)
+            self.write_config('georep_slave', [self.slave[0]], Global.inventory)
+            self.write_config('georep_slaves', self.slave, Global.inventory)
+            self.section_dict['mastervolname'] = mastervolname
+            self.section_dict['slavevolname'] = slavevolname
+        else:
+            self.write_config('georep_master', [self.slave[0]], Global.inventory)
+            self.write_config('georep_slave', master, Global.inventory)
+            self.section_dict['mastervolname'] = slavevolname
+            self.section_dict['slavevolname'] = mastervolname
+            self.section_dict['slavevol'] = self.section_dict['mastervol']
 
     def create_session(self):
         Global.logger.info("Setting up passwordless ssh between master and slave")
@@ -124,6 +133,8 @@ class GeorepManagement(YamlWriter):
             'timeout' : None,
             'sync-jobs' : None,
             'ignore-deletes' : None,
+            'config': None,
+            'op': None,
             'checkpoint' : None}
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
@@ -146,3 +157,28 @@ class GeorepManagement(YamlWriter):
         Global.playbooks.append('georep-session-create.yml')
         Global.playbooks.append('georep-set-pemkeys.yml')
         Global.playbooks.append('georep-session-start.yml')
+
+    def promote_slave(self):
+        self.section_dict['volname'] = self.section_dict['slavevolname']
+        self.section_dict['key'] = ['geo-replication.indexing', 'changelog']
+        self.section_dict['value'] = 'on'
+        Global.master = self.slave
+        Global.playbooks.append('gluster-volume-set.yml')
+
+
+    def fail_over(self):
+        self.promote_slave()
+        self.create_session()
+        self.config_session()
+        self.section_dict['config'] = 'special-sync-mode'
+        self.section_dict['op'] = 'recover'
+        self.section_dict['checkpoint'] = 'now'
+        self.start_session()
+
+    def fail_back(self):
+        self.config_session()
+        self.section_dict['checkpoint'] = 'now'
+        self.section_dict['volname'] = self.section_dict['slavevolname']
+        self.section_dict['key'] = ['geo-replication.indexing', 'changelog']
+        Global.master = self.slave
+        Global.playbooks.append('georep-fail-back.yml')
