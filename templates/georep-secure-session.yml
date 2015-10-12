@@ -3,9 +3,6 @@
   remote_user: root
   gather_facts: no
 
-  vars:
-    slavevol: slavevol
-
   tasks:
   - name: Create a new group
     group: name=geogroup state=present
