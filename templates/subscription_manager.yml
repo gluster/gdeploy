@@ -1,0 +1,80 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Determine if node is registered with subscription-manager.
+    command: subscription-manager identity
+    register: subscription
+    ignore_errors: true
+    changed_when: false
+    no_log: true
+
+  - name: Set rhsm_registered
+    set_fact:
+      rhsm_registered: "{{ subscription.rc == 0 }}"
+
+  - fail: msg="This system is not registered with subscription manager. Provide username and password"
+    when: rhsm_registered == "False" and (password is undefined or username is undefined)
+
+  - name: Register with auto-attach subscription-manager if auto-attach is defined
+    command: subscription-manager register --auto-attach
+             --username="{{ username }}" --password="{{ password }}"
+    when: rhsm_registered == "False" and attach
+    register: entitled
+    until: entitled|success
+    retries: 5
+    delay: 10
+
+  - name: Register with subscription-manager without auto-attach.
+    command: subscription-manager register
+             --username="{{ username }}" --password="{{ password }}"
+    when: rhsm_registered == "False" and not attach
+    register: entitled
+    until: entitled|success
+    retries: 5
+    delay: 10
+
+  - name: Attach to Reb Hat subscription
+    command: subscription-manager attach
+             --pool="{{ pool }}"
+    when: pool is defined
+    ignore_errors: True
+
+  - name: Get list of enabled repos
+    shell: subscription-manager repos --list | grep -B4 'Enabled:.*1' | grep 'Repo ID:' | sed -e 's/Repo ID:\s*\(.*\)/\1/' | sort
+    register: repo_list_cmd
+    # This only needs to happen if we are not newly-subscribed
+    when: rhsm_registered == "True" and rhsm_repos
+    changed_when: false
+
+  - name: Store list of enabled repos
+    set_fact:
+      repo_list: "{{ repo_list_cmd.stdout.split('\n') }}"
+    when: repo_list_cmd is defined and not repo_list_cmd|skipped
+
+  - name: Set replace_repos if rhsm_repos differs from repo_list
+    set_fact:
+      replace_repos: "{{ repo_list|sort != rhsm_repos|sort }}"
+    when: repo_list is defined and rhsm_repos
+
+  - name: Set replace_repos if newly-subscribed
+    set_fact:
+      replace_repos: True
+    when: entitled|changed and entitled.rc == 0 and rhsm_repos is defined
+
+  - name: Disable all rhsm repos
+    command: subscription-manager repos --disable='*'
+    when: replace_repos is defined and rhsm_repos
+
+  - name: Enable necessary rhsm repos
+    command: subscription-manager repos --enable {{ item }}
+    with_items: rhsm_repos
+    when: replace_repos is defined and rhsm_repos
+
+  - name: Remove old apt-mirror repository definition.
+    file:
+      path: /etc/yum.repos.d/cd.repo
+      state: absent
+    when: entitled|success
