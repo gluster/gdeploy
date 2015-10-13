@@ -43,6 +43,7 @@ from ganesha_management import GaneshaManagement
 from quota_management import QuotaManagement
 from georep_management import GeorepManagement
 from gdeploy_logging import log_event
+from subscription_management import SubscriptionManagement
 
 
 
@@ -65,6 +66,7 @@ class PlaybookGen(BackendSetup):
         to the global_vars file no matter what, this method
         is called seperately
         '''
+        SubscriptionManagement(self.config)
         PeerManagement(self.config)
         VolumeManagement(self.config, self.var_file)
         SnapshotManagement(self.config)
