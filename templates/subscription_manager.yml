@@ -1,4 +1,6 @@
 ---
+# Implementation adopted from https://github.com/ceph/ceph-cm-ansible/blob/master/roles/common/tasks/rhel-entitlements.yml
+
 - hosts: gluster_servers
   remote_user: root
   gather_facts: no
