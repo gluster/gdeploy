@@ -16,3 +16,4 @@ from backend_setup import BackendSetup
 from gdeploy_logging import logger
 from gdeploy_logging import log_event
 from subscription_management import SubscriptionManagement
+from firewalld_management import FirewalldManagement

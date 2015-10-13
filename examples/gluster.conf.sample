@@ -760,3 +760,33 @@ client_mount_points=/mnt/gluster{1..3}
 #
 # [RH-subscription]
 # action=unregister
+#
+#
+#
+#-----------------------------------
+
+
+                            ##-- Firewalld --##
+#
+# This section allows addition or deletion of ports in either running
+# or permanent firewalld rules.
+#
+# To add ports in permanent firewalld rules
+#
+# [firewalld]
+# action=add-ports
+# ports=8081/tcp,161-162/udp
+# permanent=true
+# zone=public
+#
+# By default permanent will be set to true and zone will be set to public
+#
+#
+#
+# To add ports in permanent firewalld rules
+#
+# [firewalld]
+# action=delete-ports
+# ports=8081/tcp,161-162/udp
+#
+

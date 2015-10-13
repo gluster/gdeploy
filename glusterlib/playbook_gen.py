@@ -44,6 +44,7 @@ from quota_management import QuotaManagement
 from georep_management import GeorepManagement
 from gdeploy_logging import log_event
 from subscription_management import SubscriptionManagement
+from firewalld_management import FirewalldManagement
 
 
 
@@ -74,6 +75,7 @@ class PlaybookGen(BackendSetup):
         ClientManagement(self.config)
         QuotaManagement(self.config)
         GeorepManagement(self.config)
+        FirewalldManagement(self.config)
         self.create_inventory()
         self.write_host_names()
 
