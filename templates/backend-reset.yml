@@ -1,5 +1,13 @@
 ---
-- include: umount.yml
-- include: lvremove.yml
-- include: vgremove.yml
-- include: pvremove.yml
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Cleans up backend
+    backend_reset: pvs={{ item }}
+                   vgs="{{ vgs }}"
+                   lvs="{{ lvs }}"
+                   unmount="{{ unmount }}"
+                   mountpoints="{{ mountpoints }}"
+    with_items: pvs
