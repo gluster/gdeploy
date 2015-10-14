@@ -97,26 +97,13 @@ class VgOps(object):
         self.module = module
         self.action = self.validated_params('action')
         self.op = 'vg' + self.action
+        self.vgname = self.validated_params('vgname')
         if self.action == 'create':
             self.disks = self.validated_params('disks')
             self.options = self.module.params['options'] or ''
-            self.vgname = self.validated_params('vgname')
-            output = self.vg_create()
-            if output[0]:
-                self.module.fail_json(msg=output[2])
-            else:
-                self.module.exit_json(msg=output[1], changed=1)
+            self.vg_create()
         else:
-            self.vgname = literal_eval(self.validated_params('vgname'))
-            output = map(self.vg_remove, self.vgname)
-            self.get_output(output)
-
-    def get_output(self, output):
-        for each in output:
-            if each[0]:
-                self.module.fail_json(msg=each[2])
-            else:
-                self.module.exit_json(msg=each[1], changed=1)
+            self.vg_remove(self.vgname)
 
     def validated_params(self, opt):
         value = self.module.params[opt]
@@ -136,15 +123,23 @@ class VgOps(object):
         if self.disktype and self.disktype not in ['jbod']:
             self.options += ' -s %sK ' % self.compute_size()
         opts = " %s %s %s" % (self.vgname, self.options, self.disks)
-        return self.run_command(self.op, opts)
+        rc, err, out = self.run_command(self.op, opts)
+        self._get_output(rc, err, out)
+
+    def _get_output(self, rc, output, err):
+        if not rc:
+            self.module.exit_json(rc=rc, stdout=output, changed=1)
+        else:
+            self.module.fail_json(rc=rc, msg=err)
 
     def vg_remove(self, vgname):
         vg_absent = self.run_command('vgdisplay', ' ' + vgname)
         if not vg_absent[0]:
             opts = " -y -ff " + vgname
-            return self.run_command(self.op, opts)
+            rc, out, err = self.run_command(self.op, opts)
         else:
-            return vg_absent
+            rc, out, err =  vg_absent
+        self._get_output(rc, err, out)
 
     def run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts

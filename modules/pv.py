@@ -74,49 +74,38 @@ class PvOps(object):
         self.action = self.validated_params('action')
         self.options = self.module.params['options'] or ''
         self.pv_action()
-        self.get_output()
-
-    def get_output(self):
-        if not self.result['errors']:
-            self.module.exit_json(msg=self.result['clears'], changed=1)
-        else:
-            self.module.fail_json(msg=self.result['errors'])
 
     def validated_params(self, opt):
         value = self.module.params[opt]
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(rc=1, msg=msg)
         return value
 
     def run_command(self, op, options):
         cmd = self.module.get_bin_path(op, True)  + options
-        rc, output, err = self.module.run_command(cmd)
-        if op == 'pvdisplay':
-            return rc
-        elif rc:
-            self.result['errors'].append(err)
-        else:
-            self.result['clears'].append(output)
+        return self.module.run_command(cmd)
 
+    def _get_output(self, rc, output, err):
+        if not rc:
+            self.module.exit_json(rc=rc, stdout=output, changed=1)
+        else:
+            self.module.fail_json(rc=rc, msg=err)
 
     def pv_presence_check(self, disk):
-        rc = self.run_command('pvdisplay', ' ' + disk)
+        rc, out, err = self.run_command('pvdisplay', ' ' + disk)
         ret = 0
         if self.action == 'create' and not rc:
-            self.result['errors'].append(
-                "%s Physical Volume Exists!" %
-                disk)
+            self.module.fail_json(rc=1, msg="%s Physical Volume Exists!" % disk)
         elif self.action == 'remove' and rc:
-            self.result['errors'].append(
-                "%s Physical Volume Does Not Exist!" % disk)
+            self.module.fail_json(rc=1, msg="%s Physical Volume Doesn't Exists!" % disk)
         else:
             ret = 1
         return ret
 
     def iterate_disk_names(self):
-        self.disks = literal_eval(self.validated_params('disks'))
-        map(self.call_ansible_run_command, self.disks)
+        self.disks = self.validated_params('disks')
+        self.call_ansible_run_command(self.disks)
 
     def get_resize_params(self, disk):
         size = self.validated_params('size')
@@ -133,10 +122,11 @@ class PvOps(object):
             map(self.get_resize_params, disks)
 
     def call_ansible_run_command(self, disk):
-        if self.pv_presence_check(disk):
-            op = 'pv' + self.action
-            args = " %s %s" % (self.options, disk)
-            self.run_command(op, args)
+        self.pv_presence_check(disk)
+        op = 'pv' + self.action
+        args = " %s %s" % (self.options, disk)
+        rc, out, err = self.run_command(op, args)
+        self._get_output(rc, out, err)
 
     def pv_action(self):
         if self.action == 'resize':
