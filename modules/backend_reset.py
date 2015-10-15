@@ -24,6 +24,7 @@ EXAMPLES = '''
 from ansible.module_utils.basic import *
 import json
 from ast import literal_eval
+import pdb
 
 class BackendReset(object):
 
@@ -35,13 +36,18 @@ class BackendReset(object):
         self.lvs = self.validated_params('lvs')
         self.unmount = self.validated_params('unmount')
         self.mountpoints = self.validated_params('mountpoints')
-        self.umount()
-        self.remove_lvs()
-        self.remove_vgs()
-        self.remove_pvs()
-        if not self.output:
-            self.module.exit_json()
+        action_methods = { 'unmount': self.umount,
+                            'lvs': self.remove_lvs,
+                            'vgs': self.remove_vgs,
+                            'pvs': self.remove_pvs
+                         }
+        needed_methods = [action_methods[val] for val in ['unmount',
+            'lvs', 'vgs', 'pvs'] if self.validated_params(val)]
+        for action in needed_methods:
+            action()
         errors = [output[2] for output in self.output if output[0] != 0]
+        if not errors:
+            self.module.exit_json(changed=1)
         self.module.fail_json(rc=1, msg=errors)
 
     def validated_params(self, opt):
@@ -55,15 +61,10 @@ class BackendReset(object):
         cmd = self.module.get_bin_path(op, True)  +  ' ' + options
         return self.module.run_command(cmd)
 
-    def _get_output(self, rc, output, err):
-        if not rc:
-            self.module.exit_json(rc=rc, stdout=output, changed=1)
-        else:
-            self.module.fail_json(rc=rc, msg=err)
-
     def remove_pvs(self):
         if not self.pvs:
             return
+        self.remove_vgs()
         rc, out, err = self.run_command('pvremove', self.pvs)
         self.output.append([rc, out, err])
 
@@ -72,7 +73,10 @@ class BackendReset(object):
         if not self.vgs:
             return
 
-        options = ' -y ff ' + self.vgs
+        if not type(self.vgs) is list:
+            self.vgs = literal_eval(self.vgs)
+        self.remove_lvs()
+        options = ' -y -ff ' + ' '.join(self.vgs)
         rc, out, err = self.run_command('vgremove', options)
         self.output.append([rc, out, err])
 
@@ -80,6 +84,8 @@ class BackendReset(object):
         self.get_lvs()
         if not self.lvs:
             return
+        self.mountpoints = self.lvs
+        self.umount()
         options = ' -y ' + ' '.join(self.lvs)
         rc, out, err = self.run_command('lvremove', options)
         self.output.append([rc, out, err])
@@ -87,62 +93,57 @@ class BackendReset(object):
     def umount(self):
         if self.unmount.lower() != 'yes':
             return
-        self.get_mountpoints()
         if not self.mountpoints:
             return
+        if not type(self.mountpoints) is list:
+            self.mountpoints = literal_eval(self.mountpoints)
         rc, out, err = self.run_command('umount', ' '.join(
             self.mountpoints))
-        self.output.append([rc, out, err])
 
     def get_vgs(self):
         if self.vgs:
             return
         if self.pvs:
             option = " --noheading -o vg_name %s" % self.pvs
-            rc, self.vgs, err = self.run_command('pvs', option)
-        else:
-            option = " --noheading -o vg_name"
-            rc, vgs, err = self.run_command('vgs', option)
-            vg_list = filter(None, [x.strip() for x in vgs.split(' ')])
-            for vg in vg_list:
-                lvs = []
-                option = " --noheading -o lv_name %s" % vg
-                rc, out, err = self.run_command('vgs', option)
-                lvs = [x.strip() for x in out.split()]
-
-            if not set(lvs).intersection(set(self.lvs)):
-                vg_list.remove(vg)
-            return vg_list
+            rc, vgs, err = self.run_command('pvs', option)
+            self.vgs = filter(None, [vg.strip() for
+                vg in vgs.split(' ')])
 
 
     def get_lvs(self):
-        self.module.fail_json(msg=self.lvs)
-        if self.lvs and self.lvs.startswith('/dev'):
-            return
         if self.lvs:
-            self.lvs = literal_eval(self.lvs)
-            vgs = self.get_vgs()
-            self.lvs = ['/dev/' + vg + '/' + lv for vg, lv in zip(
-                vgs, self.lvs)]
+            self.format_lvnames()
             return
         if not self.vgs:
             self.get_vgs()
+        self.lvs = []
         if self.vgs:
-            option = " --noheading -o lv_name %s" % self.vgs
-            rc, self.lvs, err = self.run_command('vgs', option)
-            lvs = [x.strip() for x in self.lvs.split(' ')]
-            self.lvs = ['/dev/' + self.vgs.strip() + '/' + lv for lv in filter(
-                None, lvs)]
-        else:
-            self.lvs = ''
+            for vg in self.vgs:
+                option = " --noheading -o lv_name %s" % vg
+                rc, out, err = self.run_command('vgs', option)
+                lvs = [x.strip() for x in out.split(' ')]
+                self.lvs.extend(['/dev/' + vg.strip() + '/' + lv for lv in filter(
+                    None, lvs)])
 
-    def get_mountpoints(self):
-        if self.mountpoints:
-            return
-        if not self.lvs:
-            self.get_lvs()
-        self.mountpoints = self.lvs
+    def format_lvnames(self):
+        if not type(self.lvs) is list:
+            self.lvs = literal_eval(self.lvs)
+        formatted_lvname = [True for lv in self.lvs if lv.startswith(
+            '/dev/')]
+        if True not in formatted_lvname:
+            option = " --noheading -o vg_name"
+            rc, vgs, err = self.run_command('vgs', option)
+            vg_list = filter(None, [x.strip() for x in vgs.split(' ')])
+            lv_list = []
+            for vg in vg_list:
+                option = " --noheading -o lv_name %s" % vg
+                rc, out, err = self.run_command('vgs', option)
+                lvs = [x.strip() for x in out.split()]
+                for lv in lvs:
+                    if lv in self.lvs:
+                        lv_list.append('/dev/' + vg + '/' + lv)
 
+            self.lvs = lv_list
 
 
 if __name__ == '__main__':
