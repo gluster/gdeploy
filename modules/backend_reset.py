@@ -99,7 +99,6 @@ class BackendReset(object):
             self.mountpoints = literal_eval(self.mountpoints)
         rc, out, err = self.run_command('umount', ' '.join(
             self.mountpoints))
-        self.module.fail_json(msg=err)
 
     def get_vgs(self):
         if self.vgs:
