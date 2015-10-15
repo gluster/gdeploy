@@ -145,7 +145,78 @@ mountpoints=/gluster/brick1
 rhs-high-throughput
 
 #----------------------------------
-                            ##-- Peer --##
+
+
+                            ##-- backend-reset --##
+
+
+# This section allows backend reset in remote machines. Backend reset includes
+# unmouting of LVs and deletion of LVs, VGs, and PVs.
+#
+# NOTE: Make sure you have your data backed up before using this
+#
+# To delete PV, VG, LV and to unmount it:
+#
+# [backend-reset]
+# pvs=/dev/sdb,/dev/vdb
+# unmount=yes
+#
+# This will automatically figure out the VGs and LVs associated and delete them
+# in all the hosts specified under 'hosts' section.
+# Giving the option unmount=yes is necessary. This is to make sure the user knows
+# what she/he is up to. If not specified or given 'no', then gdeploy will try
+# removing lv directly without unmounting and if mounted this will fail,
+#
+# To unmount bricks without going for other resets, one can use:
+#
+# [backend-reset]
+# mountpoints=/dev/GLUSTER_vg1/GLUSTER_lv1,/dev/GLUSTER_vg2/GLUSTER_lv2
+# unmount=yes
+#
+# To remove LVs only:
+#
+# With unmount:
+#
+# [backend-reset]
+# lvs=GLUSTER_lv{1..2}
+# unmount=yes
+#
+#
+# Without unmount:
+#
+# [backend-reset]
+# lvs=GLUSTER_lv1,GLUSTER_lv2
+#
+#
+# To remove VGs and associated LVs only:
+#
+# With unmount:
+#
+# [backend-reset]
+# vgs=GLUSTER_vg1,GLUSTER_vg2
+# unmount=yes
+#
+#
+# Without unmount:
+#
+# [backend-reset]
+# vgs=GLUSTER_vg{1..2}
+#
+#
+# To remove backend in n different machines with different configurations:
+#
+# [backend-reset:10.70.46.15]
+# pvs=/dev/sdb,/dev/vdb
+# unmount=yes
+#
+#
+# [backend-reset:10.70.46.13]
+# pvs=/dev/sdb
+# unmount=yes
+#
+# Here 'hosts' section in not necessary
+#----------------------------------
+                            ##-- peer --##
 
 
 # The section peer specifies the configurations for the Trusted Storage
