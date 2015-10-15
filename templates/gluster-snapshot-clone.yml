@@ -8,4 +8,4 @@
     snapshot: action=clone
              snapname={{ snapname }}
              clonename={{ clonename }}
-             force=yes
+             force="{{ force }}"

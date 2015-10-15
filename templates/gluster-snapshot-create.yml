@@ -9,4 +9,4 @@
              volume="{{ volname }}"
              options=no-timestamp
              snapname="{{ snapname }}"
-             force=yes
+             force="{{ force }}"

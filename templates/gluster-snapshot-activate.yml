@@ -7,4 +7,4 @@
   - name: Activates a snapshot
     snapshot: action=activate
              snapname="{{ snapname }}"
-             force=yes
+             force="{{ force }}"

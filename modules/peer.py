@@ -36,7 +36,7 @@ class Peer(object):
         value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(rc=4,msg=msg)
         return value
 
     def get_host_names(self):
@@ -88,13 +88,11 @@ class Peer(object):
         return self._run_command('gluster', ' ' + params + ' ' + key_value_pair)
 
     def _get_output(self, rc, output, err):
-        carryon = True if self.action in  ['stop',
-                'delete', 'detach'] else False
-        changed = 0 if (carryon and rc) else 1
-        if not rc or carryon:
-            self.module.exit_json(stdout=output, changed=changed)
+        changed = 0 if rc else 1
+        if not rc:
+            self.module.exit_json(rc=rc, stdout=output, changed=changed)
         else:
-            self.module.fail_json(msg=err)
+            self.module.fail_json(rc=rc, msg=err)
 
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'

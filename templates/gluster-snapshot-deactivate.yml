@@ -7,4 +7,4 @@
   - name: Deactivates a snapshot
     snapshot: action=deactivate
              snapname=snap1
-             force=yes
+             force="{{ force }}"

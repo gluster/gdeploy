@@ -52,6 +52,8 @@ class SnapshotManagement(YamlWriter):
                         "section.\n"
                 return
         self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
+        if not self.section_dict.get('force'):
+            self.section_dict['force'] = 'no'
         action_func =  {'create': self.snapshot_create,
                          'delete': self.snapshot_delete,
                          'config': self.snapshot_config,
@@ -106,8 +108,6 @@ class SnapshotManagement(YamlWriter):
 
     def snapshot_activate(self):
         self.check_for_param_presence('snapname', self.section_dict)
-        if not self.section_dict.get('force'):
-            self.section_dict['force'] = 'no'
         Global.playbooks.append('gluster-snapshot-activate.yml')
 
     def snapshot_deactivate(self):

@@ -7,9 +7,11 @@
   - name: Deactivates a snapshot
     snapshot: action=deactivate
               snapname="{{ snapname }}"
-              force=yes
+              force="{{ force }}"
+    ignore_errors: yes
 
   - name: Deletes a snapshot
     snapshot: action=delete
               snapname="{{ snapname }}"
               volume="{{ volname }}"
+              force="{{ force }}"
