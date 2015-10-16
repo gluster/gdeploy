@@ -63,7 +63,7 @@ class BackendSetup(YamlWriter):
         default = self.config_get_options(self.config,
                                                'default', False)
         if default:
-            self.default = False if default.lower() == 'no' else True
+            self.default = False if default[0].lower() == 'no' else True
         self.default = self.default if hasattr(self, 'default') else True
         if not backend_setup:
             if not self.get_var_file_type():
