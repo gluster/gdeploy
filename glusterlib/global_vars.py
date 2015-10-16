@@ -33,6 +33,7 @@ class Global(object):
     logger = None
     config_count = 0
     master = None
+    var_file =  None
 
     # Required filenames and dir names
     host_vars = 'host_vars'

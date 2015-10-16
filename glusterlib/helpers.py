@@ -121,14 +121,6 @@ class Helpers(Global):
                 self.cleanup_and_quit()
             return False
 
-    def get_options(self, config, section, required):
-        if self.filetype == 'group_vars':
-            return self.config_get_options(config, section, required)
-        else:
-            options = self.config_section_map(
-                config, self.filename.split('/')[-1], section, required)
-            return self.split_comma_seperated_options(options)
-
     def split_comma_seperated_options(self, options):
         if options:
             return filter(None, options.split(','))
@@ -140,6 +132,16 @@ class Helpers(Global):
             return False
         return True
 
+
+    def get_options(self, section, required=False):
+        if hasattr(self, 'var_file'):
+            if self.var_file == 'group_vars':
+                return self.config_get_options(self.config, section, required)
+            else:
+                options = self.config_section_map(
+                    self.config, self.filename.split('/')[-1], section, required)
+                return self.split_comma_seperated_options(options)
+        return self.section_dict.get(section)
 
     def split_volume_and_hostname(self, val):
         '''

@@ -26,9 +26,9 @@ from helpers import Helpers
 
 class VolumeManagement(YamlWriter):
 
-    def __init__(self, config, filetype):
+    def __init__(self, config):
         self.config = config
-        self.filetype = filetype
+        self.var_file = Global.var_file
         try:
             self.section_dict = self.config._sections['volume']
             del self.section_dict['__name__']
@@ -82,7 +82,7 @@ class VolumeManagement(YamlWriter):
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def get_brick_dirs(self):
-        opts = self.get_options(self.config, 'brick_dirs', False)
+        opts = self.get_options('brick_dirs', False)
         options = []
         for option in opts:
             options += self.parse_patterns(option)
@@ -93,7 +93,8 @@ class VolumeManagement(YamlWriter):
         host_var files are to be created if multiple hosts
         have different brick_dirs for gluster volume
         '''
-        if self.filetype == 'group_vars':
+        print self.var_file
+        if self.var_file == 'group_vars':
             if not self.present_in_yaml(Global.group_file, 'mountpoints'):
                 self.filename = Global.group_file
                 brick_dirs = self.get_brick_dirs()

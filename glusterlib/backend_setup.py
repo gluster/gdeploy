@@ -29,6 +29,7 @@ from conf_parser import ConfigParseHelpers
 from global_vars import Global
 from helpers import Helpers
 from yaml_writer import YamlWriter
+import re
 try:
     import yaml
 except ImportError:
@@ -41,37 +42,146 @@ import os
 
 class BackendSetup(YamlWriter):
 
-    def __init__(self, bricks, config, filename, filetype):
+    def __init__(self, config):
         self.config = config
-        self.filename = filename
-        self.filetype = filetype
-        self.bricks = bricks
-        self.device_count = len(bricks)
+        self.section_dict = dict()
         self.write_sections()
 
     def write_sections(self):
         Global.logger.info("Reading configuration for backend setup")
-        self.write_brick_names()
-        self.write_vg_names()
-        self.write_pool_names()
-        self.write_lv_names()
-        self.write_lvol_names()
-        self.write_mount_options()
+        section_regexp = '^backend-setup(:)*(.*)'
+        self.sections = self.config._sections
+        hosts = []
+        backend_setup = False
+        for section in self.sections:
+            val = re.search(section_regexp, section)
+            if val:
+                backend_setup = True
+                if val.group(2):
+                    hosts.append(val.group(2))
+        self.bricks = []
+        default = self.config_get_options(self.config,
+                                               'default', False)
+        if default:
+            self.default = False if default.lower() == 'no' else True
+        self.default = self.default if hasattr(self, 'default') else True
+        if not backend_setup:
+            if not self.get_var_file_type():
+                return
+            else:
+                msg = "This configuration format will be deprecated  "\
+                "in the next release.\nPlease refer the setup guide "\
+                "for the new configuration format."
+                print "Warning: " + msg
+                Global.logger.warning(msg=msg)
+                if self.var_file == 'host_vars':
+                    for host in Global.hosts:
+                        self.bricks = []
+                        devices = self.config_section_map(self.config, host,
+                                                  'devices', False)
+                        self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
+                        self.touch_file(self.filename)
+                        self.bricks = self.split_comma_seperated_options(devices)
+                        ret = self.call_gen_methods()
+                else:
+                    self.filename =  Global.group_file
+                    self.bricks = self.config_get_options(self.config,
+                                                           'devices', False)
+                    ret = self.call_gen_methods()
+
+        else:
+            hosts = filter(None, hosts)
+            self.parse_section('')
+            ret = self.call_gen_methods()
+            self.var_file = 'group_vars'
+            if hosts:
+                hosts = self.pattern_stripping(hosts)
+                Global.hosts.extend(hosts)
+                for host in hosts:
+                    self.bricks = []
+                    self.host_file = self.get_file_dir_path(Global.host_vars_dir, host)
+                    self.touch_file(self.host_file)
+                    self.parse_section(':' + host)
+                    ret = self.call_gen_methods()
+                self.var_file = 'host_vars'
+
+
+        self.filename =  Global.group_file
         self.perf_spec_data_write()
         self.tune_profile()
-        return True
+        if not Global.hosts:
+            print "Error: Hostnames not provided. Cannot continue!"
+            self.cleanup_and_quit()
+        Global.hosts = list(set(Global.hosts))
+        if ret:
+            msg = "Back-end setup triggered"
+            Global.logger.info(msg)
+            print "\nINFO: " + msg
+            Global.var_file =  self.var_file
+
+    def call_gen_methods(self):
+        return self.write_mount_options()
+
+    def get_var_file_type(self):
+        '''
+        Decides if host_vars are to be created or everything can
+        fit into the group_vars file based on the options provided
+        in the configuration file. If all the hostnames are
+        present as sections in the configuration file, assumes
+        we need host_vars. Fails accordingly.
+        '''
+        if set(Global.hosts).intersection(set(self.sections)):
+            if set(Global.hosts).issubset(set(self.sections)):
+                self.var_file = 'host_vars'
+            else:
+                msg =  "Looks like you missed to give configurations " \
+                    "for one or many host(s). Exiting!"
+                print "\nError: " + msg
+                Global.logger.error(msg)
+                self.cleanup_and_quit()
+            return True
+        elif 'devices' in self.sections:
+            self.var_file = 'group_vars'
+            return True
+        else:
+            return False
+
+    def parse_section(self, hostname):
+        try:
+            self.section_dict = self.config._sections['backend-setup' +
+                    hostname]
+            del self.section_dict['__name__']
+        except KeyError:
+            return
+        try:
+            self.filename = self.host_file
+        except:
+            self.filename =  Global.group_file
+        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
 
     def write_brick_names(self):
-        self.create_yaml_dict('bricks', self.bricks, False)
-        if 'pvcreate.yml' not in Global.playbooks:
-            Global.playbooks.append('pvcreate.yml')
+        if not self.bricks:
+            self.bricks = self.section_dict.get('devices')
+        if self.bricks:
+            self.bricks = self.pattern_stripping(self.bricks)
+            self.section_dict['bricks'] = self.bricks
+            self.create_yaml_dict('bricks', self.section_dict['bricks'], False)
+            self.device_count = len(self.bricks)
+            if 'pvcreate.yml' not in Global.playbooks:
+                Global.playbooks.append('pvcreate.yml')
+            return True
+        else:
+            return False
 
     def write_vg_names(self):
-        self.vgs = self.section_data_gen(self.config, 'vgs', 'Volume Groups')
-        if self.vgs:
-            self.create_yaml_dict('vgs', self.vgs, False)
+        if not self.write_brick_names():
+            return False
+        vgs = self.section_data_gen('vgs', 'Volume Groups')
+        if vgs:
+            self.create_yaml_dict('vgs', vgs, False)
+            self.section_dict['vgs'] = vgs
             data = []
-            for i, j in zip(self.bricks, self.vgs):
+            for i, j in zip(self.section_dict['bricks'], vgs):
                 vgnames = {}
                 vgnames['brick'] = i
                 vgnames['vg'] = j
@@ -79,13 +189,19 @@ class BackendSetup(YamlWriter):
             self.create_yaml_dict('vgnames', data, True)
             if 'vgcreate.yml' not in Global.playbooks:
                 Global.playbooks.append('vgcreate.yml')
+            return True
+        return False
 
 
     def write_lv_names(self):
-        self.lvs = self.section_data_gen(self.config, 'lvs', 'Logical Volumes')
-        if self.lvs:
+        if not self.write_pool_names():
+            return False
+        lvs = self.section_data_gen('lvs', 'Logical Volumes')
+        if lvs:
+            self.section_dict['lvs'] = lvs
             data = []
-            for i, j, k in zip(self.pools, self.vgs, self.lvs):
+            for i, j, k in zip(self.section_dict['pools'],
+                    self.section_dict['vgs'], lvs):
                 pools = {}
                 pools['pool'] = i
                 pools['vg'] = j
@@ -94,31 +210,47 @@ class BackendSetup(YamlWriter):
             self.create_yaml_dict('lvpools', data, True)
             if 'lvcreate.yml' not in Global.playbooks:
                 Global.playbooks.append('lvcreate.yml')
+            return True
+        return False
 
     def write_pool_names(self):
-        self.pools = self.section_data_gen(self.config, 'pools', 'Logical Pools')
-        if self.pools:
+        if not self.write_vg_names():
+            return False
+        pools = self.section_data_gen('pools', 'Logical Pools')
+        if pools:
+            self.section_dict['pools'] = pools
             data = []
-            for i, j in zip(self.pools, self.vgs):
+            for i, j in zip(pools, self.section_dict['vgs']):
                 pools = {}
                 pools['pool'] = i
                 pools['vg'] = j
                 data.append(pools)
             self.create_yaml_dict('pools', data, True)
+            return True
+        return False
 
     def write_lvol_names(self):
-        self.lvols = ['/dev/%s/%s' % (i, j) for i, j in
-                                      zip(self.vgs, self.lvs)]
-        if self.lvols:
-            self.create_yaml_dict('lvols', self.lvols, False)
+        if not self.write_lv_names():
+            return False
+        lvols = ['/dev/%s/%s' % (i, j) for i, j in
+                                      zip(self.section_dict['vgs'],
+                                          self.section_dict['lvs'])]
+        if lvols:
+            self.section_dict['lvols'] = lvols
+            self.create_yaml_dict('lvols', lvols, False)
             if 'fscreate.yml' not in Global.playbooks:
                 Global.playbooks.append('fscreate.yml')
+            return True
+        return False
 
     def write_mount_options(self):
-        self.mountpoints = self.section_data_gen(self.config,
+        if not self.write_lvol_names():
+            return False
+        self.mountpoints = self.section_data_gen(
                 'mountpoints', 'Mount Point')
         data = []
-        for i, j in zip(self.mountpoints, self.lvols):
+        self.section_dict['mountpoints'] = self.mountpoints
+        for i, j in zip(self.mountpoints, self.section_dict['lvols']):
             mntpath = {}
             mntpath['path'] = i
             mntpath['device'] = j
@@ -128,12 +260,13 @@ class BackendSetup(YamlWriter):
         self.create_yaml_dict('mountpoints', self.mountpoints, False)
         if 'mount.yml' not in Global.playbooks:
             Global.playbooks.append('mount.yml')
+        return True
 
 
     def modify_mountpoints(self):
         force = self.config_section_map(self.config, 'volume', 'force',
                 False) or ''
-        opts = self.get_options(self.config, 'brick_dirs', False)
+        opts = self.get_options('brick_dirs')
         brick_dir, brick_list = [], []
         brick_dir = self.pattern_stripping(opts)
 
@@ -212,7 +345,7 @@ class BackendSetup(YamlWriter):
         return brick_dir
 
     def tune_profile(self):
-        profile = self.config_get_options(self.config, 'tune-profile', False)
+        profile = self.get_options('tune-profile')
         profile = None if not profile else profile[0]
         if not profile:
             return
@@ -231,8 +364,7 @@ class BackendSetup(YamlWriter):
         Some calculations are made as to enhance
         performance
         '''
-        disktype = self.config_get_options(self.config,
-                                           'disktype', False)
+        disktype = self.get_options('disktype')
         if disktype:
             perf = dict(disktype=disktype[0].lower())
             if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
@@ -241,13 +373,15 @@ class BackendSetup(YamlWriter):
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
-                perf['diskcount'] = int(self.config_get_options(self.config,
-                    'diskcount', True)[0])
-                stripe_size_necessary = {'raid10': False,
-                                         'raid6': True
-                                         }[perf['disktype']]
-                stripe_size = self.config_get_options(self.config, 'stripesize',
-                                               stripe_size_necessary)
+                diskcount = self.get_options('diskcount')
+                if not diskcount:
+                    print "Error: 'diskcount' not provided for " \
+                    "disktype %s" % perf['disktype']
+                perf['diskcount'] = int(diskcount[0])
+                stripe_size = self.get_options('stripesize')
+                if not stripe_size and perf['disktype'] == 'raid6':
+                    print "Error: 'stripesize' not provided for " \
+                    "disktype %s" % perf['disktype']
                 if stripe_size:
                     perf['stripesize'] = int(stripe_size[0])
                     if perf['disktype'] == 'raid10' and perf[
@@ -279,17 +413,15 @@ class BackendSetup(YamlWriter):
         Global.logger.error(msg)
         self.cleanup_and_quit()
 
-    def section_data_gen(self, config, section, section_name):
-        opts = self.get_options(config, section, False)
-        options = []
-        for option in opts:
-            options += self.parse_patterns(option)
+    def section_data_gen(self, section, section_name):
+        opts = self.get_options(section)
+        options = self.pattern_stripping(opts)
         if options:
             if len(options) < self.device_count:
                 return self.insufficient_param_count(
                     section_name,
                     self.device_count)
-        else:
+        elif self.default:
             pattern = {'vgs': 'GLUSTER_vg',
                        'pools': 'GLUSTER_pool',
                        'lvs': 'GLUSTER_lv',

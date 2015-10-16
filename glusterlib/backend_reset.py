@@ -42,19 +42,20 @@ class BackendReset(YamlWriter):
         if not backend_reset:
             return
         hosts = filter(None, hosts)
-        if not hosts:
-            self.parse_section('')
-        else:
+        ret = self.parse_section('')
+        if hosts:
             hosts = self.pattern_stripping(hosts)
-            Global.hosts = hosts
+            Global.hosts.extend(hosts)
             for host in hosts:
                 self.host_file = self.get_file_dir_path(Global.host_vars_dir, host)
                 self.touch_file(self.host_file)
-                self.parse_section(':' + host)
+                ret = self.parse_section(':' + host)
 
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
+        if ret:
+            print "\nINFO: Back-end reset triggered"
 
     def parse_section(self, hostname):
         try:
@@ -68,10 +69,10 @@ class BackendReset(YamlWriter):
             self.filename = self.host_file
         except:
             self.filename =  Global.group_file
-        print "\nINFO: Back-end reset triggered"
         self.iterate_dicts_and_yaml_write(self.section_dict)
         if 'backend-reset.yml' not in Global.playbooks:
             Global.playbooks.append('backend-reset.yml')
+        return True
 
     def get_backend_data(self):
         self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
