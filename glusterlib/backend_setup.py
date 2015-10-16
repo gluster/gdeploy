@@ -95,6 +95,7 @@ class BackendSetup(YamlWriter):
             ret = self.call_gen_methods()
             self.var_file = 'group_vars'
             if hosts:
+                self.var_file = None
                 hosts = self.pattern_stripping(hosts)
                 Global.hosts.extend(hosts)
                 for host in hosts:
@@ -417,11 +418,12 @@ class BackendSetup(YamlWriter):
         opts = self.get_options(section)
         options = self.pattern_stripping(opts)
         if options:
-            if len(options) < self.device_count:
+            if len(options) != self.device_count:
                 return self.insufficient_param_count(
                     section_name,
                     self.device_count)
         elif self.default:
+            options = []
             pattern = {'vgs': 'GLUSTER_vg',
                        'pools': 'GLUSTER_pool',
                        'lvs': 'GLUSTER_lv',

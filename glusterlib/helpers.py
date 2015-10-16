@@ -134,7 +134,7 @@ class Helpers(Global):
 
 
     def get_options(self, section, required=False):
-        if hasattr(self, 'var_file'):
+        if hasattr(self, 'var_file') and self.var_file:
             if self.var_file == 'group_vars':
                 return self.config_get_options(self.config, section, required)
             else:
