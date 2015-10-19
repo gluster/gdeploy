@@ -48,7 +48,7 @@ class PeerManagement(YamlWriter):
                        'ignore': None
                       }[action]
             except:
-                mag = "Unknown action provided. Use either `probe` " \
+                msg = "Unknown action provided. Use either `probe` " \
                         "or `detach`."
                 print "\nError: " + msg
                 Global.logger.error(msg)
