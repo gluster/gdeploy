@@ -54,9 +54,9 @@ class PlaybookGen(BackendSetup):
     def __init__(self, config_file):
         self.config = self.read_config(config_file)
         self.options = self.config_get_sections(self.config)
+        Global.sections = self.config._sections
         self.get_hostnames()
         self.create_files_and_dirs()
-        Global.sections = self.config_get_sections(self.config)
         BackendSetup(self.config)
         for warn in Global.warnings:
             print warn

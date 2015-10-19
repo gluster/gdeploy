@@ -45,6 +45,8 @@ class Helpers(Global):
     '''
 
     def present_in_yaml(self, filename, item):
+        if not os.path.isfile(filename):
+            return
         doc = self.read_yaml(filename)
         if doc and item in doc:
             return True
@@ -133,9 +135,33 @@ class Helpers(Global):
         return True
 
 
+    def get_var_file_type(self):
+        '''
+        Decides if host_vars are to be created or everything can
+        fit into the group_vars file based on the options provided
+        in the configuration file. If all the hostnames are
+        present as sections in the configuration file, assumes
+        we need host_vars. Fails accordingly.
+        '''
+        if set(Global.hosts).intersection(set(Global.sections)):
+            if set(Global.hosts).issubset(set(Global.sections)):
+                Global.var_file = 'host_vars'
+            else:
+                msg =  "Looks like you missed to give configurations " \
+                    "for one or many host(s). Exiting!"
+                print "\nError: " + msg
+                Global.logger.error(msg)
+                self.cleanup_and_quit()
+            return True
+        elif 'devices' in self.sections or 'brick_dirs' in self.sections:
+            Global.var_file = 'group_vars'
+            return True
+        else:
+            return False
+
     def get_options(self, section, required=False):
-        if hasattr(self, 'var_file') and self.var_file:
-            if self.var_file == 'group_vars':
+        if hasattr(Global, 'var_file') and Global.var_file:
+            if Global.var_file == 'group_vars':
                 return self.config_get_options(self.config, section, required)
             else:
                 options = self.config_section_map(
@@ -249,6 +275,18 @@ class Helpers(Global):
         for c in xrange(ord(c1), ord(c2)+1):
             yield chr(c)
 
+
+    def check_backend_setup_format(self):
+        section_regexp = '^backend-setup(:)*(.*)'
+        hosts = []
+        backend_setup = False
+        for section in Global.sections:
+            val = re.search(section_regexp, section)
+            if val:
+                backend_setup = True
+                if val.group(2):
+                    hosts.append(val.group(2))
+        return backend_setup, hosts
 
 
     def not_subdir(self, path, directory):

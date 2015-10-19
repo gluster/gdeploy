@@ -83,56 +83,72 @@ class VolumeManagement(YamlWriter):
 
     def get_brick_dirs(self):
         opts = self.get_options('brick_dirs', False)
-        options = []
-        for option in opts:
-            options += self.parse_patterns(option)
-        return options
+        return self.pattern_stripping(opts)
 
-    def write_brick_dirs(self):
+
+    def write_mountpoints(self):
         '''
         host_var files are to be created if multiple hosts
         have different brick_dirs for gluster volume
         '''
-        if self.var_file == 'group_vars':
-            if not self.present_in_yaml(Global.group_file, 'mountpoints'):
-                self.filename = Global.group_file
-                brick_dirs = self.get_brick_dirs()
-                if not brick_dirs:
-                    msg = "Section 'brick_dirs' or 'mountpoints' " \
-                            "not found.\nCannot continue volume creation!"
-                    print "\nError: " + msg
-                    Global.logger.error(msg)
-                    self.cleanup_and_quit()
-                if False in [brick.startswith('/') for brick in brick_dirs]:
-                    msg = "values to 'brick_dirs' should be absolute"\
-                            " path. Relative given. Exiting!"
-                    print "\nError: " + msg
-                    Global.logger.error(msg)
-                    self.cleanup_and_quit()
-                self.create_yaml_dict('mountpoints', brick_dirs, False)
+        host_files = [self.get_file_dir_path(Global.host_vars_dir,
+                    host) for host in Global.hosts]
+        files = [Global.group_file] +  host_files
+        for fd in files:
+            if self.present_in_yaml(fd, 'mountpoints'):
+                return
+        brick_dirs = []
+        if self.get_var_file_type() and Global.var_file == 'group_vars':
+            brick_dirs = self.get_brick_dirs()
         else:
-            for host in Global.hosts:
-                self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
+            backend_setup, hosts = self.check_backend_setup_format()
+            if backend_setup:
+                if not hosts:
+                    brick_dirs = self.pattern_stripping(self.config_section_map(
+                        self.config, 'backend-setup', 'bricks_dirs', True))
+        if  brick_dirs:
+            self.filename = Global.group_file
+            self.write_brick_dirs(brick_dirs)
+        else:
+            if hosts:
+               host_files = [self.get_file_dir_path(Global.host_vars_dir,
+                           host) for host in hosts]
+               host_sections = ['backend-setup:' + host for host in
+                       hosts]
+            elif Global.var_file == 'host_vars':
+                host_files = [self.get_file_dir_path(Global.host_vars_dir,
+                            host) for host in Global.hosts]
+                host_sections = Global.hosts
+            else:
+                msg = "Option 'brick_dirs' " \
+                        "not found for host %s.\nCannot continue " \
+                        "volume creation!" % host
+                print "\nError:  " + msg
+                Global.logger.error(msg)
+                self.cleanup_and_quit()
+            for hfile, sec in zip(host_files, host_sections):
+                brick_dirs = self.pattern_stripping(
+                        self.config_section_map(self.config,
+                        sec, 'brick_dirs', True))
+                self.filename = hfile
                 if not self.present_in_yaml(self.filename, 'mountpoints'):
-                    self.touch_file(self.filename)
-                    brick_dirs = self.get_brick_dirs()
-                    if not brick_dirs:
-                        msg = "Option 'brick_dirs' " \
-                                "not found for host %s.\nCannot continue " \
-                                "volume creation!" % host
-                        print "\nError:  " + msg
-                        Global.logger.error(msg)
-                        self.cleanup_and_quit()
-                    if False in [brick.startswith('/') for brick in brick_dirs]:
-                        msg = "values to 'brick_dirs' should be absolute"\
-                                " path. Relative given. Exiting!"
-                        print "\nError: " + msg
-                        Global.logger.error(msg)
-                        self.cleanup_and_quit()
-                    self.create_yaml_dict('mountpoints', brick_dirs, False)
+                    if not os.path.isfile(self.filename):
+                        self.touch_file(self.filename)
+                    self.write_brick_dirs(brick_dirs)
+
+
+    def write_brick_dirs(self, brick_dirs):
+       if False in [brick.startswith('/') for brick in brick_dirs]:
+           msg = "values to 'brick_dirs' should be absolute"\
+                   " path. Relative given. Exiting!"
+           print "\nError: " + msg
+           Global.logger.error(msg)
+           self.cleanup_and_quit()
+       self.create_yaml_dict('mountpoints', brick_dirs, False)
+
 
     def create_volume(self):
-        self.write_brick_dirs()
+        self.write_mountpoints()
         '''
         This default value dictionary is used to populate the group var
         with default data, if the data is not given by the user/

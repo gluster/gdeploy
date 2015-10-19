@@ -49,16 +49,7 @@ class BackendSetup(YamlWriter):
 
     def write_sections(self):
         Global.logger.info("Reading configuration for backend setup")
-        section_regexp = '^backend-setup(:)*(.*)'
-        self.sections = self.config._sections
-        hosts = []
-        backend_setup = False
-        for section in self.sections:
-            val = re.search(section_regexp, section)
-            if val:
-                backend_setup = True
-                if val.group(2):
-                    hosts.append(val.group(2))
+        backend_setup, hosts = self.check_backend_setup_format()
         self.bricks = []
         default = self.config_get_options(self.config,
                                                'default', False)
@@ -69,12 +60,7 @@ class BackendSetup(YamlWriter):
             if not self.get_var_file_type():
                 return
             else:
-                msg = "This configuration format will be deprecated  "\
-                "in the next release.\nPlease refer the setup guide "\
-                "for the new configuration format."
-                print "Warning: " + msg
-                Global.logger.warning(msg=msg)
-                if self.var_file == 'host_vars':
+                if Global.var_file == 'host_vars':
                     for host in Global.hosts:
                         self.bricks = []
                         devices = self.config_section_map(self.config, host,
@@ -88,14 +74,20 @@ class BackendSetup(YamlWriter):
                     self.bricks = self.config_get_options(self.config,
                                                            'devices', False)
                     ret = self.call_gen_methods()
+                # msg = "This configuration format will be deprecated  "\
+                # "in the next release.\nPlease refer the setup guide "\
+                # "for the new configuration format."
+                # print "Warning: " + msg
+                # Global.logger.warning(msg=msg)
 
         else:
             hosts = filter(None, hosts)
             self.parse_section('')
+            self.filename =  Global.group_file
             ret = self.call_gen_methods()
-            self.var_file = 'group_vars'
+            Global.var_file = 'group_vars'
             if hosts:
-                self.var_file = None
+                Global.var_file = None
                 hosts = self.pattern_stripping(hosts)
                 Global.hosts.extend(hosts)
                 for host in hosts:
@@ -104,48 +96,20 @@ class BackendSetup(YamlWriter):
                     self.touch_file(self.host_file)
                     self.parse_section(':' + host)
                     ret = self.call_gen_methods()
-                self.var_file = 'host_vars'
+                Global.var_file = 'host_vars'
 
 
         self.filename =  Global.group_file
         self.perf_spec_data_write()
         self.tune_profile()
-        if not Global.hosts:
-            print "Error: Hostnames not provided. Cannot continue!"
-            self.cleanup_and_quit()
         Global.hosts = list(set(Global.hosts))
         if ret:
             msg = "Back-end setup triggered"
             Global.logger.info(msg)
             print "\nINFO: " + msg
-            Global.var_file =  self.var_file
 
     def call_gen_methods(self):
         return self.write_mount_options()
-
-    def get_var_file_type(self):
-        '''
-        Decides if host_vars are to be created or everything can
-        fit into the group_vars file based on the options provided
-        in the configuration file. If all the hostnames are
-        present as sections in the configuration file, assumes
-        we need host_vars. Fails accordingly.
-        '''
-        if set(Global.hosts).intersection(set(self.sections)):
-            if set(Global.hosts).issubset(set(self.sections)):
-                self.var_file = 'host_vars'
-            else:
-                msg =  "Looks like you missed to give configurations " \
-                    "for one or many host(s). Exiting!"
-                print "\nError: " + msg
-                Global.logger.error(msg)
-                self.cleanup_and_quit()
-            return True
-        elif 'devices' in self.sections:
-            self.var_file = 'group_vars'
-            return True
-        else:
-            return False
 
     def parse_section(self, hostname):
         try:
