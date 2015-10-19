@@ -93,7 +93,6 @@ class VolumeManagement(YamlWriter):
         host_var files are to be created if multiple hosts
         have different brick_dirs for gluster volume
         '''
-        print self.var_file
         if self.var_file == 'group_vars':
             if not self.present_in_yaml(Global.group_file, 'mountpoints'):
                 self.filename = Global.group_file
