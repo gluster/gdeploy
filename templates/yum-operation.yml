@@ -1,0 +1,9 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Installs/Removes a package using yum
+    yum: name={{ item }} state="{{ state }}"
+    with_items: name

@@ -46,6 +46,7 @@ from gdeploy_logging import log_event
 from subscription_management import SubscriptionManagement
 from firewalld_management import FirewalldManagement
 from backend_reset import BackendReset
+from package_management import PackageManagement
 
 
 
@@ -60,12 +61,8 @@ class PlaybookGen(BackendSetup):
         BackendSetup(self.config)
         for warn in Global.warnings:
             print warn
-        '''
-        since the client configuration data are to be written
-        to the global_vars file no matter what, this method
-        is called seperately
-        '''
         SubscriptionManagement(self.config)
+        PackageManagement(self.config)
         PeerManagement(self.config)
         VolumeManagement(self.config)
         SnapshotManagement(self.config)
