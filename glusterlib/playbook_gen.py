@@ -56,11 +56,8 @@ class PlaybookGen(BackendSetup):
         self.options = self.config_get_sections(self.config)
         self.get_hostnames()
         self.create_files_and_dirs()
-        self.get_var_file_type()
         Global.sections = self.config_get_sections(self.config)
-        output = {'host_vars': self.host_vars_gen,
-                  'group_vars': self.group_vars_gen
-                  }[self.var_file]()
+        BackendSetup(self.config)
         for warn in Global.warnings:
             print warn
         '''
@@ -70,7 +67,7 @@ class PlaybookGen(BackendSetup):
         '''
         SubscriptionManagement(self.config)
         PeerManagement(self.config)
-        VolumeManagement(self.config, self.var_file)
+        VolumeManagement(self.config)
         SnapshotManagement(self.config)
         GaneshaManagement(self.config)
         ClientManagement(self.config)
@@ -98,26 +95,6 @@ class PlaybookGen(BackendSetup):
         self.move_templates_to_playbooks()
         self.mk_dir(Global.host_vars_dir)
 
-    def get_var_file_type(self):
-        '''
-        Decides if host_vars are to be created or everything can
-        fit into the group_vars file based on the options provided
-        in the configuration file. If all the hostnames are
-        present as sections in the configuration file, assumes
-        we need host_vars. Fails accordingly.
-        '''
-        if set(Global.hosts).intersection(set(self.options)):
-            if set(Global.hosts).issubset(set(self.options)):
-                self.var_file = 'host_vars'
-            else:
-                msg =  "Looks like you missed to give configurations " \
-                    "for one or many host(s). Exiting!"
-                print "\nError: " + msg
-                Global.logger.error(msg)
-                self.cleanup_and_quit()
-        else:
-            self.var_file = 'group_vars'
-
     def create_inventory(self):
         Global.hosts and self.write_config(
             Global.group,
@@ -132,53 +109,6 @@ class PlaybookGen(BackendSetup):
         if Global.hosts or Global.master:
             self.write_config('master', Global.master or [Global.hosts[0]],
                               Global.inventory)
-
-    def host_vars_gen(self):
-        '''
-        If decided to create host, this will create host_vars file for
-        each hosts and writes data to it, accorsing with the help of
-        BackendSetup
-        '''
-        if not Global.hosts:
-            return
-        backend_setup = True
-        for host in Global.hosts:
-            host_file = self.get_file_dir_path(Global.host_vars_dir, host)
-            self.touch_file(host_file)
-            devices = self.config_section_map(self.config, host,
-                                              'devices', False)
-            device_names = self.split_comma_seperated_options(devices)
-            devices = []
-            for option in device_names:
-                devices.extend(disk for disk in self.parse_patterns(option))
-            if devices:
-                backend_setup = backend_setup and BackendSetup(
-                        devices, self.config, host_file,
-                        self.var_file)
-            else:
-                backend_setup = False
-        if backend_setup:
-            msg = "Back-end setup triggered"
-            print "\nINFO: " + msg
-            Global.logger.info(msg)
-
-    def group_vars_gen(self):
-        if not Global.hosts:
-            return
-        '''
-        Calls Backendsetup for writing data to the group_vars file
-        '''
-        device_names = self.config_get_options(self.config,
-                                               'devices', False)
-        devices = []
-        for option in device_names:
-            devices.extend(disk for disk in self.parse_patterns(option))
-        if device_names:
-            BackendSetup(devices, self.config, Global.group_file,
-                    self.var_file)
-            msg = "Back-end setup triggered"
-            print "\nINFO: " + msg
-            Global.logger.info(msg)
 
     def write_host_names(self):
         self.filename = Global.group_file
