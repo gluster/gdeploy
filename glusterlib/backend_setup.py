@@ -29,6 +29,7 @@ from conf_parser import ConfigParseHelpers
 from global_vars import Global
 from helpers import Helpers
 from yaml_writer import YamlWriter
+import sys
 import re
 try:
     import yaml
@@ -45,12 +46,12 @@ class BackendSetup(YamlWriter):
     def __init__(self, config):
         self.config = config
         self.section_dict = dict()
+        self.previous = True
         self.write_sections()
 
     def write_sections(self):
         Global.logger.info("Reading configuration for backend setup")
         backend_setup, hosts = self.check_backend_setup_format()
-        self.bricks = []
         default = self.config_get_options(self.config,
                                                'default', False)
         if default:
@@ -62,17 +63,13 @@ class BackendSetup(YamlWriter):
             else:
                 if Global.var_file == 'host_vars':
                     for host in Global.hosts:
-                        self.bricks = []
                         devices = self.config_section_map(self.config, host,
                                                   'devices', False)
-                        self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
                         self.touch_file(self.filename)
                         self.bricks = self.split_comma_seperated_options(devices)
                         ret = self.call_gen_methods()
                 else:
                     self.filename =  Global.group_file
-                    self.bricks = self.config_get_options(self.config,
-                                                           'devices', False)
                     ret = self.call_gen_methods()
                 # msg = "This configuration format will be deprecated  "\
                 # "in the next release.\nPlease refer the setup guide "\
@@ -125,11 +122,17 @@ class BackendSetup(YamlWriter):
         self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
 
     def write_brick_names(self):
-        if not self.bricks:
-            self.bricks = self.section_dict.get('devices')
+        self.bricks = self.get_options('devices')
         if self.bricks:
             self.bricks = self.pattern_stripping(self.bricks)
-            self.section_dict['bricks'] = self.bricks
+            bricks = []
+            for brick in self.bricks:
+                if not brick.startswith('/dev/'):
+                    bricks.append('/dev/' + brick)
+                else:
+                    bricks.append(brick)
+            self.device_count = len(bricks)
+            self.section_dict['bricks'] = bricks
             self.create_yaml_dict('bricks', self.section_dict['bricks'], False)
             self.device_count = len(self.bricks)
             if 'pvcreate.yml' not in Global.playbooks:
@@ -140,7 +143,8 @@ class BackendSetup(YamlWriter):
 
     def write_vg_names(self):
         if not self.write_brick_names():
-            return False
+            self.section_dict['bricks'] = []
+            self.previous = False
         vgs = self.section_data_gen('vgs', 'Volume Groups')
         if vgs:
             self.create_yaml_dict('vgs', vgs, False)
@@ -152,15 +156,20 @@ class BackendSetup(YamlWriter):
                 vgnames['vg'] = j
                 data.append(vgnames)
             self.create_yaml_dict('vgnames', data, True)
-            if 'vgcreate.yml' not in Global.playbooks:
-                Global.playbooks.append('vgcreate.yml')
+            if self.section_dict.get('bricks'):
+
+                if 'vgcreate.yml' not in Global.playbooks:
+                    Global.playbooks.append('vgcreate.yml')
+            else:
+                self.device_count = len(vgs)
             return True
         return False
 
 
     def write_lv_names(self):
         if not self.write_pool_names():
-            return False
+            self.section_dict['pools'] = []
+            self.previous = False
         lvs = self.section_data_gen('lvs', 'Logical Volumes')
         if lvs:
             self.section_dict['lvs'] = lvs
@@ -173,14 +182,19 @@ class BackendSetup(YamlWriter):
                 pools['lv'] = k
                 data.append(pools)
             self.create_yaml_dict('lvpools', data, True)
-            if 'lvcreate.yml' not in Global.playbooks:
-                Global.playbooks.append('lvcreate.yml')
+            if self.section_dict.get('pools'):
+                if 'lvcreate.yml' not in Global.playbooks:
+                    Global.playbooks.append('lvcreate.yml')
+            else:
+                if not hasattr(self, 'device_count'):
+                    self.device_count = len(lvs)
             return True
         return False
 
     def write_pool_names(self):
         if not self.write_vg_names():
-            return False
+            self.section_dict['vgs'] = []
+            self.previous = False
         pools = self.section_data_gen('pools', 'Logical Pools')
         if pools:
             self.section_dict['pools'] = pools
@@ -191,12 +205,15 @@ class BackendSetup(YamlWriter):
                 pools['vg'] = j
                 data.append(pools)
             self.create_yaml_dict('pools', data, True)
+            if not hasattr(self, 'device_count'):
+                self.device_count = len(pools)
             return True
         return False
 
     def write_lvol_names(self):
         if not self.write_lv_names():
-            return False
+            self.section_dict['lvs'] = []
+            self.previous = False
         lvols = ['/dev/%s/%s' % (i, j) for i, j in
                                       zip(self.section_dict['vgs'],
                                           self.section_dict['lvs'])]
@@ -205,16 +222,22 @@ class BackendSetup(YamlWriter):
             self.create_yaml_dict('lvols', lvols, False)
             if 'fscreate.yml' not in Global.playbooks:
                 Global.playbooks.append('fscreate.yml')
+            if not hasattr(self, 'device_count'):
+                self.device_count = len(lvols)
             return True
         return False
 
     def write_mount_options(self):
         if not self.write_lvol_names():
+            self.section_dict['lvols'] = []
+            self.previous = False
             return False
         self.mountpoints = self.section_data_gen(
                 'mountpoints', 'Mount Point')
         data = []
         self.section_dict['mountpoints'] = self.mountpoints
+        if not self.mountpoints:
+            return False
         for i, j in zip(self.mountpoints, self.section_dict['lvols']):
             mntpath = {}
             mntpath['path'] = i
@@ -223,8 +246,9 @@ class BackendSetup(YamlWriter):
         self.create_yaml_dict('mntpath', data, True)
         self.modify_mountpoints()
         self.create_yaml_dict('mountpoints', self.mountpoints, False)
-        if 'mount.yml' not in Global.playbooks:
-            Global.playbooks.append('mount.yml')
+        if self.mountpoints:
+            if 'mount.yml' not in Global.playbooks:
+                Global.playbooks.append('mount.yml')
         return True
 
 
@@ -382,11 +406,12 @@ class BackendSetup(YamlWriter):
         opts = self.get_options(section)
         options = self.pattern_stripping(opts)
         if options:
-            if len(options) != self.device_count:
+            if  self.previous and len(options) != self.device_count:
                 return self.insufficient_param_count(
                     section_name,
                     self.device_count)
-        elif self.default:
+            self.previous = True
+        elif self.default and self.previous:
             options = []
             pattern = {'vgs': 'GLUSTER_vg',
                        'pools': 'GLUSTER_pool',
@@ -395,5 +420,6 @@ class BackendSetup(YamlWriter):
                        }[section]
             for i in range(1, self.device_count + 1):
                 options.append(pattern + str(i))
+            self.previous = True
         return options
 

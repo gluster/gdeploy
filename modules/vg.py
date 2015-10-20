@@ -98,8 +98,12 @@ class VgOps(object):
         self.action = self.validated_params('action')
         self.op = 'vg' + self.action
         self.vgname = self.validated_params('vgname')
+        if not self.vgname:
+            self.module.exit_json(msg="Nothing to be done")
         if self.action == 'create':
             self.disks = self.validated_params('disks')
+            if not self.disks:
+                self.module.exit_json(msg="Nothing to be done")
             self.options = self.module.params['options'] or ''
             self.vg_create()
         else:
