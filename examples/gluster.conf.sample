@@ -912,6 +912,32 @@ client_mount_points=/mnt/gluster{1..3}
 #
 #
 #
+#
+#-----------------------------------
+
+
+                            ##-- Yum --##
+
+#
+# 'yum' section allows you to install or remove packages using yum
+# package manager.
+#
+# To install package(s):
+#
+# [yum]
+# action=install
+# packages=vi,glusterfs
+#
+#
+# To remove package(s)
+#
+# [yum]
+# action=remove
+# packages=vi
+#
+#
+# Make sure your system is registered with subscription manager before
+# trying to install packages.
 #-----------------------------------
 
 

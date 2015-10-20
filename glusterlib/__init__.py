@@ -18,3 +18,4 @@ from gdeploy_logging import log_event
 from subscription_management import SubscriptionManagement
 from firewalld_management import FirewalldManagement
 from backend_reset import BackendReset
+from package_management import PackageManagement
