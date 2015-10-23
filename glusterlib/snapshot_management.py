@@ -54,15 +54,16 @@ class SnapshotManagement(YamlWriter):
         self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
         if not self.section_dict.get('force'):
             self.section_dict['force'] = 'no'
-        action_func =  {'create': self.snapshot_create,
-                         'delete': self.snapshot_delete,
-                         'config': self.snapshot_config,
-                         'restore': self.snapshot_restore,
-                         'clone': self.snapshot_clone,
-                         'activate': self.snapshot_activate,
-                         'deactivate': self.snapshot_deactivate
-                        }[action]
-        if not action_func:
+        try:
+            action_func =  {'create': self.snapshot_create,
+                             'delete': self.snapshot_delete,
+                             'config': self.snapshot_config,
+                             'restore': self.snapshot_restore,
+                             'clone': self.snapshot_clone,
+                             'activate': self.snapshot_activate,
+                             'deactivate': self.snapshot_deactivate
+                            }[action]
+        except:
             print "Error: Unknown action for snapshot.\n Supported actions " \
                     "are: [create, delete, config, restore, clone]. Exiting!"
             self.cleanup_and_quit()
