@@ -49,6 +49,7 @@ class GlusterDeploy(PlaybookGen, Global):
         args = self.parse_arguments()
         self.check_ansible_installation()
         self.verbose = args.verbose
+        Global.verbose = '-vv' if self.verbose else ''
         self.test = args.test
         self.keep = args.keep
         if args.config_file:
@@ -162,10 +163,9 @@ class GlusterDeploy(PlaybookGen, Global):
         '''
         Calls the ansible-playbook command on necessary yamls
         '''
-        verbose = '-vv' if self.verbose else ''
         try:
             Global.logger.info("Calling ansible-playbook command")
-            self.exec_ansible_cmd(verbose)
+            self.exec_ansible_cmd()
         except:
             msg = "Looks like there is something wrong with " \
                 "your ansible installation."

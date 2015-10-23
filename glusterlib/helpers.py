@@ -298,10 +298,10 @@ class Helpers(Global):
         return not is_subdir
 
 
-    def exec_ansible_cmd(self, verbose):
+    def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
         executable = 'ansible-playbook'
-        command = [executable, '-i', Global.inventory, verbose,
-                Global.playbooks_file]
+        command = [executable, '-i', Global.inventory, Global.verbose,
+                playbooks_file]
         command = filter(None, command)
         try:
             subprocess.call(command, shell=False)

@@ -51,6 +51,9 @@ class BackendSetup(YamlWriter):
 
     def write_sections(self):
         Global.logger.info("Reading configuration for backend setup")
+        self.filename =  Global.group_file
+        self.perf_spec_data_write()
+        self.tune_profile()
         backend_setup, hosts = self.check_backend_setup_format()
         default = self.config_get_options(self.config,
                                                'default', False)
@@ -67,10 +70,14 @@ class BackendSetup(YamlWriter):
                                                   'devices', False)
                         self.touch_file(self.filename)
                         self.bricks = self.split_comma_seperated_options(devices)
+                        self.write_config(Global.group, [host], Global.inventory)
                         ret = self.call_gen_methods()
+                        self.remove_section(Global.inventory, Global.group)
                 else:
+                    self.write_config(Global.group, Global.hosts, Global.inventory)
                     self.filename =  Global.group_file
                     ret = self.call_gen_methods()
+                    self.remove_section(Global.inventory, Global.group)
                 # msg = "This configuration format will be deprecated  "\
                 # "in the next release.\nPlease refer the setup guide "\
                 # "for the new configuration format."
@@ -80,25 +87,27 @@ class BackendSetup(YamlWriter):
         else:
             hosts = filter(None, hosts)
             self.parse_section('')
-            self.filename =  Global.group_file
-            ret = self.call_gen_methods()
-            Global.var_file = 'group_vars'
+            if self.section_dict:
+                self.filename =  Global.group_file
+                self.write_config(Global.group, Global.hosts, Global.inventory)
+                ret = self.call_gen_methods()
+                self.remove_section(Global.inventory, Global.group)
+                Global.var_file = 'group_vars'
             if hosts:
                 Global.var_file = None
                 hosts = self.pattern_stripping(hosts)
                 Global.hosts.extend(hosts)
                 for host in hosts:
+                    self.write_config(Global.group, [host], Global.inventory)
                     self.bricks = []
                     self.host_file = self.get_file_dir_path(Global.host_vars_dir, host)
                     self.touch_file(self.host_file)
                     self.parse_section(':' + host)
                     ret = self.call_gen_methods()
+                    self.remove_section(Global.inventory, Global.group)
                 Global.var_file = 'host_vars'
 
 
-        self.filename =  Global.group_file
-        self.perf_spec_data_write()
-        self.tune_profile()
         Global.hosts = list(set(Global.hosts))
         if ret:
             msg = "Back-end setup triggered"
@@ -135,8 +144,8 @@ class BackendSetup(YamlWriter):
             self.section_dict['bricks'] = bricks
             self.create_yaml_dict('bricks', self.section_dict['bricks'], False)
             self.device_count = len(self.bricks)
-            if 'pvcreate.yml' not in Global.playbooks:
-                Global.playbooks.append('pvcreate.yml')
+            yml = self.get_file_dir_path(Global.base_dir, 'pvcreate.yml')
+            self.exec_ansible_cmd(yml)
             return True
         else:
             return False
@@ -157,9 +166,8 @@ class BackendSetup(YamlWriter):
                 data.append(vgnames)
             self.create_yaml_dict('vgnames', data, True)
             if self.section_dict.get('bricks'):
-
-                if 'vgcreate.yml' not in Global.playbooks:
-                    Global.playbooks.append('vgcreate.yml')
+                yml = self.get_file_dir_path(Global.base_dir, 'vgcreate.yml')
+                self.exec_ansible_cmd(yml)
             else:
                 self.device_count = len(vgs)
             return True
@@ -183,8 +191,8 @@ class BackendSetup(YamlWriter):
                 data.append(pools)
             self.create_yaml_dict('lvpools', data, True)
             if self.section_dict.get('pools'):
-                if 'lvcreate.yml' not in Global.playbooks:
-                    Global.playbooks.append('lvcreate.yml')
+                yml = self.get_file_dir_path(Global.base_dir, 'lvcreate.yml')
+                self.exec_ansible_cmd(yml)
             else:
                 if not hasattr(self, 'device_count'):
                     self.device_count = len(lvs)
@@ -220,8 +228,8 @@ class BackendSetup(YamlWriter):
         if lvols:
             self.section_dict['lvols'] = lvols
             self.create_yaml_dict('lvols', lvols, False)
-            if 'fscreate.yml' not in Global.playbooks:
-                Global.playbooks.append('fscreate.yml')
+            yml = self.get_file_dir_path(Global.base_dir, 'fscreate.yml')
+            self.exec_ansible_cmd(yml)
             if not hasattr(self, 'device_count'):
                 self.device_count = len(lvols)
             return True
@@ -246,9 +254,8 @@ class BackendSetup(YamlWriter):
         self.create_yaml_dict('mntpath', data, True)
         self.modify_mountpoints()
         self.create_yaml_dict('mountpoints', self.mountpoints, False)
-        if self.mountpoints:
-            if 'mount.yml' not in Global.playbooks:
-                Global.playbooks.append('mount.yml')
+        yml = self.get_file_dir_path(Global.base_dir, 'mount.yml')
+        self.exec_ansible_cmd(yml)
         return True
 
 

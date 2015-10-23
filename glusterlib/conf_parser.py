@@ -41,6 +41,15 @@ class ConfigParseHelpers(Helpers):
         config.optionxform = str
         return config
 
+    def remove_section(self, filename, section):
+        config = self.read_config(filename)
+        try:
+            config.remove_section(section)
+        except:
+            pass
+        with open(filename, 'w+') as out:
+            config.write(out)
+
     def read_config(self, config_file):
         config_parse = self.call_config_parser()
         try:
