@@ -19,3 +19,4 @@ from subscription_management import SubscriptionManagement
 from firewalld_management import FirewalldManagement
 from backend_reset import BackendReset
 from package_management import PackageManagement
+from ctdb_management import CtdbManagement

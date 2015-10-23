@@ -47,6 +47,7 @@ from subscription_management import SubscriptionManagement
 from firewalld_management import FirewalldManagement
 from backend_reset import BackendReset
 from package_management import PackageManagement
+from ctdb_management import CtdbManagement
 
 
 
@@ -72,6 +73,7 @@ class PlaybookGen(BackendSetup):
         GeorepManagement(self.config)
         FirewalldManagement(self.config)
         BackendReset(self.config)
+        CtdbManagement(self.config)
         self.create_inventory()
         self.write_host_names()
 

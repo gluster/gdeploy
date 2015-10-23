@@ -965,3 +965,84 @@ client_mount_points=/mnt/gluster{1..3}
 # ports=8081/tcp,161-162/udp
 #
 
+#-----------------------------------
+
+
+                            ##-- CTDB --##
+#
+# This section allows setting up and starting of CTDB.
+# Actions available are ['setup', 'start', 'stop', 'enable', 'disable']
+#
+#
+#
+# To setup ctdb:
+#
+# Make sure all the nodes in the cluster are specified in the hosts
+# section. Gdeploy taked the CTDB nodes from that section.
+# Set 'action' to be 'setup'
+#
+# Option 'physical_address': This option is only required if you plan
+# to use IP takeover. Provide the virtual public IP address which will
+# served by CTDB. The format of it's value should be like this:
+# <Virtual IP>/<routing prefix> <node interfaces seperated by semicolon>
+#
+# Make sure that the node interfaces are seperated by semicolon and
+# should follow routing prefix after a space. Interfaces are optional.
+#
+#
+# If option 'physical_address' is specified, the CTDB_PUBLIC_ADDRESSES
+# configuration option must be set to point to the file
+# /etc/ctdb/public_addresses . This value is set by default:
+#
+# Other options with default value set are:
+#
+# CTDB_NODES=/etc/ctdb/nodes
+# CTDB_MANAGES_SAMBA=no
+# CTDB_RECOVERY_LOCK=/mnt/lock/reclock
+#
+# To override these default values, specify them as the values. If the
+# option should not be set at all, leave the value empty or specify it
+# as 'none'.
+#
+# Example:
+#
+# [ctdb]
+# action=setup
+# public_address=192.168.1.{1..4}/24 eth1;eth2,192.168.1.1/245 eth2
+# CTDB_PUBLIC_ADDRESSES=/etc/ctdb/public_addresses
+# CTDB_NODES=/etc/ctdb/nodes
+# CTDB_MANAGES_SAMBA=no
+# CTDB_SET_DeterministicIPs=1
+# CTDB_SET_RecoveryBanPeriod=120
+# CTDB_SET_KeepaliveInterval=5
+# CTDB_SET_KeepaliveLimit=5
+# CTDB_SET_MonitorInterval=15
+# CTDB_RECOVERY_LOCK=/mnt/lock/reclock
+#
+# NOTE: Expect the user to specify nodes in the cluster under section
+# 'hosts'
+#
+# To start CTDB
+#
+# [ctdb]
+# action=start
+#
+# To enable CTDB on boot
+#
+# [ctdb]
+# action=enable
+#
+# Both of this will be triggered along with setup
+#
+#
+# To stop CTDB
+#
+# [ctdb]
+# action=stop
+#
+# To disable CTDB on boot
+#
+# [ctdb]
+# action=disable
+
+#

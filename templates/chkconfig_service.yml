@@ -1,0 +1,10 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Enable or disable services
+    service: name={{ item }} enabled="{{ enabled }}"
+    with_items: service
+

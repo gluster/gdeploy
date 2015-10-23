@@ -1,0 +1,11 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+
+  - name: Add confs to  /etc/ctdb/public_addresses
+    lineinfile: dest=/etc/ctdb/public_addresses
+                line="{{ paddress }}"
+    when: paddress is defined
