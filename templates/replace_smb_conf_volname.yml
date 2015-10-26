@@ -1,0 +1,54 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+
+  - name: Add confs to ctdb conf files
+    replace: dest={{ item }} regexp='^META=all' replace='META={{ volname }}'
+    with_items:
+        - /var/lib/glusterd/hooks/1/stop/pre/S29CTDB-teardown.sh
+        - /var/lib/glusterd/hooks/1/start/post/S29CTDBsetup.sh
+
+  - name: Check whether configuration data exists or not
+    command: grep "option rpc-auth-allow-insecure.*" /etc/glusterfs/glusterd.vol
+    register: checkmyconf
+    always_run: True
+    ignore_errors: True
+    changed_when: False
+
+  - name: Add confs to glusterd.vol
+    lineinfile:
+        dest=/etc/glusterfs/glusterd.vol
+        line="    option rpc-auth-allow-insecure on\n"
+        insertbefore='end-volume'
+    when: checkmyconf.rc != 0
+
+  - name: Add confs to glusterd.vol
+    replace: dest=/etc/glusterfs/glusterd.vol
+        regexp="option rpc-auth-allow-insecure [on|off]\n"
+        replace="option rpc-auth-allow-insecure on"
+    when: checkmyconf.rc == 0
+
+  - name: Checks if /etc/samba/smb.conf  exists
+    stat: path=/etc/samba/smb.conf
+    register: file_exists
+    ignore_errors: True
+    changed_when: False
+
+  - name: Create /etc/samba/smb.conf exists
+    file: path=/etc/samba/smb.conf state=touch
+    when: file_exists.stat.exists != True
+
+
+  - name: Add conf to /etc/samba/smb.conf
+    lineinfile:
+        dest=/etc/samba/smb.conf
+        line="[gluster-VOLNAME]\n
+        comment = For samba share of volume {{ volname }}\n
+        vfs objects = glusterfs\n
+        glusterfs:volume = {{ volname }}\n
+        read only = no\n
+        guest ok = yes\n
+        {{ smb_options }}"

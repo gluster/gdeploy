@@ -82,6 +82,9 @@ class VolumeManagement(YamlWriter):
             force = 'yes' if force.lower() == 'yes' else 'no'
             self.section_dict['force'] = force
         self.iterate_dicts_and_yaml_write(self.section_dict)
+        smb = self.section_dict.get('smb')
+        if smb and smb.lower() == 'yes':
+            self.samba_setup()
 
     def get_brick_dirs(self):
         opts = self.get_options('brick_dirs', False)
@@ -261,7 +264,55 @@ class VolumeManagement(YamlWriter):
             Global.playbooks.append('gluster-volume-start.yml')
         Global.playbooks.append('gluster-volume-rebalance.yml')
 
-    def volume_set(self):
-        self.check_for_param_presence('key', self.section_dict)
-        self.check_for_param_presence('value', self.section_dict)
+    def volume_set(self, key=None, value=None):
+        if not key:
+            self.check_for_param_presence('key', self.section_dict)
+            self.check_for_param_presence('value', self.section_dict)
+            key = self.section_dict.pop('key')
+            value = self.section_dict.pop('value')
+        if not isinstance(key, list):
+            key = [key]
+        if not isinstance(value, list):
+            value = [value]
+        data = []
+        for k,v in zip(key, value):
+            names = {}
+            names['key'] = k
+            names['value'] = v
+            data.append(names)
+        self.create_yaml_dict('set', data, True)
         Global.playbooks.append('gluster-volume-set.yml')
+
+
+    def samba_setup(self):
+        ctdb = self.config.get_options('ctdb', False)
+        if not ctdb:
+            msg = "For SMB setup, please configure 'ctdb' using ctdb " \
+                    "section. Refer documentation for more."
+            Global.logger.error(msg)
+            print "\nError: " + msg
+            self.cleanup_and_quit()
+
+        sections_default_value = {'path': '/',
+                            'glusterfs:logfile': '/var/log/samba/' +
+                                self.section_dict[volname] + '.log',
+                            'glusterfs:loglevel': 7,
+                            'glusterfs:volfile_server': 'localhost'}
+        self.set_default_value_for_dict_key(self.section_dict,
+                                            sections_default_value)
+        options = ''
+        for key, value in sections_default_value.iteritems():
+            if self.section_dict[key]:
+                options += key + ' = ' + str(self.section_dict[key]) + '\n'
+        self.section_dict['smb_options'] = options
+
+        Global.playbooks.append('replace_smb_conf_volname.yml')
+        key = ['stat-prefetch', 'server.allow-insecure',
+                'storage.batch-fsync-delay-usec']
+        value = ['off', 'on', 0]
+        self.volume_set(key, value)
+        Global.playbooks.append('glusterd-start.yml')
+        self.section_dict['service'] = 'smb'
+        self.section_dict['state'] = 'started'
+        Global.playbooks.append('chkconfig_service.yml')
+        Global.playbooks.append('service_management.yml')

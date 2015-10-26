@@ -47,13 +47,21 @@ class CliOps(PlaybookGen):
             volname = vol_group.group(2)
             self.create_files_and_dirs()
             self.write_config('master', host_ip, Global.inventory)
-            variables = {'key': key,
-                         'value': value,
-                         'volname': volname
-                         }
-            Global.playbooks.append('gluster-volume-set.yml')
             self.filename = Global.group_file
+            if not isinstance(key, list):
+                key = [key]
+            if not isinstance(value, list):
+                value = [value]
+            data = []
+            for k,v in zip(key, value):
+                names = {}
+                names['key'] = k
+                names['value'] = v
+                data.append(names)
+            self.create_yaml_dict('set', data, True)
+            variables = { 'volname': volname }
             self.write_yaml(variables, False)
+            Global.playbooks.append('gluster-volume-set.yml')
         else:
             print "Error: Invalid Argument. Use gdeploy -h for the help message"
             self.cleanup_and_quit()
