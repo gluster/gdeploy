@@ -329,7 +329,8 @@ manage=probe
 # The section volume specifies the configuration options for the volume.
 
 # 'action' option specifies what action id to be performed in the volume.
-# The choices are: [create, delete, add-brick, remove-brick, rebalance].
+# The choices are: [create, delete, add-brick, remove-brick, rebalance,
+# set].
 
 # If delete is provided all the options other than 'volname' will be ignored.
 
@@ -441,6 +442,15 @@ force=yes
 # action=rebalance
 # volname=10.70.46.13:glustervol
 # state=start
+
+# Setting option to the volume can be done by using:
+
+# [volume]
+# action=set
+# volname=10.70.46.13:glustervol
+# key=cluster.nufa
+# value=on
+
 
 
 #-----------------------------------

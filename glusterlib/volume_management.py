@@ -55,13 +55,14 @@ class VolumeManagement(YamlWriter):
                           'stop': self.stop_volume,
                           'add-brick': self.add_brick_to_volume,
                           'remove-brick': self.remove_brick_from_volume,
-                          'rebalance': self.gfs_rebalance
+                          'rebalance': self.gfs_rebalance,
+                          'set': self.volume_set
                         }.get(action)
         if not action_func:
             msg = "Unknown action provided for volume. \nSupported " \
                     "actions are:\n " \
                     "create, delete, start, stop, add-brick, remove-brick, " \
-                    "and rebalance"
+                    "rebalance and set"
             print "\nError: " + msg
             Global.logger.error(msg)
             return
@@ -258,3 +259,8 @@ class VolumeManagement(YamlWriter):
         if 'gluster-volume-start.yml' not in Global.playbooks:
             Global.playbooks.append('gluster-volume-start.yml')
         Global.playbooks.append('gluster-volume-rebalance.yml')
+
+    def volume_set(self):
+        self.check_for_param_presence('key', self.section_dict)
+        self.check_for_param_presence('value', self.section_dict)
+        Global.playbooks.append('gluster-volume-set.yml')
