@@ -318,16 +318,8 @@ class VolumeManagement(YamlWriter):
         Global.playbooks.append('replace_smb_conf_volname.yml')
         Global.playbooks.append('mount-in-samba-server.yml')
 
-
-
-
         key = ['stat-prefetch', 'server.allow-insecure',
                 'storage.batch-fsync-delay-usec']
         value = ['off', 'on', 0]
         self.volume_set(key, value)
         Global.playbooks.append('glusterd-start.yml')
-        self.section_dict['service'] = 'smb'
-        self.section_dict['state'] = 'started'
-        self.section_dict['enabled'] = 'enabled'
-        Global.playbooks.append('chkconfig_service.yml')
-        Global.playbooks.append('service_management.yml')

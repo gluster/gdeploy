@@ -54,6 +54,12 @@
               {{ smb_options }}'
         insertbefore=EOF
 
+  - name: Start SMB service
+    service: name=smb state=started
+
+  - name: Enable SMB service
+    service: name=smb enabled=yes
+
   - name: Create a new user
     user: name="{{ user }}"
 

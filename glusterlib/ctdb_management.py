@@ -108,6 +108,8 @@ class CtdbManagement(YamlWriter):
                 paddress.append(public_add)
             self.section_dict['paddress'] = '\n'.join(paddress)
         Global.playbooks.append('setup_ctdb.yml')
+        self.start_ctdb()
+        self.enable_ctdb()
 
     def start_ctdb(self):
         self.section_dict['service'] = ['ctdb']
