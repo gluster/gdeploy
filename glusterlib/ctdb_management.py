@@ -85,6 +85,8 @@ class CtdbManagement(YamlWriter):
         self.section_dict['options'] = option
         self.section_dict['nodes'] = '\n'.join(Global.hosts)
         paddress = self.section_dict.get('public_address')
+        if not isinstance(paddress, list):
+            paddress= [paddress]
         if paddress:
             if not isinstance(paddress, list):
                 paddress = [paddress]
@@ -106,8 +108,6 @@ class CtdbManagement(YamlWriter):
                 paddress.append(public_add)
             self.section_dict['paddress'] = '\n'.join(paddress)
         Global.playbooks.append('setup_ctdb.yml')
-        self.start_ctdb()
-        self.enable_ctdb()
 
     def start_ctdb(self):
         self.section_dict['service'] = ['ctdb']

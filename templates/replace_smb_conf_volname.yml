@@ -45,10 +45,18 @@
   - name: Add conf to /etc/samba/smb.conf
     lineinfile:
         dest=/etc/samba/smb.conf
-        line="[gluster-VOLNAME]\n
-        comment = For samba share of volume {{ volname }}\n
-        vfs objects = glusterfs\n
-        glusterfs:volume = {{ volname }}\n
-        read only = no\n
-        guest ok = yes\n
-        {{ smb_options }}"
+        line='[gluster-VOLNAME]\n
+              comment = For samba share of volume {{ volname }}\n
+              vfs objects = glusterfs\n
+              glusterfs:volume = {{ volname }}\n
+              read only = no\n
+              guest ok = yes\n
+              {{ smb_options }}'
+        insertbefore=EOF
+
+  - name: Create a new user
+    user: name="{{ user }}"
+
+  - name: Set smb password
+    command: echo -ne "{{ pass }}\n" | tee - | smbpasswd -a -s "{{ user }}"
+
