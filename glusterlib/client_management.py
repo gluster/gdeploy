@@ -112,6 +112,7 @@ class ClientManagement(YamlWriter):
         '''
         self.nfs_clients = []
         self.fuse_clients = []
+        self.cifs_clients = []
         for key, value in self.section_dict.iteritems():
             gluster = dict()
             if isinstance(value, list):
@@ -139,12 +140,15 @@ class ClientManagement(YamlWriter):
                 if isinstance(self.clients, list):
                     self.nfs_clients += self.clients
                     self.fuse_clients += self.clients
+                    self.cifs_clients += self.clients
                 else:
                     self.nfs_clients.append(self.clients)
                     self.fuse_clients.append(self.clients)
+                    self.cifs_clients.append(self.clients)
                 self.section_dict = self.fstype_validation(self.section_dict)
             self.write_config('nfs_clients', self.nfs_clients, Global.inventory)
             self.write_config('fuse_clients', self.fuse_clients, Global.inventory)
+            self.write_config('cifs_clients', self.fuse_clients, Global.inventory)
 
 
     def client_fstype_listing(self, conf, client):
@@ -152,6 +156,8 @@ class ClientManagement(YamlWriter):
         gluster = self.fstype_validation(filetype_conf)
         if conf == 'nfs':
             self.nfs_clients.append(client)
+        elif conf == 'cifs':
+            self.cifs_clients.append(client)
         else:
             self.fuse_clients.append(client)
         try:
@@ -175,6 +181,16 @@ class ClientManagement(YamlWriter):
             print "\nINFO: " + msg
             Global.logger.info(msg)
             Global.playbooks.append('gluster-client-fuse-mount.yml')
+        elif section_dict['fstype'] == 'cifs':
+            msg = "CIFS mount of volume triggered."
+            if not self.present_in_yaml(
+                    Global.group_file, 'user') or not self.present_in_yaml(
+                            Global.group_file, 'pass'):
+                print "Provide the SMB username and password under "\
+                        "the 'volume' section."
+            print "\nINFO: " + msg
+            Global.logger.info(msg)
+            Global.playbooks.append('gluster-client-cifs-mount.yml')
         else:
             msg = "Unsupported mount type. Exiting!"
             print "\nError: " + msg
