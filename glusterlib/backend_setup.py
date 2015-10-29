@@ -76,6 +76,7 @@ class BackendSetup(YamlWriter):
                         self.current_host = host
                         devices = self.config_section_map(self.config, host,
                                                   'devices', False)
+                        self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
                         self.touch_file(self.filename)
                         self.bricks = self.split_comma_seperated_options(devices)
                         self.write_config(Global.group, [host], Global.inventory)
