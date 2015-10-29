@@ -50,7 +50,7 @@ class GlusterDeploy(PlaybookGen, Global):
         self.check_ansible_installation()
         self.verbose = args.verbose
         Global.verbose = '-vv' if self.verbose else ''
-        self.test = args.test
+        Global.test = args.test
         self.keep = args.keep
         if args.config_file:
             map(self.run_gdeploy, args.config_file)

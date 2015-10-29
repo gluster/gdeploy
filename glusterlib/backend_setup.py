@@ -57,15 +57,23 @@ class BackendSetup(YamlWriter):
         backend_setup, hosts = self.check_backend_setup_format()
         default = self.config_get_options(self.config,
                                                'default', False)
+        gluster = self.config_get_options(self.config,
+                                               'gluster', False)
         if default:
             self.default = False if default[0].lower() == 'no' else True
         self.default = self.default if hasattr(self, 'default') else True
+        if gluster and gluster[0].lower() == 'no':
+            self.gluster = False
+            self.default = False
+        else:
+            self.gluster = True
         if not backend_setup:
             if not self.get_var_file_type():
                 return
             else:
                 if Global.var_file == 'host_vars':
                     for host in Global.hosts:
+                        self.current_host = host
                         devices = self.config_section_map(self.config, host,
                                                   'devices', False)
                         self.touch_file(self.filename)
@@ -115,7 +123,11 @@ class BackendSetup(YamlWriter):
             print "\nINFO: " + msg
 
     def call_gen_methods(self):
-        return self.write_mount_options()
+        self.write_brick_names()
+        self.write_vg_names()
+        self.write_lv_names()
+        self.write_lvol_names()
+        self.write_mount_options()
 
     def parse_section(self, hostname):
         try:
@@ -132,33 +144,53 @@ class BackendSetup(YamlWriter):
 
     def write_brick_names(self):
         self.bricks = self.get_options('devices')
+        ssd = self.get_options('ssd')
+        if ssd:
+            self.ssd = self.correct_brick_format(
+                    self.pattern_stripping(ssd))[0]
+            self.section_dict['disk'] = self.ssd
         if self.bricks:
             self.bricks = self.pattern_stripping(self.bricks)
-            bricks = []
-            for brick in self.bricks:
-                if not brick.startswith('/dev/'):
-                    bricks.append('/dev/' + brick)
-                else:
-                    bricks.append(brick)
+            bricks = self.correct_brick_format(self.bricks)
             self.device_count = len(bricks)
             self.section_dict['bricks'] = bricks
+            if hasattr(self, 'ssd'):
+                self.section_dict['bricks'].append(self.ssd)
             self.create_yaml_dict('bricks', self.section_dict['bricks'], False)
             self.device_count = len(self.bricks)
             yml = self.get_file_dir_path(Global.base_dir, 'pvcreate.yml')
             self.exec_ansible_cmd(yml)
+            if hasattr(self, 'ssd'):
+                if self.ssd in self.section_dict['bricks']:
+                    self.section_dict['bricks'].remove(self.ssd)
             return True
         else:
             return False
 
+    def correct_brick_format(self, brick_list):
+        bricks = []
+        for brick in brick_list:
+            if not brick.startswith('/dev/'):
+                bricks.append('/dev/' + brick)
+            else:
+                bricks.append(brick)
+        return bricks
+
     def write_vg_names(self):
-        if not self.write_brick_names():
-            self.section_dict['bricks'] = []
+        if not self.section_dict.get('bricks'):
             self.previous = False
+            self.section_dict['bricks'] = []
+        else:
+            self.previous = True
         vgs = self.section_data_gen('vgs', 'Volume Groups')
         if vgs:
             self.create_yaml_dict('vgs', vgs, False)
             self.section_dict['vgs'] = vgs
             data = []
+            if len( self.section_dict['bricks']) > 1 and len(
+                    self.section_dict['vgs']) == 1:
+                self.section_dict['vgs'] *= len(
+                        self.section_dict['bricks'])
             for i, j in zip(self.section_dict['bricks'], vgs):
                 vgnames = {}
                 vgnames['brick'] = i
@@ -175,38 +207,112 @@ class BackendSetup(YamlWriter):
 
 
     def write_lv_names(self):
-        if not self.write_pool_names():
-            self.section_dict['pools'] = []
-            self.previous = False
-        lvs = self.section_data_gen('lvs', 'Logical Volumes')
-        if lvs:
-            self.section_dict['lvs'] = lvs
-            data = []
-            for i, j, k in zip(self.section_dict['pools'],
-                    self.section_dict['vgs'], lvs):
-                pools = {}
-                pools['pool'] = i
-                pools['vg'] = j
-                pools['lv'] = k
-                data.append(pools)
-            self.create_yaml_dict('lvpools', data, True)
-            if self.section_dict.get('pools'):
-                yml = self.get_file_dir_path(Global.base_dir, 'lvcreate.yml')
-                self.exec_ansible_cmd(yml)
+        if self.gluster:
+            if not self.write_pool_names():
+                self.section_dict['pools'] = []
+                self.previous = False
             else:
-                if not hasattr(self, 'device_count'):
-                    self.device_count = len(lvs)
-            return True
-        return False
+                self.previous = True
+            lvs = self.section_data_gen('lvs', 'Logical Volumes')
+            if lvs:
+                self.section_dict['lvs'] = lvs
+                data = []
+                for i, j, k in zip(self.section_dict['pools'],
+                        self.section_dict['vgs'], lvs):
+                    pools = {}
+                    pools['pool'] = i
+                    pools['vg'] = j
+                    pools['lv'] = k
+                    data.append(pools)
+                self.create_yaml_dict('lvpools', data, True)
+                if self.section_dict.get('pools'):
+                    if (len(self.section_dict['lvs']) != len(
+                        self.section_dict['pools'])):
+                        self.insufficient_param_count('lvs',
+                                len(self.section_dict['pools']))
+                    yml = self.get_file_dir_path(Global.base_dir,
+                            'auto_lvcreate_for_gluster.yml')
+                    self.exec_ansible_cmd(yml)
+                else:
+                    if not hasattr(self, 'device_count'):
+                        self.device_count = len(lvs)
+                return True
+            return False
+        lvs = self.get_options('lvs')
+        lvs = self.pattern_stripping(lvs)
+        self.data = []
+        if lvs:
+            for lv in lvs:
+                self.lvs_with_size(lv, '100%FREE')
+        else:
+            lvs = []
+        datalv = self.get_options('datalv')
+        if datalv:
+            self.datalv =  self.pattern_stripping(datalv)
+            if self.datalv[0] not in lvs:
+                lvs.extend(self.datalv)
+        #If SSD present for caching
+        self.section_dict['vg'] = self.section_dict['vgs'][0]
+        self.section_dict['force'] = self.config_get_options(self.config,
+                                               'force', False) or 'no'
+        self.iterate_dicts_and_yaml_write(self.section_dict)
+        if hasattr(self, 'ssd'):
+            if not hasattr(self, 'datalv'):
+                msg = "Data lv('datalv' options) not specified for "\
+                        "cache setup"
+                print "\nError: " + msg
+                Global.logger.error(msg)
+                self.cleanup_and_quit()
+            yml = self.get_file_dir_path(Global.base_dir,
+                    'vgextend.yml')
+            self.exec_ansible_cmd(yml)
+            self.section_dict['datalv'] = self.datalv[0]
+            cachemeta = self.get_options(
+                    'cachemetalv') or 'lv_cachemeta'
+            cachedata = self.get_options(
+                    'cachedatalv') or 'lv_cachedata'
+            cache_m = self.lvs_with_size(cachemeta, '1024')
+            self.create_yaml_dict('cachemeta', cache_m, False)
+            cache_d = self.lvs_with_size(cachedata, '4096')
+            self.create_yaml_dict('cachedata', cache_d, False)
+        if not self.data:
+            return
+        self.create_yaml_dict('lvs', self.data, True)
+        yml = self.get_file_dir_path(Global.base_dir,
+                'lvcreate.yml')
+        self.exec_ansible_cmd(yml)
+        if hasattr(self, 'ssd'):
+            yml = self.get_file_dir_path(Global.base_dir,
+                    'lvconvert.yml')
+            self.exec_ansible_cmd(yml)
+
+
+    def lvs_with_size(self, lv, d_size):
+        name = lv.split(':')[0]
+        try:
+            size = lv.split(':')[1]
+        except:
+            size = d_size
+        lvs = {}
+        lvs['name'] = name
+        lvs['size'] = size
+        self.data.append(lvs)
+        return lvs
 
     def write_pool_names(self):
-        if not self.write_vg_names():
+        if not self.section_dict.get('vgs'):
             self.section_dict['vgs'] = []
             self.previous = False
+        else:
+            self.previous = True
         pools = self.section_data_gen('pools', 'Logical Pools')
         if pools:
             self.section_dict['pools'] = pools
             data = []
+            if len(self.section_dict['pools']) > 1 and len(
+                    self.section_dict['vgs']) == 1:
+                self.insufficient_param_count('pools',
+                        len(self.section_dict['vgs']))
             for i, j in zip(pools, self.section_dict['vgs']):
                 pools = {}
                 pools['pool'] = i
@@ -219,10 +325,15 @@ class BackendSetup(YamlWriter):
         return False
 
     def write_lvol_names(self):
-        if not self.write_lv_names():
+        if not self.section_dict.get('lvs'):
             self.section_dict['lvs'] = []
             self.previous = False
-        lvols = ['/dev/%s/%s' % (i, j) for i, j in
+        else:
+            self.previous = True
+        if len( self.section_dict['lvs']) > 1 and len(
+                self.section_dict['vgs']) == 1:
+            self.section_dict['vgs'] *= len( self.section_dict['lvs'])
+        lvols = ['/dev/%s/%s' % (i, j.split(':')[0]) for i, j in
                                       zip(self.section_dict['vgs'],
                                           self.section_dict['lvs'])]
         if lvols:
@@ -236,10 +347,11 @@ class BackendSetup(YamlWriter):
         return False
 
     def write_mount_options(self):
-        if not self.write_lvol_names():
+        if not self.section_dict.get('lvols'):
             self.section_dict['lvols'] = []
             self.previous = False
-            return False
+        else:
+            self.previous = True
         self.mountpoints = self.section_data_gen(
                 'mountpoints', 'Mount Point')
         data = []
@@ -412,21 +524,15 @@ class BackendSetup(YamlWriter):
     def section_data_gen(self, section, section_name):
         opts = self.get_options(section)
         options = self.pattern_stripping(opts)
-        if options:
-            if  self.previous and len(options) != self.device_count:
-                return self.insufficient_param_count(
-                    section_name,
-                    self.device_count)
-            self.previous = True
-        elif self.default and self.previous:
-            options = []
-            pattern = {'vgs': 'GLUSTER_vg',
-                       'pools': 'GLUSTER_pool',
-                       'lvs': 'GLUSTER_lv',
-                       'mountpoints': '/gluster/brick'
-                       }[section]
-            for i in range(1, self.device_count + 1):
-                options.append(pattern + str(i))
-            self.previous = True
+        if not options:
+            if self.default and self.previous:
+                options = []
+                pattern = {'vgs': 'GLUSTER_vg',
+                           'pools': 'GLUSTER_pool',
+                           'lvs': 'GLUSTER_lv',
+                           'mountpoints': '/gluster/brick'
+                           }[section]
+                for i in range(1, self.device_count + 1):
+                    options.append(pattern + str(i))
         return options
 

@@ -165,7 +165,7 @@ class Helpers(Global):
                 return self.config_get_options(self.config, section, required)
             else:
                 options = self.config_section_map(
-                    self.config, self.filename.split('/')[-1], section, required)
+                    self.config, self.current_host, section, required)
                 return self.split_comma_seperated_options(options)
         return self.section_dict.get(section)
 
@@ -299,6 +299,8 @@ class Helpers(Global):
 
 
     def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
+        if Global.test:
+            return
         executable = 'ansible-playbook'
         command = [executable, '-i', Global.inventory, Global.verbose,
                 playbooks_file]

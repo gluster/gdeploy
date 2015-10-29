@@ -34,6 +34,7 @@ class Global(object):
     config_count = 0
     master = None
     var_file =  None
+    test = False
 
     # Required filenames and dir names
     host_vars = 'host_vars'

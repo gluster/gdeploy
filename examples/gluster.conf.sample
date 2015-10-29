@@ -14,6 +14,9 @@
 #------------------------------
                             ##-- Back-end setup --##
 
+# Gluster specific backend-setup [We follow some recommended performance
+# efficient calculations here]
+#
 # Back-end setup in one or more remote machines can be done using the
 # section 'backend-setup'.
 #
@@ -86,6 +89,39 @@
 # default values for lvs, pools, mountpoints, etc. and continue taking
 # defaults value for all these.
 #
+#
+#
+# Non-GlusteFS back-end setup
+#
+# For this, to avoid the automatic computaions being done an additional
+# section 'gluster' set to no must be added
+#
+# [gluster]
+# no
+#
+#
+# To setup back-end, Configuration similar to following example can be
+# followed:
+#
+# To setup back-end for hyperconvergence:
+#
+# [backend-setup]
+# devices=sdb
+# vgs=RHS_vg1
+# lvs=lv_ctdb:1G,lv_engine:50G,lv_data:100%FREE
+# mountpoints=/rhgs/ctdb,/rhgs/engine,/rhgs/data
+#
+# To add SSD for caching:
+#
+# [backend-setup]
+# ssd=sdc
+# vgs=RHS_vg1
+# datalv=lv_data
+# chachedatalv=lv_cachedata:1G
+# chachemetalv=lv_cachemeta:230G
+#
+# NOTE: Specifying the name of the data LV is necessary while adding
+# SSD.
 #
 #      Old/Soon to be deprecated configuration option
 #
