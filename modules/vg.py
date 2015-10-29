@@ -98,12 +98,20 @@ class VgOps(object):
         self.action = self.validated_params('action')
         self.op = 'vg' + self.action
         self.vgname = self.validated_params('vgname')
+        if not self.vgname:
+            self.module.exit_json(msg="Nothing to be done")
         if self.action == 'create':
             self.disks = self.validated_params('disks')
+            if not self.disks:
+                self.module.exit_json(msg="Nothing to be done")
             self.options = self.module.params['options'] or ''
             self.vg_create()
-        else:
+        elif self.action == 'remove':
             self.vg_remove(self.vgname)
+        elif self.action == 'extend':
+            self.vg_extend()
+        else:
+            self.module.fail_json(msg="Unknown action")
 
     def validated_params(self, opt):
         value = self.module.params[opt]
@@ -123,8 +131,18 @@ class VgOps(object):
         if self.disktype and self.disktype not in ['jbod']:
             self.options += ' -s %sK ' % self.compute_size()
         opts = " %s %s %s" % (self.vgname, self.options, self.disks)
-        rc, err, out = self.run_command(self.op, opts)
-        self._get_output(rc, err, out)
+        rc, out, err = self.run_command(self.op, opts)
+        if rc != 0:
+            self.vg_extend()
+        self._get_output(rc, out, err)
+
+    def vg_extend(self):
+        self.op = 'vgextend'
+        if not hasattr(self, 'disks'):
+            self.disks = self.validated_params('disks')
+        opts = " %s %s" % (self.vgname, self.disks)
+        rc, out, err = self.run_command(self.op, opts)
+        self._get_output(rc, out, err)
 
     def _get_output(self, rc, output, err):
         if not rc:
@@ -139,7 +157,7 @@ class VgOps(object):
             rc, out, err = self.run_command(self.op, opts)
         else:
             rc, out, err =  vg_absent
-        self._get_output(rc, err, out)
+        self._get_output(rc, out, err)
 
     def run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts
@@ -148,7 +166,7 @@ class VgOps(object):
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
-            action=dict(choices=["create", "remove"], required=True),
+            action=dict(choices=["create", "remove", "extend"], required=True),
             vgname=dict(type='str'),
             disks=dict(),
             options=dict(type='str'),

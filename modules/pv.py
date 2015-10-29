@@ -105,6 +105,8 @@ class PvOps(object):
 
     def iterate_disk_names(self):
         self.disks = self.validated_params('disks')
+        if not self.disks:
+            self.module.exit_json(msg="Nothing to do")
         self.call_ansible_run_command(self.disks)
 
     def get_resize_params(self, disk):

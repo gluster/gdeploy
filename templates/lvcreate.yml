@@ -3,32 +3,8 @@
   remote_user: root
   gather_facts: no
 
-  # Since we have three logical volumes we create corresponding vgs for them
   tasks:
-  - name: Create logical volume named metadata
-    lv: action=create lvname=metadata compute=rhs lvtype='thick'
-        vgname={{ item }}
-    with_items: vgs
-
-  - name: Create a thin pool
-    lv: action=create lvname={{ item.pool }} lvtype='thin'
-        compute=rhs disktype="{{ disktype }}" vgname={{ item.vg }}
-    with_items: pools
-
-  - name: Convert the logical volume
-    lv: action=convert thinpool={{ item.vg }}/{{item.pool }}
-        poolmetadata={{ item.vg }}/'metadata' poolmetadataspare=n
-        vgname={{ item.vg }} compute=rhs disktype="{{disktype}}"
-        diskcount="{{ diskcount }}"
-        stripesize="{{stripesize}}"
-    with_items: pools
-
-  - name: Create logical volume for the pools
-    lv: action=create poolname={{ item.pool }} lvtype="virtual"
-        compute=rhs disktype="{{ disktype }}"
-        vgname={{ item.vg }} lvname={{ item.lv }}
-    with_items: lvpools
-
-  - name: Change the attributes of the logical volume
-    lv: action=change zero=n vgname={{ item.vg }} poolname={{ item.pool }}
-    with_items: pools
+      - name: Create LVs with specified size for the VGs
+        lvol: lv={{ item.name }} size={{ item.size }} vg="{{ vg}}"
+              force="{{ force }}"
+        with_items: lvs

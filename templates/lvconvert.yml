@@ -1,0 +1,15 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+      - name: Convert LV to cachepool
+        lv: action=convert lvtype="cache-pool" cachemode=writethrough
+            poolmetadata="{{ cachemeta.name }}" lv="{{ cachedata.name }}"
+            vgname="{{ vg }}"
+
+      - name: Setup the cache
+        lv: action=convert lvtype="cache" cachepool="{{ cachedata.name }}"
+            lv="{{ datalv }}"
+            vgname="{{ vg }}"

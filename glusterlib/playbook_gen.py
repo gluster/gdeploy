@@ -91,6 +91,7 @@ class PlaybookGen(BackendSetup):
         Global.logger.info("Creating necessary files and folders")
         self.mk_dir(Global.group_vars_dir)
         self.touch_file(Global.group_file)
+        self.touch_file(Global.inventory)
         self.move_templates_to_playbooks()
         self.mk_dir(Global.host_vars_dir)
 

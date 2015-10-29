@@ -157,6 +157,8 @@ class LvOps(object):
                 option = " --noheading --units m  -o pv_size %s" % pv_name
                 rc, pv_size, err = self.run_command('pvs', option)
                 if not rc:
+                    pv_size = list(set(filter(
+                                        None, pv_size.split(' '))))[0]
                     pv_size = floor(float(pv_size.strip(' m\t\r\n')) - 4)
                     KB_PER_GB = 1048576
                     if pv_size > 1000000:
@@ -214,6 +216,7 @@ class LvOps(object):
         #If disktype not specified will take user input for chunksize or
         #follow the default behaviour of lvconvert.
         self.disktype = self.module.params['disktype']
+        chunksize = ''
         if self.disktype:
             self.stripe_unit_size = self.validated_params('stripesize')
             diskcount = self.validated_params('diskcount')
@@ -221,8 +224,6 @@ class LvOps(object):
                          'raid6': 256,
                          'jbod': 256
                        }[self.disktype]
-        else:
-            chunksize = self.module.params['chunksize']
         if chunksize:
             self.lvconvert['chunksize'] = chunksize
 
@@ -234,14 +235,30 @@ class LvOps(object):
 
     def convert(self):
         self.lvconvert = {}
-        self.lvconvert['thinpool'] = self.validated_params('thinpool')
-        self.get_thin_pool_chunk_sz()
         self.lvconvert['poolmetadata'] = self.module.params['poolmetadata']
+        self.lvconvert['type'] = self.module.params['lvtype']
+        force = ''
+        lvname = ''
+        if self.module.params['force']:
+            if self.module.params['force'].lower() == 'yes':
+                force = ' force'
+        if self.lvconvert['type']:
+            if self.lvconvert['type'].lower() == 'cache-pool':
+                self.lvconvert['cachemode'] = self.module.params[
+                        'cachemode'] or 'writethrough'
+            elif self.lvconvert['type'].lower() == 'cache':
+                self.lvconvert['cachepool'] = self.validated_params(
+                        'cachepool')
+            lvname = self.vgname + '/' + self.validated_params('lv')
+
+        self.lvconvert['thinpool'] = self.module.params[
+                'thinpool'] or ''
+        self.get_thin_pool_chunk_sz()
         self.lvconvert['poolmetadataspare'] = self.module.params[
                 'poolmetadataspare']
         self.lvconvert['options'] = self.module.params['options']
         cmd = self.parse_playbook_data(self.lvconvert, ' -ff --yes')
-        return self.run_command('lvconvert', cmd)
+        return self.run_command('lvconvert', cmd + ' ' + lvname + force)
 
     def change(self):
         poolname = self.validated_params('poolname')
@@ -260,7 +277,10 @@ def main():
         argument_spec=dict(
             action=dict(choices=["create", "convert", "change", "remove"]),
             lvname=dict(),
-            lvtype=dict(choices=["thin", "thick", "virtual"]),
+            lv=dict(),
+            cachemode=dict(),
+            cachepool=dict(),
+            lvtype=dict(),
             vgname=dict(),
             thinpool=dict(),
             poolmetadata=dict(),
@@ -271,7 +291,8 @@ def main():
             compute=dict(),
             disktype=dict(),
             diskcount=dict(),
-            stripesize=dict()
+            stripesize=dict(),
+            force=dict()
         ),
     )
 

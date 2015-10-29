@@ -87,3 +87,12 @@ class BackendReset(YamlWriter):
         for key, value in self.section_dict.iteritems():
             if value:
                 self.section_dict[key] = self.pattern_stripping(value)
+        pvs = self.section_dict.get('pvs')
+        if pvs:
+            bricks = []
+            for pv in pvs:
+                if not pv.startswith('/dev/'):
+                    bricks.append('/dev/' + pv)
+                else:
+                    bricks.append(pv)
+            self.section_dict['pvs'] = bricks

@@ -12,3 +12,5 @@
         disktype="{{ disktype }}"
         stripesize="{{ stripesize }}"
     with_items: vgnames
+    register: result
+    failed_when: "result.rc != 0 and 'already exists' not in result.msg and 'is already in volume group' not in result.msg"

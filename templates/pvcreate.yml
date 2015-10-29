@@ -9,3 +9,5 @@
     pv: action=create disks={{ item }}
         options="--dataalignment {{ dalign }}k"
     with_items: bricks
+    register: result
+    failed_when: "result.rc != 0 and 'Physical Volume Exists' not in result.msg"

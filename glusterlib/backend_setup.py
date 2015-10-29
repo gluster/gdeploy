@@ -29,6 +29,7 @@ from conf_parser import ConfigParseHelpers
 from global_vars import Global
 from helpers import Helpers
 from yaml_writer import YamlWriter
+import sys
 import re
 try:
     import yaml
@@ -45,35 +46,47 @@ class BackendSetup(YamlWriter):
     def __init__(self, config):
         self.config = config
         self.section_dict = dict()
+        self.previous = True
         self.write_sections()
 
     def write_sections(self):
         Global.logger.info("Reading configuration for backend setup")
+        self.filename =  Global.group_file
+        self.perf_spec_data_write()
+        self.tune_profile()
         backend_setup, hosts = self.check_backend_setup_format()
-        self.bricks = []
         default = self.config_get_options(self.config,
                                                'default', False)
+        gluster = self.config_get_options(self.config,
+                                               'gluster', False)
         if default:
             self.default = False if default[0].lower() == 'no' else True
         self.default = self.default if hasattr(self, 'default') else True
+        if gluster and gluster[0].lower() == 'no':
+            self.gluster = False
+            self.default = False
+        else:
+            self.gluster = True
         if not backend_setup:
             if not self.get_var_file_type():
                 return
             else:
                 if Global.var_file == 'host_vars':
                     for host in Global.hosts:
-                        self.bricks = []
+                        self.current_host = host
                         devices = self.config_section_map(self.config, host,
                                                   'devices', False)
                         self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
                         self.touch_file(self.filename)
                         self.bricks = self.split_comma_seperated_options(devices)
+                        self.write_config(Global.group, [host], Global.inventory)
                         ret = self.call_gen_methods()
+                        self.remove_section(Global.inventory, Global.group)
                 else:
+                    self.write_config(Global.group, Global.hosts, Global.inventory)
                     self.filename =  Global.group_file
-                    self.bricks = self.config_get_options(self.config,
-                                                           'devices', False)
                     ret = self.call_gen_methods()
+                    self.remove_section(Global.inventory, Global.group)
                 # msg = "This configuration format will be deprecated  "\
                 # "in the next release.\nPlease refer the setup guide "\
                 # "for the new configuration format."
@@ -83,25 +96,27 @@ class BackendSetup(YamlWriter):
         else:
             hosts = filter(None, hosts)
             self.parse_section('')
-            self.filename =  Global.group_file
-            ret = self.call_gen_methods()
-            Global.var_file = 'group_vars'
+            if self.section_dict:
+                self.filename =  Global.group_file
+                self.write_config(Global.group, Global.hosts, Global.inventory)
+                ret = self.call_gen_methods()
+                self.remove_section(Global.inventory, Global.group)
+                Global.var_file = 'group_vars'
             if hosts:
                 Global.var_file = None
                 hosts = self.pattern_stripping(hosts)
                 Global.hosts.extend(hosts)
                 for host in hosts:
+                    self.write_config(Global.group, [host], Global.inventory)
                     self.bricks = []
                     self.host_file = self.get_file_dir_path(Global.host_vars_dir, host)
                     self.touch_file(self.host_file)
                     self.parse_section(':' + host)
                     ret = self.call_gen_methods()
+                    self.remove_section(Global.inventory, Global.group)
                 Global.var_file = 'host_vars'
 
 
-        self.filename =  Global.group_file
-        self.perf_spec_data_write()
-        self.tune_profile()
         Global.hosts = list(set(Global.hosts))
         if ret:
             msg = "Back-end setup triggered"
@@ -109,7 +124,11 @@ class BackendSetup(YamlWriter):
             print "\nINFO: " + msg
 
     def call_gen_methods(self):
-        return self.write_mount_options()
+        self.write_brick_names()
+        self.write_vg_names()
+        self.write_lv_names()
+        self.write_lvol_names()
+        self.write_mount_options()
 
     def parse_section(self, hostname):
         try:
@@ -125,96 +144,221 @@ class BackendSetup(YamlWriter):
         self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
 
     def write_brick_names(self):
-        if not self.bricks:
-            self.bricks = self.section_dict.get('devices')
+        self.bricks = self.get_options('devices')
+        ssd = self.get_options('ssd')
+        if ssd:
+            self.ssd = self.correct_brick_format(
+                    self.pattern_stripping(ssd))[0]
+            self.section_dict['disk'] = self.ssd
         if self.bricks:
             self.bricks = self.pattern_stripping(self.bricks)
-            self.section_dict['bricks'] = self.bricks
+            bricks = self.correct_brick_format(self.bricks)
+            self.device_count = len(bricks)
+            self.section_dict['bricks'] = bricks
+            if hasattr(self, 'ssd'):
+                self.section_dict['bricks'].append(self.ssd)
             self.create_yaml_dict('bricks', self.section_dict['bricks'], False)
             self.device_count = len(self.bricks)
-            if 'pvcreate.yml' not in Global.playbooks:
-                Global.playbooks.append('pvcreate.yml')
+            yml = self.get_file_dir_path(Global.base_dir, 'pvcreate.yml')
+            self.exec_ansible_cmd(yml)
+            if hasattr(self, 'ssd'):
+                if self.ssd in self.section_dict['bricks']:
+                    self.section_dict['bricks'].remove(self.ssd)
             return True
         else:
             return False
 
+    def correct_brick_format(self, brick_list):
+        bricks = []
+        for brick in brick_list:
+            if not brick.startswith('/dev/'):
+                bricks.append('/dev/' + brick)
+            else:
+                bricks.append(brick)
+        return bricks
+
     def write_vg_names(self):
-        if not self.write_brick_names():
-            return False
+        if not self.section_dict.get('bricks'):
+            self.previous = False
+            self.section_dict['bricks'] = []
+        else:
+            self.previous = True
         vgs = self.section_data_gen('vgs', 'Volume Groups')
         if vgs:
             self.create_yaml_dict('vgs', vgs, False)
             self.section_dict['vgs'] = vgs
             data = []
+            if len( self.section_dict['bricks']) > 1 and len(
+                    self.section_dict['vgs']) == 1:
+                self.section_dict['vgs'] *= len(
+                        self.section_dict['bricks'])
             for i, j in zip(self.section_dict['bricks'], vgs):
                 vgnames = {}
                 vgnames['brick'] = i
                 vgnames['vg'] = j
                 data.append(vgnames)
             self.create_yaml_dict('vgnames', data, True)
-            if 'vgcreate.yml' not in Global.playbooks:
-                Global.playbooks.append('vgcreate.yml')
+            if self.section_dict.get('bricks'):
+                yml = self.get_file_dir_path(Global.base_dir, 'vgcreate.yml')
+                self.exec_ansible_cmd(yml)
+            else:
+                self.device_count = len(vgs)
             return True
         return False
 
 
     def write_lv_names(self):
-        if not self.write_pool_names():
+        if self.gluster:
+            if not self.write_pool_names():
+                self.section_dict['pools'] = []
+                self.previous = False
+            else:
+                self.previous = True
+            lvs = self.section_data_gen('lvs', 'Logical Volumes')
+            if lvs:
+                self.section_dict['lvs'] = lvs
+                data = []
+                for i, j, k in zip(self.section_dict['pools'],
+                        self.section_dict['vgs'], lvs):
+                    pools = {}
+                    pools['pool'] = i
+                    pools['vg'] = j
+                    pools['lv'] = k
+                    data.append(pools)
+                self.create_yaml_dict('lvpools', data, True)
+                if self.section_dict.get('pools'):
+                    if (len(self.section_dict['lvs']) != len(
+                        self.section_dict['pools'])):
+                        self.insufficient_param_count('lvs',
+                                len(self.section_dict['pools']))
+                    yml = self.get_file_dir_path(Global.base_dir,
+                            'auto_lvcreate_for_gluster.yml')
+                    self.exec_ansible_cmd(yml)
+                else:
+                    if not hasattr(self, 'device_count'):
+                        self.device_count = len(lvs)
+                return True
             return False
-        lvs = self.section_data_gen('lvs', 'Logical Volumes')
+        lvs = self.get_options('lvs')
+        lvs = self.pattern_stripping(lvs)
+        self.data = []
         if lvs:
-            self.section_dict['lvs'] = lvs
-            data = []
-            for i, j, k in zip(self.section_dict['pools'],
-                    self.section_dict['vgs'], lvs):
-                pools = {}
-                pools['pool'] = i
-                pools['vg'] = j
-                pools['lv'] = k
-                data.append(pools)
-            self.create_yaml_dict('lvpools', data, True)
-            if 'lvcreate.yml' not in Global.playbooks:
-                Global.playbooks.append('lvcreate.yml')
-            return True
-        return False
+            for lv in lvs:
+                self.lvs_with_size(lv, '100%FREE')
+        else:
+            lvs = []
+        datalv = self.get_options('datalv')
+        if datalv:
+            self.datalv =  self.pattern_stripping(datalv)
+            if self.datalv[0] not in lvs:
+                lvs.extend(self.datalv)
+        #If SSD present for caching
+        self.section_dict['vg'] = self.section_dict['vgs'][0]
+        self.section_dict['force'] = self.config_get_options(self.config,
+                                               'force', False) or 'no'
+        self.iterate_dicts_and_yaml_write(self.section_dict)
+        if hasattr(self, 'ssd'):
+            if not hasattr(self, 'datalv'):
+                msg = "Data lv('datalv' options) not specified for "\
+                        "cache setup"
+                print "\nError: " + msg
+                Global.logger.error(msg)
+                self.cleanup_and_quit()
+            yml = self.get_file_dir_path(Global.base_dir,
+                    'vgextend.yml')
+            self.exec_ansible_cmd(yml)
+            self.section_dict['datalv'] = self.datalv[0]
+            cachemeta = self.get_options(
+                    'cachemetalv') or 'lv_cachemeta'
+            cachedata = self.get_options(
+                    'cachedatalv') or 'lv_cachedata'
+            cache_m = self.lvs_with_size(cachemeta, '1024')
+            self.create_yaml_dict('cachemeta', cache_m, False)
+            cache_d = self.lvs_with_size(cachedata, '4096')
+            self.create_yaml_dict('cachedata', cache_d, False)
+        if not self.data:
+            return
+        self.create_yaml_dict('lvs', self.data, True)
+        yml = self.get_file_dir_path(Global.base_dir,
+                'lvcreate.yml')
+        self.exec_ansible_cmd(yml)
+        if hasattr(self, 'ssd'):
+            yml = self.get_file_dir_path(Global.base_dir,
+                    'lvconvert.yml')
+            self.exec_ansible_cmd(yml)
+
+
+    def lvs_with_size(self, lv, d_size):
+        name = lv.split(':')[0]
+        try:
+            size = lv.split(':')[1]
+        except:
+            size = d_size
+        lvs = {}
+        lvs['name'] = name
+        lvs['size'] = size
+        self.data.append(lvs)
+        return lvs
 
     def write_pool_names(self):
-        if not self.write_vg_names():
-            return False
+        if not self.section_dict.get('vgs'):
+            self.section_dict['vgs'] = []
+            self.previous = False
+        else:
+            self.previous = True
         pools = self.section_data_gen('pools', 'Logical Pools')
         if pools:
             self.section_dict['pools'] = pools
             data = []
+            if len(self.section_dict['pools']) > 1 and len(
+                    self.section_dict['vgs']) == 1:
+                self.insufficient_param_count('pools',
+                        len(self.section_dict['vgs']))
             for i, j in zip(pools, self.section_dict['vgs']):
                 pools = {}
                 pools['pool'] = i
                 pools['vg'] = j
                 data.append(pools)
             self.create_yaml_dict('pools', data, True)
+            if not hasattr(self, 'device_count'):
+                self.device_count = len(pools)
             return True
         return False
 
     def write_lvol_names(self):
-        if not self.write_lv_names():
-            return False
-        lvols = ['/dev/%s/%s' % (i, j) for i, j in
+        if not self.section_dict.get('lvs'):
+            self.section_dict['lvs'] = []
+            self.previous = False
+        else:
+            self.previous = True
+        if len( self.section_dict['lvs']) > 1 and len(
+                self.section_dict['vgs']) == 1:
+            self.section_dict['vgs'] *= len( self.section_dict['lvs'])
+        lvols = ['/dev/%s/%s' % (i, j.split(':')[0]) for i, j in
                                       zip(self.section_dict['vgs'],
                                           self.section_dict['lvs'])]
         if lvols:
             self.section_dict['lvols'] = lvols
             self.create_yaml_dict('lvols', lvols, False)
-            if 'fscreate.yml' not in Global.playbooks:
-                Global.playbooks.append('fscreate.yml')
+            yml = self.get_file_dir_path(Global.base_dir, 'fscreate.yml')
+            self.exec_ansible_cmd(yml)
+            if not hasattr(self, 'device_count'):
+                self.device_count = len(lvols)
             return True
         return False
 
     def write_mount_options(self):
-        if not self.write_lvol_names():
-            return False
+        if not self.section_dict.get('lvols'):
+            self.section_dict['lvols'] = []
+            self.previous = False
+        else:
+            self.previous = True
         self.mountpoints = self.section_data_gen(
                 'mountpoints', 'Mount Point')
         data = []
         self.section_dict['mountpoints'] = self.mountpoints
+        if not self.mountpoints:
+            return False
         for i, j in zip(self.mountpoints, self.section_dict['lvols']):
             mntpath = {}
             mntpath['path'] = i
@@ -223,8 +367,8 @@ class BackendSetup(YamlWriter):
         self.create_yaml_dict('mntpath', data, True)
         self.modify_mountpoints()
         self.create_yaml_dict('mountpoints', self.mountpoints, False)
-        if 'mount.yml' not in Global.playbooks:
-            Global.playbooks.append('mount.yml')
+        yml = self.get_file_dir_path(Global.base_dir, 'mount.yml')
+        self.exec_ansible_cmd(yml)
         return True
 
 
@@ -381,19 +525,15 @@ class BackendSetup(YamlWriter):
     def section_data_gen(self, section, section_name):
         opts = self.get_options(section)
         options = self.pattern_stripping(opts)
-        if options:
-            if len(options) != self.device_count:
-                return self.insufficient_param_count(
-                    section_name,
-                    self.device_count)
-        elif self.default:
-            options = []
-            pattern = {'vgs': 'GLUSTER_vg',
-                       'pools': 'GLUSTER_pool',
-                       'lvs': 'GLUSTER_lv',
-                       'mountpoints': '/gluster/brick'
-                       }[section]
-            for i in range(1, self.device_count + 1):
-                options.append(pattern + str(i))
+        if not options:
+            if self.default and self.previous:
+                options = []
+                pattern = {'vgs': 'GLUSTER_vg',
+                           'pools': 'GLUSTER_pool',
+                           'lvs': 'GLUSTER_lv',
+                           'mountpoints': '/gluster/brick'
+                           }[section]
+                for i in range(1, self.device_count + 1):
+                    options.append(pattern + str(i))
         return options
 
