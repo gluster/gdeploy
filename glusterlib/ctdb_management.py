@@ -86,6 +86,9 @@ class CtdbManagement(YamlWriter):
         self.section_dict['nodes'] = '\n'.join(Global.hosts)
         paddress = self.section_dict.get('public_address')
         if paddress:
+            if not isinstance(paddress, list):
+                paddress = [paddress]
+            paddress = self.pattern_stripping(paddress)
             paddress_list = map(lambda x: x.split(' '), paddress)
             paddress_list = filter(None, paddress_list)
             addresses, interfaces = [], []
@@ -95,12 +98,12 @@ class CtdbManagement(YamlWriter):
                     interfaces.append(ip[1])
                 except:
                     interfaces.append(' ')
-            addresses = map(self.parse_patterns, addresses)
+            addresses = self.pattern_stripping(addresses)
             interfaces = map(lambda x: x.replace(';',','), interfaces)
             paddress = []
             for ip, inter in zip(addresses, interfaces):
-                public_add = map(lambda x: x + ' ' + inter, ip)
-                paddress.append('\n'.join(public_add))
+                public_add = ip + ' ' + inter
+                paddress.append(public_add)
             self.section_dict['paddress'] = '\n'.join(paddress)
         Global.playbooks.append('setup_ctdb.yml')
         self.start_ctdb()
