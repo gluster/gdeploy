@@ -981,6 +981,18 @@ client_mount_points=/mnt/gluster{1..3}
 # action=remove
 # packages=vi
 #
+# To add/enable repos
+#
+# [yum]
+# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
+#
+# Note: installing packages and adding repos can be done together like
+# this
+#
+# [yum]
+# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm
+# action=install
+# packages=vim
 #
 # Make sure your system is registered with subscription manager before
 # trying to install packages.

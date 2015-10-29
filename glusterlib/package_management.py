@@ -36,25 +36,32 @@ class PackageManagement(YamlWriter):
 
 
     def get_data(self):
+        action = ''
         try:
             action = self.section_dict.pop('action')
         except:
+            pass
+        repo = self.section_dict.get('repos')
+        if repo:
+            self.section_dict['enabled_repos'] = repo
+        if not repo and not action:
             print "Warning: Section 'yum' without any action option " \
                     "found. Skipping this section!"
             return
-        if action not in ['install', 'remove']:
-            msg = "Unknown action provided. Use either `install` " \
-                    "or `remove`."
-            print "\nError: " + msg
-            Global.logger.error(msg)
-            return
-        self.section_dict['state'] = 'present' if action == 'install' else 'absent'
-        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
+        if action:
+            if action not in ['install', 'remove']:
+                msg = "Unknown action provided. Use either `install` " \
+                        "or `remove`."
+                print "\nError: " + msg
+                Global.logger.error(msg)
+                return
+            self.section_dict['state'] = 'present' if action == 'install' else 'absent'
+            self.check_for_param_presence('packages', self.section_dict)
+            self.section_dict['name'] = self.section_dict.pop('packages')
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
-        self.check_for_param_presence('packages', self.section_dict)
-        self.section_dict['name'] = self.section_dict.pop('packages')
+        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
         self.filename = Global.group_file
         self.iterate_dicts_and_yaml_write(self.section_dict)
         msg = "yum operation(action: %s) triggered" % action

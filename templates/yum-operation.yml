@@ -4,6 +4,13 @@
   gather_facts: no
 
   tasks:
+  - name: yum_repos | enable requested repos
+    shell: yum-config-manager --enable {{item}} 1>/dev/null
+    with_items: enabled_repos
+    when: enabled_repos is defined and enabled_repos|length > 0
+
   - name: Installs/Removes a package using yum
     yum: name={{ item }} state="{{ state }}"
     with_items: name
+    when: name is defined and state is defined
+
