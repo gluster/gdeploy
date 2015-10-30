@@ -184,10 +184,11 @@ class ClientManagement(YamlWriter):
         elif section_dict['fstype'] == 'cifs':
             msg = "CIFS mount of volume triggered."
             if not self.present_in_yaml(
-                    Global.group_file, 'user') or not self.present_in_yaml(
-                            Global.group_file, 'pass'):
-                print "Provide the SMB username and password under "\
-                        "the 'volume' section."
+                    Global.group_file, 'smb_username') or not self.present_in_yaml(
+                            Global.group_file, 'smb_password'):
+                print "\nError: Provide the SMB username and password under "\
+                "the 'volume' section."
+                self.cleanup_and_quit()
             print "\nINFO: " + msg
             Global.logger.info(msg)
             Global.playbooks.append('gluster-client-cifs-mount.yml')

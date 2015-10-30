@@ -292,12 +292,9 @@ class VolumeManagement(YamlWriter):
         try:
             ctdb = self.config._sections['ctdb']
         except:
-            msg = "For SMB setup, please configure 'ctdb' using ctdb " \
+            msg = "For SMB setup, please ensure you " \
+                    "configure 'ctdb' using ctdb " \
                     "section. Refer documentation for more."
-            Global.logger.error(msg)
-            print "\nError: " + msg
-            self.cleanup_and_quit()
-
         sections_default_value = {'path': '/',
                             'glusterfs:logfile': '/var/log/samba/' +
                                 self.section_dict['volname'] + '.log',
@@ -309,10 +306,14 @@ class VolumeManagement(YamlWriter):
         for key, value in sections_default_value.iteritems():
             if self.section_dict[key]:
                 options += key + ' = ' + str(self.section_dict[key]) + '\n'
-        self.section_dict['smb_options'] = options
+        self.section_dict['smb_options'] = "[gluster-{0}]\n"\
+                "comment = For samba share of volume {0}\n"\
+                "vfs objects = glusterfs\nglusterfs:volume = {0}\n"\
+                "read only = no\nguest ok = "\
+                "yes\n{1}".format(self.section_dict['volname'], options)
 
-        self.section_dict['user'] = self.section_dict.get('smb_username') or 'smbuser'
-        self.section_dict['pass'] = self.section_dict.get('smb_password') or 'password'
+        self.section_dict['smb_username'] = self.section_dict.get('smb_username') or 'smbuser'
+        self.section_dict['smb_password'] = self.section_dict.get('smb_password') or 'password'
         if not self.section_dict.get('smb_mountpoint'):
             self.section_dict['smb_mountpoint'] = '/mnt/smbserver'
         Global.playbooks.append('replace_smb_conf_volname.yml')
