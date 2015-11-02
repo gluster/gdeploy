@@ -40,11 +40,15 @@ class VolumeManagement(YamlWriter):
         volume = self.section_dict.get('volname')
         volname = self.split_volume_and_hostname(volume)
         self.section_dict['volname'] = volname
+        smb = self.section_dict.get('smb')
         if not action:
-            msg = "Section 'volume' without any action option " \
-                    "found. \nNoting the data given and skipping this section!"
-            print "\nWarning: " + msg
-            Global.logger.warning(msg)
+            if smb and smb.lower() == 'yes':
+                self.samba_setup()
+            else:
+                msg = "Section 'volume' without any action option " \
+                        "found. \nNoting the data given and skipping this section!"
+                print "\nWarning: " + msg
+                Global.logger.warning(msg)
             self.filename = Global.group_file
             self.iterate_dicts_and_yaml_write(self.section_dict)
             return
@@ -81,6 +85,8 @@ class VolumeManagement(YamlWriter):
             force = self.section_dict.get('force') or ''
             force = 'yes' if force.lower() == 'yes' else 'no'
             self.section_dict['force'] = force
+        if smb and smb.lower() == 'yes':
+            self.samba_setup()
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def get_brick_dirs(self):
@@ -261,7 +267,62 @@ class VolumeManagement(YamlWriter):
             Global.playbooks.append('gluster-volume-start.yml')
         Global.playbooks.append('gluster-volume-rebalance.yml')
 
-    def volume_set(self):
-        self.check_for_param_presence('key', self.section_dict)
-        self.check_for_param_presence('value', self.section_dict)
+    def volume_set(self, key=None, value=None):
+        self.filename = Global.group_file
+        if not key:
+            self.check_for_param_presence('key', self.section_dict)
+            self.check_for_param_presence('value', self.section_dict)
+            key = self.section_dict.pop('key')
+            value = self.section_dict.pop('value')
+        if not isinstance(key, list):
+            key = [key]
+        if not isinstance(value, list):
+            value = [value]
+        data = []
+        for k,v in zip(key, value):
+            names = {}
+            names['key'] = k
+            names['value'] = v
+            data.append(names)
+        self.create_yaml_dict('set', data, True)
         Global.playbooks.append('gluster-volume-set.yml')
+
+
+    def samba_setup(self):
+        try:
+            ctdb = self.config._sections['ctdb']
+        except:
+            msg = "For SMB setup, please ensure you " \
+                    "configure 'ctdb' using ctdb " \
+                    "section. Refer documentation for more."
+            print "Warning: " + msg
+            Global.logger.info(msg)
+        sections_default_value = {'path': '/',
+                            'glusterfs:logfile': '/var/log/samba/' +
+                                self.section_dict['volname'] + '.log',
+                            'glusterfs:loglevel': 7,
+                            'glusterfs:volfile_server': 'localhost'}
+        self.set_default_value_for_dict_key(self.section_dict,
+                                            sections_default_value)
+        options = ''
+        for key, value in sections_default_value.iteritems():
+            if self.section_dict[key]:
+                options += key + ' = ' + str(self.section_dict[key]) + '\n'
+        self.section_dict['smb_options'] = "[gluster-{0}]\n"\
+                "comment = For samba share of volume {0}\n"\
+                "vfs objects = glusterfs\nglusterfs:volume = {0}\n"\
+                "read only = no\nguest ok = "\
+                "yes\n{1}".format(self.section_dict['volname'], options)
+
+        self.section_dict['smb_username'] = self.section_dict.get('smb_username') or 'smbuser'
+        self.section_dict['smb_password'] = self.section_dict.get('smb_password') or 'password'
+        if not self.section_dict.get('smb_mountpoint'):
+            self.section_dict['smb_mountpoint'] = '/mnt/smbserver'
+        Global.playbooks.append('replace_smb_conf_volname.yml')
+        Global.playbooks.append('mount-in-samba-server.yml')
+
+        key = ['stat-prefetch', 'server.allow-insecure',
+                'storage.batch-fsync-delay-usec']
+        value = ['off', 'on', 0]
+        self.volume_set(key, value)
+        Global.playbooks.append('glusterd-start.yml')

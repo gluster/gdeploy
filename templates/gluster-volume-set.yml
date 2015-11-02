@@ -7,5 +7,5 @@
   - name: Sets options for volume
     volume-set: action=set
                 volume="{{ volname }}"
-                key={{ item }} value="{{ value }}"
-    with_items: "{{ key }}"
+                key={{ item.key }} value={{ item.value }}
+    with_items: set

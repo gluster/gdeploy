@@ -487,6 +487,30 @@ force=yes
 # key=cluster.nufa
 # value=on
 
+#               ## SMB volume share
+
+# To enable SMB volume share, along with colume creation or separately
+# 'smb' option should be set to yes in 'volume' section.
+# The other options necessary along with setting smb as yes are:
+#
+# smb_username: The Samba username. Default value is 'smbuser'
+#
+# smb_password: Password for the Samba user. Default value is 'password'
+#
+# smb_mountpoint: This mountpoint will be used to mount the to be shared
+# volume on one of the Samba servers itself. For more info refer Samba
+# documentaion. Default value is /mnt/smbserver
+#
+# NOTE: Samba needs CTDB setup as well to work. Please refer the CTDB
+# section below to setup this.
+#
+# Example:
+# [volume]
+# volname=smbvolume
+# smb=yes
+# smb_username=bilbo
+# smb_password=shireeleventyone
+# smb_mountpoint=/mnt/precious
 
 
 #-----------------------------------

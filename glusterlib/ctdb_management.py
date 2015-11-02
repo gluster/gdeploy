@@ -69,8 +69,8 @@ class CtdbManagement(YamlWriter):
         sections_default_value = {
                 'CTDB_PUBLIC_ADDRESSES': '/etc/ctdb/public_addresses',
                 'CTDB_NODES': '/etc/ctdb/nodes',
-                'CTDB_NODES': '/etc/ctdb/nodes',
-                'CTDB_MANAGES_SAMBA': 'no'
+                'CTDB_MANAGES_SAMBA': 'no',
+                'CTDB_RECOVERY_LOCK': '/mnt/lock/reclock'
             }
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
@@ -86,6 +86,8 @@ class CtdbManagement(YamlWriter):
         self.section_dict['nodes'] = '\n'.join(Global.hosts)
         paddress = self.section_dict.get('public_address')
         if paddress:
+            if not isinstance(paddress, list):
+                paddress= [paddress]
             if not isinstance(paddress, list):
                 paddress = [paddress]
             paddress = self.pattern_stripping(paddress)
