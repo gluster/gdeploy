@@ -295,6 +295,8 @@ class VolumeManagement(YamlWriter):
             msg = "For SMB setup, please ensure you " \
                     "configure 'ctdb' using ctdb " \
                     "section. Refer documentation for more."
+            print "Warning: " + msg
+            Global.logger.info(msg)
         sections_default_value = {'path': '/',
                             'glusterfs:logfile': '/var/log/samba/' +
                                 self.section_dict['volname'] + '.log',

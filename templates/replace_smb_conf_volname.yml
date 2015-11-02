@@ -49,14 +49,15 @@
         insertbefore=EOF
 
   - name: Start SMB service
-    service: name=smb state=started
+    service: name=smb state=restarted
 
   - name: Enable SMB service
     service: name=smb enabled=yes
 
   - name: Create a new user
-    user: name="{{ user }}"
+    user: name="{{ smb_username }}"
 
   - name: Set smb password
-    command: echo -ne "{{ pass }}\n" | tee - | smbpasswd -a -s "{{ user }}"
+    raw: (echo {{ item }}; echo {{ item }}) | smbpasswd -s -a "{{ smb_username }}"
+    with_items: smb_password
 

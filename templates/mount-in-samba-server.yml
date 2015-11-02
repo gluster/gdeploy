@@ -19,4 +19,4 @@
     with_items: smb_mountpoint
 
   - name: Provide permissions using setfacl
-    command: setfacl -m user:"{{ user }}":rwx "{{smb_mountpoint}}"
+    command: setfacl -m user:"{{ smb_username }}":rwx "{{smb_mountpoint}}"

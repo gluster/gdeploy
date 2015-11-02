@@ -85,9 +85,9 @@ class CtdbManagement(YamlWriter):
         self.section_dict['options'] = option
         self.section_dict['nodes'] = '\n'.join(Global.hosts)
         paddress = self.section_dict.get('public_address')
-        if not isinstance(paddress, list):
-            paddress= [paddress]
         if paddress:
+            if not isinstance(paddress, list):
+                paddress= [paddress]
             if not isinstance(paddress, list):
                 paddress = [paddress]
             paddress = self.pattern_stripping(paddress)

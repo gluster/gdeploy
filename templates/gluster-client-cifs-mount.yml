@@ -11,7 +11,7 @@
 
   - name: Mount the volumes
     mount: name={{ item }}
-           src="//{{ groups['master'][0]}}/gluster-{{ volname }}"
+           src="\\\\{{ groups['master'][0]}}\\gluster-{{ volname }}"
            fstype="cifs"
            opts="username={{smb_username}},password={{smb_password}}"
            state=mounted
