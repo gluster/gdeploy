@@ -16,7 +16,7 @@ setup(
         ],
 
     include_package_data=True,
-    url="https://github.com/nandajavarma/gdeploy",
+    url="https://github.com/gluster/gdeploy",
 
     license="LICENSE",
     description="Tool to automatically setup and deploy " \
