@@ -248,6 +248,12 @@ class Helpers(Global):
         return ultimate_brickname
 
 
+    def get_backend_sections(self):
+        for sec in  self.config._sections:
+            sections = self.parse_patterns(sec)
+            for each in sections:
+                Global.dictionary[each] = dict(self.config._sections[sec])
+
     def pattern_stripping(self, values):
         value_list = []
         if not isinstance(values, list):

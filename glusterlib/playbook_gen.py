@@ -59,6 +59,7 @@ class PlaybookGen(BackendSetup):
         Global.sections = self.config._sections
         self.get_hostnames()
         self.create_files_and_dirs()
+        self.get_backend_sections()
         BackendSetup(self.config)
         for warn in Global.warnings:
             print warn

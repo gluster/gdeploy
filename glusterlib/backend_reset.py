@@ -59,7 +59,7 @@ class BackendReset(YamlWriter):
 
     def parse_section(self, hostname):
         try:
-            self.section_dict = self.config._sections['backend-reset' +
+            self.section_dict = Global.dictionary['backend-reset' +
                     hostname]
             del self.section_dict['__name__']
         except KeyError:

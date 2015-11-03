@@ -35,6 +35,7 @@ class Global(object):
     master = None
     var_file =  None
     test = False
+    dictionary = {}
 
     # Required filenames and dir names
     host_vars = 'host_vars'
