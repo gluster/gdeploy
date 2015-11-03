@@ -46,9 +46,7 @@ class BackendReset(object):
         for action in needed_methods:
             action()
         errors = [output[2] for output in self.output if output[0] != 0]
-        if not errors:
-            self.module.exit_json(changed=1)
-        self.module.fail_json(rc=1, msg=errors)
+        self.module.exit_json(changed=1)
 
     def validated_params(self, opt):
         value = self.module.params[opt]
