@@ -7,8 +7,7 @@
 10.70.46.19
 
 # NOTE: Patterns are supported for all the multiple values options and sections.
-# For example: hosts can be given as 10.70.46.1{3..7} specifying the 4 hosts
-# ranging from 10.70.46.13 to 10.70.46.27
+# For example: hosts can be given as 10.70.46.1{3,5,7,9} specifying the 4 hosts
 
 
 #------------------------------
@@ -31,7 +30,7 @@
 # pools=CUSTOM_pool1,CUSTOM_pool2,CUSTOM_pool3
 # lvs=CUSTOM_lv1,CUSTOM_lv2,CUSTOM_lv3
 # mountpoints=/gluster/brick1,/gluster/brick2,/gluster/brick3
-# brick_dirs=glusterbrick{1..3}
+# brick_dirs=glusterbrick{1,2,3}
 #
 #
 # Common configuration for all the hosts
@@ -56,7 +55,7 @@
 # pools=CUSTOM_pool1,CUSTOM_pool2,CUSTOM_pool3
 # lvs=CUSTOM_lv1,CUSTOM_lv2,CUSTOM_lv3
 # mountpoints=/gluster/brick1,/gluster/brick2,/gluster/brick3
-# brick_dirs=glusterbrick{1..3}
+# brick_dirs=glusterbrick{1,2,3}
 #
 # [backend-setup]
 # devices=/dev/sdb
@@ -193,7 +192,7 @@ vgs=CUSTOM_vg1,CUSTOM_vg2,CUSTOM_vg3
 pools=CUSTOM_pool1,CUSTOM_pool2,CUSTOM_pool3
 lvs=CUSTOM_lv1,CUSTOM_lv2,CUSTOM_lv3
 mountpoints=/gluster/brick1,/gluster/brick2,/gluster/brick3
-brick_dirs=glusterbrick{1..3}
+brick_dirs=glusterbrick{1,2,3}
 
 # NOTE: The host specific data of 10.70.46.15 and 10.70.46.17 are
 # the same. It can be fed either of the ways. Two separate
@@ -201,11 +200,11 @@ brick_dirs=glusterbrick{1..3}
 # patterns usage
 
 [10.70.46.15]
-devices=/dev/vd{b..c}
-vgs=CUSTOM_vg{1..2}
-pools=CUSTOM_pool{1..2}
-lvs=CUSTOM_lv{1..2}
-mountpoints=/gluster/brick{1..2}
+devices=/dev/vd{b,c}
+vgs=CUSTOM_vg{1,2}
+pools=CUSTOM_pool{1,2}
+lvs=CUSTOM_lv{1,2}
+mountpoints=/gluster/brick{1,2}
 
 [10.70.46.17]
 devices=/dev/vdc,/dev/vdb
@@ -292,7 +291,7 @@ rhs-high-throughput
 # With unmount:
 #
 # [backend-reset]
-# lvs=GLUSTER_lv{1..2}
+# lvs=GLUSTER_lv{1,2}
 # unmount=yes
 #
 #
@@ -314,7 +313,7 @@ rhs-high-throughput
 # Without unmount:
 #
 # [backend-reset]
-# vgs=GLUSTER_vg{1..2}
+# vgs=GLUSTER_vg{1,2}
 #
 #
 # To remove backend in n different machines with different configurations:
@@ -462,14 +461,14 @@ force=yes
 # [volume]
 # action=add-brick
 # volname=glustervol
-# bricks=10.70.46.13:/mnt/new_brick{1..8}
+# bricks=10.70.46.13:/mnt/new_brick{1,8}
 
 # Remove brick operation can be done by using:
 
 # [volume]
 # action=remove-brick
 # volname=10.70.46.13:glustervol
-# bricks=10.70.46.17:/mnt/brick{1..8}
+# bricks=10.70.46.17:/mnt/brick{1,8}
 # state=commit
 
 # Rebalance operation can be done by using:
@@ -551,9 +550,9 @@ force=yes
 [clients]
 action=mount
 # volname=glustervol (If not specified earlier in 'volume' section
-hosts=10.70.46.1{3..5}
+hosts=10.70.46.1{3,5}
 fstype=glusterfs
-client_mount_points=/mnt/gluster{1..3}
+client_mount_points=/mnt/gluster{1,3}
 
 
 # Mounting a volume using nfs on a single client host
@@ -809,7 +808,7 @@ client_mount_points=/mnt/gluster{1..3}
 # To delete a geo-rep session
 #
 # [geo-replication]
-# action=stop
+# action=delete
 # mastervol=10.70.46.13:mastervolname
 # slavevol=10.70.46.15:slavevolname
 # force=yes
@@ -865,7 +864,7 @@ client_mount_points=/mnt/gluster{1..3}
 #
 #
 #
-# To to set checkpoint as the current time
+# To set checkpoint as the current time
 #
 # [geo-replication]
 # action=config
@@ -1090,7 +1089,7 @@ client_mount_points=/mnt/gluster{1..3}
 #
 # [ctdb]
 # action=setup
-# public_address=192.168.1.{1..4}/24 eth1;eth2,192.168.1.1/24 eth2
+# public_address=192.168.1.{1,4}/24 eth1;eth2,192.168.1.1/24 eth2
 # CTDB_PUBLIC_ADDRESSES=/etc/ctdb/public_addresses
 # CTDB_NODES=/etc/ctdb/nodes
 # CTDB_MANAGES_SAMBA=no

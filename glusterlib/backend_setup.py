@@ -52,6 +52,7 @@ class BackendSetup(YamlWriter):
     def write_sections(self):
         Global.logger.info("Reading configuration for backend setup")
         self.filename =  Global.group_file
+        self.entire_hosts = Global.hosts
         self.perf_spec_data_write()
         self.tune_profile()
         backend_setup, hosts = self.check_backend_setup_format()
@@ -95,17 +96,9 @@ class BackendSetup(YamlWriter):
 
         else:
             hosts = filter(None, hosts)
-            self.parse_section('')
-            if self.section_dict:
-                self.filename =  Global.group_file
-                self.write_config(Global.group, Global.hosts, Global.inventory)
-                ret = self.call_gen_methods()
-                self.remove_section(Global.inventory, Global.group)
-                Global.var_file = 'group_vars'
             if hosts:
                 Global.var_file = None
                 hosts = self.pattern_stripping(hosts)
-                Global.hosts.extend(hosts)
                 for host in hosts:
                     self.write_config(Global.group, [host], Global.inventory)
                     self.bricks = []
@@ -114,10 +107,21 @@ class BackendSetup(YamlWriter):
                     self.parse_section(':' + host)
                     ret = self.call_gen_methods()
                     self.remove_section(Global.inventory, Global.group)
+                self.entire_hosts.extend(hosts)
                 Global.var_file = 'host_vars'
+            self.section_dict = None
+            self.parse_section('')
+            Global.hosts = [host for host in Global.hosts if host not in
+                    hosts]
+            if self.section_dict:
+                self.filename =  Global.group_file
+                self.write_config(Global.group, Global.hosts, Global.inventory)
+                ret = self.call_gen_methods()
+                self.remove_section(Global.inventory, Global.group)
+                Global.var_file = 'group_vars'
 
 
-        Global.hosts = list(set(Global.hosts))
+        Global.hosts = list(set(self.entire_hosts))
         if ret:
             msg = "Back-end setup triggered"
             Global.logger.info(msg)

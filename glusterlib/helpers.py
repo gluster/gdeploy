@@ -125,7 +125,17 @@ class Helpers(Global):
 
     def split_comma_seperated_options(self, options):
         if options:
-            return filter(None, options.split(','))
+            pat_group = re.search("(.*){(.*)}(.*)", options)
+            if not pat_group:
+                return filter(None, options.split(','))
+            else:
+                result = []
+                for i in range(1,3):
+                    if i == 2:
+                        result[-1] += '{' + pat_group.group(2) + '}'
+                    else:
+                        result.extend(pat_group.group(i).split(','))
+                return result
         return []
 
     def validate_hostname_volume_pattern(self, val):
@@ -258,22 +268,9 @@ class Helpers(Global):
         pat_group = re.search("(.*){(.*)}(.*)", pattern)
         if not pat_group:
             return [pattern]
-        pat_string = pat_group.group(2).split('..')
-        try:
-            pat_string = map(int, pat_string)
-            pat_string[-1] += 1
-            range_func = range
-        except:
-            range_func = self.char_range
-        pattern_string = [str(val) for val in range_func(pat_string[0], pat_string[1])]
-        names = [pat_group.group(1) + name + pat_group.group(3) for name in pattern_string]
+        pat_string = pat_group.group(2).split(',')
+        names = [pat_group.group(1) + name + pat_group.group(3) for name in pat_string]
         return filter(None, names)
-
-
-    def char_range(self, c1, c2):
-        """Generates the characters from `c1` to `c2`, inclusive."""
-        for c in xrange(ord(c1), ord(c2)+1):
-            yield chr(c)
 
 
     def check_backend_setup_format(self):
