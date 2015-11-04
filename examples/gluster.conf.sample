@@ -255,7 +255,7 @@ mountpoints=/gluster/brick1
 # If performance tuning profile is not to be set give the value as 'none'
 
 [tune-profile]
-rhs-high-throughput
+rhgs-sequential-io
 
 #----------------------------------
 
