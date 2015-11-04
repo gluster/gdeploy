@@ -192,10 +192,15 @@ class BackendSetup(YamlWriter):
             self.create_yaml_dict('vgs', vgs, False)
             self.section_dict['vgs'] = vgs
             data = []
-            if len( self.section_dict['bricks']) > 1 and len(
-                    self.section_dict['vgs']) == 1:
-                self.section_dict['vgs'] *= len(
-                        self.section_dict['bricks'])
+            if len( self.section_dict['bricks']) != len(
+                    self.section_dict['vgs']):
+                if len(self.section_dict['bricks']) > 1 and len(
+                        self.section_dict['vgs']) == 1:
+                    self.section_dict['vgs'] *= len(
+                            self.section_dict['bricks'])
+                else:
+                    self.insufficient_param_count('vgs',
+                            len(self.section_dict['bricks']))
             for i, j in zip(self.section_dict['bricks'], vgs):
                 vgnames = {}
                 vgnames['brick'] = i
