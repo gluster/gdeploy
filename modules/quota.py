@@ -47,7 +47,7 @@ class Quota(object):
         value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(rc=1,msg=msg)
         return value
 
 
@@ -73,7 +73,7 @@ class Quota(object):
             option_str = action_func()
 
         if not option_str:
-            self.fail_json(msg="Unknown action")
+            self.fail_json(rc=1,msg="Unknown action")
 
         rc, out, err = self.call_gluster_cmd('volume', 'quota',
             self.volume, option_str)
@@ -115,9 +115,9 @@ class Quota(object):
 
     def _get_output(self, rc, output, err):
         if not rc:
-            self.module.exit_json(stdout=output, changed=1)
+            self.module.exit_json(rc=rc, stdout=output, changed=1)
         else:
-            self.module.fail_json(msg=err)
+            self.module.fail_json(msg=err,rc=rc)
 
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'

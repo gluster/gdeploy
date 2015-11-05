@@ -1,0 +1,11 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Disabling quota for volume
+    quota:  action=disable
+            volume="{{ volname }}"
+    register: result
+    failed_when: "result.rc != 0 and 'is disabled' not in result.msg"

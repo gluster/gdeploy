@@ -1,0 +1,11 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Enabling quota for the volume
+    quota:  action=enable
+            volume="{{ volname }}"
+    register: result
+    failed_when: "result.rc != 0 and ('already' not in result.msg)"

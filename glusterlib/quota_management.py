@@ -45,10 +45,6 @@ class QuotaManagement(YamlWriter):
                     "found. Skipping this section!"
             return
         self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
-        self.check_for_param_presence('client_hosts', self.section_dict)
-        self.client_hosts = self.pattern_stripping(self.section_dict['client_hosts'])
-        self.write_config('client_host', self.client_hosts, Global.inventory)
-        del self.section_dict['client_hosts']
 
 
         if not self.present_in_yaml(Global.group_file, 'volname'):
@@ -73,8 +69,20 @@ class QuotaManagement(YamlWriter):
                          'limit-objects': self.quota_limit_objects,
                         }.get(action)
 
-        if action in ['enable', 'disable']:
-            action_func = self.dummy
+        if action  == 'enable':
+            self.enable_quota()
+            self.write_quota_info(action)
+            return
+        elif action == 'disable':
+            self.disable_quota()
+            self.write_quota_info(action)
+            return
+
+        self.enable_quota()
+        self.check_for_param_presence('client_hosts', self.section_dict)
+        self.client_hosts = self.pattern_stripping(self.section_dict['client_hosts'])
+        self.write_config('client_host', self.client_hosts, Global.inventory)
+        del self.section_dict['client_hosts']
 
         if action in ['remove', 'remove-objects']:
             action_func = self.quota_remove_action
@@ -94,6 +102,10 @@ class QuotaManagement(YamlWriter):
 
 
         Global.playbooks.append('gluster-quota-ops.yml')
+        self.write_quota_info(action)
+        return
+
+    def write_quota_info(self, action):
         self.filename = Global.group_file
         print "\nINFO: Quota management(action: %s) triggered" % action
         self.iterate_dicts_and_yaml_write(self.section_dict)
@@ -114,7 +126,12 @@ class QuotaManagement(YamlWriter):
                     self.iterate_dicts_and_yaml_write(gluster)
                 del self.section_dict[key]
 
-    def dummy(self):
+    def enable_quota(self):
+        Global.playbooks.append('gluster-quota-enable.yml')
+        return True
+
+    def disable_quota(self):
+        Global.playbooks.append('gluster-quota-disable.yml')
         return True
 
     def quota_default_soft_limit(self):

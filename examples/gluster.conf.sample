@@ -646,16 +646,14 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [quota]
 # action=enable
-# volname=glustervol
-# client_hosts=10.70.46.23,10.70.46.24
+# volname=10.70.46.15:glustervol
 #
 #
 # For disabling quota:
 #
 # [quota]
 # action=disable
-# volname=glustervol
-# client_hosts=10.70.46.23,10.70.46.24
+# volname=10.70.46.15:glustervol
 #
 #
 # For removing quota limits on a path
