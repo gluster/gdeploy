@@ -110,6 +110,7 @@ class BackendSetup(YamlWriter):
                 self.entire_hosts.extend(hosts)
                 Global.var_file = 'host_vars'
             self.section_dict = None
+            Global.var_file = None
             self.parse_section('')
             Global.hosts = [host for host in Global.hosts if host not in
                     hosts]
@@ -463,7 +464,8 @@ class BackendSetup(YamlWriter):
         return brick_dir
 
     def tune_profile(self):
-        profile = self.get_options('tune-profile')
+        profile = self.config_get_options(self.config,
+                               'tune-profile', False)
         profile = None if not profile else profile[0]
         if not profile:
             return
