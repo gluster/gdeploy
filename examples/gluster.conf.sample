@@ -8,6 +8,8 @@
 
 # NOTE: Patterns are supported for all the multiple values options and sections.
 # For example: hosts can be given as 10.70.46.1{3,5,7,9} specifying the 4 hosts
+# Or These can be specifies as ranges also: 10.70.46.1{1..4}. This
+# means the four IPs ranging from 10.70.46.11 to 10.70.46.14
 
 
 #------------------------------
@@ -26,7 +28,7 @@
 #
 # [backend-setup:10.70.46.13]
 # devices=/dev/sdb,/dev/vdb,/dev/vda
-# vgs=CUSTOM_vg1,CUSTOM_vg2,CUSTOM_vg3
+# vgs=CUSTOM_vg{1..3}
 # pools=CUSTOM_pool1,CUSTOM_pool2,CUSTOM_pool3
 # lvs=CUSTOM_lv1,CUSTOM_lv2,CUSTOM_lv3
 # mountpoints=/gluster/brick1,/gluster/brick2,/gluster/brick3

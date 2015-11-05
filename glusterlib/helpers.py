@@ -274,9 +274,32 @@ class Helpers(Global):
         pat_group = re.search("(.*){(.*)}(.*)", pattern)
         if not pat_group:
             return [pattern]
-        pat_string = pat_group.group(2).split(',')
-        names = [pat_group.group(1) + name + pat_group.group(3) for name in pat_string]
+        if ',' in pat_group.group(2):
+            pat_string = pat_group.group(2).split(',')
+            names = [pat_group.group(1) + name + pat_group.group(3) for name in pat_string]
+
+        elif '..' in pat_group.group(2):
+            pat_string = pat_group.group(2).split('..')
+            try:
+                pat_string = map(int, pat_string)
+                pat_string[-1] += 1
+                range_func = range
+            except:
+                range_func = self.char_range
+            pattern_string = [str(val) for val in range_func(pat_string[0], pat_string[1])]
+            names = [pat_group.group(1) + name + pat_group.group(3) for name in pattern_string]
+        else:
+            msg = "Unknown pattern."
+            print "\nError: " + msg
+            Global.logger.error(msg)
         return filter(None, names)
+
+
+    def char_range(self, c1, c2):
+        """Generates the characters from `c1` to `c2`, inclusive."""
+        for c in xrange(ord(c1), ord(c2)+1):
+            yield chr(c)
+
 
 
     def check_backend_setup_format(self):
