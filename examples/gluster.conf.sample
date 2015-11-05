@@ -661,7 +661,6 @@ client_mount_points=/mnt/gluster{1,3}
 # [quota]
 # action=remove
 # volname=glustervol
-# client_hosts=10.70.46.23,10.70.46.24
 # path=/,/dir1
 #
 #
@@ -670,7 +669,6 @@ client_mount_points=/mnt/gluster{1,3}
 # [quota]
 # action=remove-objects
 # volname=glustervol
-# client_hosts=10.70.46.23,10.70.46.24
 # path=/,/dir1
 #
 # For setting default soft limits
@@ -678,7 +676,6 @@ client_mount_points=/mnt/gluster{1,3}
 # [quota]
 # action=default-soft-limit
 # volname=glustervol
-# client_hosts=10.70.46.23,10.70.46.24
 # percent=85
 #
 #
@@ -687,7 +684,6 @@ client_mount_points=/mnt/gluster{1,3}
 # [quota]
 # action=limit-usage
 # volname=glustervol
-# client_hosts=10.70.46.23,10.70.46.24
 # path=/,/dir1
 # size=5MB,6MB
 #
@@ -697,7 +693,6 @@ client_mount_points=/mnt/gluster{1,3}
 # [quota]
 # action=limit-objects
 # volname=glustervol
-# client_hosts=10.70.46.23,10.70.46.24
 # path=/,/dir1
 # number=10,20
 #
@@ -707,7 +702,6 @@ client_mount_points=/mnt/gluster{1,3}
 # [quota]
 # action=alert-time
 # volname=glustervol
-# client_hosts=10.70.46.23,10.70.46.24
 # time=1W
 #
 #

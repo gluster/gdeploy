@@ -28,6 +28,7 @@ class QuotaManagement(YamlWriter):
 
     def __init__(self, config):
         self.config = config
+        self.filename = Global.group_file
         try:
             self.section_dict = self.config._sections['quota']
             del self.section_dict['__name__']
@@ -79,10 +80,10 @@ class QuotaManagement(YamlWriter):
             return
 
         self.enable_quota()
-        self.check_for_param_presence('client_hosts', self.section_dict)
-        self.client_hosts = self.pattern_stripping(self.section_dict['client_hosts'])
-        self.write_config('client_host', self.client_hosts, Global.inventory)
-        del self.section_dict['client_hosts']
+        # self.check_for_param_presence('client_hosts', self.section_dict)
+        # self.client_hosts = self.pattern_stripping(self.section_dict['client_hosts'])
+        # self.write_config('client_host', self.client_hosts, Global.inventory)
+        # del self.section_dict['client_hosts']
 
         if action in ['remove', 'remove-objects']:
             action_func = self.quota_remove_action
@@ -98,33 +99,15 @@ class QuotaManagement(YamlWriter):
                     "alert-time, soft-timeout, hard-timeout]. \nExiting!"
             self.cleanup_and_quit()
         action_func()
-        self.get_client_info()
 
 
-        Global.playbooks.append('gluster-quota-ops.yml')
         self.write_quota_info(action)
         return
 
     def write_quota_info(self, action):
-        self.filename = Global.group_file
         print "\nINFO: Quota management(action: %s) triggered" % action
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
-
-    def get_client_info(self):
-        for key, value in self.section_dict.iteritems():
-            gluster = dict()
-            if isinstance(value, list):
-                if len(value) != len(self.client_hosts):
-                    print "\nError: Provide %s in each client " \
-                        "or a common one for all the clients. " % key
-                    self.cleanup_and_quit()
-                for client, conf in zip(self.client_hosts, value):
-                    self.filename = self.get_file_dir_path(
-                        Global.host_vars_dir, client)
-                    gluster[key] = conf
-                    self.iterate_dicts_and_yaml_write(gluster)
-                del self.section_dict[key]
 
     def enable_quota(self):
         Global.playbooks.append('gluster-quota-enable.yml')
@@ -136,20 +119,44 @@ class QuotaManagement(YamlWriter):
 
     def quota_default_soft_limit(self):
         self.check_for_param_presence('percent', self.section_dict)
+        Global.playbooks.append('gluster-quota-ops.yml')
 
 
     def quota_limit_usage(self):
         self.check_for_param_presence('path', self.section_dict)
         self.check_for_param_presence('size', self.section_dict)
+        self.write_associated_data('size')
+        Global.playbooks.append('gluster-quota-limit-size.yml')
 
     def quota_limit_objects(self):
         self.check_for_param_presence('path', self.section_dict)
         self.check_for_param_presence('number', self.section_dict)
+        self.write_associated_data('number')
+        Global.playbooks.append('gluster-quota-limit-object.yml')
 
+
+    def write_associated_data(self, lmt):
+        vals = self.section_dict[lmt]
+        paths = self.section_dict['path']
+        if len(vals) > len(paths):
+            vals = vals[0:len(paths)]
+        elif len(vals) < len(paths):
+            vals.extend([vals[-1]] * (len(paths) - len(vals)))
+        data = []
+        for i, j in zip(vals, paths):
+            values = {}
+            values[lmt] = i
+            values['path'] = j
+            data.append(values)
+        self.create_yaml_dict('limits', data, True)
+        del self.section_dict[lmt]
+        del self.section_dict['path']
 
     def quota_remove_action(self):
         self.check_for_param_presence('path', self.section_dict)
+        Global.playbooks.append('gluster-quota-ops.yml')
 
 
     def quota_time_bounds(self):
         self.check_for_param_presence('time', self.section_dict)
+        Global.playbooks.append('gluster-quota-ops.yml')

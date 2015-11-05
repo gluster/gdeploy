@@ -1,5 +1,5 @@
 ---
-- hosts: client_host
+- hosts: master
   remote_user: root
   gather_facts: no
 
@@ -7,8 +7,7 @@
   - name: Gluster volume quota operation
     quota:  action="{{ action }}"
             volume="{{ volname }}"
-            path="{{ path }}"
-            size="{{ size }}"
-            number="{{ number }}"
+            path={{ item }}
             percent="{{ percent }}"
             time="{{ time }}"
+    with_items: path
