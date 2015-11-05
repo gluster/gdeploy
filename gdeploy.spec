@@ -1,6 +1,6 @@
 %define name gdeploy
 %define version 1
-%define release 0
+%define release 1
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/doc/ansible/gdeploy
@@ -17,6 +17,7 @@ Source0:	%{name}-%{version}.%{release}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}.%{release}-buildroot
 Requires:	ansible >= 1.9 python >= 2.6
+%{?el6:Requires: python-argparse}
 
 BuildRequires:  python-setuptools
 
