@@ -253,8 +253,11 @@ mountpoints=/gluster/brick1
                             ##-- Tune profile --##
 
 # The section 'tune-profile' takes in the name of the performance tuning
-# profile to be used. If not specified, this will be set to 'rhs-high-throughput'
-# If performance tuning profile is not to be set give the value as 'none'
+# profile to be used. If not specified, gdeploy will not set any tuning
+# profiles.
+#
+# Please look up the available tunes-adm profiles in your version of
+# RHEL using the command 'tuned-adm list'
 
 [tune-profile]
 rhgs-sequential-io
