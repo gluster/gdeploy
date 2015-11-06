@@ -54,7 +54,6 @@ class BackendSetup(YamlWriter):
         self.filename =  Global.group_file
         self.entire_hosts = Global.hosts
         self.perf_spec_data_write()
-        self.tune_profile()
         backend_setup, hosts = self.check_backend_setup_format()
         default = self.config_get_options(self.config,
                                                'default', False)
@@ -462,17 +461,6 @@ class BackendSetup(YamlWriter):
                     Global.logger.error(msg)
                     self.cleanup_and_quit()
         return brick_dir
-
-    def tune_profile(self):
-        profile = self.config_get_options(self.config,
-                               'tune-profile', False)
-        profile = None if not profile else profile[0]
-        if not profile:
-            return
-        self.create_yaml_dict('profile', profile, False)
-        if 'tune-profile.yml' not in Global.playbooks:
-            Global.playbooks.append('tune-profile.yml')
-
 
 
     def perf_spec_data_write(self):

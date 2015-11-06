@@ -63,6 +63,7 @@ class PlaybookGen(BackendSetup):
         BackendSetup(self.config)
         for warn in Global.warnings:
             print warn
+        self.tune_profile()
         SubscriptionManagement(self.config)
         PackageManagement(self.config)
         PeerManagement(self.config)
@@ -116,6 +117,19 @@ class PlaybookGen(BackendSetup):
         to_be_probed = Global.hosts + Global.brick_hosts
         self.create_yaml_dict('hosts', Global.hosts, False)
         self.create_yaml_dict('to_be_probed', to_be_probed, False)
+
+    def tune_profile(self):
+        self.filename = Global.group_file
+        profile = self.config_get_options(self.config,
+                               'tune-profile', False)
+        profile = None if not profile else profile[0]
+        print profile
+        if not profile:
+            return
+        self.create_yaml_dict('profile', profile, False)
+        if 'tune-profile.yml' not in Global.playbooks:
+            Global.playbooks.append('tune-profile.yml')
+
 
     def template_files_create(self, temp_file):
         if not os.path.isdir(temp_file):
