@@ -123,7 +123,6 @@ class PlaybookGen(BackendSetup):
         profile = self.config_get_options(self.config,
                                'tune-profile', False)
         profile = None if not profile else profile[0]
-        print profile
         if not profile:
             return
         self.create_yaml_dict('profile', profile, False)
