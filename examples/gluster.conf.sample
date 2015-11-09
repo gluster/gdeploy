@@ -259,8 +259,8 @@ mountpoints=/gluster/brick1
 # Please look up the available tunes-adm profiles in your version of
 # RHEL using the command 'tuned-adm list'
 
-[tune-profile]
-rhgs-sequential-io
+# [tune-profile]
+# <profile-name>
 
 #----------------------------------
 
