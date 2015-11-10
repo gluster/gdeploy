@@ -113,7 +113,7 @@ class VolumeManagement(YamlWriter):
             if backend_setup:
                 if not hosts:
                     brick_dirs = self.pattern_stripping(self.config_section_map(
-                        self.config, 'backend-setup', 'bricks_dirs', True))
+                        self.config, 'backend-setup', 'brick_dirs', True))
         if  brick_dirs:
             self.filename = Global.group_file
             self.write_brick_dirs(brick_dirs)
