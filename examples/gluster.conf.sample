@@ -515,6 +515,10 @@ force=yes
 # smb_username=bilbo
 # smb_password=shireeleventyone
 # smb_mountpoint=/mnt/precious
+#
+#
+# NOTE: Mount should be done in the client using fstype 'cifs', if SMB
+# is setup for the volume
 
 
 #-----------------------------------
@@ -533,7 +537,8 @@ force=yes
 # The choices are: ['mount', 'unmount']
 # 'hosts' field is mandatory.
 # The option 'fstype' specifies how gluster volume is to be mounted.
-# Choices are: [glusterfs, nfs] (Default is glusterfs)
+# Choices are: [glusterfs, nfs, cifs] (Default is glusterfs).
+# 'cifs' can be used as the fstype if SMB share is setup on the volume.
 
 # If the fstype is given as nfs, the version by default will be taken as
 # 3. This can be changed by providing the option 'nfs-version'.
