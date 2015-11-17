@@ -155,6 +155,9 @@ class GlusterDeploy(PlaybookGen, Global):
         if 'gluster-peer-detach.yml' in yml:
             yml.remove('gluster-peer-detach.yml')
             yml.append('gluster-peer-detach.yml')
+        if 'backend-reset.yml' in yml:
+            yml.remove('backend-reset.yml')
+            yml.append('backend-reset.yml')
         return yml
 
     def write_ansible_playbook(self):
