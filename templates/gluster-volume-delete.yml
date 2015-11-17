@@ -8,9 +8,11 @@
     volume: action=stop
              volume="{{ volname }}"
     register: result
-    failed_when: "result.rc != 0 and 'already stopped' not in result.msg"
+    failed_when: "result.rc != 0 and ('already stopped' not in result.msg and 'does not exist' not in result.msg)"
 
 
   - name: Deletes a volume
     volume:  action=delete
              volume="{{ volname }}"
+    register: result
+    failed_when: "result.rc != 0 and ('does not exist' not in result.msg)"
