@@ -5,9 +5,8 @@
 
   tasks:
   - name: Cleans up backend
-    backend_reset: pvs={{ item }}
+    backend_reset: pvs="{{ pvs }}"
                    vgs="{{ vgs }}"
                    lvs="{{ lvs }}"
                    unmount="{{ unmount }}"
                    mountpoints="{{ mountpoints }}"
-    with_items: pvs

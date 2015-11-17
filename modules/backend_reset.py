@@ -36,17 +36,24 @@ class BackendReset(object):
         self.lvs = self.validated_params('lvs')
         self.unmount = self.validated_params('unmount')
         self.mountpoints = self.validated_params('mountpoints')
-        action_methods = { 'unmount': self.umount_bricks,
-                            'lvs': self.remove_lvs,
+        action_methods = { 'lvs': self.remove_lvs,
                             'vgs': self.remove_vgs,
                             'pvs': self.remove_pvs
                          }
-        needed_methods = [action_methods[val] for val in ['unmount',
+        ops = [val for val in [
             'lvs', 'vgs', 'pvs'] if self.validated_params(val)]
+        needed_methods = [action_methods[val]  for val in ops]
         for action in needed_methods:
             action()
         errors = [output[2] for output in self.output if output[0] != 0]
-        self.module.exit_json(changed=1)
+        messages = [output[1] for output in self.output if output[0] == 0]
+        if not errors:
+            self.module.exit_json(changed=1)
+        else:
+            out = '\n'.join(errors)
+            if messages:
+                out += 'Succeeded operations are:\n' + '\n'.join(messages)
+            self.module.fail_json(msg=out,rc=1)
 
     def validated_params(self, opt):
         value = self.module.params[opt]
@@ -62,8 +69,10 @@ class BackendReset(object):
     def remove_pvs(self):
         if not self.pvs:
             return
-        self.remove_vgs()
-        rc, out, err = self.run_command('pvremove', self.pvs)
+        if not type(self.pvs) is list:
+            self.pvs = literal_eval(self.pvs)
+        options = ' -y -ff ' + ' '.join(self.pvs)
+        rc, out, err = self.run_command('pvremove', options)
         self.output.append([rc, out, err])
 
     def remove_vgs(self):
@@ -73,7 +82,6 @@ class BackendReset(object):
 
         if not type(self.vgs) is list:
             self.vgs = literal_eval(self.vgs)
-        self.remove_lvs()
         options = ' -y -ff ' + ' '.join(self.vgs)
         rc, out, err = self.run_command('vgremove', options)
         self.output.append([rc, out, err])
@@ -82,14 +90,15 @@ class BackendReset(object):
         self.get_lvs()
         if not self.lvs:
             return
-        self.mountpoints = self.lvs
+        if not self.mountpoints:
+            self.mountpoints = self.lvs
         self.umount_bricks()
         options = ' -y ' + ' '.join(self.lvs)
         rc, out, err = self.run_command('lvremove', options)
         self.output.append([rc, out, err])
 
     def umount_bricks(self):
-        if self.unmount and literal_eval(self.unmount)[0].lower() != 'yes':
+        if literal_eval(self.unmount)[0].lower() != 'yes':
             return
         if not self.mountpoints:
             return
