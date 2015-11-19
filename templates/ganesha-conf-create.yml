@@ -5,7 +5,7 @@
 
   tasks:
   - name: Creating ganesha-ha.conf file
-    template: src=/tmp/playbooks/ganesha-ha.conf
+    template: src="{{ base_dir }}"/ganesha-ha.conf
               dest=/etc
 
   - name: Replacing quotes in conf file

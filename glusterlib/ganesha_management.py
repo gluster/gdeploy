@@ -55,6 +55,7 @@ class GaneshaManagement(YamlWriter):
             self.cleanup_and_quit()
         action_func()
         self.filename = Global.group_file
+        self.create_yaml_dict('base_dir', Global.base_dir, False)
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
 
@@ -85,10 +86,10 @@ class GaneshaManagement(YamlWriter):
 
 
     def get_host_vips(self, cluster):
-        self.check_for_param_presence('VIPs', self.section_dict)
-        VIPs = self.pattern_stripping(self.section_dict.get('VIPs'))
+        self.check_for_param_presence('VIP', self.section_dict)
+        VIPs = self.pattern_stripping(self.section_dict.get('VIP'))
         if len(cluster) != len(VIPs):
-            print "\nError: The number of cluster_nodes provided and VIPS "\
+            print "\nError: The number of cluster_nodes provided and VIP "\
                     "given doesn't match. Exiting!"
             self.cleanup_and_quit()
         self.section_dict['VIPs'] = VIPs
