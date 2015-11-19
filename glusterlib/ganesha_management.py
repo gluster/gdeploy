@@ -60,17 +60,22 @@ class GaneshaManagement(YamlWriter):
 
 
     def create_cluster(self):
-        if not self.section_dict['ha_name']:
+        if not self.section_dict['ha-name']:
             self.section_dict['ha_name'] = 'ganesha-ha-360'
+        else:
+            self.section_dict['ha_name'] = self.section_dict.pop('ha-name')
 
         cluster = []
-        self.check_for_param_presence('cluster_nodes', self.section_dict)
-        cluster_nodes = self.section_dict.get('cluster_nodes')
+        self.check_for_param_presence('cluster-nodes', self.section_dict)
+        cluster_nodes = self.section_dict.get('cluster-nodes')
         cluster = self.pattern_stripping(cluster_nodes)
-        if not set(cluster).issubset(set(Global.hosts)):
-            print "\nError: 'cluster_nodes' for nfs-ganesha should be " \
-                   "subset of the 'hosts'. Exiting!"
-            self.cleanup_and_quit()
+        if Global.hosts:
+            if not set(cluster).issubset(set(Global.hosts)):
+                print "\nError: 'cluster_nodes' for nfs-ganesha should be " \
+                       "subset of the 'hosts'. Exiting!"
+                self.cleanup_and_quit()
+        else:
+            Global.hosts = cluster
 
         self.write_config('cluster_nodes', cluster, Global.inventory)
         self.write_config('master_node', [cluster[0]], Global.inventory)
@@ -80,19 +85,19 @@ class GaneshaManagement(YamlWriter):
         self.get_host_vips(cluster)
 
         Global.playbooks.append('bootstrap-nfs-ganesha.yml')
-        if not self.section_dict.get('volname'
+        if self.section_dict.get('volname'
                 ) or self.present_in_yaml(Global.group_file, 'volname'):
             self.export_volume()
 
 
     def get_host_vips(self, cluster):
-        self.check_for_param_presence('VIP', self.section_dict)
-        VIPs = self.pattern_stripping(self.section_dict.get('VIP'))
+        self.check_for_param_presence('vip', self.section_dict)
+        VIPs = self.pattern_stripping(self.section_dict.get('vip'))
         if len(cluster) != len(VIPs):
             print "\nError: The number of cluster_nodes provided and VIP "\
                     "given doesn't match. Exiting!"
             self.cleanup_and_quit()
-        self.section_dict['VIPs'] = VIPs
+        self.section_dict['vip'] = VIPs
         vip_list = []
         for host, vip in zip(cluster, VIPs):
             key = 'VIP_' + host
@@ -101,12 +106,21 @@ class GaneshaManagement(YamlWriter):
         self.section_dict['vip_list'] = VIPs
 
     def export_volume(self):
+        if not self.section_dict.get('volname'
+                ) or not self.present_in_yaml(Global.group_file, 'volname'):
+            print "'volname' not provided. Exiting!"
+            self.cleanup_and_quit()
+        self.check_for_param_presence('cluster-nodes', self.section_dict)
         Global.playbooks.append('ganesha-volume-configs.yml')
         Global.playbooks.append('gluster-shared-volume-mount.yml')
+        self.section_dict['value'] = "on"
         Global.playbooks.append('gluster-volume-export-ganesha.yml')
 
     def destroy_cluster(self):
-        return
+        self.check_for_param_presence('cluster-nodes', self.section_dict)
+        Global.playbooks.append('enable-nfs-ganesha.yml')
 
     def unexport_volume(self):
+        self.section_dict['value'] = "off"
+        Global.playbooks.append('gluster-volume-export-ganesha.yml')
         return

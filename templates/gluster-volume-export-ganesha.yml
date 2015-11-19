@@ -3,8 +3,9 @@
   remote_user: root
   gather_facts: no
 
-  - name: Export volume through NFS-Ganesha
-    volume-set: action=set
+  tasks:
+    - name: Exports/Unexports volume through NFS-Ganesha
+      volume-set: action=set
                 volume="{{ volname }}"
                 key=ganesha.enable
-                value=on
+                value="{{ value }}"
