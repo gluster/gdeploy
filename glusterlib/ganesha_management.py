@@ -105,6 +105,11 @@ class GaneshaManagement(YamlWriter):
             print "'volname' not provided. Exiting!"
             self.cleanup_and_quit()
         Global.playbooks.append('bootstrap-nfs-ganesha.yml')
+        Global.playbooks.append('set-pcs-auth-passwd.yml')
+        Global.playbooks.append('pcs-authentication.yml')
+        Global.playbooks.append('gluster-shared-volume-mount.yml')
+        Global.playbooks.append('ganesha-conf-create.yml')
+        Global.playbooks.append('enable-nfs-ganesha.yml')
         self.export_volume()
 
 
@@ -148,7 +153,8 @@ class GaneshaManagement(YamlWriter):
         self.check_for_param_presence('nodes', self.section_dict)
         new_nodes = self.section_dict.get('nodes')
         nodes = self.pattern_stripping(new_nodes)
-        self.section_dict['nodes'] = nodes
+        self.section_dict['cluster_nodes'] = nodes
+        self.write_config('cluster_nodes', nodes, Global.inventory)
         self.get_host_vips(nodes)
         for node, vip in zip(nodes, self.section_dict['vips']):
             nodes_list = {}

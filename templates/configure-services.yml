@@ -1,5 +1,5 @@
 ---
-- hosts: gluster_servers
+- hosts: cluster_nodes
   remote_user: root
   gather_facts: no
 
