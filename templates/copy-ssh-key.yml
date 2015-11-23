@@ -5,7 +5,7 @@
 
   tasks:
   - name: Copy the public key from local to remote
-    copy: src="{{ base_dir }}"/{{ item }}/var/lib/glusterd/nfs/secret.pem.pub
+    copy: src={{ item }}/var/lib/glusterd/nfs/secret.pem.pub
           dest=/tmp/key
     with_items: groups['cluster_nodes']
 

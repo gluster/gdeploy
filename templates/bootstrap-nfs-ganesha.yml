@@ -4,6 +4,8 @@
 - include: generate-public-key.yml
 - include: copy-ssh-key.yml
 - include: set-pcs-auth-passwd.yml
+- include: pcs-authentication.yml
+- include: gluster-shared-volume-mount.yml
 - include: ganesha-conf-create.yml
 - include: enable-nfs-ganesha.yml
 
