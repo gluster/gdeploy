@@ -36,15 +36,9 @@ class BackendReset(object):
         self.lvs = self.validated_params('lvs')
         self.unmount = self.validated_params('unmount')
         self.mountpoints = self.validated_params('mountpoints')
-        action_methods = { 'lvs': self.remove_lvs,
-                            'vgs': self.remove_vgs,
-                            'pvs': self.remove_pvs
-                         }
-        ops = [val for val in [
-            'lvs', 'vgs', 'pvs'] if self.validated_params(val)]
-        needed_methods = [action_methods[val]  for val in ops]
-        for action in needed_methods:
-            action()
+        self.remove_lvs()
+        self.remove_vgs()
+        self.remove_pvs()
         errors = [output[2] for output in self.output if output[0] != 0]
         messages = [output[1] for output in self.output if output[0] == 0]
         if not errors:
@@ -90,6 +84,8 @@ class BackendReset(object):
         self.get_lvs()
         if not self.lvs:
             return
+        if not type(self.vgs) is list:
+            self.vgs = literal_eval(self.vgs)
         if not self.mountpoints:
             self.mountpoints = self.lvs
         self.umount_bricks()
@@ -123,6 +119,8 @@ class BackendReset(object):
             return
         if not self.vgs:
             self.get_vgs()
+        if not type(self.vgs) is list:
+            self.vgs = literal_eval(self.vgs)
         self.lvs = []
         if self.vgs:
             for vg in self.vgs:
