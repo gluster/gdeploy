@@ -1,0 +1,9 @@
+---
+- hosts: master_node
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+      name: Add a node to the HA cluster
+      shell: sh ganesha-ha.sh --add "{{ ha_base_dir }}" {{ item.host }} {{ item.vip }}
+      with_items: nodes_list

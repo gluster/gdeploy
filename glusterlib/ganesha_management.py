@@ -84,12 +84,6 @@ class GaneshaManagement(YamlWriter):
         self.section_dict['cluster_hosts'] = ','.join(node for node in
                 self.cluster)
         self.section_dict['master_node'] = self.cluster[0]
-        try:
-            self.section_dict['pcs_cluster'] = ' '.join(self.cluster[1:])
-        except:
-            msg = "More nodes are needed to create a cluster."
-            print "\nError: " + msg
-            Global.logger.error(msg)
 
 
     def create_cluster(self):
@@ -105,6 +99,8 @@ class GaneshaManagement(YamlWriter):
             print "'volname' not provided. Exiting!"
             self.cleanup_and_quit()
         Global.playbooks.append('bootstrap-nfs-ganesha.yml')
+        Global.playbooks.append('generate-public-key.yml')
+        Global.playbooks.append('copy-ssh-key.yml')
         Global.playbooks.append('set-pcs-auth-passwd.yml')
         Global.playbooks.append('pcs-authentication.yml')
         Global.playbooks.append('gluster-shared-volume-mount.yml')
@@ -138,7 +134,7 @@ class GaneshaManagement(YamlWriter):
         Global.playbooks.append('gluster-volume-export-ganesha.yml')
 
     def destroy_cluster(self):
-        Global.playbooks.append('enable-nfs-ganesha.yml')
+        Global.playbooks.append('disable-nfs-ganesha.yml')
 
     def unexport_volume(self):
         if not self.section_dict.get('volname'
@@ -153,8 +149,6 @@ class GaneshaManagement(YamlWriter):
         self.check_for_param_presence('nodes', self.section_dict)
         new_nodes = self.section_dict.get('nodes')
         nodes = self.pattern_stripping(new_nodes)
-        self.section_dict['cluster_nodes'] = nodes
-        self.write_config('cluster_nodes', nodes, Global.inventory)
         self.get_host_vips(nodes)
         for node, vip in zip(nodes, self.section_dict['vips']):
             nodes_list = {}
@@ -162,9 +156,12 @@ class GaneshaManagement(YamlWriter):
             nodes_list['vip'] = vip
             data.append(nodes_list)
         self.create_yaml_dict('nodes_list', data, True)
+        Global.playbooks.append('bootstrap-nfs-ganesha.yml')
+        Global.playbooks.append('ganesha-cluster-add.yml')
 
     def delete_node(self):
         self.check_for_param_presence('nodes', self.section_dict)
         new_nodes = self.section_dict.get('nodes')
         nodes = self.pattern_stripping(new_nodes)
         self.section_dict['nodes'] = nodes
+        Global.playbooks.append('ganesha-cluster-delete.yml')
