@@ -1,8 +1,9 @@
 ---
-- hosts: cluster_nodes
+- hosts: gluster_servers
   remote_user: root
   gather_facts: no
 
   tasks:
   - name: Pcs cluster authenticate the hacluster users in all the nodes
     shell: pcs cluster auth -u hacluster -p hacluster
+    ignore_errors: true
