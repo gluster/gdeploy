@@ -31,7 +31,7 @@ class BackendReset(object):
     def __init__(self, module):
         self.output = []
         self.module = module
-        self.pvs = self.validated_params('pvs')
+        self.pvs = literal_eval(self.validated_params('pvs'))
         self.vgs = self.validated_params('vgs')
         self.lvs = self.validated_params('lvs')
         self.unmount = self.validated_params('unmount')
@@ -63,8 +63,6 @@ class BackendReset(object):
     def remove_pvs(self):
         if not self.pvs:
             return
-        if not type(self.pvs) is list:
-            self.pvs = literal_eval(self.pvs)
         options = ' -y -ff ' + ' '.join(self.pvs)
         rc, out, err = self.run_command('pvremove', options)
         self.output.append([rc, out, err])
@@ -106,11 +104,13 @@ class BackendReset(object):
     def get_vgs(self):
         if self.vgs:
             return
+        self.vgs = []
         if self.pvs:
-            option = " --noheading -o vg_name %s" % self.pvs
-            rc, vgs, err = self.run_command('pvs', option)
-            self.vgs = filter(None, [vg.strip() for
-                vg in vgs.split(' ')])
+            for pv in self.pvs:
+                option = " --noheading -o vg_name %s" % pv
+                rc, vgs, err = self.run_command('pvs', option)
+                self.vgs.extend(filter(None, [vg.strip() for
+                    vg in vgs.split(' ')]))
 
 
     def get_lvs(self):
