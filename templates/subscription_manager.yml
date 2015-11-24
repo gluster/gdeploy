@@ -29,6 +29,17 @@
     retries: 5
     delay: 10
 
+  - name: Determine if node is registered with subscription-manager.
+    command: subscription-manager identity
+    register: subscription
+    ignore_errors: true
+    changed_when: false
+    no_log: true
+
+  - name: Set rhsm_registered
+    set_fact:
+      rhsm_registered: "{{ subscription.rc == 0 }}"
+
   - name: Register with subscription-manager without auto-attach.
     command: subscription-manager register
              --username="{{ username }}" --password="{{ password }}"
@@ -38,7 +49,18 @@
     retries: 5
     delay: 10
 
-  - name: Attach to Reb Hat subscription
+  - name: Determine if node is registered with subscription-manager.
+    command: subscription-manager identity
+    register: subscription
+    ignore_errors: true
+    changed_when: false
+    no_log: true
+
+  - name: Set rhsm_registered
+    set_fact:
+      rhsm_registered: "{{ subscription.rc == 0 }}"
+
+  - name: Attach to Red Hat subscription
     command: subscription-manager attach
              --pool="{{ pool }}"
     when: pool is defined
