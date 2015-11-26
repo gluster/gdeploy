@@ -4,6 +4,6 @@
   gather_facts: no
 
   tasks:
-      name: Delete a node to the HA cluster
-      shell: sh ganesha-ha.sh --delete "{{ ha_base_dir }}" {{ item}}
-      with_items: nodes
+  - name: Deletes a node in the cluster
+    script: /usr/libexec/ganesha/ganesha-ha.sh --delete "{{ ha_base_dir }}" {{ item }}
+    with_items: nodes
