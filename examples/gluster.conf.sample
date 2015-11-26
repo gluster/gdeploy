@@ -1062,9 +1062,9 @@ client_mount_points=/mnt/gluster{1,3}
 # Option 'physical_address': This option is only required if you plan
 # to use IP takeover. Provide the virtual public IP address which will
 # served by CTDB. The format of it's value should be like this:
-# <Virtual IP>/<routing prefix> <node interfaces seperated by semicolon>
+# <Virtual IP>/<routing prefix> <node interfaces separated by semicolon>
 #
-# Make sure that the node interfaces are seperated by semicolon and
+# Make sure that the node interfaces are separated by semicolon and
 # should follow routing prefix after a space. Interfaces are optional.
 #
 #

@@ -25,7 +25,7 @@
 #    classes in the package, creates the variable files for the ansible
 #    playbooks to read from.
 #
-#    This script can be called seperately even, providing the configuration
+#    This script can be called separately even, providing the configuration
 #    file and the directory to which the ansible playbooks and variable files
 #    are to be generated(this is optional.Default is '/var/tmp/playbooks'
 #    Usage: ./playbook_gen.py <configuration_file> [<directory name>]
