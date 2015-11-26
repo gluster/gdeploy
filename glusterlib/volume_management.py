@@ -181,9 +181,9 @@ class VolumeManagement(YamlWriter):
             Global.logger.error(msg)
             self.cleanup_and_quit()
         self.check_for_param_presence('volname', self.section_dict)
-        self.call_peer_probe()
         if 'glusterd-start.yml' not in Global.playbooks:
             Global.playbooks.append('glusterd-start.yml')
+        self.call_peer_probe()
         Global.playbooks.append('create-brick-dirs.yml')
         Global.playbooks.append('gluster-volume-create.yml')
         self.start_volume()
