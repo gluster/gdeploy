@@ -5,7 +5,7 @@
 
   tasks:
   - name: Open/Close firewalld ports
-    firewalld: port={{ item }} permanent="{{ permanent }}" state="{{ state }}"
+    firewalld: port={{ item }} permanent="{{ permanent }}" state="{{ firewall_state }}"
                zone="{{ zone }}"
     with_items: ports
 

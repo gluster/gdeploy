@@ -65,7 +65,7 @@ class FirewalldManagement(YamlWriter):
 
 
     def add_ports(self):
-        self.section_dict['state'] = 'enabled'
+        self.section_dict['firewall_state'] = 'enabled'
 
     def delete_ports(self):
-        self.section_dict['state'] = 'disabled'
+        self.section_dict['firewall_state'] = 'disabled'

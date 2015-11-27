@@ -55,7 +55,7 @@ class PackageManagement(YamlWriter):
                 print "\nError: " + msg
                 Global.logger.error(msg)
                 return
-            self.section_dict['state'] = 'present' if action == 'install' else 'absent'
+            self.section_dict['yum_state'] = 'present' if action == 'install' else 'absent'
             self.check_for_param_presence('packages', self.section_dict)
             self.section_dict['name'] = self.section_dict.pop('packages')
         if not Global.hosts:
