@@ -10,7 +10,7 @@
     when: enabled_repos is defined and enabled_repos|length > 0
 
   - name: Installs/Removes a package using yum
-    yum: name={{ item }} state="{{ state }}"
+    yum: name={{ item }} state="{{ yum_state }}"
     with_items: name
-    when: name is defined and state is defined
+    when: name is defined and yum_state is defined
 
