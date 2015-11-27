@@ -78,7 +78,7 @@ class BackendSetup(YamlWriter):
                                                   'devices', False)
                         self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
                         self.touch_file(self.filename)
-                        self.bricks = self.split_comma_seperated_options(devices)
+                        self.bricks = self.split_comma_separated_options(devices)
                         self.write_config(Global.group, [host], Global.inventory)
                         ret = self.call_gen_methods()
                         self.remove_section(Global.inventory, Global.group)

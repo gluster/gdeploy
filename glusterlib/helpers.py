@@ -107,7 +107,7 @@ class Helpers(Global):
             '''
             if ',' in str(value) and key not in [excemption]:
                 option_dict[
-                    key] = self.split_comma_seperated_options(value)
+                    key] = self.split_comma_separated_options(value)
         return option_dict
 
     def set_default_value_for_dict_key(self, dictname, default_value_dict):
@@ -123,7 +123,7 @@ class Helpers(Global):
                 self.cleanup_and_quit()
             return False
 
-    def split_comma_seperated_options(self, options):
+    def split_comma_separated_options(self, options):
         if options:
             pat_group = re.search("(.*){(.*)}(.*)", options)
             if not pat_group:
@@ -176,7 +176,7 @@ class Helpers(Global):
             else:
                 options = self.config_section_map(
                     self.config, self.current_host, section, required)
-                return self.split_comma_seperated_options(options)
+                return self.split_comma_separated_options(options)
         return self.section_dict.get(section)
 
     def split_volume_and_hostname(self, val):

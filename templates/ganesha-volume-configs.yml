@@ -9,14 +9,3 @@
                 volume="{{ volname }}"
                 key=nfs.disable value=on
 
-  - name: Make the volume a gluster shared volume
-    volume-set: action=set
-                volume="{{ volname }}"
-                key=cluster.enable-shared-storage
-                value=enable
-
-  - name: Export volume through NFS-Ganesha
-    volume-set: action=set
-                volume="{{ volname }}"
-                key=ganesha.enable
-                value=on

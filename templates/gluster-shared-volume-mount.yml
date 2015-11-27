@@ -1,15 +1,13 @@
 ---
-- hosts: gluster_servers
+- hosts: master_node
   remote_user: root
   gather_facts: no
 
   tasks:
-  - name: Create the dir to mount the volume, skips if present
-    shell: mkdir /var/run/gluster/shared_storage -p
-
-  - name: Mount the volumes
-    mount: name=/var/run/gluster/shared_storage
-           src={{ inventory_hostname }}:"{{ volname }}"
-           fstype=glusterfs
-           state=mounted
+  - name: Make the volume a gluster shared volume
+    volume-set: action=set
+                volume=all
+                key=cluster.enable-shared-storage
+                value=enable
+    ignore_errors: true
 

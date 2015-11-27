@@ -107,7 +107,7 @@ class ClientManagement(YamlWriter):
         '''
         '''
         This nfs-clients and fuse-clients distinction is used only for
-        the mount option. Seperate playbooks are run is each case as nfs
+        the mount option. Separate playbooks are run is each case as nfs
         has an extra parameter version
         '''
         self.nfs_clients = []
