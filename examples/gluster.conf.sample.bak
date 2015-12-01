@@ -94,7 +94,7 @@
 #
 # Non-GlusteFS back-end setup
 #
-# For this, to avoid the automatic computations being done an additional
+# For this, to avoid the automatic computaions being done an additional
 # section 'gluster' set to no must be added
 #
 # [gluster]
@@ -493,7 +493,7 @@ force=yes
 
 #               ## SMB volume share
 
-# To enable SMB volume share, along with volume creation or separately
+# To enable SMB volume share, along with colume creation or separately
 # 'smb' option should be set to yes in 'volume' section.
 # The other options necessary along with setting smb as yes are:
 #
@@ -503,7 +503,7 @@ force=yes
 #
 # smb_mountpoint: This mountpoint will be used to mount the to be shared
 # volume on one of the Samba servers itself. For more info refer Samba
-# documentation. Default value is /mnt/smbserver
+# documentaion. Default value is /mnt/smbserver
 #
 # NOTE: Samba needs CTDB setup as well to work. Please refer the CTDB
 # section below to setup this.
@@ -1061,7 +1061,7 @@ client_mount_points=/mnt/gluster{1,3}
 # To setup ctdb:
 #
 # Make sure all the nodes in the cluster are specified in the hosts
-# section. Gdeploy takes the CTDB nodes from that section.
+# section. Gdeploy taked the CTDB nodes from that section.
 # Set 'action' to be 'setup'
 #
 # Option 'physical_address': This option is only required if you plan
