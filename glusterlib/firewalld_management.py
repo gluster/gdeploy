@@ -22,6 +22,7 @@ from yaml_writer import YamlWriter
 from conf_parser import ConfigParseHelpers
 from global_vars import Global
 from helpers import Helpers
+import re
 
 
 class FirewalldManagement(YamlWriter):
@@ -40,32 +41,60 @@ class FirewalldManagement(YamlWriter):
         action = self.section_dict.get('action')
         if action:
             del self.section_dict['action']
-        self.check_for_param_presence('ports', self.section_dict)
         self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
         sections_default_value = {'zone': 'public',
                                   'permanent': 'true'
                                   }
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
-        if action == 'add-ports':
-            self.add_ports()
-        elif action == 'delete-ports':
-            self.delete_ports()
+        firewalld_op = re.match('(.*)-(.*)', action)
+        if firewalld_op:
+            if firewalld_op.group(1) == 'add':
+                self.add_ports()
+            elif firewalld_op.group(1) == 'delete':
+                self.delete_ports()
+            else:
+                self.wrong_action()
+            if firewalld_op.group(2) == 'services':
+                self.service_action()
+            elif firewalld_op.group(2) == 'ports':
+                self.port_action()
+            else:
+                self.wrong_action()
         else:
-            print "Error: Unknown action for snapshot.\n Supported actions " \
-                    "are: [add-ports, delete-ports]. Exiting!"
-            self.cleanup_and_quit()
+            self.wrong_action()
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
         self.filename = Global.group_file
-        Global.playbooks.append('firewalld-ports-op.yml')
         print "\nINFO: Firewalld management(action: %s) triggered" % action
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
+
+    def wrong_action(self):
+        print "Error: Unknown action for firewalld.\n Supported actions " \
+                "are: [add-ports, delete-ports, add-services, " \
+                "delete-services]. Exiting!"
+        self.cleanup_and_quit()
 
     def add_ports(self):
         self.section_dict['firewall_state'] = 'enabled'
 
     def delete_ports(self):
         self.section_dict['firewall_state'] = 'disabled'
+
+    def service_action(self):
+        if 'service' in self.section_dict:
+            Global.playbooks.append('firewalld-service-op.yml')
+        else:
+            print "\nError: provide 'services' in " \
+                "firewalld section"
+            self.cleanup_and_quit()
+
+    def port_action(self):
+        if 'ports' in self.section_dict:
+            Global.playbooks.append('firewalld-ports-op.yml')
+        else:
+            print "\nError: provide 'ports' in " \
+                "firewalld section"
+            self.cleanup_and_quit()
