@@ -94,7 +94,7 @@
 #
 # Non-GlusteFS back-end setup
 #
-# For this, to avoid the automatic computations being done an additional
+# For this, to avoid the automatic computaions being done an additional
 # section 'gluster' set to no must be added
 #
 # [gluster]
@@ -259,8 +259,8 @@ mountpoints=/gluster/brick1
 # Please look up the available tunes-adm profiles in your version of
 # RHEL using the command 'tuned-adm list'
 
-[tune-profile]
-rhgs-sequential-io
+# [tune-profile]
+# <profile-name>
 
 #----------------------------------
 
@@ -493,7 +493,7 @@ force=yes
 
 #               ## SMB volume share
 
-# To enable SMB volume share, along with volume creation or separately
+# To enable SMB volume share, along with colume creation or separately
 # 'smb' option should be set to yes in 'volume' section.
 # The other options necessary along with setting smb as yes are:
 #
@@ -503,7 +503,7 @@ force=yes
 #
 # smb_mountpoint: This mountpoint will be used to mount the to be shared
 # volume on one of the Samba servers itself. For more info refer Samba
-# documentation. Default value is /mnt/smbserver
+# documentaion. Default value is /mnt/smbserver
 #
 # NOTE: Samba needs CTDB setup as well to work. Please refer the CTDB
 # section below to setup this.
@@ -515,6 +515,10 @@ force=yes
 # smb_username=bilbo
 # smb_password=shireeleventyone
 # smb_mountpoint=/mnt/precious
+#
+#
+# NOTE: Mount should be done in the client using fstype 'cifs', if SMB
+# is setup for the volume
 
 
 #-----------------------------------
@@ -533,7 +537,8 @@ force=yes
 # The choices are: ['mount', 'unmount']
 # 'hosts' field is mandatory.
 # The option 'fstype' specifies how gluster volume is to be mounted.
-# Choices are: [glusterfs, nfs] (Default is glusterfs)
+# Choices are: [glusterfs, nfs, cifs] (Default is glusterfs).
+# 'cifs' can be used as the fstype if SMB share is setup on the volume.
 
 # If the fstype is given as nfs, the version by default will be taken as
 # 3. This can be changed by providing the option 'nfs-version'.
@@ -1056,7 +1061,7 @@ client_mount_points=/mnt/gluster{1,3}
 # To setup ctdb:
 #
 # Make sure all the nodes in the cluster are specified in the hosts
-# section. Gdeploy takes the CTDB nodes from that section.
+# section. Gdeploy taked the CTDB nodes from that section.
 # Set 'action' to be 'setup'
 #
 # Option 'physical_address': This option is only required if you plan
