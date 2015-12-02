@@ -124,6 +124,21 @@
 # NOTE: Specifying the name of the data LV is necessary while adding
 # SSD.
 #
+#
+#
+#
+#                 SeLinux section
+#
+# If selinux is enabled, provide the value 'yes' in this
+# section, so gdeploy can set selinux labels for the
+# brick directories. By default it is 'no'.
+#
+#
+# [selinux]
+# yes
+#
+#
+#
 #      Old/Soon to be deprecated configuration option
 #
 #
