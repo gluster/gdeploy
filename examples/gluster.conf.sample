@@ -1222,3 +1222,78 @@ client_mount_points=/mnt/gluster{1,3}
 # action=unexport-volume
 # volname=glustervol
 #
+#
+
+
+#-----------------------------------
+
+
+                            ##-- Update remote files --##
+
+
+#
+#
+# The section 'update-file' helps in updating the configuration file
+# in the remote machine from the local machine.
+#
+# The configuration can be updated in 2 ways:
+#
+# 1. Either copy the config created in the local
+# 2. Edit the configuration present in the remote
+# 3. Add lines to the end of the file
+#
+# 1. Copy file from local to remote
+#
+# For this, use the 'copy' action in 'update-file'.
+# 'src' should be the absolute path of the file in the local machine and
+# 'dest' should the the absolute directory path where the file should be
+# copied to in the remote machines
+#
+# [update-file]
+# action=copy
+# src=/home/bilbobaggins/hosts
+# dest=/etc/
+#
+# You can send multiple files at a time. Provide them comma separated.
+# 'dest' can be a single directory name or provide that too comma
+# separated.
+#
+# 2. Edit configuration file in the remote
+#
+# for this, use the 'edit' action in 'update-file'.
+#
+# 'dest' specifies the file to be edited.
+# 'replace' specifies the starting of the line to be edited. All the lines
+# with the specified beginning will be replaced with what is provided in
+# the 'line' option
+# 'line' option specifies what the 'replace' is to be replaced with
+#
+# You cannot edit multiple files at a time. Although you can edit
+# multiple lines at a time. Provide them comma separated.
+#
+# NOTE: Keep in mind that 'replace' specifies just the starting of the line
+# you want to replace. Provide it carefully, otherwise one can end up
+# screwing up the file.
+#
+# [update-file]
+# action=edit
+# src=/etc/ganesha/ganesha-ha.conf
+# replace=VIP
+# line=VIP_10.70.46.15="192.168.13.14"
+#
+#
+# 3. Add lines to the end of the file
+#
+# for this, use the 'add' action in 'update-file'.
+#
+# 'dest' specifies the file to be edited.
+# 'line' specifies the new line to be added. This line will get appended
+# to the end of the file. If multiple lines are to be added, give it
+# comma separated.
+#
+#
+# [update-file]
+# action=add
+# src=/etc/ganesha/ganesha-ha.conf
+# line=VIP_10.70.46.15="192.168.13.14",VIP_10.70.46.17="192.168.13.15"
+#

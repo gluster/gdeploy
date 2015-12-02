@@ -1,0 +1,11 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Editing the lines in remote file
+    replace: dest="{{ dest }}"
+             regexp='^{{ item.replace }}.*$'
+             replace="{{ item.line }}"
+    with_items: file_paths

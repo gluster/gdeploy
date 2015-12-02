@@ -48,6 +48,7 @@ from firewalld_management import FirewalldManagement
 from backend_reset import BackendReset
 from package_management import PackageManagement
 from ctdb_management import CtdbManagement
+from configfile_management import ConfigfileManagement
 
 
 
@@ -67,6 +68,7 @@ class PlaybookGen(BackendSetup):
         SubscriptionManagement(self.config)
         PackageManagement(self.config)
         PeerManagement(self.config)
+        ConfigfileManagement(self.config)
         VolumeManagement(self.config)
         FirewalldManagement(self.config)
         CtdbManagement(self.config)
