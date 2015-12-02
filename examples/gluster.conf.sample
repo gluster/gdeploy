@@ -1053,7 +1053,7 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [firewalld]
 # action=add-services
-# service=https
+# services=https
 # permanent=true
 # zone=public
 #
@@ -1061,7 +1061,7 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [firewalld]
 # action=delete-services
-# service=https
+# services=https
 #
 #-----------------------------------
 
