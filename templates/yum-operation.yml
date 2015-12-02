@@ -4,10 +4,30 @@
   gather_facts: no
 
   tasks:
+  - name: Get the list of repos file
+    shell: ls /etc/yum.repos.d
+    register: old_list
+
   - name: yum_repos | enable requested repos
     get_url: url={{ item }} dest=/etc/yum.repos.d/{{ item|basename }}
     with_items: enabled_repos
     when: enabled_repos is defined and enabled_repos|length > 0
+
+  - name: Remove unwanted HTML files added by get_url ansible
+    file: path=/etc/yum.repos.d/index.html state=absent
+
+  - name: yum update
+    yum: name=* state=latest
+    when: update is defined
+
+  - name: Get the list of repos file
+    shell: ls /etc/yum.repos.d
+    register: file_list
+
+  - name: Disabling/Enabling gpg-check
+    lineinfile: dest=/etc/yum.repos.d/{{ item }} regexp='^gpgcheck' line='gpgcheck="{{ gpgcheck }}"'
+    with_items: file_list.stdout_lines
+    when: item not in old_list.stdout_lines
 
   - name: Installs/Removes a package using yum
     yum: name={{ item }} state="{{ yum_state }}"
