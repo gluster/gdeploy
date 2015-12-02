@@ -126,6 +126,14 @@ class BackendSetup(YamlWriter):
             msg = "Back-end setup triggered"
             Global.logger.info(msg)
             print "\nINFO: " + msg
+        selinux = self.config_get_options(self.config,
+                                               'selinux', False)
+        if selinux and self.mountpoints:
+            if selinux.lower() == 'yes':
+                yml = self.get_file_dir_path(
+                        Global.base_dir, 'set-selinux-labels.yml')
+                self.exec_ansible_cmd(yml)
+
 
     def call_gen_methods(self):
         self.write_brick_names()
