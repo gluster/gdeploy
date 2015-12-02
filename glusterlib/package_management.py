@@ -62,6 +62,16 @@ class PackageManagement(YamlWriter):
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
         self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
+        if self.section_dict['update']:
+            if not self.section_dict.get('update').lower() == 'yes':
+                self.section_dict['update'] =  None
+
+        gpgcheck = self.section_dict.get('gpgcheck') or ''
+        if gpgcheck.lower() == 'no':
+            self.section_dict['gpgcheck'] =  0
+        else:
+            self.section_dict['gpgcheck'] =  0
+
         self.filename = Global.group_file
         self.iterate_dicts_and_yaml_write(self.section_dict)
         msg = "yum operation(action: %s) triggered" % action
