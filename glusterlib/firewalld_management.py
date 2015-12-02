@@ -57,10 +57,8 @@ class FirewalldManagement(YamlWriter):
                 self.wrong_action()
             if firewalld_op.group(2) == 'services':
                 self.service_action()
-            elif firewalld_op.group(2) == 'ports':
+            if firewalld_op.group(2) == 'ports':
                 self.port_action()
-            else:
-                self.wrong_action()
         else:
             self.wrong_action()
         if not Global.hosts:
@@ -84,7 +82,7 @@ class FirewalldManagement(YamlWriter):
         self.section_dict['firewall_state'] = 'disabled'
 
     def service_action(self):
-        if 'service' in self.section_dict:
+        if 'services' in self.section_dict:
             Global.playbooks.append('firewalld-service-op.yml')
         else:
             print "\nError: provide 'services' in " \
