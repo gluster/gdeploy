@@ -5,7 +5,7 @@
 
   tasks:
   - name: yum_repos | enable requested repos
-    shell: yum-config-manager --enable {{item}} 1>/dev/null
+    get_url: url={{ item }} dest=/etc/yum.repos.d/{{ item|basename }}
     with_items: enabled_repos
     when: enabled_repos is defined and enabled_repos|length > 0
 
