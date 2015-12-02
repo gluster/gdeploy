@@ -1,0 +1,11 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Copy the file from local to remote
+    copy: src={{ item.src }}
+          dest={{ item.dest }}
+    with_items: file_paths
+

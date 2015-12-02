@@ -135,7 +135,7 @@ class Helpers(Global):
                         result[-1] += '{' + pat_group.group(2) + '}'
                     else:
                         result.extend(pat_group.group(i).split(','))
-                return result
+                return self.pattern_stripping(result)
         return []
 
     def validate_hostname_volume_pattern(self, val):
