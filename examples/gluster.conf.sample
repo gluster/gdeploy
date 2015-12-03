@@ -1012,8 +1012,12 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [yum]
 # action=install
+# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
 # packages=vi,glusterfs
+# gpgcheck=no
 #
+# If 'no' provided to gpgcheck, it will disable gpgcheck. By default
+# it is 'yes'.
 #
 # To remove package(s)
 #
@@ -1021,26 +1025,7 @@ client_mount_points=/mnt/gluster{1,3}
 # action=remove
 # packages=vi
 #
-# To add/enable repos
 #
-# [yum]
-# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
-# update=yes
-# gpgcheck=no
-#
-# If 'no' provided to gpgcheck, it will disable gpgcheck. By default
-# it is 'yes'.
-#
-# The option 'update' runs the yum-update and by default is 'no'.
-#
-# Note: installing packages and adding repos can be done together like
-# this
-#
-# [yum]
-# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm
-# update=yes
-# action=install
-# packages=vim
 #
 # Make sure your system is registered with subscription manager before
 # trying to install packages.
@@ -1285,7 +1270,7 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [update-file]
 # action=edit
-# src=/etc/ganesha/ganesha-ha.conf
+# dest=/etc/ganesha/ganesha-ha.conf
 # replace=VIP
 # line=VIP_10.70.46.15="192.168.13.14"
 #
@@ -1302,6 +1287,6 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [update-file]
 # action=add
-# src=/etc/ganesha/ganesha-ha.conf
+# dest=/etc/ganesha/ganesha-ha.conf
 # line=VIP_10.70.46.15="192.168.13.14",VIP_10.70.46.17="192.168.13.15"
 #
