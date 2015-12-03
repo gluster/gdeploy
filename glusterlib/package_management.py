@@ -21,12 +21,14 @@ from yaml_writer import YamlWriter
 from conf_parser import ConfigParseHelpers
 from global_vars import Global
 from helpers import Helpers
+import os
 
 
 class PackageManagement(YamlWriter):
 
     def __init__(self, config):
         self.config = config
+        self.filename = Global.group_file
         try:
             self.section_dict = self.config._sections['yum']
             del self.section_dict['__name__']
@@ -41,9 +43,18 @@ class PackageManagement(YamlWriter):
             action = self.section_dict.pop('action')
         except:
             pass
+        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
         repo = self.section_dict.get('repos')
         if repo:
-            self.section_dict['enabled_repos'] = ','.join(repo)
+            repo = [x.strip('/') for x in repo]
+            reponame = [os.path.basename(x) for x in repo]
+            data = []
+            for url, name in zip(repo, reponame):
+                repolist = dict()
+                repolist['name'] = name
+                repolist['url'] = url
+                data.append(repolist)
+            self.create_yaml_dict('repolist', data, True)
         if not repo and not action:
             print "Warning: Section 'yum' without any action option " \
                     "found. Skipping this section!"
@@ -63,13 +74,11 @@ class PackageManagement(YamlWriter):
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
-        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
 
         gpgcheck = self.section_dict.get('gpgcheck') or ''
         if gpgcheck.lower() != 'no':
             self.section_dict['gpgcheck'] =  'yes'
 
-        self.filename = Global.group_file
         self.iterate_dicts_and_yaml_write(self.section_dict)
         msg = "yum operation(action: %s) triggered" % action
         print "\nINFO: " + msg
