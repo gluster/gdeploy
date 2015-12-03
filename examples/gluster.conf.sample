@@ -1055,7 +1055,7 @@ client_mount_points=/mnt/gluster{1,3}
 # To add ports in permanent firewalld rules
 #
 # [firewalld]
-# action=add-ports
+# action=add
 # ports=8081/tcp,161-162/udp
 # permanent=true
 # zone=public
@@ -1067,7 +1067,7 @@ client_mount_points=/mnt/gluster{1,3}
 # To delete ports from permanent firewalld rules
 #
 # [firewalld]
-# action=delete-ports
+# action=delete
 # ports=8081/tcp,161-162/udp
 #
 #
@@ -1075,7 +1075,7 @@ client_mount_points=/mnt/gluster{1,3}
 # To add services in permanent firewalld rules
 #
 # [firewalld]
-# action=add-services
+# action=add
 # services=https
 # permanent=true
 # zone=public
@@ -1083,9 +1083,17 @@ client_mount_points=/mnt/gluster{1,3}
 # To delete service from permanent firewalld rules
 #
 # [firewalld]
-# action=delete-services
+# action=delete
 # services=https
 #
+# Ports and services can be added and deleted together as well
+#
+# [firewalld]
+# action=add
+# ports=8081/tcp,161-162/udp
+# services=https
+# permanent=true
+# zone=public
 #-----------------------------------
 
 
