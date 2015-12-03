@@ -47,20 +47,14 @@ class FirewalldManagement(YamlWriter):
                                   }
         self.set_default_value_for_dict_key(self.section_dict,
                                             sections_default_value)
-        firewalld_op = re.match('(.*)-(.*)', action)
-        if firewalld_op:
-            if firewalld_op.group(1) == 'add':
-                self.add_ports()
-            elif firewalld_op.group(1) == 'delete':
-                self.delete_ports()
-            else:
-                self.wrong_action()
-            if firewalld_op.group(2) == 'services':
-                self.service_action()
-            if firewalld_op.group(2) == 'ports':
-                self.port_action()
+        if action == 'add':
+            self.add_ports()
+        elif action == 'delete':
+            self.delete_ports()
         else:
             self.wrong_action()
+        self.service_action()
+        self.port_action()
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
@@ -71,8 +65,7 @@ class FirewalldManagement(YamlWriter):
 
     def wrong_action(self):
         print "Error: Unknown action for firewalld.\n Supported actions " \
-                "are: [add-ports, delete-ports, add-services, " \
-                "delete-services]. Exiting!"
+                "are: [add, delete]"
         self.cleanup_and_quit()
 
     def add_ports(self):
@@ -84,15 +77,7 @@ class FirewalldManagement(YamlWriter):
     def service_action(self):
         if 'services' in self.section_dict:
             Global.playbooks.append('firewalld-service-op.yml')
-        else:
-            print "\nError: provide 'services' in " \
-                "firewalld section"
-            self.cleanup_and_quit()
 
     def port_action(self):
         if 'ports' in self.section_dict:
             Global.playbooks.append('firewalld-ports-op.yml')
-        else:
-            print "\nError: provide 'ports' in " \
-                "firewalld section"
-            self.cleanup_and_quit()
