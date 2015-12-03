@@ -129,7 +129,7 @@ class BackendSetup(YamlWriter):
         selinux = self.config_get_options(self.config,
                                                'selinux', False)
         if selinux and self.mountpoints:
-            if selinux.lower() == 'yes':
+            if selinux[0].lower() == 'yes':
                 yml = self.get_file_dir_path(
                         Global.base_dir, 'set-selinux-labels.yml')
                 self.exec_ansible_cmd(yml)
