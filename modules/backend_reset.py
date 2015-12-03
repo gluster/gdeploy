@@ -31,7 +31,10 @@ class BackendReset(object):
     def __init__(self, module):
         self.output = []
         self.module = module
-        self.pvs = literal_eval(self.validated_params('pvs'))
+        try:
+            self.pvs = literal_eval(self.validated_params('pvs'))
+        except:
+            pass
         self.vgs = self.validated_params('vgs')
         self.lvs = self.validated_params('lvs')
         self.unmount = self.validated_params('unmount')
