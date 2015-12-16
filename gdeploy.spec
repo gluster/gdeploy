@@ -1,9 +1,9 @@
 %define name gdeploy
-%define version 1
+%define version 1.1
 %define release 0
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
-%define gdeploydoc /usr/share/doc/ansible/gdeploy
+%define gdeploydoc /usr/share/doc/gdeploy
 
 Name:		%{name}
 Version:	%{version}
@@ -66,5 +66,21 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Fri Nov 6 2015 Sachidananda Urs <sac@redhat.com> 1.1
+- Patterns in configs are to be tested
+- Backend setup config changes(This includes alot)
+- Rerunning the config do not throw error
+- Backend reset
+- Host specific and group specific changes.
+- Quota
+- Snapshot
+- Geo-replication
+- Subscription manager
+- Package install
+- Firewalld
+- samba
+- CTDB
+- CIFS mount
+
 * Mon Aug 3 2015 Sachidananda Urs <sac@redhat.com> 1.0
 - Initial release.
