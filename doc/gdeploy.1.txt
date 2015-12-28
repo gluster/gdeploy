@@ -1,0 +1,42 @@
+NAME
+gdeploy - Deploy/Configure a gluster cluster
+
+SYNOPSIS
+gdeploy [--help | -h] [--version] [-c CONFIG_FILE] [-k] [-v | -vv]
+	  [volumeset <hostIP>:<volumename> <key> <value>]
+
+DESCRIPTION
+gdeploy is a deployment and configuration tool to set-up and deploy GlusterFS.
+gdeploy uses ansible(1) to apply the configurations on remote machines.
+
+gdeploy can be used to set-up the logical volumes, create a glusterfs volume,
+and mount it on one or more clients from an ansible installed machine. The
+framework takes the configurations for this from a configuration file to be
+defined by the user. See gdeploy.conf(5) for more details on writing
+configuration files.
+
+
+OPTIONS
+
+-h, --help          Print this help text and exit
+--version           Output version information and exit
+-c CONFIG_FILE      Read the CONFIG_FILE and apply the configurations
+-k                  Keep the generated playbooks, groupvars, and hostvars
+-v, -vv             Run gdeploy in verbose mode, prints debug messages
+
+volumeset           Set an option in the gluster volume
+
+
+EXAMPLES
+Apply the configuration in cluster.conf
+
+$ gdeploy -c cluster.conf
+
+Set read-ahead off on a volume called backupvol on host 192.168.10.10
+
+$ gdeploy volumeset 192.168.10.10:backupvol read-ahead off
+
+
+
+SEE ALSO
+gdeploy.conf(5)

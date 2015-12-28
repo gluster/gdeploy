@@ -1,0 +1,454 @@
+NAME
+gdeploy.conf - Configuration file format for gdeploy(1) tool
+
+DESCRIPTION
+There is no rule to name the configuration file for gdeploy(1) as long as the
+file is mentioned with -c option for gdeploy(1). Please refer gdeploy(1) man
+page for the list of gdeploy options.
+
+CONFIGURATION FILE ORGANISATION
+The configuration file is conceptually split into four parts.
+
+Inventory - [hosts] section.
+Backend   - [disktype], [diskcount], [vgs], [pools], [backend-reset], ... and
+            other sections. These sections are used in the configuration file
+            based on the usecase.
+Volume    - The [volume], [peer], [clients] ... These sections define the volume
+            options and clients to be mounted on.
+Features  - The [snapshot], [quota], [geo-replication], ... this is a
+            growing list.
+
+INVENTORY
+The inventory contains the ip-address/hostnames of all the machines that form
+the trusted storage pool.
+
+    [hosts] - This is a mandatory section, and hostnames/ip-address are listed
+              one per line.
+
+    Example
+    [hosts]
+    10.70.47.121
+    10.70.47.122
+
+BACKEND
+
+[backend-setup]
+[backend-setup:<hostname>/<ip>]
+        The [backend-setup] section is used configure the disks on all the hosts
+        mentioned in the [hosts] section. If the disks names varies from host to
+        host then [backend-setup:<hostname>/<ip>] can be used to do setup
+        backend on the particular host.
+
+        backend-setup supports the following variables:
+        devices - The disks that are to be configured. eg: /dev/sdb,/dev/sdc
+                  This is a mandatory variable.
+        vgs     - VG names that has to be used. This variable is optional, if
+                  not given GLUSTER_vg{n} will be used. Where n is a number
+                  starting from 1.
+        pools   - Thinpool name to be used. This variable is optional, if not
+                  given a default poolnames will be used.
+        lvs     - LV name to be used. This variable is optional, if not given a
+                  default LV names will be used.
+        mountpoints - Mountpoints where the LVs have to be mounted.
+        brick_dirs  - Brick directories to be used while creating a gluster
+                      volume. The directories will be created if not present
+                      already.
+
+        Examples:
+        1. Backend setup for all the hosts listed in [hosts] section.
+
+        [backend-setup]
+        devices=/dev/sdb
+        vgs=CUSTOM_vg1
+        pools=CUSTOM_pool1
+        lvs=CUSTOM_lv1
+        mountpoints=/gluster/brick1
+        brick_dirs=glusterbrick1
+
+        2. Backend setup for a particular host 10.70.47.122
+
+        [backend-setup:10.70.47.122]
+        devices=/dev/sdc
+        vgs=CUSTOM_vg1
+        pools=CUSTOM_pool1
+        lvs=CUSTOM_lv1
+        mountpoints=/gluster/brick1
+        brick_dirs=glusterbrick1
+
+[disktype]
+        Specifies which disk configuration is used while setting up the
+        back-end. Supports RAID 10, RAID 6 and JBOD configurations. This section
+        is optional if omitted, it will be by default taken as JBOD. The
+        configuration in this section applies to all the hosts in the [hosts]
+        section.
+
+        Examples:
+        1. Disktype raid6
+
+        [disktype]
+        RAID6
+
+        2. Disktype RAID10
+        [disktype]
+        RAID10
+
+[diskcount]
+        Specifies the number of data disks in the setup. This is a mandatory
+        field if the disk configuration specified is either RAID 10 or RAID 6
+        and will be ignored if architecture is JBOD.
+
+[stripesize]
+        Specifies the stripe_unit size in KB. This is a mandatory field if disk
+        configuration is RAID 6. If this is not specified in case of RAID 10
+        configurations, it will take the default value 256K. This field is not
+        necessary for JBOD configuration of disks. Do not add any suffixes like
+        K, KB, M, etc.
+
+[backend-reset]
+[backend-reset:<hostname>/<ip>]
+        This section allows backend reset in remote machines. Backend reset
+        includes unmouting of LVs and deletion of LVs, VGs, and PVs.
+
+        NOTE: Use this feature cautiously.
+
+        backend-reset supports the following variables:
+        pvs     - Physical volumes that have to be wiped out (Including LVs and
+                  VGs).
+        lvs     - Logical volumes that have to be wiped out (VGs and PVs are not
+                  wiped out).
+        vgs     - Volume groups that have to be wiped out (PVs are not wiped)
+        unmount - (yes/no) Unmount the specified mountpoints.
+        mountpoints - List of mountpoints that have to be unmounted.
+
+        Examples:
+        1. unmount bricks without deleting VG/PV/LV
+
+        [backend-reset]
+        mountpoints=/dev/GLUSTER_vg1/GLUSTER_lv1,/dev/GLUSTER_vg2/GLUSTER_lv2
+        unmount=yes
+
+        On a particular host
+        [backend-reset:10.70.47.122]
+        mountpoints=/dev/GLUSTER_vg1/GLUSTER_lv1,/dev/GLUSTER_vg2/GLUSTER_lv2
+        unmount=yes
+
+        2. Remove the logcial volumes on all hosts
+        [backend-reset]
+        lvs=GLUSTER_lv{1,2}
+        unmount=yes
+
+        3. Remove VGs and associated LVs on all the hosts
+        [backend-reset]
+        vgs=GLUSTER_vg1,GLUSTER_vg2
+        unmount=yes
+
+        4. Remove the PV, VG, and LVs on all hosts
+        [backend-reset]
+        pvs=/dev/sdb,/dev/vdb
+        unmount=yes
+
+        5. Remove the PV, VG, and LVs on a particular host
+        [backend-reset:10.70.47.122]
+        pvs=/dev/sdb,/dev/vdb
+        unmount=yes
+
+VOLUME
+
+[peer]
+        The section peer specifies the configurations for the Trusted Storage
+        Pool management. Has the variable
+
+        manage - probe/detach/ignore are the allowed options for this variable.
+                 probe - probes the peer
+                 detach - detaches the peer
+                 ignore - skip the peer probing step.
+
+        Examples:
+        1. Probe all the machines listed in hosts section
+
+        [peer]
+        manage=probe
+
+        2. Detach the peers
+        [peer]
+        manage=detach
+
+
+[volume]
+        The section volume specifies the configuration options for the
+        volume. This section supports the following variables:
+
+        volname         - Name of the volume, this is an optional variable. If
+                          no value is given, `glustervol' is used. If the volume
+                          has to be started or stopped, volname should be of the
+                          format <host>/<ip>:name eg: 10.70.47.122:glustervol
+        action          - The action to be performed on the volume. Possible
+                          values are create, delete, add-brick, remove-brick,
+                          rebalance, set.
+                            add-brick adds a brick to the volume. If this is set
+                            as action, then extra variable bricks should be set
+                            with a list of bricks to be added.
+                            remove-brick removes a brick from the volume, again
+                            if remove-brick is set extra option `bricks' with a
+                            comma separated list of brick names(in the format
+                            <hostname>:<brick path>) should be provided.
+
+                          In case of remove-brick and rebalance, 'state' option
+                          should also be provided. Choices for 'state' are:
+                          For remove-brick: [start, stop, commit, force]
+                          For rebalance: [start, stop, fix-layout]
+
+        bricks          - This option is set when add-brick or remove-brick are
+                          set as action. Bricks are comma separated list of
+                          brick names in the format <hostname>:<brick path>
+
+        state           - This option is set while using remove-brick or
+                          rebalance for action. Choices for 'state' are:
+                          For remove-brick: [start, stop, commit, force]
+                          For rebalance: [start, stop, fix-layout]
+
+        transport       - This option specifies the transport type. Default is
+                          tcp. Options are tcp or rdma or tcp,rdma
+
+        replica         - Identifies if the volume is a replicate volume or
+                          not. Possible options are [yes, no].
+
+        replica_count   - The replicate count, possible options are [2, 3].
+
+        disperse        - Identifies if the volume should be disperse. Possible
+                          options are [yes, no].
+
+        disperse_count  - Optional argument. If none given, the number of bricks
+                          specified in the command line is taken as the
+                          disperse_count value.
+
+        redundancy_count - If `redundancy_count' is not specified, and if
+                           `disperse' is yes,  it's default value is computed so
+                           that it generates an optimal configuration.
+
+        force            - Force volume creation without any questions on brick
+                           directories. Default is `no', other option is `yes'.
+
+[clients]
+        This section is intended to use to mount the gluster volumes. `clients'
+        seciton supports the following variables:
+
+        action          - Specifies whether to mount or unmount a gluster
+                          volume. Supported options are [mount, umount]
+
+        volname         - Name of the volume to be mounted. This is optional if
+                          volume name is mentioned in [volume] section.
+
+        hosts           - This is a mandatory field, hostnames or ip addresses
+                          are listed as comma separated values. Range of ip
+                          addresses can be given. For eg: 10.70.46.1{3,9} will
+                          consider ip addresses between
+                          10.70.46.13 ... 10.70.46.19
+
+        fstype          - The option `fstype' specifies the mount protocol.
+                          Choices are: [glusterfs, nfs] (Default is glusterfs)
+
+        client_mount_points - Specifies the client mount points. Each client can
+                              have a separate mountpoints. In that case, the
+                              mountpoints have to be listed as comma separated
+                              values.
+
+FEATURES
+
+[snapshot]
+        This section allows to configure snapshot operations. Supports the
+        following variables:
+
+        action    - Supports the following snapshot operations: [create, delete,
+                    clone, config, and restore].
+
+        volname   - Volume on which snapshot operation has to be performed. This
+                    is an optional variable if volume name is set in the
+                    [volume] section.
+
+        snapname  - The name of the snapshot, on which the `action' has to be
+                    performed.
+
+        snap_max_soft_limit - To set this variable, action has to be set to
+                              config. snap_max_soft_limit is a percentage value,
+                              which is applied on the "Effective
+                              snap-max-hard-limit" to get the "Effective
+                              snap-max-soft-limit".
+                              When auto-delete feature is enabled, then upon
+                              reaching the "Effective snap-max-soft-limit", with
+                              every successful snapshot creation, the oldest
+                              snapshot will be deleted.
+
+        snap_max_hard_limit - To set this variable, action has to be set to
+                              config. snap_max_hard_limit is a number.
+
+        auto_delete         - When enabled, then upon reaching the "Effective
+                              snap-max-soft-limit", with every successful
+                              snapshot creation, the oldest snapshot will be
+                              deleted. Possible valuese are [enable, disable].
+
+        activate_on_create  - Possible values are [enable, disable]. Will enable
+                              snapshot on creation.
+
+
+
+
+[quota]
+        This section is used to set quota limits on directories on
+        mountpoint. Quota section supports the following variables:
+
+        action  - Supports the following values [enable, disable, remove,
+                  remove-objects, default-soft-limit, limit-usage,
+                  limit-objects, alert-time, soft-timeout, hard-timeout].
+
+        volname - Name of the volume. This is an optional variable, can be
+                  ignored if `volume' section contains the volume name.
+                  If provided, the value should look like <ip>:<volname>.
+                  Eg: 10.70.46.15:glustervol
+
+        path    - Path on which the quota has to be set. The value should be
+                  comma separated list of paths if more than one directory is
+                  mentioned.
+
+        percent - Percentage of size of the volume.
+
+        size    - Size in MB, GB ...
+
+        number  - The object count that should be allowed.
+
+        Time    - Time in seconds to set `alert time', `soft timeout', `hard
+                  timeout' based on the action.
+
+
+[geo-replication]
+        Geo-Replication supports the following variables:
+
+        action    - Setup or manage geo-replication The choices available are:
+                    [create, start, stop, delete, pause, resume]
+
+        mastervol - Name of the master volume. The format of the value should
+                    be - <ip>:<hostname> Eg: 10.70.46.13:mastervolname
+
+        slavevol  - Name of the slave volume. The format of the value should
+                    be - <ip>:<hostname> Eg: 10.70.46.26:slavevolname
+
+        force     - `yes' will force the volume creation.
+
+        The following configuration options are provided to configure a
+        geo-replication session:
+
+        gluster-log-file  - The path to the geo-replication glusterfs log file.
+        gluster-log-level - The log level for glusterfs processes.
+        log-file          - The path to the geo-replication log file.
+        log-level         - The log level for geo-replication.
+        ssh-command       - The SSH command to connect to the remote machine
+                            (the default is SSH).
+        rsync-command     - The rsync command to use for synchronizing the files
+                            (the default is rsync).
+        use-tarssh        - The use-tarssh option allows tar over Secure Shell
+                            protocol. Use this option to handle workloads of
+                            files that have not undergone edits. Value of this
+                            option can be [true, false]
+        volume-id         - The option to delete the existing master UID for the
+                            intermediate/slave node. Value to this option should
+                            be a UID
+        timeout           - The timeout period in seconds.
+        sync-jobs         - The number of simultaneous files/directories that
+                            can be synchronized.
+        ignore-deletes    - If this option is set to 1, a file deleted on the
+                            master will not trigger a delete operation on the
+                            slave.
+        checkpoint        - Sets a checkpoint with the given value. If the
+                            option is set as now, then the current time will be
+                            used as the label.
+
+        If the value of any of the above option(other than volume-id) in set to
+        'reset', the setting of that config option will be deleted
+
+[RH-subscription]
+        This section is used to configure Red Hat Subscription Management like
+        attach to a pool, enable repos, disable repos, and unregister from RHSM.
+        Allows the following variables:
+
+        action      - Allowed variables for action - [register, attach-pool,
+                      enable-repos, disable-repos, unregister]
+        username    - Username for RHSM
+        password    - Password for RHSM
+        auto-attach - true, if if product certificates are are available at
+                      /etc/pki/product/
+        pool        - Pool id for RHSM
+        repos       - List of comma separated repo lists
+
+
+[yum]
+        Install packages using yum. yum supports the following variables.
+
+        action   - Currently supports [install, remove] values.
+        repos    - List of comma separated repos to install from.
+        packages - List of packages to be installed.
+
+[firewalld]
+        This section allows addition or deletion of ports in either running or
+        permanent firewalld rules. The following variables are supported:
+
+        action    - Supports variables [add-ports, delete-ports]
+
+        ports     - value formats for ports can be <port>/<protocol>. Eg:
+                    8081/tcp, 161-162/udp
+
+        permanent - Supports [true, false]. True makes the change permanent.
+
+        zone      - Possible values for zones are [drop, block, public,
+                    external, dmz, work, home, internal, trusted]
+
+[ctdb]
+        The variables supported by ctdb include:
+        action          - List of actions supported ['setup', 'start', 'stop',
+                          'enable', 'disable']
+        public_address  - The public ip address and interface.
+                          eg: 192.168.1.{1,4}/24 eth1;eth2,192.168.1.1/24 eth2
+
+        CTDB_PUBLIC_ADDRESSES - Default: /etc/ctdb/public_addresses
+        CTDB_NODES            - Default: /etc/ctdb/nodes
+        CTDB_MANAGES_SAMBA    - Default: no
+        CTDB_SET_DeterministicIPs  - Default: 1
+        CTDB_SET_RecoveryBanPeriod - Default: 120
+        CTDB_SET_KeepaliveInterval - 5
+        CTDB_SET_KeepaliveLimit    - 5
+        CTDB_SET_MonitorInterval   - 15
+        CTDB_RECOVERY_LOCK         - /mnt/lock/reclock
+
+        For more documentation on ctdb refer documentation under
+        /usr/share/doc/gdeploy/examples/gluster.conf.sample.
+
+EXAMPLES
+        Create a 2x2 gluster volume
+
+        [hosts]
+        10.70.46.13
+        10.70.46.17
+
+        # Common backend setup for 2 of the hosts.
+        [backend-setup]
+        brick_dirs=/gluster/brick/brick{1,2}
+
+        [volume]
+        action=create
+        volname=sample_volname
+        replica=yes
+        replica_count=2
+        force=yes
+
+        [clients]
+        action=mount
+        hosts=10.70.46.15
+        fstype=glusterfs
+        client_mount_points=/mnt/mountpointname
+
+FILES
+        /usr/share/doc/gdeploy/examples/
+        /usr/share/doc/gdeploy/README.md
+        /usr/share/doc/gdeploy/examples/gluster.conf.sample
+
+SEE ALSO
+gdeploy(1)
