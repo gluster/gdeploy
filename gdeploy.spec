@@ -1,6 +1,6 @@
 %define name gdeploy
 %define version 1.1
-%define release 0
+%define release 1
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/doc/gdeploy
@@ -51,8 +51,11 @@ mkdir -p %{buildroot}/%{gdeploytemp}
 cp -r templates %{buildroot}/%{gdeploytemp}
 
 # Documentation
-mkdir -p %{buildroot}/%{gdeploydoc}
-cp -r README.md examples %{buildroot}/%{gdeploydoc}
+mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
+       %{buildroot}/%{_mandir}/man5/
+cp -r doc/* README.md examples %{buildroot}/%{gdeploydoc}
+cp man/gdeploy.1* %{buildroot}/%{_mandir}/man1/
+cp man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
 %clean
 rm -rf %{buildroot}
@@ -63,6 +66,8 @@ rm -rf %{buildroot}
 
 %doc README.md
 %docdir %{gdeploydoc}
+%{_mandir}/man1/gdeploy*
+%{_mandir}/man5/gdeploy*
 %{gdeploydoc}
 
 %changelog
