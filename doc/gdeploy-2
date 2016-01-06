@@ -1,0 +1,143 @@
+gdeploy Architecture for release 2
+
+
+Summary:
+
+In this architecture we are focusing on making gdeploy binary a tool
+that can be used to parse a configuration and do a specific set of
+actions on N number of host machines using ansible. These specific set
+of actions can be either core gdeploy actions(peer probe, volume
+management, client management, etc.) or extra features like snapshot,
+geo-replication etc. The extra features will be pluggable modules and
+should go into the `features/' directory, making gdeploy core scripts
+separate and independent of everything else. This will make the
+developer's life much easier if she wishes to automate a new GlusterFS
+feature using gdeploy. And avoids regressions in core features and
+maintainability a lot easier.
+
+gdeploy-2 will let users to run custom scripts on N number of host
+machines. The custom scripts have to be placed in `extras/' directory.
+The arguments to be passed and such behavioral features will be
+specific to that of the custom script. This will add an extra level of
+abstraction to gdeploy, will keep additional features separate allowing
+gdeploy binary to be lean. This makes gdeploy flexible allowing users
+to add new and fancier features without touching the core modules.
+
+Changing to the above mentioned architecture will change the entire
+directory structure of gdeploy and most of the code that is currently
+working. Despite the changes, gdeploy interface to end users remains
+unchanged, and the above changes transparent.
+
+Detailed directory structure for the new architecture:
+
+gdeploy
+    * gdeploy    --> Executable.
+    * README.md
+    * setup.py
+    * docs/
+    * lib/
+        - config_parse.py
+        - helpers.py
+        - yaml_writer.py
+        - playbook_gen.py
+        - add_feature.py
+        - custom_action.py
+    * core/
+        - backend_setup.py
+        - backend_reset.py
+        - volume_management.py
+        - client_management.py
+        - peer_management.py
+    * features/
+        * snapshot/
+            - snapshot-feature.in
+            - snapshot.py
+            - snapshot.yml
+        * geo-replication/
+            - georep-feature.in
+            - georep.py
+            - georep.yml
+        * nfs-ganesha/
+            - ganesha-feature.in
+            - ganesha.py
+            - ganesha.yml
+        .
+        .
+        .
+        .
+        .
+    * ansible_modules/
+    * playbooks/
+    * extras/
+        * load.py
+        * dummy.py
+        * rebalance-test.py
+    * tests/
+
+
+Developing features for gdeploy
+-------------------------------
+
+    In the above mentioned architecture, if one wants to add a new
+feature to gdeploy, she has to add two files to a directory inside the
+features directory.
+
+When gdeploy binary is run with configuration file as an argument, it
+will first look for all the core sections like backend-setup, peer,
+volume, clients, and backend-reset. After this, gdeploy will parse the
+rest of the configuration file and reads in the provided section names.
+Then it will look for directory with this section name inside the
+features directory. So it is important for the developer to document
+the section name(which is same as the directory name) properly so that
+the user won't be confused.
+
+Once the appropriate directory is found for the section, gdeploy goes
+ahead with the validation of user provided data by looking into what's
+given inside the <feature-name>-feature.in file. For example, the file
+looks like:
+
+Section: <feature name>
+
+Options:
+
+Name: Option1
+Description: Example option
+Required: True
+format: .*option-.*
+
+Name: Option2
+Description: Example option 2
+Required: False
+Default: Bilbo
+
+The user's configuration file will be parsed looking for each of the
+mentioned options in the .in file, validating it based on the required
+and format fields, setting default value, etc. At the end of this step,
+gdeploy will have a global python dictionary named section_dict which
+will contain key value pairs corresponding to each of the option name
+and it's value(s). If anymore feature specific changes are to be made in
+this key value pair, that can be done using the python script specified
+inside the directory. An example for such a change would be splitting up
+of a particular value into N values, etc. Along with this, the developer
+can ask gdeploy to write specific values to hostvars instead of
+groupvars. API functions for this will be documented properly in gdeploy
+man pages.
+
+We expect developer to be acquainted with Ansible module creation and
+development workflow as we want her to add a YAML file(ansible playbook)
+in the same directory which is to be run making use of an Ansible
+modules on the remote machines. While the first part just involved
+parsing the configuration file, this involves the real operation to be
+done on the remote machine. If the developer wishes to write her own
+Ansible module, she has to add the code inside the ansible_modules
+directory in the code base.
+
+There will be tests written to check if the feature addition is proper
+and obeys all the ansible requirements which can be run after doing a
+feature addition.
+
+Addition of the extras directory:
+
+This is a very simple addition to gdeploy, with which one can run an
+external python code using gdeploy library on remote machines without
+worrying about writing ansible modules and playbooks.
