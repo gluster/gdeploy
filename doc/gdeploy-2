@@ -123,7 +123,7 @@ mentioned options in the .in file, validating it based on the required
 and format fields, setting default value, etc. At the end of this step,
 gdeploy will have a global python dictionary named section_dict which
 will contain key value pairs corresponding to each of the option name
-and it's value(s). If anymore feature specific changes are to be made in
+and its value(s). If anymore feature specific changes are to be made in
 this key value pair, that can be done using the python script specified
 inside the directory. An example for such a change would be splitting up
 of a particular value into N values, etc. Along with this, the developer
@@ -141,8 +141,11 @@ There will be tests written to check if the feature addition is proper
 and obeys all the ansible requirements which can be run after doing a
 feature addition.
 
-Addition of the extras directory:
+Running external programs:
+--------------------------
 
-This is a very simple addition to gdeploy, with which one can run
-external programs using gdeploy on remote machines without
-worrying about writing ansible modules and playbooks.
+gdeploy will contain `extras/' directory, any programs added to this
+directory will be executed by gdeploy on remote hosts. This provides
+easy way to run the external program without having to write playbooks
+or modules.
+
