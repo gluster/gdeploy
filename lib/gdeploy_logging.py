@@ -10,15 +10,11 @@ def logger(f, name=None):
     '''
     This is a decorator function to log method calls
     '''
-    log_dir = os.path.expanduser('~/.gdeploy/logs/')
-    log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
     try:
        if logger.fhwr:
           pass
     except:
-       logger.fhwr = open(log_file,"a")
+       logger.fhwr = open(Global.log_file,"a")
     if name is None:
         name = f.func_name
     def wrapped(*args, **kwargs):
@@ -50,15 +46,14 @@ def log_event():
     This method helps in logging the messages
     '''
     log_dir = os.path.expanduser('~/.gdeploy/logs/')
-    log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
-    rotate_log_file(log_file)
+    rotate_log_file(Global.log_file)
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     logger = logging.getLogger("gdeploy")
     logger.setLevel(logging.INFO)
 
     # create the logging file handler
-    fh = logging.FileHandler(log_file)
+    fh = logging.FileHandler(Global.log_file)
 
     formatter = MyFormatter('[%(asctime)s -  ' \
             '%(filename)s:%(lineno)s - %(funcName)20s]: ' \
