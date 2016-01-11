@@ -50,6 +50,9 @@ def parse_arguments(args=None):
     parser.add_argument('-k', dest='keep',
                         action='store_true',
                         help="Keep the generated ansible utility files")
+    parser.add_argument('--trace', dest='trace',
+                        action='store_true',
+                        help="Turn on the trace messages in logs")
     parser.add_argument('-vv', dest='verbose',
                         action='store_true',
                         help="verbose mode")
@@ -71,6 +74,7 @@ def init_global_values(args):
     Global.config = ConfigParseHelpers.read_config(ConfigParseHelpers(), args.config_file[0].name)
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
+    Global.trace = args.trace
     Global.sections = Global.config._sections
 
 @logfunction
@@ -114,7 +118,9 @@ def gdeploy_cleanup():
         print "\nYou can view the generated configuration files "\
             "inside %s" % Global.base_dir
         Global.logger.info("Configuration saved inside %s" %Global.base_dir)
+    Global.logger.info("Terminating gdeploy...")
 
+@logfunction
 def create_playbooks_in_local():
     '''
     Templates directory in this codebase's repo will be moved to
@@ -136,7 +142,7 @@ def create_playbooks_in_local():
             "wants the environment varible GDEPLOY_TEMPLATES set."\
              % (templates_path_pkg)
         print "\nError: " + msg
-        Global.logger.error(msg)
+        Global.logger.error(msg.strip('\n\t\r'))
         helpers.cleanup_and_quit()
     helpers.copy_files(templates_dir)
 
@@ -160,6 +166,3 @@ if __name__ == '__main__':
     create_playbooks_in_local()
     call_core_functions()
     gdeploy_cleanup()
-
-
-

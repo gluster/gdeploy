@@ -107,7 +107,7 @@ NORMAL = "\033[0m"
 def indentlog(message):
     global log, indStr, indent
     dt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print >>log, "[%s -  TRACE - Calling  - %s%s" %(dt, indStr*indent, message)
+    print >>log, "[%s] -  TRACE     -   %s" %(dt, message)
     log.flush()
 
 def shortstr(obj):
@@ -178,20 +178,22 @@ def logmodule(module, logMatch=".*", logNotMatch="nomatchasfdasdf"):
             print>>log,"autolog.logmodule(): bound %s" %name
 
 def get_fileinfo(objectname):
-    filename = inspect.getsourcefile(objectname)
+    filename = inspect.getsourcefile(objectname).split('/')[-2:]
     line_number = int(inspect.getsourcelines(objectname)[1]) - 1
-    return filename + ':' + str(line_number)
+    return ('/'.join(filename) + ':' + str(line_number)).strip()
 
 def logfunction(theFunction, displayName=None):
     """a decorator."""
     if not displayName: displayName = theFunction.__name__
     fileinfo = get_fileinfo(theFunction)
     def _wrapper(*args, **kwds):
+        if not Global.trace:
+            return theFunction(*args, **kwds)
         global indent
         argstr = formatAllArgs(args, kwds)
 
         # Log the entry into the function
-        indentlog("%s ] %s%s%s  (%s) " % (fileinfo, BOLDRED,displayName,NORMAL, argstr))
+        indentlog("%s   : %s%s%s  (%s) " % (fileinfo, BOLDRED,displayName,NORMAL, argstr))
         log.flush()
 
         indent += 1
@@ -215,13 +217,13 @@ def logmethod(theMethod, displayName=None):
         selfstr = shortstr(self)
 
         #print >> log,"%s%s.  %s  (%s) " % (indStr*indent,selfstr,methodname,argstr)
-        indentlog("%s ] %s.%s%s%s  (%s) " % (fileinfo, selfstr,  BOLDRED,theMethod.__name__,NORMAL, argstr))
+        indentlog("%s   : %s.%s%s%s  (%s) " % (fileinfo, selfstr,  BOLDRED,theMethod.__name__,NORMAL, argstr))
         log.flush()
 
         indent += 1
 
         if theMethod.__name__ == 'OnSize':
-            indentlog("position, size = %s%s %s%s" %(BOLDBLUE, self.GetPosition(), self.GetSize(), NORMAL))
+            indentlog("%s   : position, size = %s%s %s%s" %(fileinfo, BOLDBLUE, self.GetPosition(), self.GetSize(), NORMAL))
 
         returnval = theMethod(self, *args,**kwds)
 
@@ -233,6 +235,8 @@ def logmethod(theMethod, displayName=None):
 
 def logclass(cls, methodsAsFunctions=False,
              logMatch=".*", logNotMatch="asdfnomatch"):
+    if not Global.trace:
+        return cls
     """
     A class "decorator". But python doesn't support decorator syntax for
     classes, so do it manually::

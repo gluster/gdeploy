@@ -27,6 +27,7 @@ class Global(object):
         modules
     '''
     logger = None
+    trace = False
     log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
     hosts = []
     host_vars = 'host_vars'

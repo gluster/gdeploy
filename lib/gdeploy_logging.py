@@ -21,7 +21,7 @@ def logger(f, name=None):
         now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         func = inspect.currentframe().f_back.f_code
         logger.fhwr.write(now +' - ' + func.co_filename + ':'
-            + str(func.co_firstlineno) + ' - TRACE - Calling ' +name+" "+str(f))
+            + str(func.co_firstlineno) + ' - TRACE ' +name+" "+str(f))
         result = f(*args, **kwargs)
         return result
     wrapped.__doc__ = f.__doc__
@@ -55,9 +55,9 @@ def log_event():
     # create the logging file handler
     fh = logging.FileHandler(Global.log_file)
 
-    formatter = MyFormatter('[%(asctime)s -  ' \
-            '%(filename)s:%(lineno)s - %(funcName)20s]: ' \
-            '%(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    formatter = MyFormatter('[%(asctime)s] -  %(levelname)s     -   ' \
+            '%(pathname)s:%(lineno)s    : ' \
+            '%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     fh.setFormatter(formatter)
 
     # add handler to logger object
