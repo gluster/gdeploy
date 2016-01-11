@@ -24,9 +24,12 @@ import os
 import time
 import shutil
 from collections import OrderedDict
-
 from lib import *
+from core import call_core_functions
 
+
+helpers = Helpers()
+conf_parse = ConfigParseHelpers()
 
 @logfunction
 def parse_arguments(args=None):
@@ -53,7 +56,6 @@ def parse_arguments(args=None):
     try:
         args = parser.parse_args(args=args)
     except IOError as msg:
-        raise IOError
         parser.error(str(msg))
     if not args.config_file:
         parser.print_help()
@@ -64,6 +66,54 @@ def parse_arguments(args=None):
         return None
     return args
 
+@logfunction
+def init_global_values(args):
+    Global.config = ConfigParseHelpers.read_config(ConfigParseHelpers(), args.config_file[0].name)
+    Global.verbose = '-vv' if args.verbose else ''
+    Global.keep = args.keep
+    Global.sections = Global.config._sections
+
+@logfunction
+def check_ansible_installation():
+    ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
+    if ret:
+        msg =  "gdeploy requires Ansible to run. \nPlease install " \
+                "Ansible(version >= 1.9.2) to continue."
+        print "Error: " + msg
+        Global.logger.error(msg)
+        return
+
+@logfunction
+def get_hostnames():
+    global helpers, conf_parse
+    hosts = conf_parse.config_get_options('hosts', False)
+    for host in hosts:
+        Global.hosts += helpers.parse_patterns(host)
+
+@logfunction
+def create_files_and_dirs():
+    global helpers
+    '''
+    Create required directories for all the configuration files
+    to go in. Since the client data for gluster confs are common for all the
+    hosts, creating a group var file anyway.
+    '''
+    helpers.mk_dir(Global.group_vars_dir)
+    helpers.touch_file(Global.group_file)
+    helpers.touch_file(Global.inventory)
+    helpers.mk_dir(Global.host_vars_dir)
+
+@logfunction
+def gdeploy_cleanup():
+    '''
+    Remove created temp directory if not explicitly asked to keep
+    '''
+    if not Global.keep:
+        shutil.rmtree(Global.base_dir)
+    else:
+        print "\nYou can view the generated configuration files "\
+            "inside %s" % Global.base_dir
+        Global.logger.info("Configuration saved inside %s" %Global.base_dir)
 
 if __name__ == '__main__':
     '''
@@ -78,5 +128,12 @@ if __name__ == '__main__':
     '''
     log_event()
     args = parse_arguments(sys.argv[1:])
+    check_ansible_installation()
+    init_global_values(args)
+    create_files_and_dirs()
+    get_hostnames()
+    call_core_functions()
+    gdeploy_cleanup()
+
 
 
