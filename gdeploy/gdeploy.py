@@ -115,6 +115,31 @@ def gdeploy_cleanup():
             "inside %s" % Global.base_dir
         Global.logger.info("Configuration saved inside %s" %Global.base_dir)
 
+def create_playbooks_in_local():
+    '''
+    Templates directory in this codebase's repo will be moved to
+    /var/tmp/playbooks
+    '''
+    global helpers
+    templates_path_pkg = '/usr/share/ansible/gdeploy/playbooks'
+    templates_env_var = os.getenv('GDEPLOY_TEMPLATES')
+    # Is environment variable GDEPLOY_TEMPLATES set
+    if templates_env_var:
+        templates_dir = helpers.get_file_dir_path(templates_env_var,
+                'playbooks')
+    # Or assumes the templates are present as a part of ansible installation
+    else:
+        templates_dir = templates_path_pkg
+    if not os.path.isdir(templates_dir):
+        msg = "Template files not found.\n\n" \
+            "Gdeploy looks inside the directory %s or \n" \
+            "wants the environment varible GDEPLOY_TEMPLATES set."\
+             % (templates_path_pkg)
+        print "\nError: " + msg
+        Global.logger.error(msg)
+        helpers.cleanup_and_quit()
+    helpers.copy_files(templates_dir)
+
 if __name__ == '__main__':
     '''
     This script just reads in the command line arguments and gets the
@@ -132,6 +157,7 @@ if __name__ == '__main__':
     init_global_values(args)
     create_files_and_dirs()
     get_hostnames()
+    create_playbooks_in_local()
     call_core_functions()
     gdeploy_cleanup()
 
