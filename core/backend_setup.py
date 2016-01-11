@@ -25,10 +25,7 @@
 #    as per specified in the configuration file
 #
 
-from conf_parser import ConfigParseHelpers
-from global_vars import Global
-from helpers import Helpers
-from yaml_writer import YamlWriter
+from lib import *
 import sys
 import re
 try:
@@ -43,7 +40,8 @@ import os
 
 class BackendSetup(YamlWriter):
 
-    def __init__(self, config):
+    def __init__(self, section):
+        return
         self.config = config
         self.section_dict = dict()
         self.previous = True

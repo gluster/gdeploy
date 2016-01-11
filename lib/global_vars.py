@@ -28,5 +28,14 @@ class Global(object):
     '''
     logger = None
     log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
+    hosts = []
+    host_vars = 'host_vars'
+    group_vars = 'group_vars'
+    group = 'gluster_servers'
+    base_dir = tempfile.mkdtemp()
+    group_vars_dir = os.path.join(os.path.realpath(base_dir), group_vars)
+    host_vars_dir = os.path.join(os.path.realpath(base_dir), host_vars)
+    inventory = os.path.join(os.path.realpath(base_dir), 'ansible_hosts')
+    group_file = os.path.join(group_vars_dir, 'all')
 
 

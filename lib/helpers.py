@@ -324,15 +324,15 @@ class Helpers(Global):
         return not is_subdir
 
 
-    def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
-        if Global.test:
-            return
-        executable = 'ansible-playbook'
-        command = [executable, '-i', Global.inventory, Global.verbose,
-                playbooks_file]
-        command = filter(None, command)
-        try:
-            subprocess.call(command, shell=False)
-        except (OSError, subprocess.CalledProcessError) as e:
-            print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
-            sys.exit()
+    # def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
+        # if Global.test:
+            # return
+        # executable = 'ansible-playbook'
+        # command = [executable, '-i', Global.inventory, Global.verbose,
+                # playbooks_file]
+        # command = filter(None, command)
+        # try:
+            # subprocess.call(command, shell=False)
+        # except (OSError, subprocess.CalledProcessError) as e:
+            # print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
+            # sys.exit()

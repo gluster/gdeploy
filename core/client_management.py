@@ -17,15 +17,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-from yaml_writer import YamlWriter
-from conf_parser import ConfigParseHelpers
-from global_vars import Global
-from helpers import Helpers
+from lib import *
 
 
 class ClientManagement(YamlWriter):
 
-    def __init__(self, config):
+    def __init__(self, section):
+        return
         self.config = config
         self.filename = Global.group_file
         self.get_client_data()

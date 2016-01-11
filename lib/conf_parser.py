@@ -32,6 +32,7 @@ import argparse
 import ConfigParser
 import sys
 from helpers import Helpers
+from global_vars import Global
 
 
 class ConfigParseHelpers(Helpers):
@@ -98,9 +99,9 @@ class ConfigParseHelpers(Helpers):
                 self.cleanup_and_quit()
             return []
 
-    def config_get_options(self, config_parse, section, required):
+    def config_get_options(self, section, required):
         try:
-            return config_parse.options(section)
+            return Global.config.options(section)
         except ConfigParser.NoSectionError as e:
             if required:
                 print "Error: Section %s not found in the " \
