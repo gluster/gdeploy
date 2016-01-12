@@ -1,5 +1,7 @@
 #!/bin/sh
 
+test `id -u` -ne 0  && echo "Only root can run setup." && exit 1
+
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [ -n "`$SHELL -c 'echo $ZSH_VERSION'`" ]; then
