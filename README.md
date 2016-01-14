@@ -1,12 +1,11 @@
 #gdeploy
 
-Tool to set-up and deploy glusterfs using ansible over multiple hosts
+Tool to set-up and deploy GlusterFS using ansible over multiple hosts.
 
-gdeploy can be used to set-up the backend, create a glusterfs volume
-and mount it to a client over n-number of clients from an ansible installed
-machine. The framework takes the configurations for this from a configuration
-file to be defined by the user.
-
+gdeploy can be used to set-up the backend, create a GlusterFS volume
+and mount it on one or more clients from an ansible installed machine.
+The framework reads a configuration file and applies on the hosts listed
+in the configuration file.
 
 ##Installation
 
@@ -45,7 +44,7 @@ Follow the instructions [here](https://github.com/nandajavarma/gdeploy/tree/mast
 to create your configuration file.
 An example configuration file can be found [here](//github.com/nandajavarma/gdeploy/tree/master/examples)
 
-> TODO: better README for the configuration file
+See gdeploy.conf(5) manpage for more details.
 
 To set-up back-end and deploy GlusterFS in the specified host machines, run:
 
