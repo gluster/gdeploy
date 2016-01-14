@@ -1,9 +1,0 @@
----
-- hosts: gluster_servers
-  remote_user: root
-  gather_facts: no
-
-  tasks:
-  - name: Disable specified rhsm repos
-    command: subscription-manager repos --disable={{ item }}
-    with_items: repos

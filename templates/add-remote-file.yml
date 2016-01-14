@@ -1,9 +1,0 @@
----
-- hosts: gluster_servers
-  remote_user: root
-  gather_facts: no
-
-  tasks:
-  - name: Adding the lines in remote file
-    lineinfile: "dest={{ dest }} line='{{ item }}'"
-    with_items: line

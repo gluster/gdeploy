@@ -1,9 +1,0 @@
----
-- hosts: master_node
-  remote_user: root
-  gather_facts: no
-
-  tasks:
-  - name: Deletes a node in the cluster
-    script: /usr/libexec/ganesha/ganesha-ha.sh --delete "{{ ha_base_dir }}" {{ item }}
-    with_items: nodes

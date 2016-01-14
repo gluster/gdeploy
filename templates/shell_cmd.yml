@@ -1,8 +1,0 @@
----
-- hosts: gluster_servers
-  remote_user: root
-  gather_facts: no
-
-  tasks:
-  - name: Run a command in the shell
-    shell: "{{ cmd }}"

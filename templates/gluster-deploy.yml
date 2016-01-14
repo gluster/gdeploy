@@ -1,6 +1,0 @@
----
-- include: glusterd-start.yml
-- include: gluster-peer-probe.yml
-- include: gluster-volume-create.yml
-- include: gluster-volume-start.yml
-- include: gluster-client-mount.yml
