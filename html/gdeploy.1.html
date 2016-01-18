@@ -1,0 +1,117 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of gdeploy</TITLE>
+</HEAD><BODY>
+<H1>gdeploy</H1>
+Section: User Commands (1)<BR>Updated: 17 December 2015<BR><A HREF="#index">Index</A>
+<A HREF=".">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<B>gdeploy </B>- Deploy/Configure a gluster cluster
+<B>
+</B><A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<PRE>
+<B>gdeploy</B> [<B>--help</B> | <B>-h</B>] [<B>--version</B>] [<B>-c</B> <I>CONFIG_FILE</I>] [<B>-k</B>] [<B>-v</B> | <B>-vv</B>]
+        [volumeset &lt;hostIP&gt;:&lt;volumename&gt; &lt;key&gt; &lt;value&gt;]
+
+</PRE>
+
+
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>gdeploy</B> is a deployment and configuration tool to set-up and deploy GlusterFS.
+<B>gdeploy</B> uses <B><A HREF="http://docs.ansible.com/ansible/intro.html">ansible</A></B>(1) to apply the configurations on remote machines.
+<P>
+
+<B>gdeploy</B> can be used to set-up the logical volumes, create a glusterfs volume,
+and mount it on one or more clients from an ansible installed machine. The
+framework takes the configurations for this from a configuration file to be
+defined by the user. See <B><A HREF="gdeploy.conf.5.html">gdeploy.conf</A></B>(5) for more details on writing
+configuration files.
+
+<P>
+
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<P>
+<DL COMPACT>
+<DT><B>-h</B>, <B>--help</B>
+
+<DD>
+Print this help text and exit
+<DT><B>--version</B>
+
+<DD>
+Output version information and exit
+<DT><B>-c</B> <I>CONFIG_FILE</I>
+
+<DD>
+Read the <I>CONFIG_FILE</I> and apply the configurations
+<DT><B>-k</B>
+
+<DD>
+Keep the generated playbooks, groupvars, and hostvars
+<DT><B>-v</B>, <B>-vv</B>
+
+<DD>
+Run <B>gdeploy</B> in verbose mode, prints debug messages
+<DT><B>volumeset</B>
+
+<DD>
+Set an option in the gluster volume
+
+</DL>
+<P>
+
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+Apply the configuration in cluster.conf:
+<PRE>
+$ <B>gdeploy</B> <B>-c</B> cluster.conf
+
+Set read-ahead off on a volume called backupvol on host 192.168.10.10
+$ <B>gdeploy volumeset</B> 192.168.10.10:backupvol read-ahead off
+
+
+</PRE><A NAME="lbAG">&nbsp;</A>
+<H2>FILES</H2>
+
+/usr/share/doc/gdeploy/README.md
+<PRE>
+/usr/share/doc/gdeploy/examples/gluster.conf.sample
+
+
+</PRE><A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="gdeploy.conf.5.html">gdeploy.conf</A></B>(5)
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLES</A><DD>
+<DT><A HREF="#lbAG">FILES</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 10:27:27 GMT, December 30, 2015
+</BODY>
+</HTML>
