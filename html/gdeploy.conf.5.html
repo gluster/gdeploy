@@ -1,0 +1,578 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of gdeploy.conf</TITLE>
+</HEAD><BODY>
+<H1>gdeploy.conf</H1>
+Section: File Formats (5)<BR>Updated: 23 December 2015<BR><A HREF="#index">Index</A>
+<A HREF=".">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<B>gdeploy.conf </B>- Configuration file format for <B><A HREF="gdeploy.1.html">gdeploy(1)</A></B> tool
+<B>
+</B><A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+There is no rule to name the configuration file for <B><A HREF="gdeploy.1.html">gdeploy(1)</A></B> as long as the
+file is mentioned with <B>-c</B> option.. Please refer <B><A HREF="gdeploy.1.html">gdeploy(1)</A></B> man
+page for a list of options.
+<A NAME="lbAD">&nbsp;</A>
+<H2>CONFIGURATION FILE ORGANISATION</H2>
+
+The configuration file is conceptually split into four parts.
+<P>
+
+<DL COMPACT>
+<DT><B>Inventory</B>
+
+<DD>
+- The [hosts] section.
+<DT><B>Backend</B>
+<DD>
+- [disktype], [diskcount], [vgs], [pools], [backend-reset], ... and
+other sections. These sections are used in the configuration file based on the
+usecase.
+<DT><B>Volume</B>
+<DD>
+- The [volume], [peer], [clients], ... These sections define the volume
+options and clients to be mounted on.
+
+<DT><B>Features</B>
+<DD>- The [snapshot], [quota], [geo-replication], ... this is a growing list.
+</DL>
+
+
+<H2>INVENTORY</H2>
+
+The inventory contains the ip-address/hostnames of all the machines that form
+the trusted storage pool.
+<P>
+
+<PRE>
+<B>[hosts]</B>
+    - This is a mandatory section, and hostnames/ip-address are listed one per line.
+
+    Example:
+
+    [hosts]
+    10.70.47.121
+    10.70.47.122
+
+</PRE>
+
+<H2>BACKEND</H2>
+
+<B>[backend-setup]</B>
+
+<PRE>
+<B>[backend-setup:&lt;hostname&gt;/&lt;ip&gt;]</B>
+       The [backend-setup] section is used configure the disks on all the hosts
+       mentioned in the [hosts] section. If the disks names varies from host to
+       host then [backend-setup:&lt;hostname&gt;/&lt;ip&gt;] can be used to do setup
+       backend on the particular host.
+<DL COMPACT><DT><DD>
+backend-setup supports the following variables:
+<DL COMPACT>
+<DT><B>devices</B>
+<DD>The disks that are to be configured. eg: /dev/sdb,/dev/sdc This is a
+mandatory variable.
+
+<DT><B>vgs</B>
+<DD>VG names that has to be used. This variable is optional, if not given
+GLUSTER_vg{n} will be used. Where n is a number starting from 1.
+
+<DT><B>pools</B>
+<DD>Thinpool name to be used. This variable is optional, if not given a default
+poolnames will be used.
+
+<DT><B>lvs</B>
+<DD>LV name to be used. This variable is optional, if not given a default LV names
+will be used.
+
+<DT><B>mountpoints</B>
+<DD>Mountpoints where the LVs have to be mounted.
+
+<DT><B>brick_dirs</B>
+<DD>Brick directories to be used while creating a gluster volume. The directories
+will be created if not present already.
+</DL>
+
+Examples:
+<DL COMPACT>
+<DT>1.Backend setup for all the hosts listed in [hosts] section.
+</DL>
+[backend-setup]
+devices=/dev/sdb
+vgs=CUSTOM_vg1
+pools=CUSTOM_pool1
+lvs=CUSTOM_lv1
+mountpoints=/gluster/brick1
+brick_dirs=glusterbrick1
+<DL COMPACT>
+<DT>2.Backend setup for a particular host 10.70.47.122
+</DL>
+[backend-setup:10.70.47.122]
+devices=/dev/sdc
+vgs=CUSTOM_vg1
+pools=CUSTOM_pool1
+lvs=CUSTOM_lv1
+mountpoints=/gluster/brick1
+brick_dirs=glusterbrick1
+</DL>
+
+<B>[disktype]</B>
+       Specifies which disk configuration is used while setting up the
+       back-end. Supports RAID 10, RAID 6 and JBOD configurations. This section
+       is optional if omitted, it will be by default taken as JBOD. The
+       configuration in this section applies to all the hosts in the [hosts]
+       section.
+<DL COMPACT><DT><DD>
+Examples:
+<DL COMPACT>
+<DT>1.raid6
+</DL>
+[disktype]
+RAID6
+<DL COMPACT>
+<DT>2.RAID10
+</DL>
+[disktype]
+RAID10
+</DL>
+
+<DL COMPACT>
+<DT><B>[diskcount]</B>
+<DD>Specifies the number of data disks in the setup. This is a mandatory
+field if the disk configuration specified is either RAID 10 or RAID 6
+and will be ignored if architecture is JBOD.
+</DL>
+
+<DL COMPACT>
+<DT><B>[stripesize]</B>
+<DD>Specifies the stripe_unit size in KB. This is a mandatory field if disk
+configuration is RAID 6. If this is not specified in case of RAID 10
+configurations, it will take the default value 256K. This field is not
+necessary for JBOD configuration of disks. Do not add any suffixes like
+K, KB, M, etc.
+</DL>
+
+<DL COMPACT>
+<DT><B>[backend-reset] / [backend-reset:&lt;hostname&gt;/&lt;ip&gt;]</B>
+<DD>This section allows backend reset in remote machines. Backend reset
+includes unmouting of LVs and deletion of LVs, VGs, and PVs.
+<DL COMPACT><DT><DD>
+NOTE: Use this feature cautiously.
+
+backend-reset supports the following variables:
+<DL COMPACT>
+<DT><B>pvs</B>
+<DD>Physical volumes that have to be wiped out (Including LVs and
+VGs).
+<DT><B>lvs</B>
+<DD>Logical volumes that have to be wiped out (VGs and PVs are not
+wiped out).
+<DT><B>vgs</B>
+<DD>Volume groups that have to be wiped out (PVs are not wiped)
+unmount - (yes/no) Unmount the specified mountpoints.
+mountpoints - List of mountpoints that have to be unmounted.
+</DL>
+
+Examples:
+<DL COMPACT>
+<DT>1. unmount bricks without deleting VG/PV/LV
+</DL>
+
+[backend-reset]
+mountpoints=/dev/GLUSTER_vg1/GLUSTER_lv1,/dev/GLUSTER_vg2/GLUSTER_lv2
+unmount=yes
+
+On a particular host
+
+[backend-reset:10.70.47.122]
+mountpoints=/dev/GLUSTER_vg1/GLUSTER_lv1,/dev/GLUSTER_vg2/GLUSTER_lv2
+unmount=yes
+<DL COMPACT>
+  <DT>2. Remove the logcial volumes on all hosts
+    </DL>[backend-reset]
+lvs=GLUSTER_lv{1,2}
+unmount=yes
+<DL COMPACT>
+  <DT>3. Remove VGs and associated LVs on all the hosts
+    </DL>[backend-reset]
+vgs=GLUSTER_vg1,GLUSTER_vg2
+unmount=yes
+<DL COMPACT>
+  <DT>4. Remove the PV, VG, and LVs on all hosts
+    </DL>[backend-reset]
+pvs=/dev/sdb,/dev/vdb
+unmount=yes
+<DL COMPACT>
+  <DT>5. Remove the PV, VG, and LVs on a particular host
+    </DL>[backend-reset:10.70.47.122]
+pvs=/dev/sdb,/dev/vdb
+unmount=yes
+
+</PRE><A NAME="lbAG">&nbsp;</A>
+<H2>VOLUME</H2>
+
+<B>[peer]</B>
+
+<PRE>
+    The section peer specifies the configurations for the Trusted Storage
+    Pool management. This section has variable:
+
+<DL COMPACT>
+<DT><B>    manage</B>
+<DD>probe/detach/ignore are the allowed options for this variable.
+
+probe - probes the peer
+detach - detaches the peer
+ignore - skip the peer probing step.
+<DL COMPACT><DT><DD>
+Examples:
+<DL COMPACT>
+<DT>1. Probe all the machines listed in hosts section
+</DL>[peer]
+manage=probe
+<DL COMPACT>
+<DT>2. Detach the peers
+
+[peer]
+manage=detach
+</DL>
+</DL>
+</DL>
+<B>[volume]</B>
+    The section volume specifies the configuration options for the volume. This
+    section supports the following variables:
+<DL COMPACT><DT><DD><DL COMPACT>
+<DT><B>volname</B>
+<DD>Name of the volume, this is an optional variable. If no value is given,
+`glustervol' is used. If the volume has to be started or stopped, volname should
+be of the format &lt;host&gt;/&lt;ip&gt;:name eg: 10.70.47.122:glustervol
+<DT><B>action</B>
+<DD>The action to be performed on the volume. Possible values are create, delete,
+add-brick, remove-brick, rebalance, set. add-brick adds a brick to the
+volume. If this is set as action, then extra variable bricks should be set with
+a list of bricks to be added. remove-brick removes a brick from the volume,
+again if remove-brick is set extra option `bricks' with a comma separated list
+of brick names(in the format &lt;hostname&gt;:&lt;brick path&gt;) should be provided.
+<DL COMPACT><DT><DD>
+In case of remove-brick and rebalance, `state' option should also be
+provided. Choices for `state' are:
+
+For <B>remove-brick</B>: [start, stop, commit, force]
+For <B>rebalance</B>: [start, stop, fix-layout]
+</DL>
+<DT><B>bricks</B>
+<DD>This option is set when add-brick or remove-brick are set as action. Bricks are
+comma separated list of brick names in the format &lt;hostname&gt;:&lt;brick path&gt;
+<DT><B>state</B>
+<DD>This option is set while using remove-brick or rebalance for action. Choices for
+`state' are:
+
+For <B>remove-brick</B>: [start, stop, commit, force]
+For <B>rebalance</B>: [start, stop, fix-layout]
+<DT><B>transport</B>
+<DD>This option specifies the transport type. Default is tcp. Options are `tcp' or
+`rdma' or `tcp,rdma'.
+<DT><B>replica</B>
+<DD>Identifies if the volume is a replicate volume or not. Possible options are
+[yes, no].
+<DT><B>replica_count</B>
+<DD>The replicate count, possible options are [2, 3].
+<DT><B>disperse</B>
+<DD>Identifies if the volume should be disperse. Possible options are [yes, no].
+<DT><B>disperse_count</B>
+<DD>Optional argument. If none given, the number of bricks specified in the command
+line is taken as the disperse_count value.
+<DT><B>redundancy_count</B>
+<DD>If `redundancy_count' is not specified, and if `disperse' is yes, it's default
+value is computed so that it generates an optimal configuration.
+<DT><B>force</B>
+<DD>Force volume creation without any questions on brick directories. Default is
+`no'.
+</DL>
+</DL>
+
+<B>[clients]</B>
+    This section is intended to use to mount the gluster volumes. `clients'
+    seciton supports the following variables:
+<DL COMPACT><DT><DD><DL COMPACT>
+<DT><B>action</B>
+<DD>Specifies whether to mount or unmount a gluster volume. Supported options are
+[mount, umount]
+<DT><B>volname</B>
+<DD>Name of the volume to be mounted. This is optional if volume name is mentioned
+in [volume] section.
+<DT><B>hosts</B>
+<DD>This is a mandatory field, hostnames or ip addresses are listed as comma
+separated values. Range of ip addresses can be given. For eg: 10.70.46.1{3,9}
+will consider ip addresses between 10.70.46.13 ... 10.70.46.19
+<DT><B>fstype</B>
+<DD>The option `fstype' specifies the mount protocol. Choices are: [glusterfs, nfs]
+(Default is glusterfs)
+<DT><B>client_mount_points</B>
+<DD>Specifies the client mount points. Each client can have a separate mountpoint.
+In that case, the mountpoints have to be listed as comma separated values.
+
+</DL>
+</DL>
+</PRE><A NAME="lbAH">&nbsp;</A>
+<H2>FEATURES</H2>
+
+<P>
+<B>[snapshot]</B>
+
+<PRE>
+    This section allows to configure snapshot operations. Supports the following
+    variables:
+<DL COMPACT><DT><DD><DL COMPACT>
+<DT><B>action</B>
+<DD>Supports the following snapshot operations: [create, delete, clone, config, and
+restore].
+<DT><B>volname</B>
+<DD>Volume on which snapshot operation has to be performed. This is an optional
+variable if volume name is set in the [volume] section.
+<DT><B>snapname</B>
+<DD>The name of the snapshot, on which the `action' has to be performed.
+<DT><B>snap_max_soft_limit</B>
+<DD>To set this variable, action has to be set to config. snap_max_soft_limit is a
+percentage value, which is applied on the &quot;Effective snap-max-hard-limit&quot; to get
+the &quot;Effective snap-max-soft-limit&quot;. When auto-delete feature is enabled, then
+upon reaching the &quot;Effective snap-max-soft-limit&quot;, with every successful
+snapshot creation, the oldest snapshot will be deleted.
+<DT><B>snap_max_hard_limit</B>
+<DD>To set this variable, action has to be set to config. snap_max_hard_limit is a number.
+<DT><B>auto_delete</B>
+<DD>When enabled, then upon reaching the &quot;Effective snap-max-soft-limit&quot;, with every
+successful snapshot creation, the oldest snapshot will be deleted. Possible
+valuese are [enable, disable].
+<DT><B>activate_on_create</B>
+<DD>Possible values are [enable, disable]. Will enable snapshot on creation.
+</DL>
+</DL>
+
+<B></B>
+[quota]
+    This section is used to set quota limits on directories on mountpoint. Quota
+    section supports the following variables:
+<DL COMPACT><DT><DD><DL COMPACT>
+<DT><B>action</B>
+<DD>Supports the following values [enable, disable, remove, remove-objects,
+default-soft-limit, limit-usage, limit-objects, alert-time, soft-timeout,
+hard-timeout].
+<DT><B>volname</B>
+<DD>Name of the volume. This is an optional variable, can be ignored if `volume'
+section contains the volume name. If provided, the value should look like
+&lt;ip&gt;:&lt;volname&gt;.
+        Example: 10.70.46.15:glustervol
+<DT><B>path</B>
+<DD>Path on which the quota has to be set. The value should be comma separated list
+of paths if more than one directory is mentioned.
+<DT><B>percent</B>
+<DD>Percentage of size of the volume.
+<DT><B>size</B>
+<DD>Size in MB, GB ...
+<DT><B>number</B>
+<DD>The object count that should be allowed.
+<DT><B>time</B>
+<DD>Time in seconds to set `alert time', `soft timeout', `hard timeout' based on the
+action.
+</DL>
+</DL>
+
+<B>[geo-replication]</B>
+    Geo-Replication supports the following variables:
+<DL COMPACT><DT><DD><DL COMPACT>
+<DT><B>action</B>
+<DD>Setup or manage geo-replication The choices available are: [create, start, stop,
+delete, pause, resume]
+<DT><B>mastervol</B>
+<DD>Name of the master volume. The format of the value should be - &lt;ip&gt;:&lt;hostname&gt;
+Eg: 10.70.46.13:mastervolname
+<DT><B>slavevol</B>
+<DD>Name of the slave volume. The format of the value should be - &lt;ip&gt;:&lt;hostname&gt;
+Eg: 10.70.46.26:slavevolname
+<DT><B>force</B>
+<DD>`yes' will force the volume creation.
+</DL>
+
+The following configuration options are provided to configure a
+geo-replication session:
+<DL COMPACT>
+<DT><B>gluster-log-file</B>
+<DD>The path to the geo-replication glusterfs log file.
+gluster-log-level
+The log level for glusterfs processes.
+<DT><B>log-file</B>
+<DD>The path to the geo-replication log file.
+<DT><B>log-level</B>
+<DD>The log level for geo-replication.
+<DT><B>ssh-command</B>
+<DD>The SSH command to connect to the remote machine (the default is SSH).
+<DT><B>rsync-command</B>
+<DD>The rsync command to use for synchronizing the files (the default is rsync).
+<DT><B>use-tarssh</B>
+<DD>The use-tarssh option allows tar over Secure Shell protocol. Use this option to
+handle workloads of files that have not undergone edits. Value of this option
+can be [true, false]
+<DT><B>volume-id</B>
+<DD>The option to delete the existing master UID for the intermediate/slave
+node. Value to this option should be a UID
+<DT><B>timeout</B>
+<DD>The timeout period in seconds.
+<DT><B>sync-jobs</B>
+<DD>The number of simultaneous files/directories that can be synchronized.
+<DT><B>ignore-deletes</B>
+<DD>If this option is set to 1, a file deleted on the master will not trigger a
+delete operation on the slave.
+<DT><B>checkpoint</B>
+<DD>Sets a checkpoint with the given value. If the option is set as now, then the
+current time will be used as the label.
+</DL>
+
+If the value of any of the above option(other than volume-id) in set to `reset',
+the setting of that config option will be deleted.
+</DL>
+
+<B>[RH-subscription]</B>
+    This section is used to configure Red Hat Subscription Management like
+    attach to a pool, enable repos, disable repos, and unregister from RHSM.
+    Allows the following variables:
+<DL COMPACT><DT><DD><DL COMPACT>
+<DT><B>action</B>
+<DD>Allowed variables for action - [register, attach-pool, enable-repos,
+disable-repos, unregister]
+<DT><B>username</B>
+<DD>Username for RHSM
+<DT><B>password</B>
+<DD>Password for RHSM
+<DT><B>auto-attach</B>
+<DD>true, if if product certificates are are available at /etc/pki/product/
+<DT><B>pool</B>
+<DD>Pool id for RHSM
+<DT><B>repos</B>
+<DD>List of comma separated repo lists
+</DL>
+</DL>
+
+<B>[yum]</B>
+    Install packages using yum. yum supports the following variables.
+<DL COMPACT><DT><DD><DL COMPACT>
+<DT><B>action</B>
+<DD>Currently supports [install, remove] values.
+<DT><B>repos</B>
+<DD>List of comma separated repos to install from. packages - List of packages to be
+installed.
+</DL>
+</DL>
+
+<B>[firewalld]</B>
+    This section allows addition or deletion of ports in either running or
+    permanent firewalld rules. The following variables are supported:
+<DL COMPACT><DT><DD><DL COMPACT>
+<DT><B>action</B>
+<DD>Supports variables [add-ports, delete-ports]
+<DT><B>ports</B>
+<DD>value formats for ports can be &lt;port&gt;/&lt;protocol&gt;. Eg: 8081/tcp, 161-162/udp
+<DT><B>permanent</B>
+<DD>Supports [true, false]. True makes the change permanent.
+<DT><B>zone</B>
+<DD>Possible values for zones are [drop, block, public, external, dmz, work, home,
+internal, trusted]
+
+</DL>
+</DL>
+
+<B>[ctdb]</B>
+    The variables supported by ctdb include:
+<DL COMPACT><DT><DD><DL COMPACT>
+<DT><B>action</B>
+<DD>List of actions supported [`setup', `start', `stop', `enable', `disable']
+<DT><B>public_address</B>
+<DD>The public ip address and interface.
+eg: 192.168.1.{1,4}/24 eth1;eth2,192.168.1.1/24 eth2
+<DT><B>CTDB_PUBLIC_ADDRESSES</B>
+<DD>Default: /etc/ctdb/public_addresses
+<DT><B>CTDB_NODES</B>
+<DD>Default: /etc/ctdb/nodes
+<DT><B>CTDB_MANAGES_SAMBA</B>
+<DD>Default: no
+<DT><B>CTDB_SET_DeterministicIPs</B>
+<DD>Default: 1
+<DT><B>CTDB_SET_RecoveryBanPeriod</B>
+<DD>Default: 120
+<DT><B>CTDB_SET_KeepaliveInterval</B>
+<DD>Default: 5
+<DT><B>CTDB_SET_KeepaliveLimit</B>
+<DD>Default: 5
+<DT><B>CTDB_SET_MonitorInterval</B>
+<DD>Default: 15
+<DT><B>CTDB_RECOVERY_LOCK</B>
+<DD>Default: /mnt/lock/reclock
+<DT>For more documentation on ctdb refer documentation under<DD>/usr/share/doc/gdeploy/examples/gluster.conf.sample
+</DL>
+</DL>
+</PRE><A NAME="lbAI">&nbsp;</A>
+<H2>EXAMPLES</H2>
+
+Create a 2x2 gluster volume
+<P>
+
+[hosts]
+<PRE>
+10.70.46.13
+10.70.46.17
+
+# Common backend setup for 2 of the hosts.
+[backend-setup]
+brick_dirs=/gluster/brick/brick{1,2}
+
+[volume]
+action=create
+volname=sample_volname
+replica=yes
+replica_count=2
+force=yes
+
+[clients]
+action=mount
+hosts=10.70.46.15
+fstype=glusterfs
+client_mount_points=/mnt/mountpointname
+</PRE><A NAME="lbAJ">&nbsp;</A>
+<H2>FILES</H2>
+
+<PRE>
+/usr/share/doc/gdeploy/examples/
+/usr/share/doc/gdeploy/README.md
+/usr/share/doc/gdeploy/examples/gluster.conf.sample
+</PRE><A NAME="lbAK">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="gdeploy.1.html">gdeploy(1)</A></B>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">CONFIGURATION FILE ORGANISATION</A><DD>
+<DT><A HREF="#lbAE">INVENTORY</A><DD>
+<DT><A HREF="#lbAF">BACKEND</A><DD>
+<DT><A HREF="#lbAG">VOLUME</A><DD>
+<DT><A HREF="#lbAH">FEATURES</A><DD>
+<DT><A HREF="#lbAI">EXAMPLES</A><DD>
+<DT><A HREF="#lbAJ">FILES</A><DD>
+<DT><A HREF="#lbAK">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 10:27:39 GMT, December 30, 2015
+</BODY>
+</HTML>
