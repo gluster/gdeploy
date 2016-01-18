@@ -77,12 +77,11 @@ class ConfigParseHelpers(Helpers):
 
     def config_section_map(
             self,
-            config_parse,
             section,
             option,
             required=False):
         try:
-            return config_parse.get(section, option)
+            return Global.config.get(section, option)
         except:
             if required:
                 print "Error: Option %s not found! Exiting!" % option

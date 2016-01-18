@@ -22,17 +22,15 @@ from lib import *
 
 class PeerManagement(YamlWriter):
 
-    def __init__(self, section):
-        return
-        self.config = config
-        if self.config.has_section('peer'):
-            action = self.config_section_map(self.config, 'peer', 'manage', False)
+    def __init__(self):
+        if Global.sections.get('peer'):
+            action = self.config_section_map('peer', 'manage', False)
             if not action:
                 print "Warning: Section 'peers' without any action option " \
                         "found. Skipping this section!"
                 return
             Global.logger.info("Reading configuration in peer section")
-            self.hosts = self.config_get_options(self.config, 'hosts', False)
+            self.hosts = self.config_get_options('hosts', False)
             if not self.hosts:
                 msg = "Although peer manage option is provided, " \
                         "no hosts are provided in the section. \n " \
@@ -57,5 +55,5 @@ class PeerManagement(YamlWriter):
             print "\nINFO: " + msg
             Global.logger.info(msg)
             if action == 'probe':
-                Global.playbooks.append('glusterd-start.yml')
-            Global.playbooks.append(yml)
+                self.run_playbook('glusterd-start.yml')
+            self.run_playbook(yml)

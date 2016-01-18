@@ -24,14 +24,11 @@ import re
 
 class BackendReset(YamlWriter):
 
-    def __init__(self, section):
-        return
-        self.config = config
+    def __init__(self):
         section_regexp = '^backend-reset(:)*(.*)'
-        sections = self.config._sections
         hosts = []
         backend_reset = False
-        for section in sections:
+        for section in Global.sections:
             val = re.search(section_regexp, section)
             if val:
                 backend_reset = True
@@ -69,7 +66,7 @@ class BackendReset(YamlWriter):
             self.filename =  Global.group_file
         self.iterate_dicts_and_yaml_write(self.section_dict)
         if 'backend-reset.yml' not in Global.playbooks:
-            Global.playbooks.append('backend-reset.yml')
+            self.run_playbook('backend-reset.yml')
         return True
 
     def get_backend_data(self):

@@ -41,8 +41,6 @@ import os
 class BackendSetup(YamlWriter):
 
     def __init__(self, section):
-        return
-        self.config = config
         self.section_dict = dict()
         self.previous = True
         self.write_sections()
@@ -53,10 +51,8 @@ class BackendSetup(YamlWriter):
         self.entire_hosts = Global.hosts
         self.perf_spec_data_write()
         backend_setup, hosts = self.check_backend_setup_format()
-        default = self.config_get_options(self.config,
-                                               'default', False)
-        gluster = self.config_get_options(self.config,
-                                               'gluster', False)
+        default = self.config_get_options('default', False)
+        gluster = self.config_get_options('gluster', False)
         if default:
             self.default = False if default[0].lower() == 'no' else True
         self.default = self.default if hasattr(self, 'default') else True
@@ -72,7 +68,7 @@ class BackendSetup(YamlWriter):
                 if Global.var_file == 'host_vars':
                     for host in Global.hosts:
                         self.current_host = host
-                        devices = self.config_section_map(self.config, host,
+                        devices = self.config_section_map(host,
                                                   'devices', False)
                         self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
                         self.touch_file(self.filename)
@@ -124,13 +120,10 @@ class BackendSetup(YamlWriter):
             msg = "Back-end setup triggered"
             Global.logger.info(msg)
             print "\nINFO: " + msg
-        selinux = self.config_get_options(self.config,
-                                               'selinux', False)
+        selinux = self.config_get_options('selinux', False)
         if selinux and self.mountpoints:
             if selinux[0].lower() == 'yes':
-                yml = self.get_file_dir_path(
-                        Global.base_dir, 'set-selinux-labels.yml')
-                self.exec_ansible_cmd(yml)
+                self.run_playbook('set-selinux-labels.yml')
 
 
     def call_gen_methods(self):
@@ -169,8 +162,7 @@ class BackendSetup(YamlWriter):
                 self.section_dict['bricks'].append(self.ssd)
             self.create_yaml_dict('bricks', self.section_dict['bricks'], False)
             self.device_count = len(self.bricks)
-            yml = self.get_file_dir_path(Global.base_dir, 'pvcreate.yml')
-            self.exec_ansible_cmd(yml)
+            self.run_playbook('pvcreate.yml')
             if hasattr(self, 'ssd'):
                 if self.ssd in self.section_dict['bricks']:
                     self.section_dict['bricks'].remove(self.ssd)
@@ -214,8 +206,7 @@ class BackendSetup(YamlWriter):
                 data.append(vgnames)
             self.create_yaml_dict('vgnames', data, True)
             if self.section_dict.get('bricks'):
-                yml = self.get_file_dir_path(Global.base_dir, 'vgcreate.yml')
-                self.exec_ansible_cmd(yml)
+                self.run_playbook('vgcreate.yml')
             else:
                 self.device_count = len(vgs)
             return True
@@ -246,9 +237,7 @@ class BackendSetup(YamlWriter):
                         self.section_dict['pools'])):
                         self.insufficient_param_count('lvs',
                                 len(self.section_dict['pools']))
-                    yml = self.get_file_dir_path(Global.base_dir,
-                            'auto_lvcreate_for_gluster.yml')
-                    self.exec_ansible_cmd(yml)
+                    self.run_playbook('auto_lvcreate_for_gluster.yml')
                 else:
                     if not hasattr(self, 'device_count'):
                         self.device_count = len(lvs)
@@ -269,8 +258,7 @@ class BackendSetup(YamlWriter):
                 lvs.extend(self.datalv)
         #If SSD present for caching
         self.section_dict['vg'] = self.section_dict['vgs'][0]
-        self.section_dict['force'] = self.config_get_options(self.config,
-                                               'force', False) or 'no'
+        self.section_dict['force'] = self.config_get_options('force', False) or 'no'
         self.iterate_dicts_and_yaml_write(self.section_dict)
         if hasattr(self, 'ssd'):
             if not hasattr(self, 'datalv'):
@@ -279,9 +267,7 @@ class BackendSetup(YamlWriter):
                 print "\nError: " + msg
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
-            yml = self.get_file_dir_path(Global.base_dir,
-                    'vgextend.yml')
-            self.exec_ansible_cmd(yml)
+            self.run_playbook('vgextend.yml')
             self.section_dict['datalv'] = self.datalv[0]
             cachemeta = self.get_options(
                     'cachemetalv') or 'lv_cachemeta'
@@ -294,13 +280,9 @@ class BackendSetup(YamlWriter):
         if not self.data:
             return
         self.create_yaml_dict('lvs', self.data, True)
-        yml = self.get_file_dir_path(Global.base_dir,
-                'lvcreate.yml')
-        self.exec_ansible_cmd(yml)
+        self.run_playbook('lvcreate.yml')
         if hasattr(self, 'ssd'):
-            yml = self.get_file_dir_path(Global.base_dir,
-                    'lvconvert.yml')
-            self.exec_ansible_cmd(yml)
+            self.run_playbook('lvconvert.yml')
 
 
     def lvs_with_size(self, lv, d_size):
@@ -355,8 +337,7 @@ class BackendSetup(YamlWriter):
         if lvols:
             self.section_dict['lvols'] = lvols
             self.create_yaml_dict('lvols', lvols, False)
-            yml = self.get_file_dir_path(Global.base_dir, 'fscreate.yml')
-            self.exec_ansible_cmd(yml)
+            self.run_playbook('fscreate.yml')
             if not hasattr(self, 'device_count'):
                 self.device_count = len(lvols)
             return True
@@ -382,13 +363,12 @@ class BackendSetup(YamlWriter):
         self.create_yaml_dict('mntpath', data, True)
         self.modify_mountpoints()
         self.create_yaml_dict('mountpoints', self.mountpoints, False)
-        yml = self.get_file_dir_path(Global.base_dir, 'mount.yml')
-        self.exec_ansible_cmd(yml)
+        self.run_playbook('mount.yml')
         return True
 
 
     def modify_mountpoints(self):
-        force = self.config_section_map(self.config, 'volume', 'force',
+        force = self.config_section_map('volume', 'force',
                 False) or ''
         opts = self.get_options('brick_dirs')
         brick_dir, brick_list = [], []

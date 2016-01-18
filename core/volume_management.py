@@ -25,11 +25,9 @@ import os
 class VolumeManagement(YamlWriter):
 
     def __init__(self, section):
-        return
-        self.config = config
         self.var_file = Global.var_file
         try:
-            self.section_dict = self.config._sections['volume']
+            self.section_dict = Global.sections['volume']
             del self.section_dict['__name__']
         except KeyError:
             return
@@ -111,7 +109,7 @@ class VolumeManagement(YamlWriter):
             if backend_setup:
                 if not hosts:
                     brick_dirs = self.pattern_stripping(self.config_section_map(
-                        self.config, 'backend-setup', 'brick_dirs', True))
+                        'backend-setup', 'brick_dirs', True))
         if  brick_dirs:
             self.filename = Global.group_file
             self.write_brick_dirs(brick_dirs)
@@ -134,8 +132,8 @@ class VolumeManagement(YamlWriter):
                 self.cleanup_and_quit()
             for hfile, sec in zip(host_files, host_sections):
                 brick_dirs = self.pattern_stripping(
-                        self.config_section_map(self.config,
-                        sec, 'brick_dirs', True))
+                        self.config_section_map(
+                            sec, 'brick_dirs', True))
                 self.filename = hfile
                 if not self.present_in_yaml(self.filename, 'mountpoints'):
                     if not os.path.isfile(self.filename):
@@ -180,23 +178,23 @@ class VolumeManagement(YamlWriter):
             self.cleanup_and_quit()
         self.check_for_param_presence('volname', self.section_dict)
         if 'glusterd-start.yml' not in Global.playbooks:
-            Global.playbooks.append('glusterd-start.yml')
+            self.run_playbook('glusterd-start.yml')
         self.call_peer_probe()
-        Global.playbooks.append('create-brick-dirs.yml')
-        Global.playbooks.append('gluster-volume-create.yml')
+        self.run_playbook('create-brick-dirs.yml')
+        self.run_playbook('gluster-volume-create.yml')
         self.start_volume()
 
     def start_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
-        Global.playbooks.append('gluster-volume-start.yml')
+        self.run_playbook('gluster-volume-start.yml')
 
     def stop_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
-        Global.playbooks.append('gluster-volume-stop.yml')
+        self.run_playbook('gluster-volume-stop.yml')
 
     def delete_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
-        Global.playbooks.append('gluster-volume-delete.yml')
+        self.run_playbook('gluster-volume-delete.yml')
 
     def set_default_replica_type(self):
         sections_default_value = {
@@ -228,14 +226,14 @@ class VolumeManagement(YamlWriter):
         self.set_default_replica_type()
         self.check_for_param_presence('volname', self.section_dict)
         self.call_peer_probe()
-        Global.playbooks.append('gluster-add-brick.yml')
+        self.run_playbook('gluster-add-brick.yml')
 
     def call_peer_probe(self):
-        peer_action = self.config_section_map(self.config,
+        peer_action = self.config_section_map(
                 'peer', 'manage', False) or 'True'
         if peer_action != 'ignore' and (
                 'gluster-peer-probe.yml' not in Global.playbooks):
-            Global.playbooks.append('gluster-peer-probe.yml')
+            self.run_playbook('gluster-peer-probe.yml')
 
     def remove_brick_from_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
@@ -250,7 +248,7 @@ class VolumeManagement(YamlWriter):
         self.set_default_replica_type()
         self.section_dict['old_bricks'] = self.section_dict.pop('bricks')
         self.check_for_param_presence('volname', self.section_dict)
-        Global.playbooks.append('gluster-remove-brick.yml')
+        self.run_playbook('gluster-remove-brick.yml')
 
 
     def gfs_rebalance(self):
@@ -262,8 +260,8 @@ class VolumeManagement(YamlWriter):
             Global.logger.error(msg)
             self.cleanup_and_quit()
         if 'gluster-volume-start.yml' not in Global.playbooks:
-            Global.playbooks.append('gluster-volume-start.yml')
-        Global.playbooks.append('gluster-volume-rebalance.yml')
+            self.run_playbook('gluster-volume-start.yml')
+        self.run_playbook('gluster-volume-rebalance.yml')
 
     def volume_set(self, key=None, value=None):
         self.filename = Global.group_file
@@ -283,12 +281,12 @@ class VolumeManagement(YamlWriter):
             names['value'] = v
             data.append(names)
         self.create_yaml_dict('set', data, True)
-        Global.playbooks.append('gluster-volume-set.yml')
+        self.run_playbook('gluster-volume-set.yml')
 
 
     def samba_setup(self):
         try:
-            ctdb = self.config._sections['ctdb']
+            ctdb = Global.config._sections['ctdb']
         except:
             msg = "For SMB setup, please ensure you " \
                     "configure 'ctdb' using ctdb " \
@@ -316,11 +314,11 @@ class VolumeManagement(YamlWriter):
         self.section_dict['smb_password'] = self.section_dict.get('smb_password') or 'password'
         if not self.section_dict.get('smb_mountpoint'):
             self.section_dict['smb_mountpoint'] = '/mnt/smbserver'
-        Global.playbooks.append('replace_smb_conf_volname.yml')
-        Global.playbooks.append('mount-in-samba-server.yml')
+        self.run_playbook('replace_smb_conf_volname.yml')
+        self.run_playbook('mount-in-samba-server.yml')
 
         key = ['stat-prefetch', 'server.allow-insecure',
                 'storage.batch-fsync-delay-usec']
         value = ['off', 'on', 0]
         self.volume_set(key, value)
-        Global.playbooks.append('glusterd-start.yml')
+        self.run_playbook('glusterd-start.yml')

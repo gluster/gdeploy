@@ -38,5 +38,7 @@ class Global(object):
     host_vars_dir = os.path.join(os.path.realpath(base_dir), host_vars)
     inventory = os.path.join(os.path.realpath(base_dir), 'ansible_hosts')
     group_file = os.path.join(group_vars_dir, 'all')
+    playbooks_file = os.path.join(os.path.realpath(base_dir),
+                        'ansible_playbooks.yml')
 
 

@@ -172,10 +172,10 @@ class Helpers(Global):
     def get_options(self, section, required=False):
         if hasattr(Global, 'var_file') and Global.var_file:
             if Global.var_file == 'group_vars':
-                return self.config_get_options(self.config, section, required)
+                return self.config_get_options(section, required)
             else:
                 options = self.config_section_map(
-                    self.config, self.current_host, section, required)
+                    self.current_host, section, required)
                 return self.split_comma_separated_options(options)
         return self.section_dict.get(section)
 
@@ -190,7 +190,7 @@ class Helpers(Global):
             val_group = re.search("(.*):(.*)", val)
             if val_group:
                 hostname = self.parse_patterns(val_group.group(1))
-                if not self.config_section_map(self.config, 'volume',
+                if not self.config_section_map('volume',
                         'action', False) == 'add-brick':
                     for host in hostname:
                         if host not in Global.hosts:
@@ -249,10 +249,10 @@ class Helpers(Global):
 
 
     def get_backend_sections(self):
-        for sec in  self.config._sections:
+        for sec in  Global.config._sections:
             sections = self.parse_patterns(sec)
             for each in sections:
-                Global.dictionary[each] = dict(self.config._sections[sec])
+                Global.dictionary[each] = dict(Global.config._sections[sec])
 
     def pattern_stripping(self, values):
         value_list = []
@@ -324,15 +324,17 @@ class Helpers(Global):
         return not is_subdir
 
 
-    # def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
-        # if Global.test:
-            # return
-        # executable = 'ansible-playbook'
-        # command = [executable, '-i', Global.inventory, Global.verbose,
-                # playbooks_file]
-        # command = filter(None, command)
-        # try:
-            # subprocess.call(command, shell=False)
-        # except (OSError, subprocess.CalledProcessError) as e:
-            # print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
-            # sys.exit()
+    def run_playbook(self, yaml_file):
+        yml = self.get_file_dir_path(Global.base_dir, yaml_file)
+        self.exec_ansible_cmd(yml)
+
+    def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
+        executable = 'ansible-playbook'
+        command = [executable, '-i', Global.inventory, Global.verbose,
+                playbooks_file]
+        command = filter(None, command)
+        try:
+            subprocess.call(command, shell=False)
+        except (OSError, subprocess.CalledProcessError) as e:
+            print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
+            sys.exit()
