@@ -23,6 +23,11 @@ from lib import *
 class PeerManagement(YamlWriter):
 
     def __init__(self):
+        self.get_peer_data()
+        self.remove_from_sections('peer')
+
+
+    def get_peer_data(self):
         if Global.sections.get('peer'):
             action = self.config_section_map('peer', 'manage', False)
             if not action:

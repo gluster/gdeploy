@@ -28,8 +28,10 @@ class Global(object):
     '''
     logger = None
     trace = False
+    var_file = None
     log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
     hosts = []
+    sections = {}
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'gluster_servers'
@@ -37,6 +39,7 @@ class Global(object):
     group_vars_dir = os.path.join(os.path.realpath(base_dir), group_vars)
     host_vars_dir = os.path.join(os.path.realpath(base_dir), host_vars)
     inventory = os.path.join(os.path.realpath(base_dir), 'ansible_hosts')
+    features_dir = os.path.join(os.path.realpath(base_dir), 'features')
     group_file = os.path.join(group_vars_dir, 'all')
     playbooks_file = os.path.join(os.path.realpath(base_dir),
                         'ansible_playbooks.yml')

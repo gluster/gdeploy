@@ -25,6 +25,9 @@ import re
 class BackendReset(YamlWriter):
 
     def __init__(self):
+        self.get_breset_data()
+
+    def get_breset_data(self):
         section_regexp = '^backend-reset(:)*(.*)'
         hosts = []
         backend_reset = False
@@ -54,7 +57,7 @@ class BackendReset(YamlWriter):
 
     def parse_section(self, hostname):
         try:
-            self.section_dict = Global.dictionary['backend-reset' +
+            self.section_dict = Global.sections['backend-reset' +
                     hostname]
             del self.section_dict['__name__']
         except KeyError:

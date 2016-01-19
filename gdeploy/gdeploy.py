@@ -71,11 +71,16 @@ def parse_arguments(args=None):
 
 @logfunction
 def init_global_values(args):
-    Global.config = ConfigParseHelpers.read_config(ConfigParseHelpers(), args.config_file[0].name)
+    global helpers, conf_parse
+    Global.config = conf_parse.read_config(args.config_file[0].name)
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
     Global.trace = args.trace
-    Global.sections = Global.config._sections
+    for sec in  Global.config._sections:
+        sections = helpers.parse_patterns(sec)
+        for each in sections:
+            Global.sections[each] = dict(Global.config._sections[sec])
+
 
 @logfunction
 def check_ansible_installation():
@@ -93,6 +98,7 @@ def get_hostnames():
     hosts = conf_parse.config_get_options('hosts', False)
     for host in hosts:
         Global.hosts += helpers.parse_patterns(host)
+    helpers.remove_from_sections('hosts')
 
 @logfunction
 def create_files_and_dirs():
@@ -165,4 +171,5 @@ if __name__ == '__main__':
     get_hostnames()
     create_playbooks_in_local()
     call_core_functions()
+    call_features()
     gdeploy_cleanup()

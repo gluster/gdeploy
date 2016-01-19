@@ -248,12 +248,6 @@ class Helpers(Global):
         return ultimate_brickname
 
 
-    def get_backend_sections(self):
-        for sec in  Global.config._sections:
-            sections = self.parse_patterns(sec)
-            for each in sections:
-                Global.dictionary[each] = dict(Global.config._sections[sec])
-
     def pattern_stripping(self, values):
         value_list = []
         if not isinstance(values, list):
@@ -323,6 +317,10 @@ class Helpers(Global):
                 '/') and base_dir != path
         return not is_subdir
 
+    def remove_from_sections(self, regexp):
+        r = re.compile(regexp)
+        section_names = filter(r.match, Global.sections)
+        map(Global.sections.__delitem__, section_names)
 
     def run_playbook(self, yaml_file):
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)

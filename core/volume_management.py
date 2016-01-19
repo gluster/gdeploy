@@ -24,8 +24,12 @@ import os
 
 class VolumeManagement(YamlWriter):
 
-    def __init__(self, section):
+    def __init__(self):
         self.var_file = Global.var_file
+        self.get_volume_data()
+        self.remove_from_sections('volume')
+
+    def get_volume_data(self):
         try:
             self.section_dict = Global.sections['volume']
             del self.section_dict['__name__']

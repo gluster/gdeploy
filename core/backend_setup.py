@@ -40,12 +40,14 @@ import os
 
 class BackendSetup(YamlWriter):
 
-    def __init__(self, section):
+    def __init__(self):
         self.section_dict = dict()
         self.previous = True
         self.write_sections()
+        self.remove_from_sections('backend-setup.*')
 
     def write_sections(self):
+        ret = False
         Global.logger.info("Reading configuration for backend setup")
         self.filename =  Global.group_file
         self.entire_hosts = Global.hosts
@@ -135,7 +137,7 @@ class BackendSetup(YamlWriter):
 
     def parse_section(self, hostname):
         try:
-            self.section_dict = Global.dictionary['backend-setup' +
+            self.section_dict = Global.sections['backend-setup' +
                     hostname]
             del self.section_dict['__name__']
         except KeyError:

@@ -22,11 +22,10 @@ from lib import *
 
 class ClientManagement(YamlWriter):
 
-    def __init__(self, section):
-        return
-        self.config = config
+    def __init__(self):
         self.filename = Global.group_file
         self.get_client_data()
+        self.remove_from_sections('clients')
 
 
     def get_client_data(self):
