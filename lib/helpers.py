@@ -317,6 +317,14 @@ class Helpers(Global):
                 '/') and base_dir != path
         return not is_subdir
 
+
+    def get_section_dict(self, pattern):
+        d = []
+        for k, v in Global.sections.iteritems():
+            if re.search(pattern, k):
+                d.append(v)
+        return d
+
     def remove_from_sections(self, regexp):
         r = re.compile(regexp)
         section_names = filter(r.match, Global.sections)

@@ -58,11 +58,14 @@ class YamlWriter(ConfigParseHelpers):
     def write_yaml(self, data_dict, data_flow):
         if not hasattr(self, 'filename'):
             self.filename = Global.group_file
+        with open(self.filename) as f:
+            list_doc = yaml.load(f)
+        list_doc.update(data_dict)
         with open(self.filename, 'a+') as outfile:
             if not data_flow:
                 outfile.write(
                     yaml.dump(
-                        data_dict,
+                        list_doc,
                         default_flow_style=data_flow))
             else:
-                outfile.write(yaml.dump(data_dict))
+                outfile.write(yaml.dump(list_doc))

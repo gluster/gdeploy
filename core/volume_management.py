@@ -30,11 +30,15 @@ class VolumeManagement(YamlWriter):
         self.remove_from_sections('volume')
 
     def get_volume_data(self):
-        try:
-            self.section_dict = Global.sections['volume']
-            del self.section_dict['__name__']
-        except KeyError:
+        section_lists = self.get_section_dict('volume')
+        if not section_lists:
             return
+        for each in section_lists:
+            self.section_dict = each
+            del self.section_dict['__name__']
+            self.volume_action()
+
+    def volume_action(self):
         Global.logger.info("Reading volume section in config")
         action = self.section_dict.get('action')
         volume = self.section_dict.get('volname')
@@ -71,7 +75,8 @@ class VolumeManagement(YamlWriter):
             print "\nError: " + msg
             Global.logger.error(msg)
             return
-        action_func()
+        if not action_func():
+            return
         if not Global.hosts:
             msg = "Hostnames not provided. Cannot continue!"
             print "\nError: " + msg
@@ -156,7 +161,14 @@ class VolumeManagement(YamlWriter):
 
 
     def create_volume(self):
-        self.write_mountpoints()
+        try:
+            self.check_for_param_presence('brick_dirs', self.section_dict)
+        except:
+            if len(self.section_lists) > 1:
+                print "\nError: 'brick_dirs' not provided in one or more " \
+                "'volume' sections"
+                return False
+            self.write_mountpoints()
         '''
         This default value dictionary is used to populate the group var
         with default data, if the data is not given by the user/
@@ -187,18 +199,22 @@ class VolumeManagement(YamlWriter):
         self.run_playbook('create-brick-dirs.yml')
         self.run_playbook('gluster-volume-create.yml')
         self.start_volume()
+        return True
 
     def start_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
         self.run_playbook('gluster-volume-start.yml')
+        return True
 
     def stop_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
         self.run_playbook('gluster-volume-stop.yml')
+        return True
 
     def delete_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
         self.run_playbook('gluster-volume-delete.yml')
+        return True
 
     def set_default_replica_type(self):
         sections_default_value = {
@@ -231,6 +247,7 @@ class VolumeManagement(YamlWriter):
         self.check_for_param_presence('volname', self.section_dict)
         self.call_peer_probe()
         self.run_playbook('gluster-add-brick.yml')
+        return True
 
     def call_peer_probe(self):
         peer_action = self.config_section_map(
@@ -253,6 +270,7 @@ class VolumeManagement(YamlWriter):
         self.section_dict['old_bricks'] = self.section_dict.pop('bricks')
         self.check_for_param_presence('volname', self.section_dict)
         self.run_playbook('gluster-remove-brick.yml')
+        return True
 
 
     def gfs_rebalance(self):
@@ -266,6 +284,7 @@ class VolumeManagement(YamlWriter):
         if 'gluster-volume-start.yml' not in Global.playbooks:
             self.run_playbook('gluster-volume-start.yml')
         self.run_playbook('gluster-volume-rebalance.yml')
+        return True
 
     def volume_set(self, key=None, value=None):
         self.filename = Global.group_file
@@ -286,6 +305,7 @@ class VolumeManagement(YamlWriter):
             data.append(names)
         self.create_yaml_dict('set', data, True)
         self.run_playbook('gluster-volume-set.yml')
+        return True
 
 
     def samba_setup(self):
@@ -326,3 +346,4 @@ class VolumeManagement(YamlWriter):
         value = ['off', 'on', 0]
         self.volume_set(key, value)
         self.run_playbook('glusterd-start.yml')
+        return True
