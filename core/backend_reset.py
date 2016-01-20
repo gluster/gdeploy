@@ -67,9 +67,7 @@ class BackendReset(YamlWriter):
             self.filename = self.host_file
         except:
             self.filename =  Global.group_file
-        self.iterate_dicts_and_yaml_write(self.section_dict)
-        if 'backend-reset.yml' not in Global.playbooks:
-            self.run_playbook('backend-reset.yml')
+        self.run_playbook('backend-reset.yml')
         return True
 
     def get_backend_data(self):

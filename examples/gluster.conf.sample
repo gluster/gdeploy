@@ -451,7 +451,6 @@ force=yes
 # force=yes
 
 
-
 # To start a volume
 
 # [volume]
@@ -506,6 +505,30 @@ force=yes
 # key=cluster.nufa
 # value=on
 
+#
+# NOTE: If multiple volumes are to be created, or multiple actions are
+# to be done on volume using a single configuration file, suffix the
+# section name with a number.
+#
+# For example:
+#
+# [volume-1]
+# action=create
+# volname=kyloren
+# brick_dirs=/mnt/snook,/mnt/vader
+#
+# [volume-2]
+# action=create
+# volname=rey
+# brick_dirs=/mnt/luke,/mnt/kenobi
+#
+# If there are multiple volumes to be created, provide brick_dirs under
+# each section. Otherwise, it will error out.
+#
+#
+#
+#
+#
 #               ## SMB volume share
 
 # To enable SMB volume share, along with volume creation or separately

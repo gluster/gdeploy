@@ -261,7 +261,6 @@ class BackendSetup(YamlWriter):
         #If SSD present for caching
         self.section_dict['vg'] = self.section_dict['vgs'][0]
         self.section_dict['force'] = self.config_get_options('force', False) or 'no'
-        self.iterate_dicts_and_yaml_write(self.section_dict)
         if hasattr(self, 'ssd'):
             if not hasattr(self, 'datalv'):
                 msg = "Data lv('datalv' options) not specified for "\
@@ -500,7 +499,6 @@ class BackendSetup(YamlWriter):
             perf = dict(disktype='jbod')
             perf['dalign'] = 256
             perf['diskcount'] = perf['stripesize'] = 0
-        self.iterate_dicts_and_yaml_write(perf)
 
     def insufficient_param_count(self, section, count):
         msg = "Please provide %s names for %s devices " \

@@ -94,7 +94,6 @@ class ClientManagement(YamlWriter):
 
         self.write_client_info(self.action)
         self.filename = Global.group_file
-        self.iterate_dicts_and_yaml_write(self.section_dict)
 
 
     def write_client_info(self, action):
@@ -126,7 +125,6 @@ class ClientManagement(YamlWriter):
                         gluster = self.client_fstype_listing(conf, client)
                     else:
                         gluster[key] = conf
-                    self.iterate_dicts_and_yaml_write(gluster)
                 del self.section_dict[key]
         if action == 'mount':
             '''
@@ -172,12 +170,12 @@ class ClientManagement(YamlWriter):
             msg = "NFS mount of volume triggered."
             print "\nINFO: " + msg
             Global.logger.info(msg)
-            Global.playbooks.append('gluster-client-nfs-mount.yml')
+            self.run_playbook('gluster-client-nfs-mount.yml')
         elif section_dict['fstype'] == 'glusterfs':
             msg = "FUSE mount of volume triggered."
             print "\nINFO: " + msg
             Global.logger.info(msg)
-            Global.playbooks.append('gluster-client-fuse-mount.yml')
+            self.run_playbook('gluster-client-fuse-mount.yml')
         elif section_dict['fstype'] == 'cifs':
             msg = "CIFS mount of volume triggered."
             if not self.present_in_yaml(
@@ -188,7 +186,7 @@ class ClientManagement(YamlWriter):
                 self.cleanup_and_quit()
             print "\nINFO: " + msg
             Global.logger.info(msg)
-            Global.playbooks.append('gluster-client-cifs-mount.yml')
+            self.run_playbook('gluster-client-cifs-mount.yml')
         else:
             msg = "Unsupported mount type. Exiting!"
             print "\nError: " + msg
@@ -214,7 +212,7 @@ class ClientManagement(YamlWriter):
     def unmount_volume(self):
         self.check_for_param_presence('client_mount_points',
                 self.section_dict)
-        Global.playbooks.insert(0, 'client_volume_umount.yml')
+        self.run_playbook('client_volume_umount.yml')
         msg = "Client management(action: unmount) triggered."
         print "\nINFO: " + msg
         Global.logger.info(msg)

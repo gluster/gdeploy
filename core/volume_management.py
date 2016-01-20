@@ -30,10 +30,10 @@ class VolumeManagement(YamlWriter):
         self.remove_from_sections('volume')
 
     def get_volume_data(self):
-        section_lists = self.get_section_dict('volume')
-        if not section_lists:
+        self.section_lists = self.get_section_dict('volume')
+        if not self.section_lists:
             return
-        for each in section_lists:
+        for each in self.section_lists:
             self.section_dict = each
             del self.section_dict['__name__']
             self.volume_action()
@@ -75,6 +75,9 @@ class VolumeManagement(YamlWriter):
             print "\nError: " + msg
             Global.logger.error(msg)
             return
+        msg = "Volume management(action: %s) triggered" % action
+        print "\nINFO: " + msg
+        Global.logger.info(msg)
         if not action_func():
             return
         if not Global.hosts:
@@ -83,16 +86,12 @@ class VolumeManagement(YamlWriter):
             Global.logger.error(msg)
             self.cleanup_and_quit()
         self.filename = Global.group_file
-        msg = "Volume management(action: %s) triggered" % action
-        print "\nINFO: " + msg
-        Global.logger.info(msg)
         if not self.present_in_yaml(self.filename, 'force'):
             force = self.section_dict.get('force') or ''
             force = 'yes' if force.lower() == 'yes' else 'no'
             self.section_dict['force'] = force
         if smb and smb.lower() == 'yes':
             self.samba_setup()
-        self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def get_brick_dirs(self):
         opts = self.get_options('brick_dirs', False)
@@ -193,8 +192,7 @@ class VolumeManagement(YamlWriter):
             Global.logger.error(msg)
             self.cleanup_and_quit()
         self.check_for_param_presence('volname', self.section_dict)
-        if 'glusterd-start.yml' not in Global.playbooks:
-            self.run_playbook('glusterd-start.yml')
+        self.run_playbook('glusterd-start.yml')
         self.call_peer_probe()
         self.run_playbook('create-brick-dirs.yml')
         self.run_playbook('gluster-volume-create.yml')
@@ -252,8 +250,7 @@ class VolumeManagement(YamlWriter):
     def call_peer_probe(self):
         peer_action = self.config_section_map(
                 'peer', 'manage', False) or 'True'
-        if peer_action != 'ignore' and (
-                'gluster-peer-probe.yml' not in Global.playbooks):
+        if peer_action != 'ignore':
             self.run_playbook('gluster-peer-probe.yml')
 
     def remove_brick_from_volume(self):
@@ -281,8 +278,7 @@ class VolumeManagement(YamlWriter):
             print "\nError: " + msg
             Global.logger.error(msg)
             self.cleanup_and_quit()
-        if 'gluster-volume-start.yml' not in Global.playbooks:
-            self.run_playbook('gluster-volume-start.yml')
+        self.run_playbook('gluster-volume-start.yml')
         self.run_playbook('gluster-volume-rebalance.yml')
         return True
 

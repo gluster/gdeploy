@@ -32,6 +32,7 @@ class Global(object):
     log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
     hosts = []
     sections = {}
+    playbooks = []
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'gluster_servers'
