@@ -331,9 +331,26 @@ class Helpers(Global):
         map(Global.sections.__delitem__, section_names)
 
     def run_playbook(self, yaml_file):
+        self.create_inventory()
         self.iterate_dicts_and_yaml_write(self.section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
         self.exec_ansible_cmd(yml)
+
+    def create_inventory(self):
+        self.touch_file(Global.inventory)
+        Global.current_hosts and self.write_config(
+            Global.group,
+            Global.current_hosts,
+            Global.inventory)
+        if not Global.master or Global.master in Global.brick_hosts:
+            try:
+                Global.master = [list(set(Global.current_hosts) - set(
+                    Global.brick_hosts))[0]]
+            except:
+                Global.master = None
+        if Global.current_hosts or Global.master:
+            self.write_config('master', Global.master or [Global.current_hosts[0]],
+                              Global.inventory)
 
     def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
         executable = 'ansible-playbook'

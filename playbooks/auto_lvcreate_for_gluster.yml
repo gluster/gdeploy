@@ -13,7 +13,7 @@
   - name: Create a thin pool
     lv: action=create lvname={{ item.pool }} lvtype='thin'
         compute=rhs disktype="{{ disktype }}" vgname={{ item.vg }}
-    with_items: pools
+    with_items: lvpools
     ignore_errors: yes
 
   - name: Convert the logical volume
@@ -22,7 +22,7 @@
         vgname={{ item.vg }} compute=rhs disktype="{{disktype}}"
         diskcount="{{ diskcount }}"
         stripesize="{{stripesize}}"
-    with_items: pools
+    with_items: lvpools
     ignore_errors: yes
 
   - name: Create logical volume for the pools
@@ -34,5 +34,5 @@
 
   - name: Change the attributes of the logical volume
     lv: action=change zero=n vgname={{ item.vg }} poolname={{ item.pool }}
-    with_items: pools
+    with_items: lvpools
     ignore_errors: yes

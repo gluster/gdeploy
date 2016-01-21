@@ -193,6 +193,7 @@ class VolumeManagement(YamlWriter):
             self.cleanup_and_quit()
         self.check_for_param_presence('volname', self.section_dict)
         self.run_playbook('glusterd-start.yml')
+        self.create_yaml_dict('hosts', Global.hosts, False)
         self.call_peer_probe()
         self.run_playbook('create-brick-dirs.yml')
         self.run_playbook('gluster-volume-create.yml')
@@ -251,6 +252,8 @@ class VolumeManagement(YamlWriter):
         peer_action = self.config_section_map(
                 'peer', 'manage', False) or 'True'
         if peer_action != 'ignore':
+            to_be_probed = Global.hosts + Global.brick_hosts
+            self.create_yaml_dict('to_be_probed', to_be_probed, False)
             self.run_playbook('gluster-peer-probe.yml')
 
     def remove_brick_from_volume(self):

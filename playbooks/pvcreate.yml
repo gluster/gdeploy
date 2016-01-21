@@ -5,7 +5,7 @@
 
   tasks:
   # Create pv on all the disks
-  - name: Create Physical Volume on all the nodes
+  - name: Create Physical Volume
     pv: action=create disks={{ item }}
         options="--dataalignment {{ dalign }}k"
     with_items: bricks

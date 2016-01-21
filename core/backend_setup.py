@@ -47,10 +47,9 @@ class BackendSetup(YamlWriter):
         self.remove_from_sections('backend-setup.*')
 
     def write_sections(self):
-        ret = False
+        count = 0
         Global.logger.info("Reading configuration for backend setup")
         self.filename =  Global.group_file
-        self.entire_hosts = Global.hosts
         self.perf_spec_data_write()
         backend_setup, hosts = self.check_backend_setup_format()
         default = self.config_get_options('default', False)
@@ -64,69 +63,64 @@ class BackendSetup(YamlWriter):
         else:
             self.gluster = True
         if not backend_setup:
-            if not self.get_var_file_type():
-                return
-            else:
-                if Global.var_file == 'host_vars':
-                    for host in Global.hosts:
-                        self.current_host = host
-                        devices = self.config_section_map(host,
-                                                  'devices', False)
-                        self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
-                        self.touch_file(self.filename)
-                        self.bricks = self.split_comma_separated_options(devices)
-                        self.write_config(Global.group, [host], Global.inventory)
-                        ret = self.call_gen_methods()
-                        self.remove_section(Global.inventory, Global.group)
-                else:
-                    self.write_config(Global.group, Global.hosts, Global.inventory)
-                    self.filename =  Global.group_file
-                    ret = self.call_gen_methods()
-                    self.remove_section(Global.inventory, Global.group)
-                # msg = "This configuration format will be deprecated  "\
-                # "in the next release.\nPlease refer the setup guide "\
-                # "for the new configuration format."
-                # print "Warning: " + msg
-                # Global.logger.warning(msg=msg)
-
+            self.old_backend_setup()
         else:
-            hosts = filter(None, hosts)
-            if hosts:
-                Global.var_file = None
-                hosts = self.pattern_stripping(hosts)
-                for host in hosts:
-                    self.write_config(Global.group, [host], Global.inventory)
-                    self.bricks = []
-                    self.host_file = self.get_file_dir_path(Global.host_vars_dir, host)
-                    self.touch_file(self.host_file)
-                    self.parse_section(':' + host)
-                    ret = self.call_gen_methods()
-                    self.remove_section(Global.inventory, Global.group)
-                self.entire_hosts.extend(hosts)
-                Global.var_file = 'host_vars'
-            self.section_dict = None
-            Global.var_file = None
-            self.parse_section('')
-            Global.hosts = [host for host in Global.hosts if host not in
-                    hosts]
-            if self.section_dict:
-                self.filename =  Global.group_file
-                self.write_config(Global.group, Global.hosts, Global.inventory)
-                ret = self.call_gen_methods()
-                self.remove_section(Global.inventory, Global.group)
-                Global.var_file = 'group_vars'
+            self.new_backend_setup(hosts)
 
-
-        Global.hosts = list(set(self.entire_hosts))
-        if ret:
-            msg = "Back-end setup triggered"
-            Global.logger.info(msg)
-            print "\nINFO: " + msg
         selinux = self.config_get_options('selinux', False)
         if selinux and self.mountpoints:
             if selinux[0].lower() == 'yes':
                 self.run_playbook('set-selinux-labels.yml')
 
+
+    def new_backend_setup(self, hosts):
+        hosts = filter(None, hosts)
+        if hosts:
+            Global.var_file = None
+            hosts = self.pattern_stripping(hosts)
+            for host in hosts:
+                self.bricks = []
+                Global.current_hosts = [host]
+                self.host_file = self.get_file_dir_path(Global.host_vars_dir, host)
+                self.touch_file(self.host_file)
+                self.parse_section(':' + host)
+                self.call_gen_methods()
+                self.remove_section(Global.inventory, Global.group)
+        self.section_dict = None
+        Global.var_file = None
+        self.parse_section('')
+        Global.current_hosts = [host for host in Global.hosts if host not in
+                hosts]
+        if self.section_dict:
+            self.filename =  Global.group_file
+            self.call_gen_methods()
+            self.remove_section(Global.inventory, Global.group)
+            Global.var_file = 'group_vars'
+
+    def old_backend_setup(self):
+        if not self.get_var_file_type():
+            return
+        else:
+            if Global.var_file == 'host_vars':
+                for host in Global.hosts:
+                    self.current_host = host
+                    Global.current_hosts = [host]
+                    devices = self.config_section_map(host,
+                                              'devices', False)
+                    self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
+                    self.touch_file(self.filename)
+                    self.bricks = self.split_comma_separated_options(devices)
+                    self.call_gen_methods()
+            else:
+                Global.current_hosts = Global.hosts
+                self.filename =  Global.group_file
+                self.call_gen_methods()
+                self.remove_section(Global.inventory, Global.group)
+            # msg = "This configuration format will be deprecated  "\
+            # "in the next release.\nPlease refer the setup guide "\
+            # "for the new configuration format."
+            # print "Warning: " + msg
+            # Global.logger.warning(msg=msg)
 
     def call_gen_methods(self):
         self.write_brick_names()
@@ -261,6 +255,7 @@ class BackendSetup(YamlWriter):
         #If SSD present for caching
         self.section_dict['vg'] = self.section_dict['vgs'][0]
         self.section_dict['force'] = self.config_get_options('force', False) or 'no'
+        self.iterate_dicts_and_yaml_write(self.section_dict)
         if hasattr(self, 'ssd'):
             if not hasattr(self, 'datalv'):
                 msg = "Data lv('datalv' options) not specified for "\
@@ -499,6 +494,7 @@ class BackendSetup(YamlWriter):
             perf = dict(disktype='jbod')
             perf['dalign'] = 256
             perf['diskcount'] = perf['stripesize'] = 0
+        self.iterate_dicts_and_yaml_write(perf)
 
     def insufficient_param_count(self, section, count):
         msg = "Please provide %s names for %s devices " \

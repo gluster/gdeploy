@@ -29,8 +29,12 @@ class Global(object):
     logger = None
     trace = False
     var_file = None
+    master = None
+    brick_hosts = []
     log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
     hosts = []
+    current_hosts = []
+    current_host = None
     sections = {}
     playbooks = []
     host_vars = 'host_vars'

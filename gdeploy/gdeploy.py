@@ -110,7 +110,6 @@ def create_files_and_dirs():
     '''
     helpers.mk_dir(Global.group_vars_dir)
     helpers.touch_file(Global.group_file)
-    helpers.touch_file(Global.inventory)
     helpers.mk_dir(Global.host_vars_dir)
 
 @logfunction

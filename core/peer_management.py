@@ -61,4 +61,9 @@ class PeerManagement(YamlWriter):
             Global.logger.info(msg)
             if action == 'probe':
                 self.run_playbook('glusterd-start.yml')
+            if action == 'probe':
+                to_be_probed = Global.hosts + Global.brick_hosts
+                self.create_yaml_dict('to_be_probed', to_be_probed, False)
+            elif action == 'detach':
+                self.create_yaml_dict('hosts', Global.hosts, False)
             self.run_playbook(yml)

@@ -32,16 +32,6 @@ conf_parse = ConfigParseHelpers()
 
 @logfunction
 def call_core_functions():
-    '''
-    Provide compatibility for old gdeploy configuration, where hostnames
-    were directly used as section names
-    '''
-    if set(Global.sections).intersection(set(Global.hosts)):
-        BackendSetup()
-    section_class_caller()
-
-@logfunction
-def section_class_caller():
     log_methods_in_class(BackendSetup)
     tune_profile()
     log_methods_in_class(PeerManagement)
