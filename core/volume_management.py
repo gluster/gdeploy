@@ -19,7 +19,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 from lib import *
-import os
+import os, re
 
 
 class VolumeManagement(YamlWriter):
@@ -28,6 +28,7 @@ class VolumeManagement(YamlWriter):
         self.var_file = Global.var_file
         self.get_volume_data()
         self.remove_from_sections('volume')
+        self.remove_from_sections('backend-setup.*')
 
     def get_volume_data(self):
         self.section_lists = self.get_section_dict('volume')
@@ -80,11 +81,11 @@ class VolumeManagement(YamlWriter):
         Global.logger.info(msg)
         if not action_func():
             return
-        if not Global.hosts:
-            msg = "Hostnames not provided. Cannot continue!"
-            print "\nError: " + msg
-            Global.logger.error(msg)
-            self.cleanup_and_quit()
+        # if not Global.hosts:
+            # msg = "Hostnames not provided. Cannot continue!"
+            # print "\nError: " + msg
+            # Global.logger.error(msg)
+            # self.cleanup_and_quit()
         self.filename = Global.group_file
         if not self.present_in_yaml(self.filename, 'force'):
             force = self.section_dict.get('force') or ''
@@ -108,21 +109,36 @@ class VolumeManagement(YamlWriter):
         files = [Global.group_file] +  host_files
         for fd in files:
             if self.present_in_yaml(fd, 'mountpoints'):
+                doc = self.yaml_read(fd)
+                brick_dir = [os.path.basename(fd) + ':' +  d for d in
+                        doc['mountpoints']]
+                self.section_dict['brick_dirs'] = brick_dir
                 return
         brick_dirs = []
         if self.get_var_file_type() and Global.var_file == 'group_vars':
+            Global.current_hosts = Global.hosts
             brick_dirs = self.get_brick_dirs()
+            br_drs = []
+            for each in Global.hosts:
+                br_drs.extend([each + ':' + brk for brk in brick_dirs])
+            self.section_dict['brick_dirs'] = br_drs
+
         else:
             backend_setup, hosts = self.check_backend_setup_format()
             if backend_setup:
                 if not hosts:
+                    Global.current_hosts = Global.hosts
                     brick_dirs = self.pattern_stripping(self.config_section_map(
                         'backend-setup', 'brick_dirs', True))
+                    for each in Global.hosts:
+                        br_drs.extend([each + ':' + brk for brk in brick_dirs])
+                    self.section_dict['brick_dirs'] = br_drs
         if  brick_dirs:
             self.filename = Global.group_file
             self.write_brick_dirs(brick_dirs)
         else:
             if hosts:
+               Global.current_hosts = hosts
                host_files = [self.get_file_dir_path(Global.host_vars_dir,
                            host) for host in hosts]
                host_sections = ['backend-setup:' + host for host in
@@ -131,6 +147,7 @@ class VolumeManagement(YamlWriter):
                 host_files = [self.get_file_dir_path(Global.host_vars_dir,
                             host) for host in Global.hosts]
                 host_sections = Global.hosts
+                Global.current_hosts = Global.hosts
             else:
                 msg = "Option 'brick_dirs' " \
                         "not found for host %s.\nCannot continue " \
@@ -138,10 +155,19 @@ class VolumeManagement(YamlWriter):
                 print "\nError:  " + msg
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
+            self.section_dict['brick_dirs'] = []
             for hfile, sec in zip(host_files, host_sections):
-                brick_dirs = self.pattern_stripping(
-                        self.config_section_map(
-                            sec, 'brick_dirs', True))
+                try:
+                    brick_dirs = self.pattern_stripping(Global.sections.get(sec)['brick_dirs'])
+                    br_drs = [os.path.basename(hfile) + ':' + br for br in
+                            brick_dirs]
+                    self.section_dict['brick_dirs'].extend(br_drs)
+                except:
+                    print "Option 'brick_dirs' " \
+                        "not found.\nCannot continue " \
+                        "volume creation!"
+                    self.cleanup_and_quit()
+
                 self.filename = hfile
                 if not self.present_in_yaml(self.filename, 'mountpoints'):
                     if not os.path.isfile(self.filename):
@@ -157,12 +183,29 @@ class VolumeManagement(YamlWriter):
            Global.logger.error(msg)
            self.cleanup_and_quit()
        self.create_yaml_dict('mountpoints', brick_dirs, False)
+       self.create_yaml_dict('brick_dirs', self.section_dict['brick_dirs'], False)
 
 
     def create_volume(self):
-        try:
-            self.check_for_param_presence('brick_dirs', self.section_dict)
-        except:
+        if self.section_dict.get('brick_dirs'):
+            regex = re.compile('(.*):(.*)')
+            brick_dir_pat = map(regex.match, self.section_dict['brick_dirs'])
+            if not brick_dir_pat:
+                print "Please provide the brick_dirs in the format " \
+                        "<hostname>:<brick_dir name>"
+                self.cleanup_and_quit()
+            Global.current_hosts = []
+            self.section_dict['mountpoints'] = []
+            for each in brick_dir_pat:
+                host = each.group(1)
+                if host not in Global.current_hosts:
+                    Global.current_hosts.append(host)
+                Global.var_file = self.get_file_dir_path(Global.host_vars_dir, host)
+                self.touch_file(Global.var_file)
+                self.section_dict['mountpoints'].extend(self.pattern_stripping(
+                        each.group(2)))
+                self.iterate_dicts_and_yaml_write(self.section_dict)
+        else:
             if len(self.section_lists) > 1:
                 print "\nError: 'brick_dirs' not provided in one or more " \
                 "'volume' sections"
@@ -193,7 +236,7 @@ class VolumeManagement(YamlWriter):
             self.cleanup_and_quit()
         self.check_for_param_presence('volname', self.section_dict)
         self.run_playbook('glusterd-start.yml')
-        self.create_yaml_dict('hosts', Global.hosts, False)
+        self.create_yaml_dict('hosts', Global.current_hosts, False)
         self.call_peer_probe()
         self.run_playbook('create-brick-dirs.yml')
         self.run_playbook('gluster-volume-create.yml')
@@ -241,6 +284,7 @@ class VolumeManagement(YamlWriter):
             Global.logger.error(msg)
             self.cleanup_and_quit()
 
+        Global.current_hosts = Global.hosts
         self.section_dict['new_bricks'] = bricks
         self.set_default_replica_type()
         self.check_for_param_presence('volname', self.section_dict)
@@ -252,7 +296,7 @@ class VolumeManagement(YamlWriter):
         peer_action = self.config_section_map(
                 'peer', 'manage', False) or 'True'
         if peer_action != 'ignore':
-            to_be_probed = Global.hosts + Global.brick_hosts
+            to_be_probed = Global.current_hosts + Global.brick_hosts
             self.create_yaml_dict('to_be_probed', to_be_probed, False)
             self.run_playbook('gluster-peer-probe.yml')
 
@@ -269,6 +313,7 @@ class VolumeManagement(YamlWriter):
         self.set_default_replica_type()
         self.section_dict['old_bricks'] = self.section_dict.pop('bricks')
         self.check_for_param_presence('volname', self.section_dict)
+        Global.current_hosts = Global.hosts
         self.run_playbook('gluster-remove-brick.yml')
         return True
 
@@ -281,6 +326,7 @@ class VolumeManagement(YamlWriter):
             print "\nError: " + msg
             Global.logger.error(msg)
             self.cleanup_and_quit()
+        Global.current_hosts = Global.hosts
         self.run_playbook('gluster-volume-start.yml')
         self.run_playbook('gluster-volume-rebalance.yml')
         return True
@@ -302,6 +348,7 @@ class VolumeManagement(YamlWriter):
             names['key'] = k
             names['value'] = v
             data.append(names)
+        Global.current_hosts = Global.hosts
         self.create_yaml_dict('set', data, True)
         self.run_playbook('gluster-volume-set.yml')
         return True
@@ -332,6 +379,7 @@ class VolumeManagement(YamlWriter):
                 "vfs objects = glusterfs\nglusterfs:volume = {0}\n"\
                 "read only = no\nguest ok = "\
                 "yes\n{1}".format(self.section_dict['volname'], options)
+        Global.current_hosts = Global.hosts
 
         self.section_dict['smb_username'] = self.section_dict.get('smb_username') or 'smbuser'
         self.section_dict['smb_password'] = self.section_dict.get('smb_password') or 'password'

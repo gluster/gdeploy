@@ -29,11 +29,15 @@ class ClientManagement(YamlWriter):
 
 
     def get_client_data(self):
-        try:
-            self.section_dict = self.config._sections['clients']
-            del self.section_dict['__name__']
-        except KeyError:
+        self.section_lists = self.get_section_dict('clients')
+        if not self.section_lists:
             return
+        for each in self.section_lists:
+            self.section_dict = each
+            del self.section_dict['__name__']
+            self.client_action()
+
+    def client_action(self):
         Global.logger.info("Reading client section in config")
         self.action = self.section_dict.get('action')
         if not self.action:
@@ -141,9 +145,6 @@ class ClientManagement(YamlWriter):
                     self.fuse_clients.append(self.clients)
                     self.cifs_clients.append(self.clients)
                 self.section_dict = self.fstype_validation(self.section_dict)
-            self.write_config('nfs_clients', self.nfs_clients, Global.inventory)
-            self.write_config('fuse_clients', self.fuse_clients, Global.inventory)
-            self.write_config('cifs_clients', self.fuse_clients, Global.inventory)
 
 
     def client_fstype_listing(self, conf, client):
@@ -170,11 +171,13 @@ class ClientManagement(YamlWriter):
             msg = "NFS mount of volume triggered."
             print "\nINFO: " + msg
             Global.logger.info(msg)
+            self.write_config('nfs_clients', self.nfs_clients, Global.inventory)
             self.run_playbook('gluster-client-nfs-mount.yml')
         elif section_dict['fstype'] == 'glusterfs':
             msg = "FUSE mount of volume triggered."
             print "\nINFO: " + msg
             Global.logger.info(msg)
+            self.write_config('fuse_clients', self.fuse_clients, Global.inventory)
             self.run_playbook('gluster-client-fuse-mount.yml')
         elif section_dict['fstype'] == 'cifs':
             msg = "CIFS mount of volume triggered."
@@ -186,6 +189,7 @@ class ClientManagement(YamlWriter):
                 self.cleanup_and_quit()
             print "\nINFO: " + msg
             Global.logger.info(msg)
+            self.write_config('cifs_clients', self.cifs_clients, Global.inventory)
             self.run_playbook('gluster-client-cifs-mount.yml')
         else:
             msg = "Unsupported mount type. Exiting!"
@@ -199,8 +203,22 @@ class ClientManagement(YamlWriter):
         This default value dictionary is used to populate the group var
         with default data, if the data is not given by the user/
         '''
-        if not self.present_in_yaml(Global.group_file, 'volname'):
-            self.check_for_param_presence('volname', self.section_dict)
+        if not self.section_dict.get('volname'):
+            if len(self.section_lists) > 1:
+                print "\nError: Provide volname for each 'clients' "\
+                "section"
+                self.cleanup_and_quit()
+            if not self.present_in_yaml(Global.group_file, 'volname'):
+                print "\nError: Couldn't find volname"
+                self.cleanup_and_quit()
+        else:
+            r = re.compile('.*:.*')
+            if not r.match(self.section_dict['volname']):
+                print "\nError: Provide volname in the format " \
+                        "<hostname>:<volname>"
+                self.cleanup_and_quit()
+            self.section_dict['volname'] = self.split_volume_and_hostname(
+                    self.section_dict['volname'])
         default_fstype = 'nfs' if self.config.has_section(
                 'nfs-ganesha') else 'glusterfs'
         sections_default_value = {'client_mount_points': '/mnt/gluster',

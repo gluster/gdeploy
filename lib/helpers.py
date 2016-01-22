@@ -342,15 +342,13 @@ class Helpers(Global):
             Global.group,
             Global.current_hosts,
             Global.inventory)
-        if not Global.master or Global.master in Global.brick_hosts:
-            try:
-                Global.master = [list(set(Global.current_hosts) - set(
-                    Global.brick_hosts))[0]]
-            except:
-                Global.master = None
-        if Global.current_hosts or Global.master:
-            self.write_config('master', Global.master or [Global.current_hosts[0]],
-                              Global.inventory)
+        try:
+            Global.master = [list(set(Global.current_hosts) - set(
+                Global.brick_hosts))[0]]
+        except:
+            pass
+        if Global.master:
+            self.write_config('master', Global.master, Global.inventory)
 
     def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
         executable = 'ansible-playbook'

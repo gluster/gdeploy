@@ -44,7 +44,6 @@ class BackendSetup(YamlWriter):
         self.section_dict = dict()
         self.previous = True
         self.write_sections()
-        self.remove_from_sections('backend-setup.*')
 
     def write_sections(self):
         count = 0
