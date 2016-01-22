@@ -245,16 +245,19 @@ class VolumeManagement(YamlWriter):
 
     def start_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
+        Global.current_hosts = Global.hosts
         self.run_playbook('gluster-volume-start.yml')
         return True
 
     def stop_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
+        Global.current_hosts = Global.hosts
         self.run_playbook('gluster-volume-stop.yml')
         return True
 
     def delete_volume(self):
         self.check_for_param_presence('volname', self.section_dict)
+        Global.current_hosts = Global.hosts
         self.run_playbook('gluster-volume-delete.yml')
         return True
 

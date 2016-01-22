@@ -337,7 +337,8 @@ class Helpers(Global):
         self.exec_ansible_cmd(yml)
 
     def create_inventory(self):
-        self.touch_file(Global.inventory)
+        if not os.path.isfile(Global.inventory):
+            self.touch_file(Global.inventory)
         Global.current_hosts and self.write_config(
             Global.group,
             Global.current_hosts,
@@ -347,8 +348,8 @@ class Helpers(Global):
                 Global.brick_hosts))[0]]
         except:
             pass
-        if Global.master:
-            self.write_config('master', Global.master, Global.inventory)
+        self.write_config('master', Global.master or Global.current_hosts[0],
+                Global.inventory)
 
     def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
         executable = 'ansible-playbook'

@@ -172,12 +172,14 @@ class ClientManagement(YamlWriter):
             print "\nINFO: " + msg
             Global.logger.info(msg)
             self.write_config('nfs_clients', self.nfs_clients, Global.inventory)
+            Global.current_hosts = Global.hosts
             self.run_playbook('gluster-client-nfs-mount.yml')
         elif section_dict['fstype'] == 'glusterfs':
             msg = "FUSE mount of volume triggered."
             print "\nINFO: " + msg
             Global.logger.info(msg)
             self.write_config('fuse_clients', self.fuse_clients, Global.inventory)
+            Global.current_hosts = Global.hosts
             self.run_playbook('gluster-client-fuse-mount.yml')
         elif section_dict['fstype'] == 'cifs':
             msg = "CIFS mount of volume triggered."
@@ -190,6 +192,7 @@ class ClientManagement(YamlWriter):
             print "\nINFO: " + msg
             Global.logger.info(msg)
             self.write_config('cifs_clients', self.cifs_clients, Global.inventory)
+            Global.current_hosts = Global.hosts
             self.run_playbook('gluster-client-cifs-mount.yml')
         else:
             msg = "Unsupported mount type. Exiting!"
@@ -230,6 +233,7 @@ class ClientManagement(YamlWriter):
     def unmount_volume(self):
         self.check_for_param_presence('client_mount_points',
                 self.section_dict)
+        Global.current_hosts = Global.hosts
         self.run_playbook('client_volume_umount.yml')
         msg = "Client management(action: unmount) triggered."
         print "\nINFO: " + msg
