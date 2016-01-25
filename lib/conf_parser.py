@@ -64,6 +64,7 @@ class ConfigParseHelpers(Helpers):
             self.cleanup_and_quit()
 
     def write_config(self, section, options, filename):
+        self.remove_section(filename, section)
         config = self.call_config_parser()
         config.add_section(section)
         for option in options:

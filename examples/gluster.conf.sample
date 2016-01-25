@@ -608,6 +608,25 @@ client_mount_points=/mnt/gluster{1,3}
 # nfs-version=4
 # client_mount_points=/mnt/gluster
 
+#
+# NOTE: If multiple volumes are to be mounted or unmounted,
+# using a single configuration file, use seperate 'clients' sections with the
+# section name suffixed with appropriate numbers.
+#
+# For example:
+#
+# [clients-1]
+# action=mount
+# volname=kyloren
+# hosts=host1,host2
+# client_mount_points=/mnt/snook,/mnt/vader
+#
+# [clients-2]
+# action=mount
+# volname=rey
+# hosts=host1,host1
+# client_mount_points=/mnt/luke,/mnt/kenobi
+#
 #-----------------------------------
 
 

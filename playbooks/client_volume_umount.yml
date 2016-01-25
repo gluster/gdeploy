@@ -5,10 +5,10 @@
 
   tasks:
   - name: Unmount the volumes
-    mount: name={{ item }} src="{{ client_mount_points }}" fstype=glusterfs
+    mount: name={{ item }} src="{{ mountpoint }}" fstype=glusterfs
            state=absent
-    with_items: client_mount_points
+    with_items: mountpoint
 
   - name: Delete the mount points
     shell: rm -rf {{ item }}
-    with_items: client_mount_points
+    with_items: mountpoint

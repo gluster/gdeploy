@@ -24,6 +24,7 @@ class ClientManagement(YamlWriter):
 
     def __init__(self):
         self.filename = Global.group_file
+        Global.current_hosts = Global.hosts
         self.get_client_data()
         self.remove_from_sections('clients')
 
@@ -63,24 +64,20 @@ class ClientManagement(YamlWriter):
         in clients section.
         '''
         self.clients = self.pattern_stripping(self.clients)
-        client_mount_points = self.section_dict.get('client_mount_points')
-        if client_mount_points:
-            client_points = self.pattern_stripping( client_mount_points)
-            '''
-            HACK: If the client_points list is singleton, further methods
-            expect it to be a string rather than a list
-            '''
-            if len(client_points) == 1:
-                self.section_dict['client_mount_points'] = client_points[0]
-            else:
-                self.section_dict['client_mount_points'] = client_points
-
         '''
         client hostnames or IP should also be in the inventory file since
         mounting is to be done in the client host machines
         '''
         self.write_config('clients', self.clients, Global.inventory)
 
+        client_mount_points = self.section_dict.get('client_mount_points')
+        if client_mount_points:
+            self.section_dict['client_mount_points'] = self.pattern_stripping(
+                    client_mount_points)
+            if len(self.section_dict['client_mount_points']) != len(self.clients):
+                print "\nError: Number of mount points doesn't match the "\
+                        "number of client hosts"
+                self.cleanup_and_quit()
 
         del self.section_dict['hosts']
 
@@ -96,145 +93,64 @@ class ClientManagement(YamlWriter):
             self.cleanup_and_quit()
         action_func()
 
-        self.write_client_info(self.action)
-        self.filename = Global.group_file
-
-
-    def write_client_info(self, action):
-        '''
-        host_var files are to be created if multiple clients
-        have different mount points for gluster volume
-        '''
-        '''
-        This nfs-clients and fuse-clients distinction is used only for
-        the mount option. Separate playbooks are run is each case as nfs
-        has an extra parameter version
-        '''
-        self.nfs_clients = []
-        self.fuse_clients = []
-        self.cifs_clients = []
-        for key, value in self.section_dict.iteritems():
-            gluster = dict()
-            if isinstance(value, list):
-                if len(value) != len(self.clients):
-                    msg = "Provide %s in each client " \
-                        "or a common one for all the clients. " % key
-                    print "\nError: " + msg
-                    Global.logger.error(msg)
-                    self.cleanup_and_quit()
-                for client, conf in zip(self.clients, value):
-                    self.filename = self.get_file_dir_path(
-                        Global.host_vars_dir, client)
-                    if key == 'fstype' and action == 'mount':
-                        gluster = self.client_fstype_listing(conf, client)
-                    else:
-                        gluster[key] = conf
-                del self.section_dict[key]
-        if action == 'mount':
-            '''
-            If fstype option still exist in the config, then fstype is common
-            to all the clients. For that the following.
-            '''
-            if 'fstype' in self.section_dict:
-                if isinstance(self.clients, list):
-                    self.nfs_clients += self.clients
-                    self.fuse_clients += self.clients
-                    self.cifs_clients += self.clients
-                else:
-                    self.nfs_clients.append(self.clients)
-                    self.fuse_clients.append(self.clients)
-                    self.cifs_clients.append(self.clients)
-                self.section_dict = self.fstype_validation(self.section_dict)
-
-
-    def client_fstype_listing(self, conf, client):
-        filetype_conf = {'fstype': conf, 'nfsversion': self.section_dict.get('nfs-version')}
-        gluster = self.fstype_validation(filetype_conf)
-        if conf == 'nfs':
-            self.nfs_clients.append(client)
-        elif conf == 'cifs':
-            self.cifs_clients.append(client)
-        else:
-            self.fuse_clients.append(client)
-        try:
-            self.section_dict.pop('nfs-version')
-        except:
-            pass
-        return gluster
-
-    def fstype_validation(self, section_dict):
-        if section_dict['fstype'] == 'nfs':
-            if not section_dict.get('nfs-version'):
-                section_dict['nfsversion'] = 3
-            else:
-                section_dict['nfsversion'] = section_dict.pop('nfs-version')
-            msg = "NFS mount of volume triggered."
-            print "\nINFO: " + msg
-            Global.logger.info(msg)
-            self.write_config('nfs_clients', self.nfs_clients, Global.inventory)
-            Global.current_hosts = Global.hosts
-            self.run_playbook('gluster-client-nfs-mount.yml')
-        elif section_dict['fstype'] == 'glusterfs':
-            msg = "FUSE mount of volume triggered."
-            print "\nINFO: " + msg
-            Global.logger.info(msg)
-            self.write_config('fuse_clients', self.fuse_clients, Global.inventory)
-            Global.current_hosts = Global.hosts
-            self.run_playbook('gluster-client-fuse-mount.yml')
-        elif section_dict['fstype'] == 'cifs':
-            msg = "CIFS mount of volume triggered."
-            if not self.present_in_yaml(
-                    Global.group_file, 'smb_username') or not self.present_in_yaml(
-                            Global.group_file, 'smb_password'):
-                print "\nError: Provide the SMB username and password under "\
-                "the 'volume' section."
-                self.cleanup_and_quit()
-            print "\nINFO: " + msg
-            Global.logger.info(msg)
-            self.write_config('cifs_clients', self.cifs_clients, Global.inventory)
-            Global.current_hosts = Global.hosts
-            self.run_playbook('gluster-client-cifs-mount.yml')
-        else:
-            msg = "Unsupported mount type. Exiting!"
-            print "\nError: " + msg
-            Global.logger.error(msg)
-            self.cleanup_and_quit()
-        return section_dict
 
     def mount_volume(self):
-        '''
-        This default value dictionary is used to populate the group var
-        with default data, if the data is not given by the user/
-        '''
-        if not self.section_dict.get('volname'):
-            if len(self.section_lists) > 1:
-                print "\nError: Provide volname for each 'clients' "\
-                "section"
-                self.cleanup_and_quit()
-            if not self.present_in_yaml(Global.group_file, 'volname'):
-                print "\nError: Couldn't find volname"
-                self.cleanup_and_quit()
+        if len(self.section_lists) > 1:
+            self.section_dict['volname'] = self.get_vol_name()
         else:
-            r = re.compile('.*:.*')
-            if not r.match(self.section_dict['volname']):
-                print "\nError: Provide volname in the format " \
-                        "<hostname>:<volname>"
+            if not self.present_in_yaml(Global.group_file, 'volname'):
+                self.section_dict['volname'] = self.get_vol_name()
+        if not self.section_dict['client_mount_points']:
+            mnt_pts = ['/mnt/client' +
+                    str(i) for i in range(len(self.clients) + 1)]
+        else:
+            mnt_pts = self.section_dict['client_mount_points']
+        if not self.section_dict.get('fstype'):
+            fstype = ['glusterfs'] * len(self.clients)
+        elif len(self.section_dict['fstype']) != len(self.clients):
+            print "\nError: Number of filesystem types(fstype) doesn't match the "\
+                    "number of client hosts"
+            self.cleanup_and_quit()
+            fstype = self.section_dict['fstype']
+        for host, mnt, fstype in zip(self.clients, mnt_pts, fstype):
+            self.section_dict['client_mount_points'] = mnt
+            self.section_dict['fstype'] = fstype
+            if fstype == 'nfs':
+                self.write_config('nfs_clients', [host], Global.inventory)
+                if not self.section_dict.get('nfs-version'):
+                    self.section_dict['nfsversion'] = 3
+                else:
+                    section_dict['nfsversion'] = section_dict.pop('nfs-version')
+                self.run_playbook('gluster-client-nfs-mount.yml')
+            elif  fstype == 'glusterfs':
+                self.write_config('fuse_clients', [host], Global.inventory)
+                self.run_playbook('gluster-client-fuse-mount.yml')
+            elif  fstype == 'cifs':
+                self.write_config('cifs_clients', [host], Global.inventory)
+                self.run_playbook('gluster-client-cifs-mount.yml')
+                if not self.present_in_yaml(
+                        Global.group_file, 'smb_username') or not self.present_in_yaml(
+                                Global.group_file, 'smb_password'):
+                    print "\nError: Provide the SMB username and password under "\
+                    "the 'volume' section."
+                    self.cleanup_and_quit()
+            else:
+                print "\nError: Unknown fstype given"
                 self.cleanup_and_quit()
-            self.section_dict['volname'] = self.split_volume_and_hostname(
-                    self.section_dict['volname'])
-        default_fstype = 'nfs' if self.config.has_section(
-                'nfs-ganesha') else 'glusterfs'
-        sections_default_value = {'client_mount_points': '/mnt/gluster',
-                                  'fstype': default_fstype }
-        self.set_default_value_for_dict_key(self.section_dict,
-                                            sections_default_value)
 
+
+    def get_vol_name(self):
+        self.check_for_param_presence('volname', self.section_dict, True)
+        volname = self.split_volume_and_hostname(self.section_dict['volname'])
+        return volname
 
     def unmount_volume(self):
         self.check_for_param_presence('client_mount_points',
-                self.section_dict)
-        Global.current_hosts = Global.hosts
-        self.run_playbook('client_volume_umount.yml')
-        msg = "Client management(action: unmount) triggered."
-        print "\nINFO: " + msg
-        Global.logger.info(msg)
+                            self.section_dict, True)
+        for host, mnt in zip(self.clients, self.section_dict[
+            'client_mount_points']):
+            self.write_config('clients', [host], Global.inventory)
+            self.section_dict['mountpoint'] = mnt
+            self.run_playbook('client_volume_umount.yml')
+        return
+
