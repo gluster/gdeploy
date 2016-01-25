@@ -332,7 +332,8 @@ class Helpers(Global):
 
     def run_playbook(self, yaml_file):
         self.create_inventory()
-        self.iterate_dicts_and_yaml_write(self.section_dict)
+        if hasattr(self, 'section_dict'):
+            self.iterate_dicts_and_yaml_write(self.section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
         self.exec_ansible_cmd(yml)
 

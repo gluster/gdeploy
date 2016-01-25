@@ -23,6 +23,7 @@ from lib import *
 class PeerManagement(YamlWriter):
 
     def __init__(self):
+        Global.current_hosts = Global.hosts
         self.get_peer_data()
         self.remove_from_sections('peer')
 
