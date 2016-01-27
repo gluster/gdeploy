@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 from lib import *
+from lib.defaults import *
 
 
 class ClientManagement(YamlWriter):
@@ -52,7 +53,7 @@ class ClientManagement(YamlWriter):
 
 
     def format_client_data(self):
-        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
+        self.section_dict = self.format_values(self.section_dict)
         self.clients =  self.section_dict.get('hosts')
         if not self.clients:
             msg = "Client hostnames not provided. Exiting!"
@@ -72,12 +73,15 @@ class ClientManagement(YamlWriter):
 
         client_mount_points = self.section_dict.get('client_mount_points')
         if client_mount_points:
-            self.section_dict['client_mount_points'] = self.pattern_stripping(
-                    client_mount_points)
-            if len(self.section_dict['client_mount_points']) != len(self.clients):
-                print "\nError: Number of mount points doesn't match the "\
-                        "number of client hosts"
-                self.cleanup_and_quit()
+            client_mount_points = self.pattern_stripping(client_mount_points)
+            if len(client_mount_points) != len(self.clients):
+                if self.action == 'mount' and len(client_mount_points) == 1:
+                    client_mount_points *= len(self.clients)
+                else:
+                    print "\nError: Number of mount points doesn't match the "\
+                            "number of client hosts"
+                    self.cleanup_and_quit()
+            self.section_dict['client_mount_points'] = client_mount_points
 
         del self.section_dict['hosts']
 
@@ -98,9 +102,9 @@ class ClientManagement(YamlWriter):
         if len(self.section_lists) > 1:
             self.section_dict['volname'] = self.get_vol_name()
         else:
-            if not self.present_in_yaml(Global.group_file, 'volname'):
+            if not self.is_present_in_yaml(Global.group_file, 'volname'):
                 self.section_dict['volname'] = self.get_vol_name()
-        if not self.section_dict['client_mount_points']:
+        if not self.section_dict.get('client_mount_points'):
             mnt_pts = ['/mnt/client' +
                     str(i) for i in range(len(self.clients) + 1)]
         else:
@@ -111,25 +115,26 @@ class ClientManagement(YamlWriter):
             print "\nError: Number of filesystem types(fstype) doesn't match the "\
                     "number of client hosts"
             self.cleanup_and_quit()
+        else:
             fstype = self.section_dict['fstype']
-        for host, mnt, fstype in zip(self.clients, mnt_pts, fstype):
+        for host, mnt, fs in zip(self.clients, mnt_pts, fstype):
             self.section_dict['client_mount_points'] = mnt
-            self.section_dict['fstype'] = fstype
-            if fstype == 'nfs':
+            self.section_dict['fstype'] = fs
+            if fs == 'nfs':
                 self.write_config('nfs_clients', [host], Global.inventory)
                 if not self.section_dict.get('nfs-version'):
                     self.section_dict['nfsversion'] = 3
                 else:
                     section_dict['nfsversion'] = section_dict.pop('nfs-version')
-                self.run_playbook('gluster-client-nfs-mount.yml')
-            elif  fstype == 'glusterfs':
+                self.run_playbook(NFSMNT_YML)
+            elif fs == 'glusterfs':
                 self.write_config('fuse_clients', [host], Global.inventory)
-                self.run_playbook('gluster-client-fuse-mount.yml')
-            elif  fstype == 'cifs':
+                self.run_playbook(FUSEMNT_YML)
+            elif fs == 'cifs':
                 self.write_config('cifs_clients', [host], Global.inventory)
-                self.run_playbook('gluster-client-cifs-mount.yml')
-                if not self.present_in_yaml(
-                        Global.group_file, 'smb_username') or not self.present_in_yaml(
+                self.run_playbook(CIFSMNT_YML)
+                if not self.is_present_in_yaml(
+                        Global.group_file, 'smb_username') or not self.is_present_in_yaml(
                                 Global.group_file, 'smb_password'):
                     print "\nError: Provide the SMB username and password under "\
                     "the 'volume' section."
@@ -140,17 +145,17 @@ class ClientManagement(YamlWriter):
 
 
     def get_vol_name(self):
-        self.check_for_param_presence('volname', self.section_dict, True)
+        self.is_option_present('volname', self.section_dict, True)
         volname = self.split_volume_and_hostname(self.section_dict['volname'])
         return volname
 
     def unmount_volume(self):
-        self.check_for_param_presence('client_mount_points',
+        self.is_option_present('client_mount_points',
                             self.section_dict, True)
         for host, mnt in zip(self.clients, self.section_dict[
             'client_mount_points']):
             self.write_config('clients', [host], Global.inventory)
             self.section_dict['mountpoint'] = mnt
-            self.run_playbook('client_volume_umount.yml')
+            self.run_playbook(VOLUMOUNT_YML)
         return
 

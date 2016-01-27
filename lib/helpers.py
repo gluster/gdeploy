@@ -44,7 +44,7 @@ class Helpers(Global):
     Some helper methods to help in directory/file creation/removal etc.
     '''
 
-    def present_in_yaml(self, filename, item):
+    def is_present_in_yaml(self, filename, item):
         if not os.path.isfile(filename):
             return
         doc = self.read_yaml(filename)
@@ -94,7 +94,7 @@ class Helpers(Global):
         # To get the n the parent of a particular directory
         return os.sep.join(path.split(os.sep)[:-n])
 
-    def fix_format_of_values_in_config(self, option_dict, excemption=''):
+    def format_values(self, option_dict, excemption=''):
         '''
         This method will split the values provided in config by user,
         when parsed as a dictionary
@@ -110,12 +110,12 @@ class Helpers(Global):
                     key] = self.split_comma_separated_options(value)
         return option_dict
 
-    def set_default_value_for_dict_key(self, dictname, default_value_dict):
+    def set_default_values(self, dictname, default_value_dict):
         for key, value in default_value_dict.iteritems():
             if key not in dictname:
                 dictname[key] = value
 
-    def check_for_param_presence(self, param, section_dict, reqd=True):
+    def is_option_present(self, param, section_dict, reqd=True):
         if not section_dict.get(param):
             if reqd:
                 print "Error: %s not provided in the config. " \
@@ -349,8 +349,13 @@ class Helpers(Global):
                 Global.brick_hosts))[0]]
         except:
             pass
-        self.write_config('master', Global.master or Global.current_hosts[0],
-                Global.inventory)
+        try:
+            self.write_config('master', Global.master or Global.current_hosts[0],
+                    Global.inventory)
+        except:
+            print "\nError: Insufficient host names or IPs. Please check " \
+            "your configuration file"
+            self.cleanup_and_quit()
 
     def exec_ansible_cmd(self, playbooks_file=Global.playbooks_file):
         executable = 'ansible-playbook'

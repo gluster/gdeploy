@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 from lib import *
+from lib.defaults import *
 
 
 class PeerManagement(YamlWriter):
@@ -45,8 +46,8 @@ class PeerManagement(YamlWriter):
                 Global.logger.error(msg)
                 return
             try:
-                yml = {'probe': 'gluster-peer-probe.yml',
-                       'detach': 'gluster-peer-detach.yml',
+                yml = {'probe': PROBE_YML,
+                       'detach': DETACH_YML,
                        'ignore': None
                       }[action]
             except:
@@ -61,7 +62,7 @@ class PeerManagement(YamlWriter):
             print "\nINFO: " + msg
             Global.logger.info(msg)
             if action == 'probe':
-                self.run_playbook('glusterd-start.yml')
+                self.run_playbook(GLUSTERD_YML)
             if action == 'probe':
                 to_be_probed = Global.hosts + Global.brick_hosts
                 self.create_yaml_dict('to_be_probed', to_be_probed, False)

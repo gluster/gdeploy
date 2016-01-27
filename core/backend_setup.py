@@ -26,6 +26,7 @@
 #
 
 from lib import *
+from lib.defaults import *
 import sys
 import re
 try:
@@ -69,7 +70,7 @@ class BackendSetup(YamlWriter):
         selinux = self.config_get_options('selinux', False)
         if selinux and self.mountpoints:
             if selinux[0].lower() == 'yes':
-                self.run_playbook('set-selinux-labels.yml')
+                self.run_playbook(SELINUX_YML)
 
 
     def new_backend_setup(self, hosts):
@@ -139,7 +140,7 @@ class BackendSetup(YamlWriter):
             self.filename = self.host_file
         except:
             self.filename =  Global.group_file
-        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
+        self.section_dict = self.format_values(self.section_dict)
 
     def write_brick_names(self):
         self.bricks = self.get_options('devices')
@@ -157,7 +158,7 @@ class BackendSetup(YamlWriter):
                 self.section_dict['bricks'].append(self.ssd)
             self.create_yaml_dict('bricks', self.section_dict['bricks'], False)
             self.device_count = len(self.bricks)
-            self.run_playbook('pvcreate.yml')
+            self.run_playbook(PVCREATE_YML)
             if hasattr(self, 'ssd'):
                 if self.ssd in self.section_dict['bricks']:
                     self.section_dict['bricks'].remove(self.ssd)
@@ -201,7 +202,7 @@ class BackendSetup(YamlWriter):
                 data.append(vgnames)
             self.create_yaml_dict('vgnames', data, True)
             if self.section_dict.get('bricks'):
-                self.run_playbook('vgcreate.yml')
+                self.run_playbook(VGCREATE_YML)
             else:
                 self.device_count = len(vgs)
             return True
@@ -232,7 +233,7 @@ class BackendSetup(YamlWriter):
                         self.section_dict['pools'])):
                         self.insufficient_param_count('lvs',
                                 len(self.section_dict['pools']))
-                    self.run_playbook('auto_lvcreate_for_gluster.yml')
+                    self.run_playbook(GLUSTER_LV_YML)
                 else:
                     if not hasattr(self, 'device_count'):
                         self.device_count = len(lvs)
@@ -262,7 +263,7 @@ class BackendSetup(YamlWriter):
                 print "\nError: " + msg
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
-            self.run_playbook('vgextend.yml')
+            self.run_playbook(VGEXTEND_YML)
             self.section_dict['datalv'] = self.datalv[0]
             cachemeta = self.get_options(
                     'cachemetalv') or 'lv_cachemeta'
@@ -275,9 +276,9 @@ class BackendSetup(YamlWriter):
         if not self.data:
             return
         self.create_yaml_dict('lvs', self.data, True)
-        self.run_playbook('lvcreate.yml')
+        self.run_playbook(LVCREATE_YML)
         if hasattr(self, 'ssd'):
-            self.run_playbook('lvconvert.yml')
+            self.run_playbook(LVCONVERT_YML)
 
 
     def lvs_with_size(self, lv, d_size):
@@ -332,7 +333,7 @@ class BackendSetup(YamlWriter):
         if lvols:
             self.section_dict['lvols'] = lvols
             self.create_yaml_dict('lvols', lvols, False)
-            self.run_playbook('fscreate.yml')
+            self.run_playbook(FSCREATE_YML )
             if not hasattr(self, 'device_count'):
                 self.device_count = len(lvols)
             return True
@@ -358,7 +359,7 @@ class BackendSetup(YamlWriter):
         self.create_yaml_dict('mntpath', data, True)
         self.modify_mountpoints()
         self.create_yaml_dict('mountpoints', self.mountpoints, False)
-        self.run_playbook('mount.yml')
+        self.run_playbook(MOUNT_YML )
         return True
 
 
@@ -508,11 +509,7 @@ class BackendSetup(YamlWriter):
         if not options:
             if self.default and self.previous:
                 options = []
-                pattern = {'vgs': 'GLUSTER_vg',
-                           'pools': 'GLUSTER_pool',
-                           'lvs': 'GLUSTER_lv',
-                           'mountpoints': '/gluster/brick'
-                           }[section]
+                pattern = BSETUP_DEFAULTS[section]
                 for i in range(1, self.device_count + 1):
                     options.append(pattern + str(i))
         return options

@@ -19,6 +19,7 @@
 #
 import re, sys, os
 from lib import *
+from lib.defaults import *
 from backend_setup import BackendSetup
 from peer_management import PeerManagement
 from volume_management import VolumeManagement
@@ -50,6 +51,7 @@ def tune_profile():
     if not profile:
         return
     yaml_write.create_yaml_dict('profile', profile, False)
+    self.run_playbook(TUNE_YML)
     remove_entry_from_sections('tune-profile')
 
 

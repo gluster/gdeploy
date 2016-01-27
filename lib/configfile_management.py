@@ -54,9 +54,9 @@ class ConfigfileManagement(YamlWriter):
         self.iterate_dicts_and_yaml_write(self.section_dict)
 
     def copy_file(self):
-        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
-        self.check_for_param_presence('src', self.section_dict)
-        self.check_for_param_presence('dest', self.section_dict)
+        self.section_dict = self.format_values(self.section_dict)
+        self.is_option_present('src', self.section_dict)
+        self.is_option_present('dest', self.section_dict)
         src = self.pattern_stripping(self.section_dict['src'])
         dest = self.pattern_stripping(self.section_dict['dest'])
         if len(dest) == 1:
@@ -75,10 +75,10 @@ class ConfigfileManagement(YamlWriter):
         Global.playbooks.append('move-file-from-local-to-remote.yml')
 
     def edit_file(self):
-        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
-        self.check_for_param_presence('dest', self.section_dict)
-        self.check_for_param_presence('line', self.section_dict)
-        self.check_for_param_presence('replace', self.section_dict)
+        self.section_dict = self.format_values(self.section_dict)
+        self.is_option_present('dest', self.section_dict)
+        self.is_option_present('line', self.section_dict)
+        self.is_option_present('replace', self.section_dict)
         line = self.pattern_stripping(self.section_dict['line'])
         dest = self.pattern_stripping(self.section_dict['dest'])
         replace = self.pattern_stripping(self.section_dict['replace'])
@@ -95,9 +95,9 @@ class ConfigfileManagement(YamlWriter):
         Global.playbooks.append('edit-remote-file.yml')
 
     def add_file(self):
-        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
-        self.check_for_param_presence('dest', self.section_dict)
-        self.check_for_param_presence('line', self.section_dict)
+        self.section_dict = self.format_values(self.section_dict)
+        self.is_option_present('dest', self.section_dict)
+        self.is_option_present('line', self.section_dict)
         self.section_dict['line'] = self.pattern_stripping(
                 self.section_dict['line'])
         Global.playbooks.append('add-remote-file.yml')

@@ -19,6 +19,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 from lib import *
+from lib.defaults import *
 import re
 
 
@@ -52,8 +53,6 @@ class BackendReset(YamlWriter):
         if not Global.hosts:
             print "Error: Hostnames not provided. Cannot continue!"
             self.cleanup_and_quit()
-        if ret:
-            print "\nINFO: Back-end reset triggered"
 
     def parse_section(self, hostname):
         try:
@@ -68,19 +67,12 @@ class BackendReset(YamlWriter):
         except:
             self.filename =  Global.group_file
             Global.current_hosts = Global.hosts
-        self.run_playbook('backend-reset.yml')
+        self.run_playbook(BRESET_YML)
         return True
 
     def get_backend_data(self):
-        self.section_dict = self.fix_format_of_values_in_config(self.section_dict)
-        sections_default_value = {
-                'pvs': None,
-                'vgs': None,
-                'lvs': None,
-                'mountpoints': None,
-                'unmount': "no" }
-        self.set_default_value_for_dict_key(self.section_dict,
-                                            sections_default_value)
+        self.section_dict = self.format_values(self.section_dict)
+        self.set_default_values(self.section_dict, BRESET_DEFAULTS)
         for key, value in self.section_dict.iteritems():
             if value:
                 self.section_dict[key] = self.pattern_stripping(value)

@@ -19,10 +19,11 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 from lib import *
+from lib.defaults import *
 import os, re
 
 
-class VolumeManagement(YamlWriter):
+class VolumeManagement(YamlWriter, Helpers):
 
     def __init__(self):
         self.var_file = Global.var_file
@@ -58,7 +59,7 @@ class VolumeManagement(YamlWriter):
             self.iterate_dicts_and_yaml_write(self.section_dict)
             return
         del self.section_dict['action']
-        self.section_dict = self.fix_format_of_values_in_config(self.section_dict, 'transport')
+        self.section_dict = self.format_values(self.section_dict, 'transport')
         action_func =  { 'create': self.create_volume,
                           'start': self.start_volume,
                           'delete': self.delete_volume,
@@ -87,7 +88,7 @@ class VolumeManagement(YamlWriter):
             # Global.logger.error(msg)
             # self.cleanup_and_quit()
         self.filename = Global.group_file
-        if not self.present_in_yaml(self.filename, 'force'):
+        if not self.is_present_in_yaml(self.filename, 'force'):
             force = self.section_dict.get('force') or ''
             force = 'yes' if force.lower() == 'yes' else 'no'
             self.section_dict['force'] = force
@@ -108,8 +109,8 @@ class VolumeManagement(YamlWriter):
                     host) for host in Global.hosts]
         files = [Global.group_file] +  host_files
         for fd in files:
-            if self.present_in_yaml(fd, 'mountpoints'):
-                doc = self.yaml_read(fd)
+            if self.is_present_in_yaml(fd, 'mountpoints'):
+                doc = self.read_yaml(fd)
                 brick_dir = [os.path.basename(fd) + ':' +  d for d in
                         doc['mountpoints']]
                 self.section_dict['brick_dirs'] = brick_dir
@@ -169,7 +170,7 @@ class VolumeManagement(YamlWriter):
                     self.cleanup_and_quit()
 
                 self.filename = hfile
-                if not self.present_in_yaml(self.filename, 'mountpoints'):
+                if not self.is_present_in_yaml(self.filename, 'mountpoints'):
                     if not os.path.isfile(self.filename):
                         self.touch_file(self.filename)
                     self.write_brick_dirs(brick_dirs)
@@ -215,16 +216,7 @@ class VolumeManagement(YamlWriter):
         This default value dictionary is used to populate the group var
         with default data, if the data is not given by the user/
         '''
-        sections_default_value = {
-            'transport': 'tcp',
-            'replica': 'no',
-            'disperse': 'no',
-            'replica_count': 0,
-            'arbiter_count': 0,
-            'disperse_count': 0,
-            'redundancy_count': 0}
-        self.set_default_value_for_dict_key(self.section_dict,
-                                            sections_default_value)
+        self.set_default_values(self.section_dict, VOLUME_CREATE_DEFAULTS)
         if not self.section_dict['volname']:
             self.section_dict['volname'] = 'glustervol'
         # Custom method for volume config specs
@@ -234,42 +226,38 @@ class VolumeManagement(YamlWriter):
             print "\nError: " + msg
             Global.logger.error(msg)
             self.cleanup_and_quit()
-        self.check_for_param_presence('volname', self.section_dict)
-        self.run_playbook('glusterd-start.yml')
+        self.is_option_present('volname', self.section_dict)
+        self.run_playbook(GLUSTERD_YML)
         self.create_yaml_dict('hosts', Global.current_hosts, False)
         self.call_peer_probe()
-        self.run_playbook('create-brick-dirs.yml')
-        self.run_playbook('gluster-volume-create.yml')
+        self.run_playbook(CREATEDIR_YML)
+        self.run_playbook(VOLCREATE_YML)
         self.start_volume()
         return True
 
     def start_volume(self):
-        self.check_for_param_presence('volname', self.section_dict)
+        self.is_option_present('volname', self.section_dict)
         Global.current_hosts = Global.hosts
-        self.run_playbook('gluster-volume-start.yml')
+        self.run_playbook(VOLSTART_YML)
         return True
 
     def stop_volume(self):
-        self.check_for_param_presence('volname', self.section_dict)
+        self.is_option_present('volname', self.section_dict)
         Global.current_hosts = Global.hosts
-        self.run_playbook('gluster-volume-stop.yml')
+        self.run_playbook(VOLSTOP_YML)
         return True
 
     def delete_volume(self):
-        self.check_for_param_presence('volname', self.section_dict)
+        self.is_option_present('volname', self.section_dict)
         Global.current_hosts = Global.hosts
-        self.run_playbook('gluster-volume-delete.yml')
+        self.run_playbook(VOLDEL_YML)
         return True
 
     def set_default_replica_type(self):
-        sections_default_value = {
-            'replica': 'no',
-            'replica_count': 0}
-        self.set_default_value_for_dict_key(self.section_dict,
-                                            sections_default_value)
+        self.set_default_values(self.section_dict, REPLICA_DEFAULTS)
     def add_brick_to_volume(self):
-        self.check_for_param_presence('volname', self.section_dict)
-        self.check_for_param_presence('bricks', self.section_dict)
+        self.is_option_present('volname', self.section_dict)
+        self.is_option_present('bricks', self.section_dict)
         bricks = self.section_dict.pop('bricks')
         bricks = self.format_brick_names(bricks)
         if not Global.master and not list(
@@ -290,9 +278,9 @@ class VolumeManagement(YamlWriter):
         Global.current_hosts = Global.hosts
         self.section_dict['new_bricks'] = bricks
         self.set_default_replica_type()
-        self.check_for_param_presence('volname', self.section_dict)
+        self.is_option_present('volname', self.section_dict)
         self.call_peer_probe()
-        self.run_playbook('gluster-add-brick.yml')
+        self.run_playbook(ADDBRICK_YML)
         return True
 
     def call_peer_probe(self):
@@ -301,11 +289,11 @@ class VolumeManagement(YamlWriter):
         if peer_action != 'ignore':
             to_be_probed = Global.current_hosts + Global.brick_hosts
             self.create_yaml_dict('to_be_probed', to_be_probed, False)
-            self.run_playbook('gluster-peer-probe.yml')
+            self.run_playbook(PROBE_YML)
 
     def remove_brick_from_volume(self):
-        self.check_for_param_presence('volname', self.section_dict)
-        self.check_for_param_presence('bricks', self.section_dict)
+        self.is_option_present('volname', self.section_dict)
+        self.is_option_present('bricks', self.section_dict)
         if 'state' not in self.section_dict:
             msg = "State of the remove-brick process not " \
                 "specified. Can't proceed!\n" \
@@ -315,9 +303,9 @@ class VolumeManagement(YamlWriter):
             self.cleanup_and_quit()
         self.set_default_replica_type()
         self.section_dict['old_bricks'] = self.section_dict.pop('bricks')
-        self.check_for_param_presence('volname', self.section_dict)
+        self.is_option_present('volname', self.section_dict)
         Global.current_hosts = Global.hosts
-        self.run_playbook('gluster-remove-brick.yml')
+        self.run_playbook(REMOVEBRK_YML)
         return True
 
 
@@ -330,15 +318,15 @@ class VolumeManagement(YamlWriter):
             Global.logger.error(msg)
             self.cleanup_and_quit()
         Global.current_hosts = Global.hosts
-        self.run_playbook('gluster-volume-start.yml')
-        self.run_playbook('gluster-volume-rebalance.yml')
+        self.run_playbook(VOLUMESTART_YML)
+        self.run_playbook(REBALANCE_YML)
         return True
 
     def volume_set(self, key=None, value=None):
         self.filename = Global.group_file
         if not key:
-            self.check_for_param_presence('key', self.section_dict)
-            self.check_for_param_presence('value', self.section_dict)
+            self.is_option_present('key', self.section_dict)
+            self.is_option_present('value', self.section_dict)
             key = self.section_dict.pop('key')
             value = self.section_dict.pop('value')
         if not isinstance(key, list):
@@ -353,7 +341,7 @@ class VolumeManagement(YamlWriter):
             data.append(names)
         Global.current_hosts = Global.hosts
         self.create_yaml_dict('set', data, True)
-        self.run_playbook('gluster-volume-set.yml')
+        self.run_playbook(VOLUMESET_YML)
         return True
 
 
@@ -366,13 +354,14 @@ class VolumeManagement(YamlWriter):
                     "section. Refer documentation for more."
             print "Warning: " + msg
             Global.logger.info(msg)
-        sections_default_value = {'path': '/',
+            SMB_DEFAULTS = {
+                            'path': '/',
                             'glusterfs:logfile': '/var/log/samba/' +
                                 self.section_dict['volname'] + '.log',
                             'glusterfs:loglevel': 7,
-                            'glusterfs:volfile_server': 'localhost'}
-        self.set_default_value_for_dict_key(self.section_dict,
-                                            sections_default_value)
+                            'glusterfs:volfile_server': 'localhost'
+                          }
+        self.set_default_values(self.section_dict, SMB_DEFAULTS)
         options = ''
         for key, value in sections_default_value.iteritems():
             if self.section_dict[key]:
@@ -388,12 +377,12 @@ class VolumeManagement(YamlWriter):
         self.section_dict['smb_password'] = self.section_dict.get('smb_password') or 'password'
         if not self.section_dict.get('smb_mountpoint'):
             self.section_dict['smb_mountpoint'] = '/mnt/smbserver'
-        self.run_playbook('replace_smb_conf_volname.yml')
-        self.run_playbook('mount-in-samba-server.yml')
+        self.run_playbook(SMBREPLACE_YML)
+        self.run_playbook(SMBSRV_YML)
 
         key = ['stat-prefetch', 'server.allow-insecure',
                 'storage.batch-fsync-delay-usec']
         value = ['off', 'on', 0]
         self.volume_set(key, value)
-        self.run_playbook('glusterd-start.yml')
+        self.run_playbook(GLUSTERD_YML)
         return True

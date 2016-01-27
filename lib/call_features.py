@@ -48,5 +48,5 @@ def get_feature_dir(section):
 def parse_the_user_config(section):
     global helpers
     section_dict = Global.sections[section]
-    section_dict = helpers.fix_format_of_values_in_config(section_dict)
+    section_dict = helpers.format_values(section_dict)
     print section_dict
