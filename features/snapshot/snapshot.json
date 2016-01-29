@@ -1,0 +1,47 @@
+{
+    "snapshot": {
+        "action": {
+            "create": {
+                "options":[
+                            { "name": "snapname", "default": "snap1", "required": "false" },
+                            { "name": "volname", "required": "true" }
+                        ] },
+
+
+            "delete": {
+                "options":[
+                            { "name": ["snapname", "volname"], "required": "true"}
+                        ] },
+
+            "activate": {
+                "options":[
+                            { "name": "snapname", "required": "true"}
+                        ] },
+
+            "deactivate": {
+                "options":[
+                            { "name": "snapname", "required": "true"}
+                        ] },
+
+            "clone": {
+                "options": [
+                            { "name": "snapname", "required": "true"},
+                            { "name": "clonename", "default": "clonename", "required": "false" }
+                         ] },
+
+            "restore": {
+                "options": [
+                            { "name": "snapname", "required": "true"}
+                         ] },
+
+            "config": {
+                "options": [
+                            { "name": "snapname", "required": "true"},
+                            { "name": "snap_max_soft_limit", "required": "false" },
+                            { "name": "snap_max_hard_limit", "required": "false" },
+                            { "name": "auto_delete", "required": "false" },
+                            { "name": "activate_on_create", "required": "false" }
+                         ] }
+                }
+        }
+}

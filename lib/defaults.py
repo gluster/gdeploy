@@ -89,3 +89,14 @@ CIFSMNT_YML = 'gluster-client-cifs-mount.yml'
 NFSMNT_YML = 'gluster-client-nfs-mount.yml'
 FUSEMNT_YML = 'gluster-client-fuse-mount.yml'
 VOLUMOUNT_YML = 'client_volume_umount.yml'
+
+
+
+# FEATURE YMLs
+SNAPSHOT_CREATE = 'gluster-snapshot-create.yml'
+SNAPSHOT_DELETE = 'gluster-snapshot-delete.yml'
+SNAPSHOT_CLONE = 'gluster-snapshot-clone.yml'
+SNAPSHOT_RESTORE = 'gluster-snapshot-restore.yml'
+SNAPSHOT_ACTIVATE = 'gluster-snapshot-activate.yml'
+SNAPSHOT_DEACTIVATE = 'gluster-snapshot-deactivate.yml'
+SNAPSHOT_CONFIG = 'gluster-snapshot-config.yml'

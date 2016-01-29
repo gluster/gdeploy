@@ -424,7 +424,7 @@ class BackendSetup(YamlWriter):
                         Global.warnings.append(warn)
 
         force = 'yes' if force.lower() == 'yes' else 'no'
-        self.create_yaml_dict('force', force, False)
+        self.create_var_files('force', force, False)
         self.mountpoints = brick_list
 
 
@@ -494,7 +494,7 @@ class BackendSetup(YamlWriter):
             perf = dict(disktype='jbod')
             perf['dalign'] = 256
             perf['diskcount'] = perf['stripesize'] = 0
-        self.iterate_dicts_and_yaml_write(perf)
+        self.create_var_files(perf)
 
     def insufficient_param_count(self, section, count):
         msg = "Please provide %s names for %s devices " \

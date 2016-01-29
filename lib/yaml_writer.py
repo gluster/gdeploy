@@ -40,25 +40,25 @@ import os
 
 class YamlWriter(ConfigParseHelpers):
 
-    def iterate_dicts_and_yaml_write(self, data_dict, keep_format=False):
+    def create_var_files(self, data_dict, keep_format=False, filename=None):
         # Just a pretty wrapper over create_yaml_dict to iterate over dicts
         for key, value in data_dict.iteritems():
             if key not in ['__name__']:
-                self.create_yaml_dict(key, value, keep_format)
+                self.create_yaml_dict(key, value, filename, keep_format)
 
-    def create_yaml_dict(self, section, data, keep_format=True):
+    def create_yaml_dict(self, section, data, filename, keep_format=True):
         '''
         This method is called if in the playbook yaml,
         the options are to be written as a list
         '''
         data_dict = {}
         data_dict[section] = data
-        self.write_yaml(data_dict, keep_format)
+        self.write_yaml(data_dict, keep_format, filename)
 
-    def write_yaml(self, data_dict, data_flow):
+    def write_yaml(self, data_dict, data_flow, filename):
         list_doc = {}
         if not hasattr(self, 'filename'):
-            self.filename = Global.group_file
+            self.filename = filename or Global.group_file
         with open(self.filename) as f:
             list_doc = yaml.load(f) or {}
         list_doc.update(data_dict)

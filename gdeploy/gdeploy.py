@@ -45,7 +45,6 @@ def parse_arguments(args=None):
                         version='%(prog)s 1.0')
     parser.add_argument('-c', dest='config_file',
                         help="Configuration file",
-                        nargs='+',
                         type=argparse.FileType('rt'))
     parser.add_argument('-k', dest='keep',
                         action='store_true',
@@ -56,23 +55,29 @@ def parse_arguments(args=None):
     parser.add_argument('-vv', dest='verbose',
                         action='store_true',
                         help="verbose mode")
+    parser.add_argument('--addfeature', dest='feature_name',
+                        help="Add new feature to gdeploy")
     try:
         args = parser.parse_args(args=args)
     except IOError as msg:
         parser.error(str(msg))
     if not args.config_file:
-        parser.print_help()
-        try:
-            Global.logger.error("Invalid usage")
-        except:
-            pass
-        return None
+        if not args.feature_name:
+            parser.print_help()
+            try:
+                Global.logger.error("Invalid usage")
+            except:
+                pass
+            return None
+        else:
+            add_feature(args.feature_name)
+            return None
     return args
 
 @logfunction
 def init_global_values(args):
     global helpers, conf_parse
-    Global.config = conf_parse.read_config(args.config_file[0].name)
+    Global.config = conf_parse.read_config(args.config_file.name)
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
     Global.trace = args.trace
@@ -164,11 +169,12 @@ if __name__ == '__main__':
     '''
     log_event()
     args = parse_arguments(sys.argv[1:])
-    check_ansible_installation()
-    init_global_values(args)
-    create_files_and_dirs()
-    get_hostnames()
-    create_playbooks_in_local()
-    call_core_functions()
-    call_features()
-    gdeploy_cleanup()
+    if args:
+        check_ansible_installation()
+        init_global_values(args)
+        create_files_and_dirs()
+        get_hostnames()
+        create_playbooks_in_local()
+        call_core_functions()
+        call_features()
+        gdeploy_cleanup()

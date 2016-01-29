@@ -1,1 +1,1 @@
-from snapshot_management import SnapshotManagement
+import snapshot
