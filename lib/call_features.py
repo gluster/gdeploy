@@ -65,6 +65,7 @@ def parse_the_user_config(section, section_dir):
     default_dict = get_default_values(action_dict["options"])
     helpers.set_default_values(section_dict, default_dict)
     section_dict = validate_the_user_data(section_dict, reqd_vals)
+    section_dict['action'] = section_dict.pop('action').replace('-', '_')
     if not section_dict:
         helpers.cleanup_and_quit()
     get_hostnames()

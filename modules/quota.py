@@ -53,6 +53,7 @@ class Quota(object):
 
     def gluster_quota_opts(self):
 
+        option_str = None
         if self.action in ['enable', 'disable']:
             option_str = self.action
 
@@ -105,7 +106,6 @@ class Quota(object):
     def quota_time_bounds(self):
         time = self._validated_params('time')
         return ' %s  %s ' %(self.action.replace('_', '-'), time)
-
 
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
