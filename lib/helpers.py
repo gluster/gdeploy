@@ -356,7 +356,9 @@ class Helpers(Global, YamlWriter):
             sys.exit()
 
     def volname_formatter(self, section_dict):
-        volname = section_dict['volname']
+        volname = section_dict.get('volname')
+        if not volname:
+            return section_dict
         section_dict['volname'] = self.split_volume_and_hostname(volname)
         return section_dict
 

@@ -108,6 +108,8 @@ QUOTA_ENABLE = 'gluster-quota-enable.yml'
 QUOTA_DISABLE = 'gluster-quota-disable.yml'
 QUOTA_LIMIT_USAGE = 'gluster-quota-limit-size.yml'
 QUOTA_LIMIT_OBJECTS = 'gluster-quota-limit-object.yml'
-QUOTA_OPS = 'gluster-quota-disable.yml'
+QUOTA_OPS = 'gluster-quota-ops.yml'
+QUOTA_REMOVE = 'gluster-quota-remove.yml'
+QUOTA_DSL = 'gluster-quota-dsl.yml'
 
 

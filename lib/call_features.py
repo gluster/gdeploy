@@ -48,7 +48,8 @@ def get_feature_dir(section):
     section_dict = parse_the_user_config(section, section_dir)
     feature_func = getattr(features, section)
     feature_mod = getattr(feature_func, section)
-    feature_call = getattr(feature_mod, section + '_' + section_dict['action'])
+    feature_call = getattr(feature_mod, section + '_' + section_dict[
+        'action'].replace('-', '_'))
     section_dict, yml = feature_call(section_dict)
     yaml_writer.create_var_files(section_dict)
     helpers.run_playbook(yml)

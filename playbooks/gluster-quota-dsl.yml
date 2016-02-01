@@ -7,4 +7,4 @@
   - name: Gluster volume quota operation
     quota:  action="{{ action }}"
             volume="{{ volname }}"
-            time="{{ time }}"
+            percent="{{ percent }}"

@@ -20,17 +20,17 @@ def quota_disable(section_dict):
 def quota_remove(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
-    return section_dict, defaults.QUOTA_OPS
+    return section_dict, defaults.QUOTA_REMOVE
 
 def quota_remove_objects(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
-    return section_dict, defaults.QUOTA_OPS
+    return section_dict, defaults.QUOTA_REMOVE
 
 def quota_default_soft_limit(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
-    return section_dict, defaults.QUOTA_OPS
+    return section_dict, defaults.QUOTA_DSL
 
 def quota_limit_usage(section_dict):
     global helpers
@@ -47,7 +47,7 @@ def quota_limit_objects(section_dict):
 def quota_alert_time(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
-    return section_dict, defaults.QUOTA_ALERT_TIME
+    return section_dict, defaults.QUOTA_OPS
 
 def quota_soft_timeout(section_dict):
     global helpers
