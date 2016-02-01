@@ -4,29 +4,34 @@
             "create": {
                 "options":[
                             { "name": "snapname", "default": "snap1", "required": "false" },
-                            { "name": "volname", "required": "true" }
+                            { "name": "volname", "required": "true" },
+                            { "name": "force", "required": "false", "default": "no" }
                         ] },
 
 
             "delete": {
                 "options":[
-                            { "name": ["snapname", "volname"], "required": "true"}
+                            { "name": ["snapname", "volname"], "required": "true"},
+                            { "name": "force", "required": "false", "default": "no" }
                         ] },
 
             "activate": {
                 "options":[
-                            { "name": "snapname", "required": "true"}
+                            { "name": "snapname", "required": "true"},
+                            { "name": "force", "required": "false", "default": "no" }
                         ] },
 
             "deactivate": {
                 "options":[
-                            { "name": "snapname", "required": "true"}
+                            { "name": "snapname", "required": "true"},
+                            { "name": "force", "required": "false", "default": "no" }
                         ] },
 
             "clone": {
                 "options": [
                             { "name": "snapname", "required": "true"},
-                            { "name": "clonename", "default": "clonename", "required": "false" }
+                            { "name": "clonename", "default": "clonename", "required": "false" },
+                            { "name": "force", "required": "false", "default": "no" }
                          ] },
 
             "restore": {

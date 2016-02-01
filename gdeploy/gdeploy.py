@@ -29,7 +29,6 @@ from core import call_core_functions
 
 
 helpers = Helpers()
-conf_parse = ConfigParseHelpers()
 
 @logfunction
 def parse_arguments(args=None):
@@ -76,8 +75,8 @@ def parse_arguments(args=None):
 
 @logfunction
 def init_global_values(args):
-    global helpers, conf_parse
-    Global.config = conf_parse.read_config(args.config_file.name)
+    global helpers
+    Global.config = helpers.read_config(args.config_file.name)
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
     Global.trace = args.trace
@@ -99,8 +98,8 @@ def check_ansible_installation():
 
 @logfunction
 def get_hostnames():
-    global helpers, conf_parse
-    hosts = conf_parse.config_get_options('hosts', False)
+    global helpers
+    hosts = helpers.config_get_options('hosts', False)
     for host in hosts:
         Global.hosts += helpers.parse_patterns(host)
     helpers.remove_from_sections('hosts')

@@ -41,7 +41,7 @@ def get_feature_dir(section):
     section_dir = os.path.join(features.__path__[0], section)
     if not os.path.isdir(section_dir):
         return
-    config_file = helpers.get_file_dir_path(section_dir, section + '.in')
+    config_file = helpers.get_file_dir_path(section_dir, section + '.json')
     if not os.path.isfile(config_file):
         print "Error: Setup file not found for feature '%s'" % section
         return

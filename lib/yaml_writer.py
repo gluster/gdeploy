@@ -25,9 +25,7 @@
 #    as per specified in the configuration file
 #
 
-from conf_parser import ConfigParseHelpers
 from global_vars import Global
-from helpers import Helpers
 try:
     import yaml
 except ImportError:
@@ -38,7 +36,7 @@ except ImportError:
 import os
 
 
-class YamlWriter(ConfigParseHelpers):
+class YamlWriter():
 
     def create_var_files(self, data_dict, keep_format=False, filename=None):
         # Just a pretty wrapper over create_yaml_dict to iterate over dicts
@@ -65,8 +63,8 @@ class YamlWriter(ConfigParseHelpers):
         with open(self.filename, 'w') as outfile:
             if not data_flow:
                 outfile.write(
-                    yaml.dump(
+                    yaml.safe_dump(
                         list_doc,
                         default_flow_style=data_flow))
             else:
-                outfile.write(yaml.dump(list_doc))
+                outfile.write(yaml.safe_dump(list_doc))

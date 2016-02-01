@@ -21,7 +21,7 @@ from lib import *
 from lib.defaults import *
 
 
-class PeerManagement(YamlWriter):
+class PeerManagement(Helpers):
 
     def __init__(self):
         Global.current_hosts = Global.hosts

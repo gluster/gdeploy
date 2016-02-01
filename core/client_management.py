@@ -21,7 +21,7 @@ from lib import *
 from lib.defaults import *
 
 
-class ClientManagement(YamlWriter):
+class ClientManagement(Helpers):
 
     def __init__(self):
         self.filename = Global.group_file

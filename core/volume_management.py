@@ -23,7 +23,7 @@ from lib.defaults import *
 import os, re
 
 
-class VolumeManagement(YamlWriter, Helpers):
+class VolumeManagement(Helpers):
 
     def __init__(self):
         self.var_file = Global.var_file
@@ -56,10 +56,15 @@ class VolumeManagement(YamlWriter, Helpers):
                 print "\nWarning: " + msg
                 Global.logger.warning(msg)
             self.filename = Global.group_file
-            self.iterate_dicts_and_yaml_write(self.section_dict)
+            self.create_var_files(self.section_dict)
             return
         del self.section_dict['action']
         self.section_dict = self.format_values(self.section_dict, 'transport')
+        self.filename = Global.group_file
+        if not self.is_present_in_yaml(self.filename, 'force'):
+            force = self.section_dict.get('force') or ''
+            force = 'yes' if force.lower() == 'yes' else 'no'
+            self.section_dict['force'] = force
         action_func =  { 'create': self.create_volume,
                           'start': self.start_volume,
                           'delete': self.delete_volume,
@@ -87,11 +92,6 @@ class VolumeManagement(YamlWriter, Helpers):
             # print "\nError: " + msg
             # Global.logger.error(msg)
             # self.cleanup_and_quit()
-        self.filename = Global.group_file
-        if not self.is_present_in_yaml(self.filename, 'force'):
-            force = self.section_dict.get('force') or ''
-            force = 'yes' if force.lower() == 'yes' else 'no'
-            self.section_dict['force'] = force
         if smb and smb.lower() == 'yes':
             self.samba_setup()
 
@@ -205,7 +205,7 @@ class VolumeManagement(YamlWriter, Helpers):
                 self.touch_file(Global.var_file)
                 self.section_dict['mountpoints'].extend(self.pattern_stripping(
                         each.group(2)))
-                self.iterate_dicts_and_yaml_write(self.section_dict)
+                self.create_var_files(self.section_dict)
         else:
             if len(self.section_lists) > 1:
                 print "\nError: 'brick_dirs' not provided in one or more " \

@@ -93,6 +93,8 @@ VOLUMOUNT_YML = 'client_volume_umount.yml'
 
 
 # FEATURE YMLs
+
+#SNAPSHOT
 SNAPSHOT_CREATE = 'gluster-snapshot-create.yml'
 SNAPSHOT_DELETE = 'gluster-snapshot-delete.yml'
 SNAPSHOT_CLONE = 'gluster-snapshot-clone.yml'
@@ -100,3 +102,12 @@ SNAPSHOT_RESTORE = 'gluster-snapshot-restore.yml'
 SNAPSHOT_ACTIVATE = 'gluster-snapshot-activate.yml'
 SNAPSHOT_DEACTIVATE = 'gluster-snapshot-deactivate.yml'
 SNAPSHOT_CONFIG = 'gluster-snapshot-config.yml'
+
+#QUOTA
+QUOTA_ENABLE = 'gluster-quota-enable.yml'
+QUOTA_DISABLE = 'gluster-quota-disable.yml'
+QUOTA_LIMIT_USAGE = 'gluster-quota-limit-size.yml'
+QUOTA_LIMIT_OBJECTS = 'gluster-quota-limit-object.yml'
+QUOTA_OPS = 'gluster-quota-disable.yml'
+
+

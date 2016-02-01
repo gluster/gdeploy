@@ -40,14 +40,14 @@ def add_feature(feature):
 
     init_file_line = "import %s" % feature
 
-    with open(INIT_FILE, 'w') as f:
+    with open(INIT_FILE, 'a') as f:
         f.write(init_file_line)
 
 
-    with open(BASE_INIT_FILE, 'w') as f:
+    with open(BASE_INIT_FILE, 'a') as f:
         f.write(init_file_line)
 
-    data = {"hello":
+    data = { feature:
                 { "action":
                     { "action1":
                         { "options": [
@@ -67,19 +67,17 @@ def add_feature(feature):
     with open(JSON_FILE, 'w') as f:
         f.write(json.dumps(data, f, indent=2))
 
-    SCRIPT_DATA = """ #!/usr/bin/python
-    \"""
-    Add functions corresponding to each of the actions in the json file.
-    The function should be named as follows <feature name>_<action_name>
-    \"""
-    def %s_action1():
-        print "This is just a dummy"
-        return
+    SCRIPT_DATA = """#!/usr/bin/python
+\"""
+Add functions corresponding to each of the actions in the json file.
+The function should be named as follows <feature name>_<action_name>
+\"""
+def %s_action1(section_dict):
+    return section_dict, YML
 
-    def %s_action1():
-        print "This is another dummy"
-        return
-    """ % (feature, feature)
+def %s_action1(section_dict):
+    return section_dict, YML
+""" % (feature, feature)
 
     with open(PYTHON_SCRIPT, 'w') as f:
         f.write(SCRIPT_DATA)

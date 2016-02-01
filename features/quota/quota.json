@@ -1,0 +1,134 @@
+{
+  "quota": {
+    "action": {
+      "enable": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          }
+        ]
+      },
+      "disable": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          }
+        ]
+      },
+      "remove": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "path"
+          }
+        ]
+      },
+      "remove-objects": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "path"
+          }
+        ]
+      },
+      "default-soft-limit": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "percent"
+          }
+        ]
+      },
+      "limit-usage": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "path"
+          },
+          {
+            "required": "true",
+            "name": "size"
+          }
+        ]
+      },
+      "limit-objects": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "path"
+          },
+          {
+            "required": "true",
+            "name": "number"
+          }
+        ]
+      },
+      "alert-time": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "time"
+          }
+        ]
+      },
+      "soft-timeout": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "client_hosts"
+          },
+          {
+            "required": "true",
+            "name": "time"
+          }
+        ]
+      },
+      "hard-timeout": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "client_hosts"
+          },
+          {
+            "required": "true",
+            "name": "time"
+          }
+        ]
+      }
+    }
+  }
+}

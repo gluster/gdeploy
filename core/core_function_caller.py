@@ -28,7 +28,7 @@ from backend_reset import BackendReset
 
 
 yaml_write = YamlWriter()
-conf_parse = ConfigParseHelpers()
+conf_parse = Helpers()
 
 
 @logfunction

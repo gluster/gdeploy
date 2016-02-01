@@ -39,7 +39,7 @@ except ImportError:
 import os
 
 
-class BackendSetup(YamlWriter):
+class BackendSetup(Helpers):
 
     def __init__(self):
         self.section_dict = dict()
@@ -255,7 +255,7 @@ class BackendSetup(YamlWriter):
         #If SSD present for caching
         self.section_dict['vg'] = self.section_dict['vgs'][0]
         self.section_dict['force'] = self.config_get_options('force', False) or 'no'
-        self.iterate_dicts_and_yaml_write(self.section_dict)
+        self.create_var_files(self.section_dict)
         if hasattr(self, 'ssd'):
             if not hasattr(self, 'datalv'):
                 msg = "Data lv('datalv' options) not specified for "\

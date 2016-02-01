@@ -30,15 +30,17 @@ import re
 import sys
 import itertools
 import shutil
+import argparse
+import ConfigParser
 try:
     import yaml
 except ImportError:
     print "Error: Package PyYAML not found."
     sys.exit(0)
 from global_vars import Global
+from yaml_writer import YamlWriter
 
-
-class Helpers(Global):
+class Helpers(Global, YamlWriter):
 
     '''
     Some helper methods to help in directory/file creation/removal etc.
@@ -174,8 +176,11 @@ class Helpers(Global):
             if Global.var_file == 'group_vars':
                 return self.config_get_options(section, required)
             else:
-                options = self.config_section_map(
-                    self.current_host, section, required)
+                try:
+                    options = Global.sections[self.current_host].get(section)
+                except:
+                    print "\nError: Couldn't fin value for %s option for "\
+                    "host %s" %(section, self.current_host)
                 return self.split_comma_separated_options(options)
         return self.section_dict.get(section)
 
@@ -190,11 +195,12 @@ class Helpers(Global):
             val_group = re.search("(.*):(.*)", val)
             if val_group:
                 hostname = self.parse_patterns(val_group.group(1))
-                if not self.config_section_map('volume',
-                        'action', False) == 'add-brick':
-                    for host in hostname:
-                        if host not in Global.hosts:
-                            Global.hosts.append(host)
+                volsection = Global.sections.get('volume')
+                if volsection:
+                    if not volsection['action'] == 'add-brick':
+                        for host in hostname:
+                            if host not in Global.hosts:
+                                Global.hosts.append(host)
                 try:
                     Global.master = [hostname[0]]
                 except:
@@ -333,9 +339,21 @@ class Helpers(Global):
     def run_playbook(self, yaml_file):
         self.create_inventory()
         if hasattr(self, 'section_dict'):
-            self.iterate_dicts_and_yaml_write(self.section_dict)
+            self.create_var_files(self.section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
         self.exec_ansible_cmd(yml)
+
+
+    def exec_ansible_cmd(self, playbooks_file):
+        executable = 'ansible-playbook'
+        command = [executable, '-i', Global.inventory, Global.verbose,
+                playbooks_file]
+        command = filter(None, command)
+        try:
+            subprocess.call(command, shell=False)
+        except (OSError, subprocess.CalledProcessError) as e:
+            print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
+            sys.exit()
 
     def create_inventory(self):
         if not os.path.isfile(Global.inventory):
@@ -350,9 +368,90 @@ class Helpers(Global):
         except:
             pass
         try:
-            self.write_config('master', Global.master or Global.current_hosts[0],
-                    Global.inventory)
+            hostname = Global.master or Global.current_hosts[0]
+            self.write_config('master', hostname, Global.inventory)
         except:
             print "\nError: Insufficient host names or IPs. Please check " \
             "your configuration file"
+            self.cleanup_and_quit()
+
+    def call_config_parser(self):
+        config = ConfigParser.ConfigParser(allow_no_value=True)
+        config.optionxform = str
+        return config
+
+    def remove_section(self, filename, section):
+        config = self.read_config(filename)
+        try:
+            config.remove_section(section)
+        except:
+            pass
+        with open(filename, 'w+') as out:
+            config.write(out)
+
+    def read_config(self, config_file):
+        config_parse = self.call_config_parser()
+        try:
+            config_parse.read(config_file)
+            return config_parse
+        except:
+            print "Sorry! Looks like the format of configuration " \
+                "file %s is not something we could read! \nTry removing " \
+                "whitespaces or unwanted characters in the configuration " \
+                "file." % config_file
+            self.cleanup_and_quit()
+
+    def write_config(self, section, options, filename):
+        self.remove_section(filename, section)
+        config = self.call_config_parser()
+        config.add_section(section)
+        for option in options:
+            config.set(section, option)
+        try:
+            with open(filename, 'ab') as file:
+                config.write(file)
+        except:
+            print "Error: Failed to create file %s. Exiting!" % filename
+            self.cleanup_and_quit()
+
+    def config_section_map(
+            self,
+            section,
+            option,
+            required=False):
+        try:
+            return Global.config.get(section, option)
+        except:
+            if required:
+                print "Error: Option %s not found! Exiting!" % option
+                self.cleanup_and_quit()
+            return []
+
+    def get_option_dict(self, config_parse, section, required=False):
+        try:
+            return config_parse.items(section)
+        except:
+            if required:
+                print "Error: Section %s not found in the " \
+                    "configuration file" % section
+                self.cleanup_and_quit()
+            return []
+
+    def config_get_options(self, section, required):
+        try:
+            return Global.config.options(section)
+        except ConfigParser.NoSectionError as e:
+            if required:
+                print "Error: Section %s not found in the " \
+                    "configuration file" % section
+                self.cleanup_and_quit()
+            return []
+
+    def config_get_sections(self, config_parse):
+        try:
+            return config_parse.sections()
+        except:
+            print "Error: Looks like you haven't provided any options " \
+                "I need in the conf " \
+                "file. Please populate the conf file and retry!"
             self.cleanup_and_quit()
