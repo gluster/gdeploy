@@ -24,7 +24,7 @@ import os, json
 
 def add_feature(feature):
     helpers = Helpers()
-    base_dir = helpers.get_file_dir_path(helpers.uppath(os.getcwd(), 1), '')
+    base_dir = helpers.get_file_dir_path(helpers.uppath(os.getcwd(), 0), 'features')
     feature_dir = helpers.get_file_dir_path(helpers.uppath(
         os.getcwd(), 1), 'gdeploy/features/%s' % feature)
     JSON_FILE = helpers.get_file_dir_path(feature_dir, '%s.json' % feature)
@@ -38,7 +38,8 @@ def add_feature(feature):
     helpers.touch_file(INIT_FILE)
 
 
-    init_file_line = "import %s" % feature
+    init_file_line = "import %s\n" % feature
+    print init_file_line
 
     with open(INIT_FILE, 'a') as f:
         f.write(init_file_line)
@@ -72,11 +73,13 @@ def add_feature(feature):
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
 \"""
-def %s_action1(section_dict):
-    return section_dict, YML
+from lib import defaults
 
 def %s_action1(section_dict):
-    return section_dict, YML
+    return section_dict, defaults.YML_NAME
+
+def %s_action1(section_dict):
+    return section_dict, defaults.YML_NAME
 """ % (feature, feature)
 
     with open(PYTHON_SCRIPT, 'w') as f:

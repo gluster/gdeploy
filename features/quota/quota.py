@@ -1,39 +1,63 @@
 #!/usr/bin/python
+from lib import defaults
+from lib import Helpers
 """
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
 """
+helpers = Helpers()
+
 def quota_enable(section_dict):
-    return section_dict, QUOTA_ENABLE
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
+    return section_dict, defaults.QUOTA_ENABLE
 
 def quota_disable(section_dict):
-    return section_dict, QUOTA_DISABLE
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
+    return section_dict, defaults.QUOTA_DISABLE
 
 def quota_remove(section_dict):
-    return section_dict, QUOTA_OPS
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
+    return section_dict, defaults.QUOTA_OPS
 
 def quota_remove_objects(section_dict):
-    return section_dict, QUOTA_OPS
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
+    return section_dict, defaults.QUOTA_OPS
 
 def quota_default_soft_limit(section_dict):
-    return section_dict, QUOTA_OPS
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
+    return section_dict, defaults.QUOTA_OPS
 
 def quota_limit_usage(section_dict):
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
     section_dict = write_associated_data('size')
-    return section_dict, QUOTA_LIMIT_USAGE
+    return section_dict, defauls.QUOTA_LIMIT_USAGE
 
 def quota_limit_objects(section_dict):
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
     section_dict = write_associated_data('number')
-    return section_dict, QUOTA_LIMIT_OBJECTS
+    return section_dict, defaults.QUOTA_LIMIT_OBJECTS
 
 def quota_alert_time(section_dict):
-    return section_dict, QUOTA_ALERT_TIME
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
+    return section_dict, defaults.QUOTA_ALERT_TIME
 
 def quota_soft_timeout(section_dict):
-    return section_dict, QUOTA_OPS
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
+    return section_dict, defaults.QUOTA_OPS
 
 def quota_hard_timeout(section_dict):
-    return section_dict, QUOTA_OPS
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
+    return section_dict, defaults.QUOTA_OPS
 
 def write_associated_data(section_dict, lmt):
     vals = self.section_dict[lmt]

@@ -25,24 +25,27 @@ helpers = Helpers()
 
 def snapshot_create(section_dict):
     global helpers
-    volname = section_dict['volname']
-    section_dict['volname'] = helpers.split_volume_and_hostname(volname)
+    section_dict = helpers.volname_formatter(section_dict)
     return section_dict, defaults.SNAPSHOT_CREATE
 
 def snapshot_delete(section_dict):
-    return
+    global helpers
+    section_dict = helpers.volname_formatter(section_dict)
+    return section_dict, defaults.SNAPSHOT_DELETE
+
 
 def snapshot_clone(section_dict):
-    return
+    return section_dict, defaults.SNAPSHOT_CLONE
 
 def snapshot_restore(section_dict):
-    return
+    return section_dict, defaults.SNAPSHOT_RESTORE
 
 def snapshot_activate(section_dict):
-    return
+    return section_dict, defaults.SNAPSHOT_ACTIVATE
 
 def snapshot_deactivate(section_dict):
-    return
+    return section_dict, defaults.SNAPSHOT_DEACTIVATE
 
 def snapshot_config(section_dict):
-    return
+    return section_dict, defaults.SNAPSHOT_CONFIG
+

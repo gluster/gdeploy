@@ -355,6 +355,11 @@ class Helpers(Global, YamlWriter):
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()
 
+    def volname_formatter(self, section_dict):
+        volname = section_dict['volname']
+        section_dict['volname'] = self.split_volume_and_hostname(volname)
+        return section_dict
+
     def create_inventory(self):
         if not os.path.isfile(Global.inventory):
             self.touch_file(Global.inventory)
