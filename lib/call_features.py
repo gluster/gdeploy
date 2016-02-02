@@ -22,7 +22,6 @@ import os, json
 from helpers import Helpers
 from yaml_writer import YamlWriter
 from global_vars import Global
-from gdeploy import get_hostnames
 import features
 
 helpers = Helpers()
@@ -33,7 +32,7 @@ def call_features():
     global helpers
     if not Global.sections:
         return
-    get_hostnames()
+    helpers.get_hostnames()
     Global.current_hosts = Global.hosts
     map(get_feature_dir, Global.sections)
 
@@ -78,7 +77,7 @@ def parse_the_user_config(section, section_dir):
     section_dict['action'] = section_dict.pop('action').replace('-', '_')
     if not section_dict:
         helpers.cleanup_and_quit()
-    get_hostnames()
+    helpers.get_hostnames()
     return section_dict
 
 def get_action_data(section, section_dir, section_dict):

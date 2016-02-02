@@ -146,6 +146,11 @@ class Helpers(Global, YamlWriter):
             return False
         return True
 
+    def get_hostnames(self):
+        hosts = self.config_get_options('hosts', False)
+        for host in hosts:
+            Global.hosts += self.parse_patterns(host)
+        self.remove_from_sections('hosts')
 
     def get_var_file_type(self):
         '''
