@@ -55,9 +55,9 @@ def get_feature_dir(section):
     if (section_dict and yml):
         if type(yml) is list:
             for each in yml:
-                helpers.run_playbook(each)
+                helpers.run_playbook(each, section_dict)
         else:
-            helpers.run_playbook(yml)
+            helpers.run_playbook(yml, section_dict)
 
 def parse_the_user_config(section, section_dir):
     global helpers

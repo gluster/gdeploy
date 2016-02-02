@@ -136,3 +136,12 @@ SERVICE_OP = 'firewalld-service-op.yml'
 # YUM
 
 YUM_OP = 'yum-operation.yml'
+
+# MISC
+
+SERVICE_MGMT = 'service_management.yml'
+CHKCONFIG = 'chkconfig_service.yml'
+
+# CTDB
+
+CTDB_SETUP = 'setup_ctdb.yml'

@@ -341,10 +341,13 @@ class Helpers(Global, YamlWriter):
         section_names = filter(r.match, Global.sections)
         map(Global.sections.__delitem__, section_names)
 
-    def run_playbook(self, yaml_file):
+    def run_playbook(self, yaml_file, section_dict=None):
         self.create_inventory()
         if hasattr(self, 'section_dict'):
-            self.create_var_files(self.section_dict)
+            if not section_dict:
+                section_dict = self.section_dict
+        if section_dict:
+            self.create_var_files(section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
         self.exec_ansible_cmd(yml)
 
