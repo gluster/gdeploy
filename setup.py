@@ -1,20 +1,19 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name="gdeploy",
-
-    version="1.0",
-
+    version="2.0",
     author="Nandaja Varma",
     author_email="nandaja.varma@gmail.com",
-
-    packages=[  'glusterlib'
+    packages=[  'gdeploylib', 'gdeploycore', 'gdeployfeatures',
+                'gdeployfeatures/firewalld', 'gdeployfeatures/quota',
+                'gdeployfeatures/rh_subscription',
+                'gdeployfeatures/snapshot', 'gdeployfeatures/yum',
+                'gdeployfeatures/update_file'
              ],
-
     scripts=[
-        'bin/gdeploy'
-        ],
-
+        'gdeploy/gdeploy'
+    ],
     include_package_data=True,
     url="https://github.com/gluster/gdeploy",
 

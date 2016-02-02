@@ -1,6 +1,6 @@
 %define name gdeploy
 %define version 2.0
-%define release 1
+%define release 0
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/doc/gdeploy
@@ -13,9 +13,9 @@ Summary:	Tool to deploy and manage GlusterFS cluster.
 Group:		Applications/System
 License:	GPLv3
 URL:		http://www.redhat.com/storage
-Source0:	%{name}-%{version}.%{release}.tar.gz
+Source0:	%{name}-%{version}-%{release}.tar.gz
 BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}.%{release}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires:	ansible >= 1.9 python >= 2.6
 
 BuildRequires:  python-setuptools
@@ -32,7 +32,7 @@ these modules you can:
  Tool to generate the playbooks, group_vars/host_vars
 
 %prep
-%setup -n %{name}-%{version}.%{release}
+%setup -n %{name}-%{version}-%{release}
 
 %build
 python setup.py build
@@ -40,15 +40,15 @@ python setup.py build
 %install
 # Install the binary and python libraries
 rm -rf %{buildroot}
-python setup.py install -O1 --root=%{buildroot} --record=INSTALLED_FILES
+python setup.py install -O1 --root=%{buildroot} --install-scripts %{_bindir}
 
 mkdir -p %{buildroot}/%{python_sitelib}/%{gdeploymod}
 install -m 755 modules/* \
     %{buildroot}/%{python_sitelib}/%{gdeploymod}
 
-# Install the templates into /usr/share/ansible/gdeploy/templates
+# Install the playbooks into /usr/share/ansible/gdeploy/playbooks
 mkdir -p %{buildroot}/%{gdeploytemp}
-cp -r templates %{buildroot}/%{gdeploytemp}
+cp -r playbooks %{buildroot}/%{gdeploytemp}
 
 # Documentation
 mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
@@ -60,9 +60,14 @@ cp man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 %clean
 rm -rf %{buildroot}
 
-%files -f INSTALLED_FILES
+%files
+%{_bindir}/gdeploy
+%{python_sitelib}/gdeploylib/
+%{python_sitelib}/gdeploycore/
+%{python_sitelib}/gdeployfeatures/
 %{python_sitelib}/%{gdeploymod}
 %{gdeploytemp}
+%{python_sitelib}/gdeploy-%{version}-*.egg-info/
 
 %doc README.md
 %docdir %{gdeploydoc}
@@ -71,6 +76,9 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Mon Feb 1 2016 Sachidananda Urs <sac@redhat.com> 2.0
+- New design, refer: doc/gdeploy-2
+
 * Fri Nov 6 2015 Sachidananda Urs <sac@redhat.com> 1.1
 - Patterns in configs are to be tested
 - Backend setup config changes(This includes alot)
