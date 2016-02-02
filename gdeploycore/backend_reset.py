@@ -23,7 +23,7 @@ from gdeploylib.defaults import *
 import re
 
 
-class BackendReset(YamlWriter):
+class BackendReset(Helpers):
 
     def __init__(self):
         self.get_breset_data()
