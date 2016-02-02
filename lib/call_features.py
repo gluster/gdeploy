@@ -54,7 +54,6 @@ def get_feature_dir(section):
         'action'].replace('-', '_'))
     section_dict, yml = feature_call(section_dict)
     if (section_dict and yml):
-        yaml_writer.create_var_files(section_dict)
         if type(yml) is list:
             for each in yml:
                 helpers.run_playbook(each)

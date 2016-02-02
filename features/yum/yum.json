@@ -1,0 +1,31 @@
+{
+  "yum": {
+    "action": {
+      "install": {
+        "options": [
+          {
+            "required": "true",
+            "name": "packages"
+          },
+          {
+            "required": "false",
+            "name": "repos"
+          },
+          {
+            "required": "false",
+            "name": "gpgcheck",
+            "default": "yes"
+          }
+        ]
+      },
+      "remove": {
+        "options": [
+          {
+            "required": "true",
+            "name": "packages"
+          }
+        ]
+      }
+    }
+  }
+}

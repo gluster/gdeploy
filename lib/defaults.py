@@ -131,3 +131,8 @@ MOVE_FILE = 'move-file-from-local-to-remote.yml'
 
 PORT_OP = 'firewalld-ports-op.yml'
 SERVICE_OP = 'firewalld-service-op.yml'
+
+
+# YUM
+
+YUM_OP = 'yum-operation.yml'
