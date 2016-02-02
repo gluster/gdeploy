@@ -53,8 +53,9 @@ def get_feature_dir(section):
     feature_call = getattr(feature_mod, section_name + '_' + section_dict[
         'action'].replace('-', '_'))
     section_dict, yml = feature_call(section_dict)
-    yaml_writer.create_var_files(section_dict)
-    helpers.run_playbook(yml)
+    if (section_dict and yml):
+        yaml_writer.create_var_files(section_dict)
+        helpers.run_playbook(yml)
 
 def parse_the_user_config(section, section_dir):
     global helpers

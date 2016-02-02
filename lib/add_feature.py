@@ -40,7 +40,6 @@ def add_feature(feature):
 
 
     init_file_line = "import %s\n" % feature
-    print init_file_line
 
     with open(INIT_FILE, 'a') as f:
         f.write(init_file_line)

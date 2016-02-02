@@ -118,3 +118,10 @@ QUOTA_DSL = 'gluster-quota-dsl.yml'
 SUBS_MGMT = 'subscription_manager.yml'
 DISABLE_REPO = 'disable-repos.yml'
 UNREGISTER = 'redhat_unregister.yml'
+
+
+# UPDATE FILE
+
+ADD_TO_FILE = 'add-remote-file.yml'
+EDIT_FILE = 'edit-remote-file.yml'
+MOVE_FILE = 'move-file-from-local-to-remote.yml'

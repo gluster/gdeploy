@@ -1,0 +1,46 @@
+{
+  "update_file": {
+    "action": {
+      "copy": {
+        "options": [
+          {
+            "required": "true",
+            "name": "src"
+          },
+          {
+            "required": "true",
+            "name": "dest"
+          }
+        ]
+      },
+      "edit": {
+        "options": [
+          {
+            "required": "true",
+            "name": "dest"
+          },
+          {
+            "required": "true",
+            "name": "replace"
+          },
+          {
+            "required": "true",
+            "name": "line"
+          }
+        ]
+      },
+      "add": {
+        "options": [
+          {
+            "required": "true",
+            "name": "dest"
+          },
+          {
+            "required": "true",
+            "name": "line"
+          }
+        ]
+      }
+    }
+  }
+}
