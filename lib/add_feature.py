@@ -23,6 +23,7 @@ import os, json
 
 
 def add_feature(feature):
+    feature = feature.lower().replace('-', '_')
     helpers = Helpers()
     base_dir = helpers.get_file_dir_path(helpers.uppath(os.getcwd(), 0), 'features')
     feature_dir = helpers.get_file_dir_path(helpers.uppath(

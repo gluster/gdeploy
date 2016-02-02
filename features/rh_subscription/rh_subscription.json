@@ -1,0 +1,53 @@
+{
+  "rh_subscription": {
+    "action": {
+        "register": {
+          "options": [
+            {
+              "required": "true",
+              "name": "username"
+            },
+            {
+              "required": "true",
+              "name": "password"
+            },
+            {
+              "required": "false",
+              "name": "auto-attach",
+              "default": "false"
+            }
+          ]
+      },
+      "attach-pool": {
+        "options": [
+          {
+            "required": "true",
+            "name": "pool"
+          }
+        ]
+      },
+      "enable-repos": {
+        "options": [
+          {
+            "required": "true",
+            "name": "repos"
+          }
+        ]
+      },
+      "disable-repos": {
+        "options": [
+          {
+            "required": "false",
+            "name": "repos"
+          }
+        ]
+      },
+      "unregister": {
+        "options": [
+          {
+          }
+        ]
+      }
+    }
+  }
+}

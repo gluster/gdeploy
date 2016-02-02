@@ -113,3 +113,8 @@ QUOTA_REMOVE = 'gluster-quota-remove.yml'
 QUOTA_DSL = 'gluster-quota-dsl.yml'
 
 
+# SUBSCRIPTION MANAGER
+
+SUBS_MGMT = 'subscription_manager.yml'
+DISABLE_REPO = 'disable-repos.yml'
+UNREGISTER = 'redhat_unregister.yml'

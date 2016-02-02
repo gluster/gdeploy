@@ -27,6 +27,7 @@ import features
 
 helpers = Helpers()
 yaml_writer = YamlWriter()
+section_name = None
 
 def call_features():
     global helpers
@@ -37,18 +38,19 @@ def call_features():
     map(get_feature_dir, Global.sections)
 
 def get_feature_dir(section):
-    global helpers
-    section_dir = os.path.join(features.__path__[0], section)
+    global helpers, section_name
+    section_name = section.lower().replace('-', '_')
+    section_dir = os.path.join(features.__path__[0], section_name)
     if not os.path.isdir(section_dir):
         return
-    config_file = helpers.get_file_dir_path(section_dir, section + '.json')
+    config_file = helpers.get_file_dir_path(section_dir, section_name + '.json')
     if not os.path.isfile(config_file):
-        print "Error: Setup file not found for feature '%s'" % section
+        print "Error: Setup file not found for feature '%s'" % section_name
         return
     section_dict = parse_the_user_config(section, section_dir)
-    feature_func = getattr(features, section)
-    feature_mod = getattr(feature_func, section)
-    feature_call = getattr(feature_mod, section + '_' + section_dict[
+    feature_func = getattr(features, section_name)
+    feature_mod = getattr(feature_func, section_name)
+    feature_call = getattr(feature_mod, section_name + '_' + section_dict[
         'action'].replace('-', '_'))
     section_dict, yml = feature_call(section_dict)
     yaml_writer.create_var_files(section_dict)
@@ -61,8 +63,12 @@ def parse_the_user_config(section, section_dir):
     action_dict = get_action_data(section, section_dir, section_dict)
     if not action_dict:
         return
-    reqd_vals = get_required_values(action_dict["options"])
-    default_dict = get_default_values(action_dict["options"])
+    options = action_dict.get("options")
+    if not options[0]:
+        return section_dict
+    reqd_vals = get_required_values(options)
+
+    default_dict = get_default_values(options)
     helpers.set_default_values(section_dict, default_dict)
     section_dict = validate_the_user_data(section_dict, reqd_vals)
     section_dict['action'] = section_dict.pop('action').replace('-', '_')
@@ -72,12 +78,12 @@ def parse_the_user_config(section, section_dir):
     return section_dict
 
 def get_action_data(section, section_dir, section_dict):
-    global helpers
-    json_file = helpers.get_file_dir_path(section_dir, section + '.json')
+    global helpers, section_name
+    json_file = helpers.get_file_dir_path(section_dir, section_name + '.json')
     json_data = open(json_file)
     data = json.load(json_data)
     json_data.close()
-    action_dict = data[section]["action"][section_dict.get("action")]
+    action_dict = data[section_name]["action"][section_dict.get("action")]
     if not action_dict:
         print "\nError: We could not find the operations corresponding " \
                 "to the action specified. Check your configuration file"
@@ -119,5 +125,6 @@ def validate_the_user_data(section_dict, reqd_vals):
                 if not section_dict.get(each):
                     section_dict[each] = None
             return section_dict
+    return section_dict
 
 
