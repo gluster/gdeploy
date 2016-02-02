@@ -18,16 +18,17 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
-from lib import *
+from gdeploylib import *
 import os, json
 
 
 def add_feature(feature):
     feature = feature.lower().replace('-', '_')
     helpers = Helpers()
-    base_dir = helpers.get_file_dir_path(helpers.uppath(os.getcwd(), 0), 'features')
+    base_dir = helpers.get_file_dir_path(helpers.uppath(os.getcwd(), 0),
+            'gdeployfeatures')
     feature_dir = helpers.get_file_dir_path(helpers.uppath(
-        os.getcwd(), 1), 'gdeploy/features/%s' % feature)
+        os.getcwd(), 1), 'gdeploy/gdeployfeatures/%s' % feature)
     JSON_FILE = helpers.get_file_dir_path(feature_dir, '%s.json' % feature)
     PYTHON_SCRIPT = helpers.get_file_dir_path(feature_dir, '%s.py' % feature)
     INIT_FILE = helpers.get_file_dir_path(feature_dir, '__init__.py')
@@ -73,7 +74,7 @@ def add_feature(feature):
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
 \"""
-from lib import defaults
+from gdeploylib import defaults
 
 def %s_action1(section_dict):
     return section_dict, defaults.YML_NAME

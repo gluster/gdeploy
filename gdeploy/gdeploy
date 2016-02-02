@@ -24,8 +24,8 @@ import os
 import time
 import shutil
 from collections import OrderedDict
-from lib import *
-from core import call_core_functions
+from gdeploylib import *
+from gdeploycore import call_core_functions
 
 
 helpers = Helpers()

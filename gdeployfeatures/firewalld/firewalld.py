@@ -3,7 +3,7 @@
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
 """
-from lib import defaults
+from gdeploylib import defaults
 
 def firewalld_add(section_dict):
     section_dict['firewall_state'] = 'enabled'

@@ -22,7 +22,7 @@ import os, json
 from helpers import Helpers
 from yaml_writer import YamlWriter
 from global_vars import Global
-import features
+import gdeployfeatures
 
 helpers = Helpers()
 yaml_writer = YamlWriter()
@@ -39,7 +39,7 @@ def call_features():
 def get_feature_dir(section):
     global helpers, section_name
     section_name = section.lower().replace('-', '_')
-    section_dir = os.path.join(features.__path__[0], section_name)
+    section_dir = os.path.join(gdeployfeatures.__path__[0], section_name)
     if not os.path.isdir(section_dir):
         return
     config_file = helpers.get_file_dir_path(section_dir, section_name + '.json')
@@ -47,7 +47,7 @@ def get_feature_dir(section):
         print "Error: Setup file not found for feature '%s'" % section_name
         return
     section_dict = parse_the_user_config(section, section_dir)
-    feature_func = getattr(features, section_name)
+    feature_func = getattr(gdeployfeatures, section_name)
     feature_mod = getattr(feature_func, section_name)
     feature_call = getattr(feature_mod, section_name + '_' + section_dict[
         'action'].replace('-', '_'))
