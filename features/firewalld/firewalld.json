@@ -1,0 +1,34 @@
+{
+  "firewalld": {
+    "action": {
+      "add": {
+        "options": [
+          {
+            "required": "true",
+            "name": ["ports", "services"]
+          },
+          {
+            "required": "false",
+            "name": "permanent",
+            "default": "true"
+
+          },
+          {
+            "required": "false",
+            "name": "zone",
+            "default": "public"
+
+          }
+        ]
+      },
+      "delete": {
+        "options": [
+          {
+            "required": "true",
+            "name": ["ports", "services"]
+          }
+        ]
+      }
+    }
+  }
+}
