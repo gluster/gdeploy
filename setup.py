@@ -9,7 +9,7 @@ setup(
                 'gdeployfeatures/firewalld', 'gdeployfeatures/quota',
                 'gdeployfeatures/rh_subscription',
                 'gdeployfeatures/snapshot', 'gdeployfeatures/yum',
-                'gdeployfeatures/update_file'
+                'gdeployfeatures/update_file', 'gdeployfeatures/ctdb',
              ],
     scripts=[
         'gdeploy/gdeploy'
