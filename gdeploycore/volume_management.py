@@ -189,8 +189,10 @@ class VolumeManagement(Helpers):
 
     def create_volume(self):
         if self.section_dict.get('brick_dirs'):
+            br_dir = self.pattern_stripping(self.section_dict['brick_dirs'])
             regex = re.compile('(.*):(.*)')
-            brick_dir_pat = map(regex.match, self.section_dict['brick_dirs'])
+            brick_dir_pat = map(regex.search, br_dir)
+            brick_dir_pat = filter(None, brick_dir_pat)
             if not brick_dir_pat:
                 print "Please provide the brick_dirs in the format " \
                         "<hostname>:<brick_dir name>"

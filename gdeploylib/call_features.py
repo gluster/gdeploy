@@ -52,6 +52,9 @@ def get_feature_dir(section):
     feature_call = getattr(feature_mod, section_name + '_' + section_dict[
         'action'].replace('-', '_'))
     section_dict, yml = feature_call(section_dict)
+    print yml
+    for key in section_dict.keys():
+        section_dict[key.replace('-', '_')] = section_dict.pop(key)
     if (section_dict and yml):
         if type(yml) is list:
             for each in yml:

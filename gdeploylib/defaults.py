@@ -145,3 +145,17 @@ CHKCONFIG = 'chkconfig_service.yml'
 # CTDB
 
 CTDB_SETUP = 'setup_ctdb.yml'
+
+# GEO-REP
+
+GEOREP_CREATE = 'georep-session-create.yml'
+GEOREP_START = 'georep-session-start.yml'
+GEOREP_STOP = 'georep-session-stop.yml'
+GEOREP_DELETE = 'georep-session-delete.yml'
+GEOREP_PAUSE = 'georep-session-pause.yml'
+GEOREP_RESUME = 'georep-session-resume.yml'
+GEOREP_CONFIG = 'georep-session-config.yml'
+GEOREP_SS = 'georep-secure-session.yml'
+SET_PERM_KEYS = 'georep-set-pemkeys.yml'
+GEOREP_FAILBACK = 'georep-fail-back.yml'
+PUBKEY_SHARE = 'georep_common_public_key.yml'

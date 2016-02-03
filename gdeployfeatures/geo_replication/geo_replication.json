@@ -1,0 +1,168 @@
+{
+  "geo_replication": {
+    "action": {
+      "create": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "secure-session": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "start": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "pause": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "stop": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "resume": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "delete": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "config": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          },
+          {
+            "required": "true",
+            "name": ["gluster-log-file", "gluster-log-level", "log-file",
+            "log-level", "ssh-command", "rsync-command", "use-tarssh",
+            "volume-id", "timeout", "sync-jobs", "ignore-deletes",
+            "config", "op", "checkpoint"]
+          }
+        ]
+      },
+      "failover": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          }
+        ]
+      },
+      "failback": {
+        "options": [
+          {
+            "required": "true",
+            "name": "mastervol"
+          },
+          {
+            "required": "true",
+            "name": "slavevol"
+          }
+        ]
+      }
+    }
+  }
+}
