@@ -345,6 +345,11 @@ class Helpers(Global, YamlWriter):
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()
 
+    def listify(self, var):
+        if not type(var) is list:
+            return [var]
+        return var
+
     def volname_formatter(self, section_dict):
         volname = section_dict.get('volname')
         if not volname:

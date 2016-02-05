@@ -4,10 +4,14 @@ Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
 """
 from gdeploylib import defaults
+from gdeploylib import Helpers
+
+helpers = Helpers()
 
 def update_file_copy(section_dict):
-    src = listify(section_dict['src'])
-    dest = listify(section_dict['dest'])
+    global helpers
+    src = helpers.listify(section_dict['src'])
+    dest = helpers.listify(section_dict['dest'])
     if len(dest) == 1:
         dest *= len(src)
     if len(dest) != len(src):
@@ -24,8 +28,9 @@ def update_file_copy(section_dict):
     return section_dict, defaults.MOVE_FILE
 
 def update_file_edit(section_dict):
-    line = listify(section_dict['line'])
-    replace = listify(section_dict['replace'])
+    global helpers
+    line = helpers.listify(section_dict['line'])
+    replace = helpers.listify(section_dict['replace'])
     data = []
     if len(replace) != len(line):
         print "\nError: Provide same number of 'replace' and 'line'"
@@ -41,7 +46,3 @@ def update_file_edit(section_dict):
 def update_file_add(section_dict):
     return section_dict, defaults.ADD_TO_FILE
 
-def listify(var):
-    if not type(var) is list:
-        return [var]
-    return var
