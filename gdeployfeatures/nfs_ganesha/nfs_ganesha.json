@@ -1,0 +1,66 @@
+{
+  "nfs_ganesha": {
+    "action": {
+      "create-cluster": {
+        "options": [
+          {
+            "required": "false",
+            "name": "ha-name",
+            "default": "ganesha-ha-360"
+          },
+          {
+             "name": "cluster-nodes",
+             "required": "true"
+          },
+          {
+              "name": "vip",
+              "required": "true"
+          },
+          {
+              "name": "volname",
+              "required": "false",
+          }
+        ]
+      },
+      "destroy-cluster": {
+        "options": [
+        ]
+      },
+      "add-node": {
+          "options": [
+          {
+              "name": "nodes",
+              "required": "true"
+          },
+          {
+              "name": "vip",
+              "required": "true"
+          }
+        ]
+      },
+      "delete-node": {
+          "options": [
+          {   "name": "nodes",
+              "required": "true"
+          }
+        ]
+      },
+      "export-volume": {
+          "options": [
+          {
+              "name": "volname",
+              "required": "true"
+          }
+        ]
+      },
+      "unexport-volume": {
+          "options": [
+          {
+              "name": "volname",
+              "required": "true"
+          }
+        ]
+      }
+    }
+  }
+}

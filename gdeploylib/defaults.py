@@ -159,3 +159,20 @@ GEOREP_SS = 'georep-secure-session.yml'
 SET_PERM_KEYS = 'georep-set-pemkeys.yml'
 GEOREP_FAILBACK = 'georep-fail-back.yml'
 PUBKEY_SHARE = 'georep_common_public_key.yml'
+
+
+# NFS-GANESHA
+
+GANESHA_BOOTSTRAP = 'bootstrap-nfs-ganesha.yml'
+GANESHA_PUBKEY = 'generate-public-key.yml'
+COPY_SSH = 'copy-ssh-key.yml'
+SET_AUTH_PASS = 'set-pcs-auth-passwd.yml'
+PCS_AUTH = 'pcs-authentication.yml'
+SHARED_MOUNT = 'gluster-shared-volume-mount.yml'
+GANESHA_CONF_CREATE = 'ganesha-conf-create.yml'
+ENABLE_GANESHA = 'enable-nfs-ganesha.yml'
+GANESHA_VOL_CONFS = 'ganesha-volume-configs.yml'
+GANESHA_VOL_EXPORT = 'gluster-volume-export-ganesha.yml'
+GANESHA_DISABLE = 'disable-nfs-ganesha.yml'
+GANESHA_ADD_NODE = 'ganesha-cluster-add.yml'
+GANESHA_DELETE_NODE = 'ganesha-cluster-delete.yml'
