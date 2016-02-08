@@ -122,13 +122,6 @@ class BackendSetup(Helpers):
             # print "Warning: " + msg
             # Global.logger.warning(msg=msg)
 
-    def call_gen_methods(self):
-        self.write_brick_names()
-        self.write_vg_names()
-        self.write_lv_names()
-        self.write_lvol_names()
-        self.write_mount_options()
-
     def parse_section(self, hostname):
         try:
             self.section_dict = Global.sections['backend-setup' +
@@ -142,140 +135,123 @@ class BackendSetup(Helpers):
             self.filename =  Global.group_file
         self.section_dict = self.format_values(self.section_dict)
 
-    def write_brick_names(self):
-        self.bricks = self.get_options('devices')
-        ssd = self.get_options('ssd')
-        if ssd:
-            self.ssd = self.correct_brick_format(
-                    self.pattern_stripping(ssd))[0]
-            self.section_dict['disk'] = self.ssd
-        if self.bricks:
-            self.bricks = self.pattern_stripping(self.bricks)
-            bricks = self.correct_brick_format(self.bricks)
-            self.device_count = len(bricks)
-            self.section_dict['bricks'] = bricks
-            if hasattr(self, 'ssd'):
-                self.section_dict['bricks'].append(self.ssd)
-            self.create_yaml_dict('bricks', self.section_dict['bricks'], False)
-            self.device_count = len(self.bricks)
-            self.run_playbook(PVCREATE_YML)
-            if hasattr(self, 'ssd'):
-                if self.ssd in self.section_dict['bricks']:
-                    self.section_dict['bricks'].remove(self.ssd)
-            return True
+    def call_gen_methods(self):
+        self.write_brick_names()
+        self.write_vg_names()
+        if self.gluster:
+            self.write_thinp_names()
         else:
-            return False
+            self.write_lv_names()
+        self.write_lvol_names()
+        self.write_mount_options()
+        self.write_brick_dirs()
 
-    def correct_brick_format(self, brick_list):
-        bricks = []
-        for brick in brick_list:
-            if not brick.startswith('/dev/'):
-                bricks.append('/dev/' + brick)
-            else:
-                bricks.append(brick)
-        return bricks
+
+    def write_brick_names(self):
+        self.bricks = self.section_data_gen('devices', 'Devices')
+        ssd = filter(None, self.section_data_gen('ssd', "SSD"))
+        if ssd:
+            self.ssd = self.correct_brick_format(ssd)[0]
+            self.section_dict['disk'] = self.ssd
+            self.bricks.append(self.ssd)
+        if not self.bricks:
+            return
+        self.bricks = self.correct_brick_format(self.bricks)
+        self.device_count = len(self.bricks)
+        self.section_dict['bricks'] = self.bricks
+        if self.bricks:
+            self.run_playbook(PVCREATE_YML)
 
     def write_vg_names(self):
-        if not self.section_dict.get('bricks'):
-            self.previous = False
-            self.section_dict['bricks'] = []
-        else:
-            self.previous = True
-        vgs = self.section_data_gen('vgs', 'Volume Groups')
-        if vgs:
-            self.create_yaml_dict('vgs', vgs, False)
-            self.section_dict['vgs'] = vgs
-            data = []
-            if len( self.section_dict['bricks']) != len(
-                    self.section_dict['vgs']):
-                if len(self.section_dict['bricks']) > 1 and len(
-                        self.section_dict['vgs']) == 1:
-                    self.section_dict['vgs'] *= len(
-                            self.section_dict['bricks'])
-                else:
-                    self.insufficient_param_count('vgs',
-                            len(self.section_dict['bricks']))
-            for i, j in zip(self.section_dict['bricks'], vgs):
-                vgnames = {}
-                vgnames['brick'] = i
-                vgnames['vg'] = j
-                data.append(vgnames)
-            self.create_yaml_dict('vgnames', data, True)
-            if self.section_dict.get('bricks'):
-                self.run_playbook(VGCREATE_YML)
+        self.vgs = self.section_data_gen('vgs', 'Volume')
+        if not self.vgs:
+            if not self.bricks:
+                return
+            self.vgs = self.set_default('vgs')
+        self.section_dict['vgs'] = self.vgs
+        if not self.vgs:
+            if not self.bricks:
+                self.device_count = len(self.vgs)
+            return
+        data = []
+        if self.device_count != len(self.section_dict['vgs']):
+            if self.device_count > 1 and len(self.vgs) == 1:
+                self.vgs *= self.device_count
+                self.device_count = 1
             else:
-                self.device_count = len(vgs)
-            return True
-        return False
+                self.insufficient_param_count('vgs', self.device_count)
+        for i, j in zip(self.bricks, self.vgs):
+            vgnames = {}
+            vgnames['brick'] = i
+            vgnames['vg'] = j
+            data.append(vgnames)
+        self.section_dict['vgnames'] = filter(None, data)
+        self.vgs = self.section_dict['vgs']
+        if self.vgs:
+            self.run_playbook(VGCREATE_YML)
 
+    def write_thinp_names(self):
+        self.pools = self.section_data_gen('pools', 'Logical Pools')
+        if not self.pools:
+            if not self.vgs:
+                self.lvs = None
+                return
+            self.pools = self.set_default('pools')
+        if not self.vgs:
+            self.device_count = len(self.pools)
+        self.lvs = self.section_data_gen('lvs', 'Logical Pools')
+        if not self.lvs:
+            self.lvs = self.set_default('lvs')
+            if not self.lvs or not self.pools:
+                return
+        data = []
+        if len(self.pools) != len(self.lvs):
+                self.insufficient_param_count('lvs', len(self.pools))
+        if self.device_count != len(self.pools):
+            if self.device_count == 1:
+                self.vgs *= len (self.pools)
+            else:
+                self.insufficient_param_count('pools', self.device_count)
+        for i, j, k in zip(self.pools, self.vgs, self.lvs):
+            pools = {}
+            pools['pool'] = i
+            pools['vg'] = j
+            pools['lv'] = k
+            data.append(pools)
+        self.section_dict['lvpools'] = filter(None, data)
+        if self.section_dict['lvpools']:
+            self.run_playbook(GLUSTER_LV_YML)
 
     def write_lv_names(self):
-        if self.gluster:
-            if not self.write_pool_names():
-                self.section_dict['pools'] = []
-                self.previous = False
-            else:
-                self.previous = True
-            lvs = self.section_data_gen('lvs', 'Logical Volumes')
-            if lvs:
-                self.section_dict['lvs'] = lvs
-                data = []
-                for i, j, k in zip(self.section_dict['pools'],
-                        self.section_dict['vgs'], lvs):
-                    pools = {}
-                    pools['pool'] = i
-                    pools['vg'] = j
-                    pools['lv'] = k
-                    data.append(pools)
-                self.create_yaml_dict('lvpools', data, True)
-                if self.section_dict.get('pools'):
-                    if (len(self.section_dict['lvs']) != len(
-                        self.section_dict['pools'])):
-                        self.insufficient_param_count('lvs',
-                                len(self.section_dict['pools']))
-                    self.run_playbook(GLUSTER_LV_YML)
-                else:
-                    if not hasattr(self, 'device_count'):
-                        self.device_count = len(lvs)
-                return True
-            return False
-        lvs = self.get_options('lvs')
-        lvs = self.pattern_stripping(lvs)
-        self.data = []
-        if lvs:
-            for lv in lvs:
-                self.lvs_with_size(lv, '100%FREE')
-        else:
-            lvs = []
-        datalv = self.get_options('datalv')
-        if datalv:
-            self.datalv =  self.pattern_stripping(datalv)
-            if self.datalv[0] not in lvs:
-                lvs.extend(self.datalv)
+        self.lvs = self.section_data_gen('lvs', 'Logical Volume')
+        if not self.lvs:
+            return
+        self.section_dict['lvs'] = self.lvs
+        for lv in self.lvs:
+            self.lvs_with_size(lv, '100%FREE')
+        datalv = self.section_data_gen('datalv', 'Data LV')
+        if self.datalv[0] not in lvs:
+            self.lvs.extend(self.datalv)
         #If SSD present for caching
-        self.section_dict['vg'] = self.section_dict['vgs'][0]
-        self.section_dict['force'] = self.config_get_options('force', False) or 'no'
-        self.create_var_files(self.section_dict)
+        self.section_dict['vg'] = self.vgs[0]
+        self.section_dict['force'] = self.config_get_options(Global.config,
+                                               'force', False) or 'no'
         if hasattr(self, 'ssd'):
             if not hasattr(self, 'datalv'):
-                msg = "Data lv('datalv' options) not specified for "\
+                print "\nError: Data lv('datalv' options) not specified for "\
                         "cache setup"
-                print "\nError: " + msg
-                Global.logger.error(msg)
-                self.cleanup_and_quit()
+                return
             self.run_playbook(VGEXTEND_YML)
             self.section_dict['datalv'] = self.datalv[0]
             cachemeta = self.get_options(
                     'cachemetalv') or 'lv_cachemeta'
             cachedata = self.get_options(
                     'cachedatalv') or 'lv_cachedata'
-            cache_m = self.lvs_with_size(cachemeta, '1024')
-            self.create_yaml_dict('cachemeta', cache_m, False)
-            cache_d = self.lvs_with_size(cachedata, '4096')
-            self.create_yaml_dict('cachedata', cache_d, False)
+            self.section_dict['cachemeta'] = self.lvs_with_size(cachemeta, '1024')
+            self.section_dict['cachedata'] = self.lvs_with_size(cachedata, '4096')
         if not self.data:
             return
-        self.create_yaml_dict('lvs', self.data, True)
+        self.section_dict['lvs'] = self.data
         self.run_playbook(LVCREATE_YML)
         if hasattr(self, 'ssd'):
             self.run_playbook(LVCONVERT_YML)
@@ -293,140 +269,103 @@ class BackendSetup(Helpers):
         self.data.append(lvs)
         return lvs
 
-    def write_pool_names(self):
-        if not self.section_dict.get('vgs'):
-            self.section_dict['vgs'] = []
-            self.previous = False
-        else:
-            self.previous = True
-        pools = self.section_data_gen('pools', 'Logical Pools')
-        if pools:
-            self.section_dict['pools'] = pools
-            data = []
-            if len(self.section_dict['pools']) > 1 and len(
-                    self.section_dict['vgs']) == 1:
-                self.insufficient_param_count('pools',
-                        len(self.section_dict['vgs']))
-            for i, j in zip(pools, self.section_dict['vgs']):
-                pools = {}
-                pools['pool'] = i
-                pools['vg'] = j
-                data.append(pools)
-            self.create_yaml_dict('pools', data, True)
-            if not hasattr(self, 'device_count'):
-                self.device_count = len(pools)
-            return True
-        return False
 
     def write_lvol_names(self):
-        if not self.section_dict.get('lvs'):
-            self.section_dict['lvs'] = []
-            self.previous = False
-        else:
-            self.previous = True
-        if len( self.section_dict['lvs']) > 1 and len(
-                self.section_dict['vgs']) == 1:
-            self.section_dict['vgs'] *= len( self.section_dict['lvs'])
+        if not (self.lvs and self.vgs):
+            return
         lvols = ['/dev/%s/%s' % (i, j.split(':')[0]) for i, j in
-                                      zip(self.section_dict['vgs'],
-                                          self.section_dict['lvs'])]
-        if lvols:
-            self.section_dict['lvols'] = lvols
-            self.create_yaml_dict('lvols', lvols, False)
-            self.run_playbook(FSCREATE_YML )
-            if not hasattr(self, 'device_count'):
-                self.device_count = len(lvols)
-            return True
-        return False
+                                      zip(self.vgs, self.lvs)]
+        self.section_dict['lvols'] = lvols
+        if self.section_dict['lvols']:
+            self.run_playbook(FSCREATE_YML)
 
     def write_mount_options(self):
         if not self.section_dict.get('lvols'):
-            self.section_dict['lvols'] = []
-            self.previous = False
-        else:
-            self.previous = True
+            return
         self.mountpoints = self.section_data_gen(
                 'mountpoints', 'Mount Point')
-        data = []
-        self.section_dict['mountpoints'] = self.mountpoints
         if not self.mountpoints:
-            return False
+            self.mountpoints = self.set_default('mountpoints')
+        data = []
+        if not self.mountpoints:
+            return
         for i, j in zip(self.mountpoints, self.section_dict['lvols']):
             mntpath = {}
             mntpath['path'] = i
             mntpath['device'] = j
             data.append(mntpath)
-        self.create_yaml_dict('mntpath', data, True)
-        self.modify_mountpoints()
-        self.create_yaml_dict('mountpoints', self.mountpoints, False)
-        self.run_playbook(MOUNT_YML )
-        return True
+        self.section_dict['mntpath'] = filter(None, data)
+        if self.section_dict['mntpath']:
+            self.run_playbook(MOUNT_YML)
 
-
-    def modify_mountpoints(self):
-        force = self.config_section_map('volume', 'force',
-                False) or ''
-        opts = self.get_options('brick_dirs')
-        brick_dir, brick_list = [], []
-        brick_dir = self.pattern_stripping(opts)
-
-        if not opts:
+    def write_brick_dirs(self):
+        force = self.config_section_map('volume',
+                'force', False) or ''
+        brick_dirs = []
+        brick_dirs = self.section_data_gen('brick_dirs', 'Brick directories')
+        if not brick_dirs:
             if force.lower() == 'no':
-                msg = "Mountpoints cannot be brick directories.\n " \
+                print "Error: Mount points cannot be brick directories.\n" \
                         "Provide 'brick_dirs' option/section or use force=yes"\
                         " in your configuration file. Exiting!"
-                print "\nError: " + msg
-                Global.logger.error(msg)
-                self.cleanup_and_quit()
-            elif force.lower() == 'yes':
-                brick_list = self.mountpoints
+                return
             else:
-                for mntpath in self.mountpoints:
-                    if mntpath.endswith('/'):
-                        mntpath = mntpath[:-1]
-                    brick_list.append(self.get_file_dir_path(mntpath,
-                                                     os.path.basename(mntpath)))
-
+                if not hasattr(self, 'mountpoints'):
+                    return
+                if force.lower() == 'yes':
+                    brick_dirs = self.mountpoints
+                else:
+                    if not hasattr(self, 'mountpoints'):
+                        return
+                    for mntpath in self.mountpoints:
+                        if mntpath.endswith('/'):
+                            mntpath = mntpath[:-1]
+                        brick_dirs.append(self.get_file_dir_path(mntpath,
+                                                         os.path.basename(mntpath)))
+            brick_list = brick_dirs
         else:
-            if (len(brick_dir) != len(self.mountpoints
-                                    ) and len(brick_dir) != 1):
+            if (len(brick_dirs) != len(self.mountpoints
+                                    ) and len(brick_dirs) != 1):
                     msg = "The number of brick_dirs is different "\
                         "from that of " \
                         "the mountpoints available.\nEither give %d " \
                         "brick_dirs or provide a common one or leave this "\
                         "empty." % (len(self.mountpoints))
-                    print "\nError:  " + msg
-                    Global.logger.error(msg)
-                    self.cleanup_and_quit()
-
-            brick_dir = self.sub_directory_check(brick_dir)
+                    return
+            brick_dir = self.sub_directory_check(brick_dirs)
+            brick_list = []
             brick_list = [
                 self.get_file_dir_path(
                     mntpath, brick) for mntpath, brick in zip(
                     self.mountpoints, brick_dir)]
-
-        for brick, mountpoint in zip( brick_list, self.mountpoints):
-            if brick == mountpoint:
-                if force.lower() != 'yes':
-                    msg = "Mount point cannot be brick.\nProvide a "\
-                        "directory inside %s under the 'brick_dirs' " \
-                        "option or provide option 'force=yes' under 'volume' " \
-                        "section." % mountpoint
-                    print "\nError: " + msg
-                    Global.logger.error(msg)
-                    self.cleanup_and_quit()
-                else:
-                    warn = "\nWarning: Using mountpoint itself as the brick in one or " \
-                            "more hosts since force" \
-                        " is specified, although not recommended.\n"
-                    Global.logger.warning(warn)
-                    if warn not in Global.warnings:
-                        Global.warnings.append(warn)
+            for brick, mountpoint in zip( brick_list, self.mountpoints):
+                if brick == mountpoint:
+                    if force.lower() != 'yes':
+                        msg = "Error: Mount point cannot be brick.\nProvide a "\
+                            "directory inside %s under the 'brick_dirs' " \
+                            "option or provide option 'force=yes' under 'volume' " \
+                            "section." % mountpoint
+                        return
+                    else:
+                        print "\nWarning: Using mountpoint itself as the brick in one or " \
+                                "more hosts since force" \
+                            " is specified, although not recommended.\n"
 
         force = 'yes' if force.lower() == 'yes' else 'no'
-        self.create_var_files('force', force, False)
-        self.mountpoints = brick_list
+        self.section_dict['force'] = force
+        self.section_dict['mountpoints'] = brick_list
+        self.create_var_files(self.section_dict)
+        return
 
+
+    def correct_brick_format(self, brick_list):
+        bricks = []
+        for brick in brick_list:
+            if not brick.startswith('/dev/'):
+                bricks.append('/dev/' + brick)
+            else:
+                bricks.append(brick)
+        return bricks
 
     def sub_directory_check(self, brick_dir):
         if len(brick_dir) == 1:
@@ -506,11 +445,13 @@ class BackendSetup(Helpers):
     def section_data_gen(self, section, section_name):
         opts = self.get_options(section)
         options = self.pattern_stripping(opts)
-        if not options:
-            if self.default and self.previous:
-                options = []
-                pattern = BSETUP_DEFAULTS[section]
-                for i in range(1, self.device_count + 1):
-                    options.append(pattern + str(i))
-        return options
+        return filter(None, self.listify(options))
 
+    def set_default(self, section):
+        if not self.default:
+            return
+        options = []
+        pattern = BSETUP_DEFAULTS[section]
+        for i in range(1, self.device_count + 1):
+            options.append(pattern + str(i))
+        return options
