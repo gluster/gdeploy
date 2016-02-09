@@ -31,9 +31,9 @@
 ##Usage
 
 To use the framework create a configuration file as per your needs.
-Follow the instructions [here](https://github.com/nandajavarma/gdeploy/tree/master/examples/README.md)
+Follow the instructions [here](https://github.com/gluster/gdeploy/blob/master/examples/gluster.conf.sample)
 to create your configuration file.
-An example configuration file can be found [here](//github.com/nandajavarma/gdeploy/tree/master/examples)
+An example configuration file can be found [here](//github.com/gluster/gdeploy/tree/master/examples)
 
 See gdeploy.conf(5) manpage for more details.
 
