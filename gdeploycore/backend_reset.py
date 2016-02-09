@@ -50,9 +50,6 @@ class BackendReset(Helpers):
                 self.touch_file(self.host_file)
                 ret = self.parse_section(':' + host)
 
-        if not Global.hosts:
-            print "Error: Hostnames not provided. Cannot continue!"
-            self.cleanup_and_quit()
 
     def parse_section(self, hostname):
         try:

@@ -109,14 +109,13 @@ class ClientManagement(Helpers):
                     str(i) for i in range(len(self.clients) + 1)]
         else:
             mnt_pts = self.section_dict['client_mount_points']
-        if not self.section_dict.get('fstype'):
+        fstype = self.listify(self.section_dict.get('fstype'))
+        if not fstype:
             fstype = ['glusterfs'] * len(self.clients)
-        elif len(self.section_dict['fstype']) != len(self.clients):
+        elif len(fstype) != len(self.clients):
             print "\nError: Number of filesystem types(fstype) doesn't match the "\
                     "number of client hosts"
             self.cleanup_and_quit()
-        else:
-            fstype = self.section_dict['fstype']
         for host, mnt, fs in zip(self.clients, mnt_pts, fstype):
             self.section_dict['client_mount_points'] = mnt
             self.section_dict['fstype'] = fs

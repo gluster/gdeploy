@@ -46,12 +46,13 @@ def log_methods_in_class(classname):
 
 @logfunction
 def tune_profile():
+    global conf_parse
     profile = conf_parse.config_get_options('tune-profile', False)
     profile = None if not profile else profile[0]
     if not profile:
         return
     yaml_write.create_yaml_dict('profile', profile, False)
-    self.run_playbook(TUNE_YML)
-    remove_entry_from_sections('tune-profile')
+    conf_parse.run_playbook(TUNE_YML)
+    conf_parse.remove_from_sections('tune-profile')
 
 

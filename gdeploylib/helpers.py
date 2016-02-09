@@ -202,7 +202,7 @@ class Helpers(Global, YamlWriter):
                 hostname = self.parse_patterns(val_group.group(1))
                 volsection = Global.sections.get('volume')
                 if volsection:
-                    if not volsection['action'] == 'add-brick':
+                    if not volsection.get('action') == 'add-brick':
                         for host in hostname:
                             if host not in Global.hosts:
                                 Global.hosts.append(host)
@@ -346,6 +346,8 @@ class Helpers(Global, YamlWriter):
             sys.exit()
 
     def listify(self, var):
+        if not var:
+            return []
         if not type(var) is list:
             return [var]
         return var
