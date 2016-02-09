@@ -47,10 +47,8 @@ class BackendSetup(Helpers):
         self.write_sections()
 
     def write_sections(self):
-        count = 0
         Global.logger.info("Reading configuration for backend setup")
         self.filename =  Global.group_file
-        self.perf_spec_data_write()
         backend_setup, hosts = self.check_backend_setup_format()
         default = self.config_get_options('default', False)
         gluster = self.config_get_options('gluster', False)
@@ -67,8 +65,9 @@ class BackendSetup(Helpers):
         else:
             self.new_backend_setup(hosts)
 
+    def call_selinux(self):
         selinux = self.config_get_options('selinux', False)
-        if selinux and self.mountpoints:
+        if selinux:
             if selinux[0].lower() == 'yes':
                 self.run_playbook(SELINUX_YML)
 
@@ -86,6 +85,7 @@ class BackendSetup(Helpers):
                 self.parse_section(':' + host)
                 self.call_gen_methods()
                 self.remove_section(Global.inventory, Global.group)
+                self.call_selinux()
         self.section_dict = None
         Global.var_file = None
         self.parse_section('')
@@ -94,8 +94,12 @@ class BackendSetup(Helpers):
         if self.section_dict:
             self.filename =  Global.group_file
             self.call_gen_methods()
+            print self.section_dict, "yes!!!!"
+            self.create_var_files(self.section_dict)
             self.remove_section(Global.inventory, Global.group)
             Global.var_file = 'group_vars'
+            self.call_selinux()
+        Global.hosts.extend(hosts)
 
     def old_backend_setup(self):
         if not self.get_var_file_type():
@@ -111,11 +115,14 @@ class BackendSetup(Helpers):
                     self.touch_file(self.filename)
                     self.bricks = self.split_comma_separated_options(devices)
                     self.call_gen_methods()
+                    self.call_selinux()
             else:
                 Global.current_hosts = Global.hosts
                 self.filename =  Global.group_file
                 self.call_gen_methods()
+                self.create_var_files(self.section_dict)
                 self.remove_section(Global.inventory, Global.group)
+                self.call_selinux()
             # msg = "This configuration format will be deprecated  "\
             # "in the next release.\nPlease refer the setup guide "\
             # "for the new configuration format."
@@ -136,6 +143,7 @@ class BackendSetup(Helpers):
         self.section_dict = self.format_values(self.section_dict)
 
     def call_gen_methods(self):
+        self.perf_spec_data_write()
         self.write_brick_names()
         self.write_vg_names()
         if self.gluster:
@@ -145,6 +153,7 @@ class BackendSetup(Helpers):
         self.write_lvol_names()
         self.write_mount_options()
         self.write_brick_dirs()
+        self.create_var_files(self.section_dict)
 
 
     def write_brick_names(self):
@@ -287,6 +296,7 @@ class BackendSetup(Helpers):
         if not self.mountpoints:
             self.mountpoints = self.set_default('mountpoints')
         data = []
+        self.section_dict['mountpoints'] = self.mountpoints
         if not self.mountpoints:
             return
         for i, j in zip(self.mountpoints, self.section_dict['lvols']):
@@ -353,8 +363,15 @@ class BackendSetup(Helpers):
 
         force = 'yes' if force.lower() == 'yes' else 'no'
         self.section_dict['force'] = force
-        self.section_dict['mountpoints'] = brick_list
-        self.create_var_files(self.section_dict)
+        if hasattr(self, 'host_file'):
+            self.filename = self.host_file
+            self.section_dict['mountpoints'] = brick_list
+            self.create_var_files(self.section_dict)
+        else:
+            if self.section_dict.get('mountpoints'):
+                self.section_dict['mountpoints'].extend(brick_list)
+            else:
+                self.section_dict['mountpoints'] = bricklist
         return
 
 
@@ -433,7 +450,7 @@ class BackendSetup(Helpers):
             perf = dict(disktype='jbod')
             perf['dalign'] = 256
             perf['diskcount'] = perf['stripesize'] = 0
-        self.create_var_files(perf)
+        self.create_var_files(perf, False, Global.group_file)
 
     def insufficient_param_count(self, section, count):
         msg = "Please provide %s names for %s devices " \

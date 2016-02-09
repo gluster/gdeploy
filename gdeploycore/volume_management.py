@@ -108,6 +108,7 @@ class VolumeManagement(Helpers):
         host_files = [self.get_file_dir_path(Global.host_vars_dir,
                     host) for host in Global.hosts]
         files = [Global.group_file] +  host_files
+        print files
         for fd in files:
             if self.is_present_in_yaml(fd, 'mountpoints'):
                 doc = self.read_yaml(fd)
@@ -158,16 +159,15 @@ class VolumeManagement(Helpers):
                 self.cleanup_and_quit()
             self.section_dict['brick_dirs'] = []
             for hfile, sec in zip(host_files, host_sections):
-                try:
-                    brick_dirs = self.pattern_stripping(Global.sections.get(sec)['brick_dirs'])
-                    br_drs = [os.path.basename(hfile) + ':' + br for br in
-                            brick_dirs]
-                    self.section_dict['brick_dirs'].extend(br_drs)
-                except:
-                    print "Option 'brick_dirs' " \
-                        "not found.\nCannot continue " \
-                        "volume creation!"
-                    self.cleanup_and_quit()
+                brick_dirs = self.pattern_stripping(Global.sections.get(sec)['brick_dirs'])
+                br_drs = [os.path.basename(hfile) + ':' + br for br in
+                        brick_dirs]
+                self.section_dict['brick_dirs'].extend(br_drs)
+                # except:
+                    # print "Option 'brick_dirs' " \
+                        # "not found.\nCannot continue " \
+                        # "volume creation!"
+                    # self.cleanup_and_quit()
 
                 self.filename = hfile
                 if not self.is_present_in_yaml(self.filename, 'mountpoints'):
