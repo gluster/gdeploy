@@ -18,7 +18,7 @@
           },
           {
               "name": "volname",
-              "required": "false",
+              "required": "false"
           }
         ]
       },
