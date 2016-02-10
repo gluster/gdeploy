@@ -122,7 +122,8 @@
 # chachemetalv=lv_cachemeta:230G
 #
 # NOTE: Specifying the name of the data LV is necessary while adding
-# SSD.
+# SSD. Make sure the datalv is created already. Otherwise just give it
+# in the lvs section as well.
 #
 #
 #

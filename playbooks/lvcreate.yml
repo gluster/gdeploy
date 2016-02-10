@@ -5,6 +5,6 @@
 
   tasks:
       - name: Create LVs with specified size for the VGs
-        lvol: lv={{ item.name }} size={{ item.size }} vg="{{ vg}}"
+        lvol: lv={{ item.name }} size={{ item.size }} vg={{ item.vg }}
               force="{{ force }}"
         with_items: lvs
