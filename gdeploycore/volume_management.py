@@ -355,16 +355,16 @@ class VolumeManagement(Helpers):
                     "section. Refer documentation for more."
             print "Warning: " + msg
             Global.logger.info(msg)
-            SMB_DEFAULTS = {
-                            'path': '/',
-                            'glusterfs:logfile': '/var/log/samba/' +
-                                self.section_dict['volname'] + '.log',
-                            'glusterfs:loglevel': 7,
-                            'glusterfs:volfile_server': 'localhost'
-                          }
+        SMB_DEFAULTS = {
+                        'path': '/',
+                        'glusterfs:logfile': '/var/log/samba/' +
+                            self.section_dict['volname'] + '.log',
+                        'glusterfs:loglevel': 7,
+                        'glusterfs:volfile_server': 'localhost'
+                      }
         self.set_default_values(self.section_dict, SMB_DEFAULTS)
         options = ''
-        for key, value in self.sections_default_value.iteritems():
+        for key, value in SMB_DEFAULTS.iteritems():
             if self.section_dict[key]:
                 options += key + ' = ' + str(self.section_dict[key]) + '\n'
         self.section_dict['smb_options'] = "[gluster-{0}]\n"\
