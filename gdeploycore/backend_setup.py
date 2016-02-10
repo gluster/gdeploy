@@ -94,7 +94,6 @@ class BackendSetup(Helpers):
         if self.section_dict:
             self.filename =  Global.group_file
             self.call_gen_methods()
-            print self.section_dict, "yes!!!!"
             self.create_var_files(self.section_dict)
             self.remove_section(Global.inventory, Global.group)
             Global.var_file = 'group_vars'
@@ -232,32 +231,39 @@ class BackendSetup(Helpers):
             self.run_playbook(GLUSTER_LV_YML)
 
     def write_lv_names(self):
+        self.data = []
         self.lvs = self.section_data_gen('lvs', 'Logical Volume')
-        if not self.lvs:
+        if not self.lvs and not hasattr(self, 'ssd'):
             return
-        self.section_dict['lvs'] = self.lvs
-        for lv in self.lvs:
-            self.lvs_with_size(lv, '100%FREE')
-        datalv = self.section_data_gen('datalv', 'Data LV')
-        if self.datalv[0] not in lvs:
-            self.lvs.extend(self.datalv)
-        #If SSD present for caching
+        if not self.vgs:
+            return
+        if self.lvs:
+            if len(self.vgs) != len(self.lvs):
+                if not len(self.vgs) == 1:
+                    return
+                self.vgs *= len(self.lvs)
+            for lv, vg in zip(self.lvs, self.vgs):
+                self.lvs_with_size(lv, '100%FREE', vg)
         self.section_dict['vg'] = self.vgs[0]
-        self.section_dict['force'] = self.config_get_options(Global.config,
+        self.section_dict['force'] = self.config_get_options(
                                                'force', False) or 'no'
+        #If SSD present for caching
         if hasattr(self, 'ssd'):
-            if not hasattr(self, 'datalv'):
+            datalv = self.section_data_gen('datalv', 'Data LV')
+            if not datalv:
                 print "\nError: Data lv('datalv' options) not specified for "\
                         "cache setup"
-                return
+                self.cleanup_and_quit()
             self.run_playbook(VGEXTEND_YML)
-            self.section_dict['datalv'] = self.datalv[0]
+            self.section_dict['datalv'] = datalv[0]
             cachemeta = self.get_options(
                     'cachemetalv') or 'lv_cachemeta'
             cachedata = self.get_options(
                     'cachedatalv') or 'lv_cachedata'
-            self.section_dict['cachemeta'] = self.lvs_with_size(cachemeta, '1024')
-            self.section_dict['cachedata'] = self.lvs_with_size(cachedata, '4096')
+            self.section_dict['cachemeta'] = self.lvs_with_size(
+                    cachemeta, '1024', self.section_dict['vg'])
+            self.section_dict['cachedata'] = self.lvs_with_size(
+                    cachedata, '4096', self.section_dict['vg'])
         if not self.data:
             return
         self.section_dict['lvs'] = self.data
@@ -266,7 +272,7 @@ class BackendSetup(Helpers):
             self.run_playbook(LVCONVERT_YML)
 
 
-    def lvs_with_size(self, lv, d_size):
+    def lvs_with_size(self, lv, d_size, vg=None):
         name = lv.split(':')[0]
         try:
             size = lv.split(':')[1]
@@ -275,6 +281,7 @@ class BackendSetup(Helpers):
         lvs = {}
         lvs['name'] = name
         lvs['size'] = size
+        lvs['vg'] = vg
         self.data.append(lvs)
         return lvs
 
@@ -320,7 +327,7 @@ class BackendSetup(Helpers):
                         " in your configuration file. Exiting!"
                 return
             else:
-                if not hasattr(self, 'mountpoints'):
+                if not hasattr(self, 'mountpoints') or not self.mountpoints:
                     return
                 if force.lower() == 'yes':
                     brick_dirs = self.mountpoints
