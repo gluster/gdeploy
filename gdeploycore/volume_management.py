@@ -108,7 +108,6 @@ class VolumeManagement(Helpers):
         host_files = [self.get_file_dir_path(Global.host_vars_dir,
                     host) for host in Global.hosts]
         files = [Global.group_file] +  host_files
-        print files
         for fd in files:
             if self.is_present_in_yaml(fd, 'mountpoints'):
                 doc = self.read_yaml(fd)
@@ -365,7 +364,7 @@ class VolumeManagement(Helpers):
                           }
         self.set_default_values(self.section_dict, SMB_DEFAULTS)
         options = ''
-        for key, value in sections_default_value.iteritems():
+        for key, value in self.sections_default_value.iteritems():
             if self.section_dict[key]:
                 options += key + ' = ' + str(self.section_dict[key]) + '\n'
         self.section_dict['smb_options'] = "[gluster-{0}]\n"\

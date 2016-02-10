@@ -303,7 +303,6 @@ class BackendSetup(Helpers):
         if not self.mountpoints:
             self.mountpoints = self.set_default('mountpoints')
         data = []
-        self.section_dict['mountpoints'] = self.mountpoints
         if not self.mountpoints:
             return
         for i, j in zip(self.mountpoints, self.section_dict['lvols']):
@@ -378,7 +377,7 @@ class BackendSetup(Helpers):
             if self.section_dict.get('mountpoints'):
                 self.section_dict['mountpoints'].extend(brick_list)
             else:
-                self.section_dict['mountpoints'] = bricklist
+                self.section_dict['mountpoints'] = brick_list
         return
 
 

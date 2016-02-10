@@ -34,7 +34,7 @@ class BackendReset(object):
         try:
             self.pvs = literal_eval(self.validated_params('pvs'))
         except:
-            pass
+            self.pvs = None
         self.vgs = self.validated_params('vgs')
         self.lvs = self.validated_params('lvs')
         self.unmount = self.validated_params('unmount')
