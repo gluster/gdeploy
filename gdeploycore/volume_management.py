@@ -111,8 +111,15 @@ class VolumeManagement(Helpers):
         for fd in files:
             if self.is_present_in_yaml(fd, 'mountpoints'):
                 doc = self.read_yaml(fd)
-                brick_dir = [os.path.basename(fd) + ':' +  d for d in
-                        doc['mountpoints']]
+                filename = os.path.basename(fd)
+                if filename == 'all':
+                    brick_dir = []
+                    for h in Global.hosts:
+                        brick_dir.extend([h +  ':' +  d for d in
+                            doc['mountpoints']])
+                else:
+                    brick_dir = [filename + ':' +  d for d in
+                            doc['mountpoints']]
                 self.section_dict['brick_dirs'] = brick_dir
                 return
         brick_dirs = []

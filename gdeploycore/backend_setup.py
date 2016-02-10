@@ -340,32 +340,35 @@ class BackendSetup(Helpers):
                                                          os.path.basename(mntpath)))
             brick_list = brick_dirs
         else:
-            if (len(brick_dirs) != len(self.mountpoints
-                                    ) and len(brick_dirs) != 1):
-                    msg = "The number of brick_dirs is different "\
-                        "from that of " \
-                        "the mountpoints available.\nEither give %d " \
-                        "brick_dirs or provide a common one or leave this "\
-                        "empty." % (len(self.mountpoints))
-                    return
-            brick_dir = self.sub_directory_check(brick_dirs)
-            brick_list = []
-            brick_list = [
-                self.get_file_dir_path(
-                    mntpath, brick) for mntpath, brick in zip(
-                    self.mountpoints, brick_dir)]
-            for brick, mountpoint in zip( brick_list, self.mountpoints):
-                if brick == mountpoint:
-                    if force.lower() != 'yes':
-                        msg = "Error: Mount point cannot be brick.\nProvide a "\
-                            "directory inside %s under the 'brick_dirs' " \
-                            "option or provide option 'force=yes' under 'volume' " \
-                            "section." % mountpoint
+            if hasattr(self, 'mountpoints'):
+                if (len(brick_dirs) != len(self.mountpoints
+                                        ) and len(brick_dirs) != 1):
+                        msg = "The number of brick_dirs is different "\
+                            "from that of " \
+                            "the mountpoints available.\nEither give %d " \
+                            "brick_dirs or provide a common one or leave this "\
+                            "empty." % (len(self.mountpoints))
                         return
-                    else:
-                        print "\nWarning: Using mountpoint itself as the brick in one or " \
-                                "more hosts since force" \
-                            " is specified, although not recommended.\n"
+                brick_dir = self.sub_directory_check(brick_dirs)
+                brick_list = []
+                brick_list = [
+                    self.get_file_dir_path(
+                        mntpath, brick) for mntpath, brick in zip(
+                        self.mountpoints, brick_dir)]
+                for brick, mountpoint in zip( brick_list, self.mountpoints):
+                    if brick == mountpoint:
+                        if force.lower() != 'yes':
+                            msg = "Error: Mount point cannot be brick.\nProvide a "\
+                                "directory inside %s under the 'brick_dirs' " \
+                                "option or provide option 'force=yes' under 'volume' " \
+                                "section." % mountpoint
+                            return
+                        else:
+                            print "\nWarning: Using mountpoint itself as the brick in one or " \
+                                    "more hosts since force" \
+                                " is specified, although not recommended.\n"
+            else:
+                brick_list = brick_dirs
 
         force = 'yes' if force.lower() == 'yes' else 'no'
         self.section_dict['force'] = force
