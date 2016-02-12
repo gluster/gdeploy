@@ -141,6 +141,7 @@ YUM_OP = 'yum-operation.yml'
 
 SERVICE_MGMT = 'service_management.yml'
 CHKCONFIG = 'chkconfig_service.yml'
+SHELL_YML = 'shell_cmd.yml'
 
 # CTDB
 
@@ -176,3 +177,4 @@ GANESHA_VOL_EXPORT = 'gluster-volume-export-ganesha.yml'
 GANESHA_DISABLE = 'disable-nfs-ganesha.yml'
 GANESHA_ADD_NODE = 'ganesha-cluster-add.yml'
 GANESHA_DELETE_NODE = 'ganesha-cluster-delete.yml'
+

@@ -1,0 +1,14 @@
+{
+  "shell": {
+    "action": {
+      "execute": {
+        "options": [
+          {
+            "required": "true",
+            "name": "command"
+          }
+        ]
+      }
+    }
+  }
+}

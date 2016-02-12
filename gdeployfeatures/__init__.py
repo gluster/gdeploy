@@ -10,3 +10,4 @@ import ctdb
 import geo_replication
 import nfs_ganesha
 import service
+import shell
