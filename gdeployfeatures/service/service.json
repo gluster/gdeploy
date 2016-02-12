@@ -1,0 +1,54 @@
+{
+  "service": {
+    "action": {
+      "start": {
+        "options": [
+          {
+            "required": "true",
+            "name": "service"
+          }
+        ]
+      },
+      "stop": {
+        "options": [
+          {
+            "required": "true",
+            "name": "service"
+          }
+        ]
+      },
+      "restart": {
+        "options": [
+          {
+            "required": "true",
+            "name": "service"
+          }
+        ]
+      },
+      "reload": {
+        "options": [
+          {
+            "required": "true",
+            "name": "service"
+          }
+        ]
+      },
+      "enable": {
+        "options": [
+          {
+            "required": "true",
+            "name": "service"
+          }
+        ]
+      },
+      "disable": {
+        "options": [
+          {
+            "required": "true",
+            "name": "service"
+          }
+        ]
+      }
+    }
+  }
+}

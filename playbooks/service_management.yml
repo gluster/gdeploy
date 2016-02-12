@@ -4,7 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: Start or stop services
+  - name: start/stop/restart/reload services
     service: name={{ item }} state="{{ state }}"
     with_items: service
 
