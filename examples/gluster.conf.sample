@@ -611,7 +611,7 @@ client_mount_points=/mnt/gluster{1,3}
 
 #
 # NOTE: If multiple volumes are to be mounted or unmounted,
-# using a single configuration file, use seperate 'clients' sections with the
+# using a single configuration file, use separate 'clients' sections with the
 # section name suffixed with appropriate numbers.
 #
 # For example:
@@ -1328,3 +1328,74 @@ client_mount_points=/mnt/gluster{1,3}
 # dest=/etc/ganesha/ganesha-ha.conf
 # line=VIP_10.70.46.15="192.168.13.14",VIP_10.70.46.17="192.168.13.15"
 #
+#
+#
+#
+
+
+#-----------------------------------
+
+
+                            ##-- Service --##
+
+
+# 'service' section lets you start, stop, enable, disable, restart, or
+# reload services. The actions available are: [start, stop, restart,
+# reload, enable, disable]. Multiple service names can be provided comma
+# separated.
+#
+# To start services
+#
+# [service]
+# action=start
+# service=glusterd,httpd
+#
+# To stop services
+#
+# [service]
+# action=stop
+# service=glusterd,httpd
+#
+# To enable services
+#
+# [service]
+# action=enable
+# service=glusterd,httpd
+#
+# To disable services
+#
+# [service]
+# action=disable
+# service=glusterd,httpd
+#
+# To restart services
+#
+# [service]
+# action=restart
+# service=glusterd,httpd
+#
+# To reload services
+#
+# [service]
+# action=reload
+# service=glusterd,httpd
+
+
+
+
+#-----------------------------------
+
+
+                            ##-- Shell --##
+
+# The 'shell' section lets you run any shell command in the remote
+# machine(s).  If multiple commands are to be executed, they must be
+# provided comma separated.  Provide the action option with value
+# 'execute' always.
+#
+# To run a command:
+#
+# [shell]
+# action=execute
+# command=touch /etc/gluster/dummy.conf,export MY_VAR="DUMMY_VALUE"
+
