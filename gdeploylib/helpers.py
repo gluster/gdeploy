@@ -412,11 +412,17 @@ class Helpers(Global, YamlWriter):
         self.remove_section(filename, section)
         config = self.call_config_parser()
         config.add_section(section)
-        for option in options:
-            config.set(section, option)
+        if type(options) is not dict:
+            options = self.pattern_stripping(options)
+            for option in options:
+                config.set(section, option)
+        else:
+            for k, v in options.iteritems():
+                v = ','.join(self.pattern_stripping(v))
+                config.set(section, k , v)
         try:
-            with open(filename, 'ab') as file:
-                config.write(file)
+            with open(filename, 'ab') as f:
+                config.write(f)
         except:
             print "Error: Failed to create file %s. Exiting!" % filename
             self.cleanup_and_quit()
