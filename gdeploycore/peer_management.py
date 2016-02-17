@@ -33,12 +33,11 @@ class PeerManagement(Helpers):
         if Global.sections.get('peer'):
             action = self.config_section_map('peer', 'manage', False)
             if not action:
-                print "Warning: Section 'peers' without any action option " \
+                print "Warning: Section 'peer' without any manage option " \
                         "found. Skipping this section!"
                 return
             Global.logger.info("Reading configuration in peer section")
-            self.hosts = self.config_get_options('hosts', False)
-            if not self.hosts:
+            if not Global.hosts:
                 msg = "Although peer manage option is provided, " \
                         "no hosts are provided in the section. \n " \
                         "Skipping section `peer`"

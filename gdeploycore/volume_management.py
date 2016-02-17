@@ -158,8 +158,8 @@ class VolumeManagement(Helpers):
                 Global.current_hosts = Global.hosts
             else:
                 msg = "Option 'brick_dirs' " \
-                        "not found for host %s.\nCannot continue " \
-                        "volume creation!" % host
+                        "not found for host .\nCannot continue " \
+                        "volume creation!"
                 print "\nError:  " + msg
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
