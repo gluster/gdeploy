@@ -14,7 +14,7 @@ class LocalData(object):
 class HTTPRequestHandler(BaseHTTPRequestHandler, Helpers):
 
     def do_POST(self):
-        if None != re.search('/api/v1/addrecord/*', self.path):
+        if None != re.search('/gdeploy/addconfig/*', self.path):
             ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
             if ctype == 'application/json':
                 length = int(self.headers.getheader('content-length'))
@@ -27,7 +27,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, Helpers):
 
             self.send_response(200)
             self.end_headers()
-        elif None != re.search('/api/v1/rungdeploy/*', self.path):
+        elif None != re.search('/gdeploy/deployconfig/*', self.path):
             recordID = self.path.split('/')[-1]
             if LocalData.records.has_key(recordID):
                 self.send_response(200)
@@ -51,7 +51,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler, Helpers):
 
 
     def do_GET(self):
-        if None != re.search('/api/v1/getrecord/*', self.path):
+        if None != re.search('/gdeploy/getconfig/*', self.path):
             recordID = self.path.split('/')[-1]
             if LocalData.records.has_key(recordID):
                  self.send_response(200)
