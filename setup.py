@@ -26,6 +26,7 @@ setup(
     install_requires=[
         "ansible",
         "pyyaml",
+        "eventlet",
     ],
 
 )
