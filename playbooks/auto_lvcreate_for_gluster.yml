@@ -6,6 +6,7 @@
   tasks:
   - name: Create logical volume named metadata
     lv: action=create lvname=metadata compute=rhs lvtype='thick'
+        snapshot_reserve="{{ snapshot_reserve }}"
         vgname={{ item }}
     with_items: vgs
     ignore_errors: yes
@@ -13,6 +14,7 @@
   - name: Create a thin pool
     lv: action=create lvname={{ item.pool }} lvtype='thin'
         compute=rhs disktype="{{ disktype }}" vgname={{ item.vg }}
+        snapshot_reserve="{{ snapshot_reserve }}"
     with_items: lvpools
     ignore_errors: yes
 
@@ -22,6 +24,7 @@
         vgname={{ item.vg }} compute=rhs disktype="{{disktype}}"
         diskcount="{{ diskcount }}"
         stripesize="{{stripesize}}"
+        snapshot_reserve="{{ snapshot_reserve }}"
     with_items: lvpools
     ignore_errors: yes
 
@@ -29,6 +32,7 @@
     lv: action=create poolname={{ item.pool }} lvtype="virtual"
         compute=rhs disktype="{{ disktype }}"
         vgname={{ item.vg }} lvname={{ item.lv }}
+        snapshot_reserve="{{ snapshot_reserve }}"
     with_items: lvpools
     ignore_errors: yes
 

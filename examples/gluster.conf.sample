@@ -72,6 +72,20 @@
 # under 'hosts' section the second configuration will be used.
 #
 #
+#  Section 'snapshot-reserve'
+#
+# While creating the thin pools, if the user intents not to use the
+# entire volume group and leave some space out for snapshots, she can
+# use this section. Under this section user needs to specify how much
+# space(in percentage) should be left unused in the Volume Group
+#
+# Example
+#
+# [snapshot-reserve]
+# 20%
+#
+# By default, the entire Volume Group will be used up for thin pooling.
+#
 #  Section 'default'
 #
 #
@@ -593,7 +607,7 @@ force=yes
 
 [clients]
 action=mount
-# volname=glustervol (If not specified earlier in 'volume' section
+# volname=glustervol
 hosts=10.70.46.1{3,5}
 fstype=glusterfs
 client_mount_points=/mnt/gluster{1,3}
@@ -603,7 +617,7 @@ client_mount_points=/mnt/gluster{1,3}
 
 # [clients]
 # action=mount
-# # volname=glustervol (If not specified earlier in 'volume' section
+# # volname=glustervol
 # hosts=10.70.46.13
 # fstype=nfs
 # nfs-version=4
@@ -645,7 +659,7 @@ client_mount_points=/mnt/gluster{1,3}
 
 # The name of the snapshot can be specified as the value to the snapname option.
 # If the action is create the name of the volume is to specified as the value
-# to the option 'volname'.(If not specified under the volume section).
+# to the option 'volname'.
 
 # [snapshot]
 # action=create

@@ -45,6 +45,11 @@ class BackendSetup(Helpers):
         self.section_dict = dict()
         self.previous = True
         self.write_sections()
+        self.remove_from_sections('default')
+        self.remove_from_sections('force')
+        self.remove_from_sections('gluster')
+        self.remove_from_sections('selinux')
+        self.remove_from_sections('snapshot-reserve')
 
     def write_sections(self):
         Global.logger.info("Reading configuration for backend setup")
@@ -200,6 +205,10 @@ class BackendSetup(Helpers):
 
     def write_thinp_names(self):
         self.pools = self.section_data_gen('pools', 'Logical Pools')
+        snapshot_reserve = self.config_get_options(
+                'snapshot-reserve', False) or 0
+        self.section_dict['snapshot_reserve'] = int(
+                snapshot_reserve[0].strip('\n\r%'))
         if not self.pools:
             if not self.vgs:
                 self.lvs = None
