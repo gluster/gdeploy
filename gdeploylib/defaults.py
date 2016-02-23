@@ -17,6 +17,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+# ALL features
+
+feature_list = ['snapshot', 'quota', 'yum', 'geo_replication', 'ctdb',
+'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
+'update_file']
 # All the defaults values used in gdeploy
 
 

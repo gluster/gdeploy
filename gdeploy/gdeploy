@@ -76,6 +76,7 @@ def parse_arguments(args=None):
 @logfunction
 def init_global_values(args):
     global helpers
+    sections_list = []
     Global.config = helpers.read_config(args.config_file.name)
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
@@ -83,7 +84,9 @@ def init_global_values(args):
     for sec in  Global.config._sections:
         sections = helpers.parse_patterns(sec)
         for each in sections:
-            Global.sections[each] = dict(Global.config._sections[sec])
+            sections_list.append((each,
+                dict(Global.config._sections[sec])))
+    Global.sections = OrderedDict(sections_list)
 
 
 @logfunction

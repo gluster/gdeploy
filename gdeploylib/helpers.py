@@ -39,6 +39,7 @@ except ImportError:
     sys.exit(0)
 from global_vars import Global
 from yaml_writer import YamlWriter
+from defaults import feature_list
 
 class Helpers(Global, YamlWriter):
 
@@ -317,6 +318,16 @@ class Helpers(Global, YamlWriter):
             if re.search(pattern, k):
                 d.append(v)
         return d
+
+    def get_section_pattern(self, section):
+        section = [v for v in feature_list if re.match(v, section)]
+        if not section:
+            return False
+        if len(section) > 1:
+            print "Error: Oops! gdeploy is a bit confused with the " \
+            "section name %s. Please check your configuration file." % section
+            self.cleanup_and_quit()
+        return section[0]
 
     def remove_from_sections(self, regexp):
         r = re.compile(regexp)
