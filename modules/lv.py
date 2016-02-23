@@ -148,32 +148,24 @@ class LvOps(object):
         # metadatasize and poolsize in the playbook.
         if self.compute_type == 'rhs':
             global error
-            option = " --noheadings -o pv_name %s" % self.vgname
-            rc, pv_name, err = self.run_command('vgs', option)
-            if rc:
-                error = True
-                return 0, 0
-            else:
-                option = " --noheading --units m  -o pv_size %s" % pv_name
-                rc, pv_size, err = self.run_command('pvs', option)
-                if not rc:
-                    pv_size = list(set(filter(
-                                        None, pv_size.split(' '))))[0]
-                    pv_size = floor(float(pv_size.strip(' m\t\r\n')) - 4)
-                    KB_PER_GB = 1048576
-                    if pv_size > 1000000:
-                        METADATA_SIZE_GB = 16
-                        metadatasize = floor(METADATA_SIZE_GB * KB_PER_GB)
-                    else:
-                        METADATA_SIZE_MB = pv_size / 200
-                        metadatasize = floor(floor(METADATA_SIZE_MB) * 1024)
-                    pool_sz = floor(pv_size * 1024) - metadatasize
-                    snapshot_space = int(self.validated_params(
-                            'snapshot_reserve'))
-                    pool_sz -= (pool_sz * snapshot_space / 100)
-                    return metadatasize, pool_sz
+            option = " --noheading --units m  -o vg_size %s" % self.vgname
+            rc, vg_size, err = self.run_command('vgs', option)
+            if not rc:
+                vg_size = list(set(filter(
+                                    None, vg_size.split(' '))))[0]
+                vg_size = floor(float(vg_size.strip(' m\t\r\n')) - 4)
+                KB_PER_GB = 1048576
+                if vg_size > 1000000:
+                    METADATA_SIZE_GB = 16
+                    metadatasize = floor(METADATA_SIZE_GB * KB_PER_GB)
                 else:
-                    self.module.fail_json(msg="PV %s does not exist" % pv_name)
+                    METADATA_SIZE_MB = vg_size / 200
+                    metadatasize = floor(floor(METADATA_SIZE_MB) * 1024)
+                pool_sz = floor(vg_size * 1024) - metadatasize
+                snapshot_space = int(self.validated_params(
+                        'snapshot_reserve'))
+                pool_sz -= (pool_sz * snapshot_space / 100)
+                return metadatasize, pool_sz
         else:
             metadatasize = self.validated_params('metadatasize')
             pool_sz = self.validated_params('poolsize')
