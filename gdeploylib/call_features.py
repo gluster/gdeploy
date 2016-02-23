@@ -39,6 +39,7 @@ def call_features():
 def get_feature_dir(section):
     global helpers, section_name
     section_name = section.lower().replace('-', '_')
+    section_name = helpers.get_section_pattern(section_name)
     section_dir = os.path.join(gdeployfeatures.__path__[0], section_name)
     if not os.path.isdir(section_dir):
         return
@@ -47,6 +48,8 @@ def get_feature_dir(section):
         print "Error: Setup file not found for feature '%s'" % section_name
         return
     section_dict = parse_the_user_config(section, section_dir)
+    if not section_dict:
+        return
     feature_func = getattr(gdeployfeatures, section_name)
     feature_mod = getattr(feature_func, section_name)
     feature_call = getattr(feature_mod, section_name + '_' + section_dict[
@@ -67,7 +70,7 @@ def parse_the_user_config(section, section_dir):
     section_dict = helpers.format_values(section_dict)
     action_dict = get_action_data(section, section_dir, section_dict)
     if not action_dict:
-        return
+        return False
     options = action_dict.get("options")
     if not options[0]:
         return section_dict
@@ -77,7 +80,7 @@ def parse_the_user_config(section, section_dir):
     helpers.set_default_values(section_dict, default_dict)
     section_dict = validate_the_user_data(section_dict, reqd_vals)
     if not section_dict:
-        return
+        return False
     section_dict['action'] = section_dict.pop('action').replace('-', '_')
     if not section_dict:
         helpers.cleanup_and_quit()
@@ -90,7 +93,7 @@ def get_action_data(section, section_dir, section_dict):
     json_data = open(json_file)
     data = json.load(json_data)
     json_data.close()
-    action_dict = data[section_name]["action"][section_dict.get("action")]
+    action_dict = data[section_name]["action"].get(section_dict.get("action"))
     if not action_dict:
         print "\nError: We could not find the operations corresponding " \
                 "to the action specified. Check your configuration file"
