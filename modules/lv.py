@@ -168,6 +168,9 @@ class LvOps(object):
                         METADATA_SIZE_MB = pv_size / 200
                         metadatasize = floor(floor(METADATA_SIZE_MB) * 1024)
                     pool_sz = floor(pv_size * 1024) - metadatasize
+                    snapshot_space = int(self.validated_params(
+                            'snapshot_reserve'))
+                    pool_sz -= (pool_sz * snapshot_space / 100)
                     return metadatasize, pool_sz
                 else:
                     self.module.fail_json(msg="PV %s does not exist" % pv_name)
@@ -292,6 +295,7 @@ def main():
             disktype=dict(),
             diskcount=dict(),
             stripesize=dict(),
+            snapshot_reserve=dict(),
             force=dict()
         ),
     )

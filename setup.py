@@ -10,6 +10,9 @@ setup(
                 'gdeployfeatures/rh_subscription',
                 'gdeployfeatures/snapshot', 'gdeployfeatures/yum',
                 'gdeployfeatures/update_file', 'gdeployfeatures/ctdb',
+                'gdeployfeatures/geo_replication',
+                'gdeployfeatures/service', 'gdeployfeatures/shell',
+                'gdeployfeatures/nfs_ganesha'
              ],
     scripts=[
         'gdeploy/gdeploy'
