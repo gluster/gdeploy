@@ -105,7 +105,7 @@ class Quota(object):
 
     def quota_time_bounds(self):
         time = self._validated_params('time')
-        return ' %s  %s ' %(self.action.replace('_', '-'), time)
+        return ' %s  %s ' %(self.action.replace('_', '-'), time.lower())
 
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)

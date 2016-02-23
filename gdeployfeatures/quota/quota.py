@@ -35,13 +35,13 @@ def quota_default_soft_limit(section_dict):
 def quota_limit_usage(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
-    section_dict = write_associated_data('size')
-    return section_dict, defauls.QUOTA_LIMIT_USAGE
+    section_dict = write_associated_data(section_dict, 'size')
+    return section_dict, defaults.QUOTA_LIMIT_USAGE
 
 def quota_limit_objects(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
-    section_dict = write_associated_data('number')
+    section_dict = write_associated_data(section_dict, 'number')
     return section_dict, defaults.QUOTA_LIMIT_OBJECTS
 
 def quota_alert_time(section_dict):
@@ -60,8 +60,9 @@ def quota_hard_timeout(section_dict):
     return section_dict, defaults.QUOTA_OPS
 
 def write_associated_data(section_dict, lmt):
-    vals = self.section_dict[lmt]
-    paths = self.section_dict['path']
+    global helpers
+    vals = helpers.listify(section_dict[lmt])
+    paths = helpers.listify(section_dict['path'])
     if len(vals) > len(paths):
         vals = vals[0:len(paths)]
     elif len(vals) < len(paths):
@@ -72,6 +73,6 @@ def write_associated_data(section_dict, lmt):
         values[lmt] = i
         values['path'] = j
         data.append(values)
-    section_dict['limit'] = data
+    section_dict['limits'] = data
     return section_dict
 
