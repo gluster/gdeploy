@@ -200,20 +200,26 @@ class VolumeManagement(Helpers):
             brick_dir_pat = map(regex.search, br_dir)
             brick_dir_pat = filter(None, brick_dir_pat)
             if not brick_dir_pat:
-                print "Please provide the brick_dirs in the format " \
-                        "<hostname>:<brick_dir name>"
-                self.cleanup_and_quit()
-            Global.current_hosts = []
-            self.section_dict['mountpoints'] = []
-            for each in brick_dir_pat:
-                host = each.group(1)
-                if host not in Global.current_hosts:
-                    Global.current_hosts.append(host)
-                Global.var_file = self.get_file_dir_path(Global.host_vars_dir, host)
-                self.touch_file(Global.var_file)
-                self.section_dict['mountpoints'].extend(self.pattern_stripping(
-                        each.group(2)))
-                self.create_var_files(self.section_dict)
+                if not Global.hosts:
+                    print "Please provide the brick_dirs in the format " \
+                            "<hostname>:<brick_dir name>"
+                    self.cleanup_and_quit()
+                else:
+                    Global.current_hosts = Global.hosts
+                    Global.var_file = Global.group_file
+                    self.section_dict['mountpoints'] = br_dir
+            else:
+                Global.current_hosts = []
+                self.section_dict['mountpoints'] = []
+                for each in brick_dir_pat:
+                    host = each.group(1)
+                    if host not in Global.current_hosts:
+                        Global.current_hosts.append(host)
+                    Global.var_file = self.get_file_dir_path(Global.host_vars_dir, host)
+                    self.touch_file(Global.var_file)
+                    self.section_dict['mountpoints'].extend(self.pattern_stripping(
+                            each.group(2)))
+                    self.create_var_files(self.section_dict)
         else:
             if len(self.section_lists) > 1:
                 print "\nError: 'brick_dirs' not provided in one or more " \
