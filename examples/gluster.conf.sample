@@ -568,6 +568,12 @@ force=yes
 # smb_username=bilbo
 # smb_password=shireeleventyone
 # smb_mountpoint=/mnt/precious
+#
+# To disable automatic SMB sharing per-volume
+#
+# [volume]
+# smb=no
+# volname=smbvolume
 
 
 #-----------------------------------
