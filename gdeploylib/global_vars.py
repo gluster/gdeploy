@@ -18,7 +18,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 import os
 import tempfile
-from collections import OrderedDict
 
 
 class Global(object):
@@ -36,7 +35,7 @@ class Global(object):
     hosts = []
     current_hosts = []
     current_host = None
-    sections = OrderedDict
+    sections = {}
     playbooks = []
     host_vars = 'host_vars'
     group_vars = 'group_vars'
