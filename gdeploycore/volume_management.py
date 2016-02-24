@@ -48,9 +48,8 @@ class VolumeManagement(Helpers):
         self.section_dict['volname'] = volname
         smb = self.section_dict.get('smb')
         if not action:
-            if smb and smb.lower() == 'yes':
-                self.samba_setup()
-            else:
+            ret = self.get_smb_data(smb)
+            if not ret:
                 msg = "Section 'volume' without any action option " \
                         "found. \nNoting the data given and skipping this section!"
                 print "\nWarning: " + msg
@@ -92,8 +91,15 @@ class VolumeManagement(Helpers):
             # print "\nError: " + msg
             # Global.logger.error(msg)
             # self.cleanup_and_quit()
-        if smb and smb.lower() == 'yes':
-            self.samba_setup()
+        self.get_smb_data(smb)
+
+    def get_smb_data(self, smb):
+        if smb:
+            if smb.lower() == 'yes':
+                self.samba_setup()
+            elif smb.lower() == 'no':
+                self.volume_set('user.smb', 'disable')
+
 
     def get_brick_dirs(self):
         opts = self.get_options('brick_dirs', False)
@@ -387,16 +393,18 @@ class VolumeManagement(Helpers):
                 "yes\n{1}".format(self.section_dict['volname'], options)
         Global.current_hosts = Global.hosts
 
+        key = ['stat-prefetch', 'server.allow-insecure',
+                'storage.batch-fsync-delay-usec']
+        value = ['off', 'on', 0]
         self.section_dict['smb_username'] = self.section_dict.get('smb_username') or 'smbuser'
         self.section_dict['smb_password'] = self.section_dict.get('smb_password') or 'password'
         if not self.section_dict.get('smb_mountpoint'):
             self.section_dict['smb_mountpoint'] = '/mnt/smbserver'
         self.run_playbook(SMBREPLACE_YML)
+        self.volume_set(key, value)
         self.run_playbook(SMBSRV_YML)
 
-        key = ['stat-prefetch', 'server.allow-insecure',
-                'storage.batch-fsync-delay-usec']
-        value = ['off', 'on', 0]
-        self.volume_set(key, value)
-        self.run_playbook(GLUSTERD_YML)
+        self.section_dict['service'] = 'glusterd'
+        self.section_dict['state'] = 'restarted'
+        self.run_playbook(SERVICE_MGMT)
         return True
