@@ -27,6 +27,7 @@ class Global(object):
         modules
     '''
     logger = None
+    test = None
     trace = False
     var_file = None
     master = None
@@ -37,6 +38,7 @@ class Global(object):
     current_host = None
     sections = {}
     playbooks = []
+    playbook = None
     host_vars = 'host_vars'
     group_vars = 'group_vars'
     group = 'gluster_servers'
