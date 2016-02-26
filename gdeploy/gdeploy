@@ -150,6 +150,18 @@ def create_playbooks_in_local():
         helpers.cleanup_and_quit()
     helpers.copy_files(templates_dir)
 
+def main(arg):
+    args = parse_arguments(arg)
+    if args:
+        check_ansible_installation()
+        init_global_values(args)
+        create_files_and_dirs()
+        helpers.get_hostnames()
+        create_playbooks_in_local()
+        call_core_functions()
+        call_features()
+        gdeploy_cleanup()
+
 if __name__ == '__main__':
     '''
     This script just reads in the command line arguments and gets the
@@ -162,13 +174,4 @@ if __name__ == '__main__':
     and it initialises a global var to keep track of the logs
     '''
     log_event()
-    args = parse_arguments(sys.argv[1:])
-    if args:
-        check_ansible_installation()
-        init_global_values(args)
-        create_files_and_dirs()
-        helpers.get_hostnames()
-        create_playbooks_in_local()
-        call_core_functions()
-        call_features()
-        gdeploy_cleanup()
+    main(sys.argv[1:])
