@@ -15,7 +15,7 @@ setup(
                 'gdeployfeatures/nfs_ganesha'
              ],
     scripts=[
-        'gdeploy/gdeploy'
+        'gdeploy/gdeploy.py'
     ],
     include_package_data=True,
     url="https://github.com/gluster/gdeploy",

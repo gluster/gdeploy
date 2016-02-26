@@ -348,7 +348,7 @@ class Helpers(Global, YamlWriter):
         if section_dict:
             self.create_var_files(section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
-        self.exec_ansible_cmd(yml)
+        return self.exec_ansible_cmd(yml)
 
 
     def exec_ansible_cmd(self, playbooks_file):
@@ -356,8 +356,13 @@ class Helpers(Global, YamlWriter):
         command = [executable, '-i', Global.inventory, Global.verbose,
                 playbooks_file]
         command = filter(None, command)
+        if Global.test:
+            Global.keep = True
+            Global.playbook = playbooks_file
+            return
         try:
             subprocess.call(command, shell=False)
+            return True
         except (OSError, subprocess.CalledProcessError) as e:
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()
