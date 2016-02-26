@@ -32,9 +32,12 @@ class PeerManagement(Helpers):
     def get_peer_data(self):
         if Global.sections.get('peer'):
             action = self.config_section_map('peer', 'manage', False)
+            if action:
+                print "Warning: The option 'manage' is deprecated. " \
+                "Please use 'action' instead."
+            else:
+                action = self.config_section_map('peer', 'action', False)
             if not action:
-                print "Warning: Section 'peer' without any manage option " \
-                        "found. Skipping this section!"
                 return
             Global.logger.info("Reading configuration in peer section")
             if not Global.hosts:
