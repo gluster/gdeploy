@@ -320,6 +320,12 @@ class Helpers(Global, YamlWriter):
         return d
 
     def get_section_pattern(self, section):
+        regexp = '(.*):(.*)'
+        sec = re.match(regexp, section)
+        if sec:
+            Global.current_hosts = self.pattern_stripping(sec.group(2))
+            section = sec.group(1)
+        section = section.lower().replace('-', '_')
         section = [v for v in feature_list if re.match(v, section)]
         if not section:
             return False

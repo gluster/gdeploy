@@ -38,8 +38,7 @@ def call_features():
 
 def get_feature_dir(section):
     global helpers, section_name
-    section_name = section.lower().replace('-', '_')
-    section_name = helpers.get_section_pattern(section_name)
+    section_name = helpers.get_section_pattern(section)
     section_dir = os.path.join(gdeployfeatures.__path__[0], section_name)
     if not os.path.isdir(section_dir):
         return
