@@ -16,9 +16,12 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import re, sys, types, inspect
+import re, sys, types, inspect, os
 from global_vars import Global
 from datetime import datetime
+from helpers import Helpers
+
+helpers = Helpers()
 
 """
 Have all your function & method calls automatically logged, in indented outline
@@ -70,6 +73,11 @@ less's 'F' command is supposed to do this correctly but doesn't work for me.
 
 
 #@@@ should use the standard python logging system?
+log_dir = os.path.expanduser('~/.gdeploy/logs/')
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+if not os.path.exists(Global.log_file):
+    helpers.touch_file(Global.log_file)
 log = open(Global.log_file,"a")
 
 # Globally incremented across function calls, so tracks stack depth
