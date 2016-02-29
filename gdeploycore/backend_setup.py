@@ -206,7 +206,7 @@ class BackendSetup(Helpers):
     def write_thinp_names(self):
         self.pools = self.section_data_gen('pools', 'Logical Pools')
         snapshot_reserve = self.config_get_options(
-                'snapshot-reserve', False) or 0
+                'snapshot-reserve', False) or ['0']
         self.section_dict['snapshot_reserve'] = int(
                 snapshot_reserve[0].strip('\n\r%'))
         if not self.pools:
