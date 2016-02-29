@@ -27,6 +27,7 @@ class BackendReset(Helpers):
 
     def __init__(self):
         self.get_breset_data()
+        self.remove_from_sections('backend-reset')
 
     def get_breset_data(self):
         section_regexp = '^backend-reset(:)*(.*)'
