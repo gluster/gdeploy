@@ -143,6 +143,7 @@ import re
 from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
+from gdeploylib import Global
 
 class Volume(object):
     def __init__(self, module):
