@@ -1,0 +1,15 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Starts a volume
+    volume:  action=start volume="{{ volname }}"
+             force="{{ force }}"
+    ignore_errors: yes
+    register: result
+    failed_when: "result.rc != 0"
+
+  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
+    when: "'{{ command }}' not in '{{ result.msg }}'"

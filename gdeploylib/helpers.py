@@ -353,9 +353,8 @@ class Helpers(Global, YamlWriter):
 
     def exec_ansible_cmd(self, playbooks_file):
         executable = 'ansible-playbook'
-        dry_run = '--check' if Global.test else ''
         command = [executable, '-i', Global.inventory, Global.verbose,
-                playbooks_file, dry_run]
+                playbooks_file]
         command = filter(None, command)
         try:
             FNULL = open(os.devnull, 'w') if Global.test else sys.stdout
@@ -363,7 +362,10 @@ class Helpers(Global, YamlWriter):
                 command.append('--syntax-check')
                 subprocess.call(command, shell=False)
                 command.remove('--syntax-check')
-            subprocess.call(command, shell=False, stdout=FNULL)
+                Global.cmd.append(command)
+                return
+            else:
+                subprocess.call(command, shell=False)
         except (OSError, subprocess.CalledProcessError) as e:
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()

@@ -82,7 +82,7 @@ def init_global_values(args):
     sections_list = []
     Global.config = helpers.read_config(args.config_file.name)
     Global.verbose = '-vv' if args.verbose else ''
-    Global.keep = args.keep
+    Global.keep = args.keep or args.test
     Global.test = args.test
     Global.trace = args.trace
     for sec in  Global.config._sections:

@@ -143,7 +143,6 @@ import re
 from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
-from gdeploylib import Global
 
 class Volume(object):
     def __init__(self, module):
@@ -288,13 +287,11 @@ class Volume(object):
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         if self.module.check_mode == True:
-            self.module.exit_json(changed=False)
-            try:
-                from gdeploylib import Global
-                Global.command = cmd
-            except:
-                pass
+            self.module.fail_json(rc=0, msg=cmd, changed=False)
         return self.module.run_command(cmd)
+
+    def _return_command(self, op, opts):
+        cmd = op + opts + ' --mode=script'
 
 if __name__ == '__main__':
     module = AnsibleModule(

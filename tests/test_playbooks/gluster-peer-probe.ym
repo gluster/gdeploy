@@ -1,0 +1,17 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Creates a Trusted Storage Pool
+    peer: action=probe
+          hosts="{{ to_be_probed }}"
+          current_host={{inventory_hostname}}
+    register: result
+    failed_when: "{{ command }} not in result.msg"
+
+
+  - name: Debug output
+    assert: { that: "Got result.msg instead of {{ command }}" }
+    when: "{{ command }} not in result.msg"

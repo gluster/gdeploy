@@ -51,7 +51,8 @@ class Peer(object):
     def gluster_peer_ops(self):
         self.get_host_names()
         if self.action == 'probe':
-            self.hosts = self.get_to_be_probed_hosts()
+            if not self.module.check_mode:
+                self.hosts = self.get_to_be_probed_hosts()
         self.current_host = self._validated_params('current_host')
         try:
             self.hosts.remove(self.current_host)
@@ -97,13 +98,9 @@ class Peer(object):
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         if self.module.check_mode == True:
-            try:
-                from gdeploylib import Global
-                Global.command = cmd
-            except:
-                pass
-            self.module.exit_json(changed=False)
+            self.module.fail_json(msg=cmd, rc=0, output=cmd)
         return self.module.run_command(cmd)
+
 
 if __name__ == '__main__':
     module = AnsibleModule(

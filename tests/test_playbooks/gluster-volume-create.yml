@@ -1,0 +1,24 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Creates a volume
+    volume:  action=create
+             volume="{{ volname }}"
+             bricks='{{ brick_dirs }}'
+             hosts="{{ hosts }}"
+             transport="{{ transport }}"
+             replica="{{ replica }}"
+             replica_count="{{ replica_count }}"
+             arbiter_count="{{ arbiter_count }}"
+             disperse="{{ disperse }}"
+             disperse_count="{{ disperse_count }}"
+             redundancy_count="{{ redundancy_count }}"
+             force="{{ force }}"
+    register: result
+    failed_when: "result.rc != 0"
+
+  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
+    when: "'{{ command }}' not in '{{ result.msg }}'"
