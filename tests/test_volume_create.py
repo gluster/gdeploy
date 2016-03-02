@@ -48,6 +48,7 @@ class TestHelpers(unittest.TestCase, Helpers):
             if not os.path.exists(cmd[-1]):
                 continue
             cmd.append('--check')
+            cmd.append('--connection=local')
 
 
             #Test peer probe command
