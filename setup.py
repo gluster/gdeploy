@@ -1,4 +1,13 @@
 from setuptools import setup
+from distutils.command.install_scripts import install_scripts
+from shutil import move
+
+class strip_ext(install_scripts):
+    def run(self):
+        install_scripts.run(self)
+        for script in self.get_outputs():
+            if script.endswith('.py'):
+                move(script, script[:-3])
 
 setup(
     name="gdeploy",
@@ -17,6 +26,9 @@ setup(
     scripts=[
         'gdeploy/gdeploy.py'
     ],
+    cmdclass = {
+        "install_scripts": strip_ext
+    },
     include_package_data=True,
     url="https://github.com/gluster/gdeploy",
 
