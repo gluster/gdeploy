@@ -1,6 +1,5 @@
 ansible==1.9.2
 eventlet==0.18.4
--e git+git@github.com:gluster/gdeploy.git@3b8dc40e3eb6f430313ebcfeff2a88c7f90c87dd#egg=gdeploy
 greenlet==0.4.9
 Jinja2==2.7.3
 MarkupSafe==0.23
