@@ -181,6 +181,13 @@ class LvOps(object):
 
     def run_command(self, op, options):
         cmd = self.module.get_bin_path(op, True) + options
+        if self.module.check_mode == True:
+            try:
+                from gdeploylib import Global
+                Global.command = cmd
+            except:
+                pass
+            self.module.exit_json(changed=False)
         return self.module.run_command(cmd)
 
     def create(self):
@@ -290,6 +297,7 @@ def main():
             snapshot_reserve=dict(),
             force=dict()
         ),
+        supports_check_mode=True
     )
 
     lvops = LvOps(module)

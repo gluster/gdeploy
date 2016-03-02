@@ -123,6 +123,13 @@ class GeoRep(object):
 
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts
+        if self.module.check_mode == True:
+            try:
+                from gdeploylib import Global
+                Global.command = cmd
+            except:
+                pass
+            self.module.exit_json(changed=False)
         return self.module.run_command(cmd)
 
 if __name__ == '__main__':
@@ -149,6 +156,7 @@ if __name__ == '__main__':
             config=dict(),
             op=dict()
         ),
+        supports_check_mode=True
     )
 
     GeoRep(module)
