@@ -9,7 +9,7 @@ class TestHelpers(unittest.TestCase, Helpers):
 
 
     def testVolumeCreate(self):
-        #check id the volume create command is properly generated
+        # Chooses proper configuration file and playbook for testing
         path = os.path.abspath(__file__)
         dir_path = os.path.dirname(path)
         conf_file = self.get_file_dir_path(dir_path, 'volume_create.conf')
