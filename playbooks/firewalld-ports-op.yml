@@ -8,6 +8,3 @@
     firewalld: port={{ item }} permanent="{{ permanent }}" state="{{ firewall_state }}"
                zone="{{ zone }}"
     with_items: ports
-
-  - name: Reloads firewalld
-    shell: firewall-cmd --reload

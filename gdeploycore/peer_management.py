@@ -61,7 +61,6 @@ class PeerManagement(Helpers):
             if not yml:
                 return
             msg = "Peer management(action: %s) triggered" % action
-            print "\nINFO: " + msg
             Global.logger.info(msg)
             if action == 'probe':
                 self.run_playbook(GLUSTERD_YML)

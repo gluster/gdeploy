@@ -8,4 +8,4 @@
     volume:  action=start volume="{{ volname }}"
              force="{{ force }}"
     register: result
-    failed_when: "result.rc != 0 and 'already started' not in result.msg"
+    ignore_errors: yes

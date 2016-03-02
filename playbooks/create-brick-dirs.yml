@@ -5,6 +5,6 @@
 
   tasks:
   - name: Create the brick dirs, skips if present
-    shell: mkdir -p {{ item }}
+    file: path={{ item }} state=directory
     with_items: mountpoints
 

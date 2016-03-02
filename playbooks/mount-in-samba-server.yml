@@ -5,7 +5,7 @@
 
   tasks:
   - name: Create the dir to mount the volume, skips if present
-    shell: mkdir {{ item }} -p
+    file: path={{ item }} state=directory
 
     with_items: smb_mountpoint
 

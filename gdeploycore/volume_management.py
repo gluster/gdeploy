@@ -82,7 +82,6 @@ class VolumeManagement(Helpers):
             Global.logger.error(msg)
             return
         msg = "Volume management(action: %s) triggered" % action
-        print "\nINFO: " + msg
         Global.logger.info(msg)
         if not action_func():
             return
@@ -247,7 +246,9 @@ class VolumeManagement(Helpers):
             Global.logger.error(msg)
             self.cleanup_and_quit()
         self.is_option_present('volname', self.section_dict)
-        self.run_playbook(GLUSTERD_YML)
+        self.section_dict['service'] = 'glusterd'
+        self.section_dict['state'] = 'restarted'
+        self.run_playbook(SERVICE_MGMT)
         self.create_yaml_dict('hosts', Global.current_hosts, False)
         self.call_peer_probe()
         self.run_playbook(CREATEDIR_YML)
