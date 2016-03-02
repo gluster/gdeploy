@@ -54,19 +54,19 @@ class TestHelpers(unittest.TestCase, Helpers):
             #Test peer probe command
             if 'peer-probe' in yml:
                 cmd.extend(['--extra-vars',
-                    'command=\'/usr/sbin/gluster peer probe 10.70.46.76   --mode=script\''])
+                    'command=\'gluster peer probe 10.70.46.76   --mode=script\''])
 
 
             # Test volume create command
             if 'volume-create' in yml:
                 cmd.extend(['--extra-vars',
-                    'command=\'/usr/sbin/gluster volume create gemvol   transport tcp  10.70.47.3:/brick/test_brick1   --mode=script\''])
+                    'command=\'gluster volume create gemvol   transport tcp  10.70.47.3:/brick/test_brick1   --mode=script\''])
 
 
             # Test volume start command
             if 'volume-start' in yml:
                 cmd.extend(['--extra-vars',
-                    'command=\'/usr/sbin/gluster volume start gemvol    --mode=script\''])
+                    'command=\'gluster volume start gemvol    --mode=script\''])
             ret = subprocess.call(cmd, shell=False)
             self.assertEqual(ret, 0)
         if os.path.isdir(Global.base_dir):

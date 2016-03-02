@@ -289,9 +289,10 @@ class Volume(object):
             self.module.fail_json(msg=err, rc=rc)
 
     def _run_command(self, op, opts):
-        cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         if self.module.check_mode == True:
+            cmd = op + opts + ' --mode=script'
             self.module.fail_json(rc=0, msg=cmd, changed=False)
+        cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         return self.module.run_command(cmd)
 
     def _return_command(self, op, opts):

@@ -95,9 +95,10 @@ class Peer(object):
             self.module.fail_json(rc=rc, msg=err)
 
     def _run_command(self, op, opts):
-        cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         if self.module.check_mode == True:
+            cmd = op + opts + ' --mode=script'
             self.module.fail_json(msg=cmd, rc=0, output=cmd)
+        cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         return self.module.run_command(cmd)
 
 
