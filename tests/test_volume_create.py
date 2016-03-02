@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gdeploy.gdeploy import main, Global
-import unittest, subprocess
+import unittest, subprocess, os, shutil
 from gdeploylib import Helpers
 
 class TestHelpers(unittest.TestCase, Helpers):

@@ -19,7 +19,6 @@
 
 import sys
 import re
-from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 

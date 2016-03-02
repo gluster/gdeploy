@@ -23,7 +23,11 @@ import sys
 import os
 import time
 import shutil
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:
+    # python 2.6 or earlier, use backport
+    from ordereddict import OrderedDict
 from gdeploylib import *
 from gdeploycore import call_core_functions
 
