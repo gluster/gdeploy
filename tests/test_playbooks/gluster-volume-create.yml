@@ -7,7 +7,7 @@
   - name: Creates a volume
     volume:  action=create
              volume="{{ volname }}"
-             bricks='{{ brick_dirs }}'
+             bricks='{{ mountpoints }}'
              hosts="{{ hosts }}"
              transport="{{ transport }}"
              replica="{{ replica }}"
