@@ -122,6 +122,7 @@ QUOTA_DSL = 'gluster-quota-dsl.yml'
 
 SUBS_MGMT = 'subscription_manager.yml'
 DISABLE_REPO = 'disable-repos.yml'
+ENABLE_REPO = 'enable-repos.yml'
 UNREGISTER = 'redhat_unregister.yml'
 
 

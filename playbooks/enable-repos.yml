@@ -1,0 +1,9 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Enable specified rhsm repos
+    command: subscription-manager repos --enable={{ item }}
+    with_items: repos
