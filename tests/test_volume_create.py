@@ -1,29 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from gdeploy.gdeploy import main, Global
-import unittest, subprocess, os, shutil
-from gdeploylib import Helpers
+import unittest, subprocess, os
+from gdeploylib import Helpers, Global
+from testutils import TestUtils
 
-class TestHelpers(unittest.TestCase, Helpers):
+class TestVolumeCreate(unittest.TestCase, Helpers):
 
-
-    def testVolumeCreate(self):
-        # Chooses proper configuration file and playbook for testing
-        path = os.path.abspath(__file__)
-        dir_path = os.path.dirname(path)
-        conf_file = self.get_file_dir_path(dir_path, 'volume_create.conf')
-        args = ['-c' + conf_file, '-t']
-        print "Yaml syntax checks:\n"
-        ret = main(args)
-
-        yamls = [self.get_file_dir_path(Global.base_dir, f) for f in
-                os.listdir(Global.base_dir) if f.endswith('.yml')]
-        for f in yamls:
-            os.remove(f)
-        self.copy_files(self.get_file_dir_path(dir_path, 'test_playbooks'))
-        self.assertEqual(1, 1)
-
+    @classmethod
+    def setUpClass(cls):
+        cls.t = TestUtils()
+        ret = cls.t.get_generated_commands('volume_create.conf')
 
 
 
@@ -54,7 +41,7 @@ class TestHelpers(unittest.TestCase, Helpers):
             #Test peer probe command
             if 'peer-probe' in yml:
                 cmd.extend(['--extra-vars',
-                    'command=\'gluster peer probe 10.70.46.76   --mode=script\''])
+                    'command=\'gluster peer probe\''])
 
 
             # Test volume create command
@@ -69,10 +56,11 @@ class TestHelpers(unittest.TestCase, Helpers):
                     'command=\'gluster volume start gemvol    --mode=script\''])
             ret = subprocess.call(cmd, shell=False)
             self.assertEqual(ret, 0)
-        if os.path.isdir(Global.base_dir):
-            shutil.rmtree(Global.base_dir)
 
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.t.test_cleanup()
 
 
 if __name__ == '__main__':
