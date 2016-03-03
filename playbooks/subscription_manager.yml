@@ -91,6 +91,7 @@
   - name: Disable all rhsm repos
     command: subscription-manager repos --disable='*'
     when: replace_repos is defined and rhsm_repos
+    ignore_errors: yes
 
   - name: Enable necessary rhsm repos
     command: subscription-manager repos --enable {{ item }}

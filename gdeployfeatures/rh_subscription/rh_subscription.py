@@ -12,7 +12,8 @@ def rh_subscription_unregister(section_dict):
     return section_dict, defaults.UNREGISTER
 
 def rh_subscription_enable_repos(section_dict):
-    return register_and_subscribe(section_dict)
+    section_dict, ret = register_and_subscribe(section_dict)
+    return section_dict, defaults.ENABLE_REPO
 
 def rh_subscription_disable_repos(section_dict):
     section_dict['repos'] = section_dict.get('repos') or "\'*\'"
