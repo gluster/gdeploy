@@ -36,8 +36,6 @@ setup(
     description="Tool to automatically setup and deploy " \
     "gluster using ansible",
 
-    long_description=open("README.md").read(),
-
     install_requires=[
         "ansible",
         "pyyaml",
