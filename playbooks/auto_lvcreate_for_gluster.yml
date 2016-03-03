@@ -9,22 +9,14 @@
         snapshot_reserve="{{ snapshot_reserve }}"
         vgname={{ item }}
     with_items: vgs
-    register: result
-    failed_when: "result.rc != 0"
-
-  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
-    when: "'{{ command }}' not in '{{ result.msg }}'"
+    ignore_errors: yes
 
   - name: Create a thin pool
     lv: action=create lvname={{ item.pool }} lvtype='thin'
         compute=rhs disktype="{{ disktype }}" vgname={{ item.vg }}
         snapshot_reserve="{{ snapshot_reserve }}"
     with_items: lvpools
-    register: result
-    failed_when: "result.rc != 0"
-
-  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
-    when: "'{{ command }}' not in '{{ result.msg }}'"
+    ignore_errors: yes
 
   - name: Convert the logical volume
     lv: action=convert thinpool={{ item.vg }}/{{item.pool }}
@@ -34,11 +26,7 @@
         stripesize="{{stripesize}}"
         snapshot_reserve="{{ snapshot_reserve }}"
     with_items: lvpools
-    register: result
-    failed_when: "result.rc != 0"
-
-  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
-    when: "'{{ command }}' not in '{{ result.msg }}'"
+    ignore_errors: yes
 
   - name: Create logical volume for the pools
     lv: action=create poolname={{ item.pool }} lvtype="virtual"
@@ -46,17 +34,9 @@
         vgname={{ item.vg }} lvname={{ item.lv }}
         snapshot_reserve="{{ snapshot_reserve }}"
     with_items: lvpools
-    register: result
-    failed_when: "result.rc != 0"
-
-  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
-    when: "'{{ command }}' not in '{{ result.msg }}'"
+    ignore_errors: yes
 
   - name: Change the attributes of the logical volume
     lv: action=change zero=n vgname={{ item.vg }} poolname={{ item.pool }}
     with_items: lvpools
-    register: result
-    failed_when: "result.rc != 0"
-
-  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
-    when: "'{{ command }}' not in '{{ result.msg }}'"
+    ignore_errors: yes

@@ -34,24 +34,21 @@ class TestBackendSetup(unittest.TestCase, Helpers):
             cmd.append('--connection=local')
 
 
-            #Test peer probe command
             if 'pvcreate' in yml:
                 cmd.extend(['--extra-vars',
                     'command=\'All items completed\''])
 
 
-            # Test volume create command
             if 'vgcreate' in yml:
                 cmd.extend(['--extra-vars',
                     'command=\'All items completed\''])
 
 
-            # Test volume start command
-            # if 'auto_lvcreate_for_gluster' in yml:
-                # cmd.extend(['--extra-vars',
-                    # 'command=\'All items completed\''])
-            # ret = subprocess.call(cmd, shell=False)
-            # self.assertEqual(ret, 0)
+            if 'auto_lvcreate_for_gluster' in yml:
+                cmd.extend(['--extra-vars',
+                    'command=\'All items completed\''])
+            ret = subprocess.call(cmd, shell=False)
+            self.assertEqual(ret, 0)
 
 
     @classmethod

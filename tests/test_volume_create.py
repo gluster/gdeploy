@@ -38,6 +38,7 @@ class TestVolumeCreate(unittest.TestCase, Helpers):
             cmd.append('--connection=local')
 
 
+            print cmd
             #Test peer probe command
             if 'peer-probe' in yml:
                 cmd.extend(['--extra-vars',
