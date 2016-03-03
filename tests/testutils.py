@@ -15,6 +15,7 @@ class TestUtils(Helpers):
         args = ['-c' + conf_file, '-t', '-k']
         print "Yaml syntax checks:\n"
         ret = main(args)
+        self.write_to_inventory('gluster_servers', Global.current_hosts)
 
         if ret == -1:
             return ret
@@ -28,4 +29,4 @@ class TestUtils(Helpers):
         if os.path.isdir(Global.base_dir):
             shutil.rmtree(Global.base_dir)
         Global.cmd = []
-        Global.base_dir = tempfile.mkdtemp()
+        # Global.base_dir = tempfile.mkdtemp()

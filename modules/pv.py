@@ -83,14 +83,10 @@ class PvOps(object):
         return value
 
     def run_command(self, op, options):
-        cmd = self.module.get_bin_path(op, True)  + options
         if self.module.check_mode == True:
-            try:
-                from gdeploylib import Global
-                Global.command = cmd
-            except:
-                pass
-            self.module.exit_json(changed=False)
+            cmd = op + options
+            self.module.fail_json(msg=cmd, rc=0, changed=False)
+        cmd = self.module.get_bin_path(op, True)  + options
         return self.module.run_command(cmd)
 
     def _get_output(self, rc, output, err):
