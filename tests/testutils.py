@@ -8,6 +8,10 @@ from gdeploylib import Helpers, Global
 class TestUtils(Helpers):
     def get_generated_commands(self, conf_file):
         # Chooses proper configuration file and playbook for testing
+        Global.cmd = []
+        Global.current_hosts = []
+        Global.hosts = []
+        Global.base_dir = tempfile.mkdtemp()
         path = os.path.abspath(__file__)
         dir_path = os.path.dirname(path)
         conf_file = self.get_file_dir_path(dir_path, conf_file)
@@ -28,5 +32,3 @@ class TestUtils(Helpers):
     def test_cleanup(self):
         if os.path.isdir(Global.base_dir):
             shutil.rmtree(Global.base_dir)
-        Global.cmd = []
-        # Global.base_dir = tempfile.mkdtemp()
