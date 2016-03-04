@@ -31,7 +31,15 @@ class Global(object):
     var_file = None
     master = None
     brick_hosts = []
-    log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
+    log_dir = os.path.expanduser('~/.gdeploy/logs/')
+    if not os.path.exists(log_dir):
+        try:
+            os.makedirs(log_dir)
+        except OSError, error:
+            import sys
+            print "Unable to create %s: %s."%(log_dir, error.strerror)
+            sys.exit(1)
+    log_file = os.path.realpath(log_dir + '/gdeploy.log')
     hosts = []
     current_hosts = []
     current_host = None
