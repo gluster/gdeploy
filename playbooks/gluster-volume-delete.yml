@@ -9,6 +9,7 @@
              volume="{{ volname }}"
     register: result
     failed_when: "result.rc != 0 and ('already stopped' not in result.msg and 'does not exist' not in result.msg)"
+    ignore_errors: yes
 
 
   - name: Deletes a volume
