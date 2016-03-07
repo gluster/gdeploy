@@ -12,18 +12,18 @@
     ignore_errors: yes
 
   - name: Disable network manager service
-    shell: chkconfig NetworkManager off
+    service: name=NetworkManager enabled=yes
     ignore_errors: yes
 
   - name: Start network service
     service: name=network state=started
 
   - name: Enable network service
-    shell: chkconfig network on
+    service: name=network enabled=yes
 
   - name: Start pcsd service
     service: name=pcsd state=started
 
   - name: Enable pcsd service
-    shell: chkconfig pcsd on
+    service: name=pcsd enabled=yes
 
