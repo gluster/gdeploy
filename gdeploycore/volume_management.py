@@ -257,6 +257,7 @@ class VolumeManagement(Helpers):
         self.run_playbook(CREATEDIR_YML)
         self.run_playbook(VOLCREATE_YML)
         self.start_volume()
+        self.volume_set()
         return True
 
     def start_volume(self):
