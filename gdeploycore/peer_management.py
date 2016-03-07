@@ -67,6 +67,7 @@ class PeerManagement(Helpers):
                 self.run_playbook(GLUSTERD_YML)
             if action == 'probe':
                 to_be_probed = Global.hosts + Global.brick_hosts
+                to_be_probed = sorted(set(to_be_probed))
                 self.create_yaml_dict('to_be_probed', to_be_probed, False)
             elif action == 'detach':
                 self.create_yaml_dict('hosts', Global.hosts, False)
