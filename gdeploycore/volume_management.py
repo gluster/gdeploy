@@ -257,6 +257,7 @@ class VolumeManagement(Helpers):
         self.run_playbook(CREATEDIR_YML)
         self.run_playbook(VOLCREATE_YML)
         self.start_volume()
+        self.volume_set()
         return True
 
     def start_volume(self):
@@ -350,8 +351,9 @@ class VolumeManagement(Helpers):
     def volume_set(self, key=None, value=None):
         self.filename = Global.group_file
         if not key:
-            self.is_option_present('key', self.section_dict)
-            self.is_option_present('value', self.section_dict)
+            if not self.section_dict.get('key') or not self.section_dict.get(
+                    'value'):
+                return
             key = self.section_dict.pop('key')
             value = self.section_dict.pop('value')
         if not isinstance(key, list):
