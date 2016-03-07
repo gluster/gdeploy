@@ -324,6 +324,7 @@ class BackendSetup(Helpers):
             self.run_playbook(MOUNT_YML)
 
     def write_brick_dirs(self):
+        self.section_dict['mountpoints'] = []
         force = self.config_section_map('volume',
                 'force', False) or ''
         brick_dirs = []
@@ -381,17 +382,10 @@ class BackendSetup(Helpers):
 
         force = 'yes' if force.lower() == 'yes' else 'no'
         self.section_dict['force'] = force
+        self.section_dict['mountpoints'] = brick_list
         if hasattr(self, 'host_file'):
             self.filename = self.host_file
-            self.section_dict['mountpoints'] = brick_list
             self.create_var_files(self.section_dict)
-        else:
-            if self.section_dict.get('mountpoints'):
-                self.section_dict['mountpoints'] = self.listify(
-                        self.section_dict['mountpoints'])
-                self.section_dict['mountpoints'].extend(brick_list)
-            else:
-                self.section_dict['mountpoints'] = brick_list
         return
 
 
