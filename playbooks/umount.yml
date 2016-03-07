@@ -10,5 +10,5 @@
     with_items: mntpath
 
   - name: Delete the mount points
-    shell: rm -rf {{ item.path }}
+    file: path={{ item.path }} state=absent
     with_items: mntpath

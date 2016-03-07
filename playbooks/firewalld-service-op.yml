@@ -8,6 +8,3 @@
     firewalld: service={{ item }} permanent="{{ permanent }}" state="{{ firewall_state }}"
                zone="{{ zone }}"
     with_items: services
-
-  - name: Reloads firewalld
-    shell: firewall-cmd --reload
