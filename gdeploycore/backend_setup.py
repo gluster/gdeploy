@@ -387,6 +387,8 @@ class BackendSetup(Helpers):
             self.create_var_files(self.section_dict)
         else:
             if self.section_dict.get('mountpoints'):
+                self.section_dict['mountpoints'] = self.listify(
+                        self.section_dict['mountpoints'])
                 self.section_dict['mountpoints'].extend(brick_list)
             else:
                 self.section_dict['mountpoints'] = brick_list

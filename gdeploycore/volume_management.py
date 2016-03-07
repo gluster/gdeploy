@@ -127,6 +127,7 @@ class VolumeManagement(Helpers):
                     brick_dir = [filename + ':' +  d for d in
                             doc['mountpoints']]
                 self.section_dict['brick_dirs'] = brick_dir
+                self.section_dict['mountpoints'] = brick_dir
                 return
         brick_dirs = []
         if self.get_var_file_type() and Global.var_file == 'group_vars':
@@ -195,7 +196,7 @@ class VolumeManagement(Helpers):
            print "\nError: " + msg
            Global.logger.error(msg)
            self.cleanup_and_quit()
-       self.create_yaml_dict('mountpoints', brick_dirs, False)
+       self.create_yaml_dict('mountpoints', self.section_dict['brick_dirs'], False)
        self.create_yaml_dict('brick_dirs', self.section_dict['brick_dirs'], False)
 
 
@@ -247,7 +248,10 @@ class VolumeManagement(Helpers):
             Global.logger.error(msg)
             self.cleanup_and_quit()
         self.is_option_present('volname', self.section_dict)
-        self.run_playbook(GLUSTERD_YML)
+        self.section_dict['service'] = 'glusterd'
+        self.section_dict['state'] = 'restarted'
+        self.run_playbook(SERVICE_MGMT)
+        Global.current_hosts = sorted(set(Global.current_hosts))
         self.create_yaml_dict('hosts', Global.current_hosts, False)
         self.call_peer_probe()
         self.run_playbook(CREATEDIR_YML)
@@ -308,6 +312,7 @@ class VolumeManagement(Helpers):
                 'peer', 'manage', False) or 'True'
         if peer_action != 'ignore':
             to_be_probed = Global.current_hosts + Global.brick_hosts
+            to_be_probed = sorted(set(to_be_probed))
             self.create_yaml_dict('to_be_probed', to_be_probed, False)
             self.run_playbook(PROBE_YML)
 
