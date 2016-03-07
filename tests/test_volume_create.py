@@ -47,7 +47,7 @@ class TestVolumeCreate(unittest.TestCase, Helpers):
             # Test volume create command
             if 'volume-create' in yml:
                 cmd.extend(['--extra-vars',
-                    'command=\'gluster volume create gemvol   transport tcp  10.70.47.3:/brick/test_brick1   --mode=script\''])
+                    'command=\'gluster volume create gemvol   transport tcp  10.70.46.76:/brick/test_brick1   --mode=script\''])
 
 
             # Test volume start command
