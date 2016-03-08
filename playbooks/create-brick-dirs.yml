@@ -6,5 +6,5 @@
   tasks:
   - name: Create the brick dirs, skips if present
     file: path={{ item }} state=directory
-    with_items: mountpoints
+    with_items: brick_dirs
 

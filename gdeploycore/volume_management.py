@@ -114,21 +114,33 @@ class VolumeManagement(Helpers):
         host_files = [self.get_file_dir_path(Global.host_vars_dir,
                     host) for host in Global.hosts]
         files = [Global.group_file] +  host_files
+        brick_dir = []
+        found_mount_points = True
         for fd in files:
+            filename = os.path.basename(fd)
             if self.is_present_in_yaml(fd, 'mountpoints'):
                 doc = self.read_yaml(fd)
-                filename = os.path.basename(fd)
                 if filename == 'all':
-                    brick_dir = []
                     for h in Global.hosts:
                         brick_dir.extend([h +  ':' +  d for d in
                             doc['mountpoints']])
+                    self.section_dict['mountpoints'] = brick_dir
+                    self.section_dict['brick_dirs'] = doc['mountpoints']
+                    return
                 else:
-                    brick_dir = [filename + ':' +  d for d in
-                            doc['mountpoints']]
-                self.section_dict['brick_dirs'] = brick_dir
-                self.section_dict['mountpoints'] = brick_dir
-                return
+                    brick_dir.extend([filename + ':' +  d for d in
+                            doc['mountpoints']])
+                    self.section_dict['brick_dirs'] = doc['mountpoints']
+                    self.filename = fd
+                    print self.filename, doc['mountpoints']
+                    self.create_yaml_dict('brick_dirs',
+                            doc['mountpoints'], False)
+            else:
+                if filename != 'all':
+                    found_mount_points = False
+        if found_mount_points and brick_dir:
+            self.section_dict['mountpoints'] = sorted(set(brick_dir))
+            return
         brick_dirs = []
         if self.get_var_file_type() and Global.var_file == 'group_vars':
             Global.current_hosts = Global.hosts
@@ -136,7 +148,7 @@ class VolumeManagement(Helpers):
             br_drs = []
             for each in Global.hosts:
                 br_drs.extend([each + ':' + brk for brk in brick_dirs])
-            self.section_dict['brick_dirs'] = br_drs
+            self.section_dict['brick_dirs'] = brick_dirs
 
         else:
             backend_setup, hosts = self.check_backend_setup_format()
@@ -147,10 +159,10 @@ class VolumeManagement(Helpers):
                         'backend-setup', 'brick_dirs', True))
                     for each in Global.hosts:
                         br_drs.extend([each + ':' + brk for brk in brick_dirs])
-                    self.section_dict['brick_dirs'] = br_drs
-        if  brick_dirs:
+                    self.section_dict['brick_dirs'] = brick_dirs
+        if  br_drs:
             self.filename = Global.group_file
-            self.write_brick_dirs(brick_dirs)
+            self.write_brick_dirs(br_drs)
         else:
             if hosts:
                Global.current_hosts = hosts
@@ -172,32 +184,27 @@ class VolumeManagement(Helpers):
                 self.cleanup_and_quit()
             self.section_dict['brick_dirs'] = []
             for hfile, sec in zip(host_files, host_sections):
+                br_drs = []
                 brick_dirs = self.pattern_stripping(Global.sections.get(sec)['brick_dirs'])
                 br_drs = [os.path.basename(hfile) + ':' + br for br in
                         brick_dirs]
-                self.section_dict['brick_dirs'].extend(br_drs)
-                # except:
-                    # print "Option 'brick_dirs' " \
-                        # "not found.\nCannot continue " \
-                        # "volume creation!"
-                    # self.cleanup_and_quit()
-
+                self.section_dict['brick_dirs'] = brick_dirs
                 self.filename = hfile
-                if not self.is_present_in_yaml(self.filename, 'mountpoints'):
-                    if not os.path.isfile(self.filename):
-                        self.touch_file(self.filename)
-                    self.write_brick_dirs(brick_dirs)
+                if not os.path.isfile(self.filename):
+                    self.touch_file(self.filename)
+                self.write_brick_dirs(br_drs)
+                self.create_yaml_dict('brick_dirs', brick_dirs, False)
 
 
     def write_brick_dirs(self, brick_dirs):
-       if False in [brick.startswith('/') for brick in brick_dirs]:
+       if False in [brick.startswith('/') for brick in
+               sorted(set(brick_dirs))]:
            msg = "values to 'brick_dirs' should be absolute"\
                    " path. Relative given. Exiting!"
            print "\nError: " + msg
            Global.logger.error(msg)
            self.cleanup_and_quit()
-       self.create_yaml_dict('mountpoints', self.section_dict['brick_dirs'], False)
-       self.create_yaml_dict('brick_dirs', self.section_dict['brick_dirs'], False)
+       self.create_yaml_dict('mountpoints', brick_dirs, False)
 
 
     def create_volume(self):
@@ -214,7 +221,10 @@ class VolumeManagement(Helpers):
                 else:
                     Global.current_hosts = Global.hosts
                     Global.var_file = Global.group_file
-                    self.section_dict['mountpoints'] = br_dir
+                    brk = []
+                    for host in Global.hosts:
+                        brk.extend([host + ':' + br for br in br_dir])
+                    self.section_dict['mountpoints'] = sorted(set(brk))
             else:
                 Global.current_hosts = []
                 self.section_dict['mountpoints'] = []
@@ -226,6 +236,9 @@ class VolumeManagement(Helpers):
                     self.touch_file(Global.var_file)
                     self.section_dict['mountpoints'].extend(self.pattern_stripping(
                             each.group(2)))
+                    self.section_dict['mountpoints'] = sorted(set(
+                        self.section_dict['mountpoints']))
+
                     self.create_var_files(self.section_dict)
         else:
             if len(self.section_lists) > 1:
@@ -248,6 +261,7 @@ class VolumeManagement(Helpers):
             Global.logger.error(msg)
             self.cleanup_and_quit()
         self.is_option_present('volname', self.section_dict)
+        self.filename = Global.group_file
         self.section_dict['service'] = 'glusterd'
         self.section_dict['state'] = 'restarted'
         self.run_playbook(SERVICE_MGMT)
