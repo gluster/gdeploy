@@ -132,7 +132,6 @@ class VolumeManagement(Helpers):
                             doc['mountpoints']])
                     self.section_dict['brick_dirs'] = doc['mountpoints']
                     self.filename = fd
-                    print self.filename, doc['mountpoints']
                     self.create_yaml_dict('brick_dirs',
                             doc['mountpoints'], False)
             else:
