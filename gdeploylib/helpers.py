@@ -384,8 +384,9 @@ class Helpers(Global, YamlWriter):
             Global.current_hosts,
             Global.inventory)
         try:
-            Global.master = [list(set(Global.current_hosts) - set(
-                Global.brick_hosts))[0]]
+            if not Global.master:
+                Global.master = [list(set(Global.current_hosts) - set(
+                    Global.brick_hosts))[0]]
         except:
             pass
         try:

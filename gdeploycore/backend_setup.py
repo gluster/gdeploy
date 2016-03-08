@@ -104,6 +104,7 @@ class BackendSetup(Helpers):
             Global.var_file = 'group_vars'
             self.call_selinux()
         Global.hosts.extend(hosts)
+        Global.hosts = sorted(set(Global.hosts))
 
     def old_backend_setup(self):
         if not self.get_var_file_type():
@@ -383,6 +384,8 @@ class BackendSetup(Helpers):
         force = 'yes' if force.lower() == 'yes' else 'no'
         self.section_dict['force'] = force
         self.section_dict['mountpoints'] = brick_list
+        self.create_var_files(self.section_dict, keep_format=False,
+                filename=Global.group_file)
         if hasattr(self, 'host_file'):
             self.filename = self.host_file
             self.create_var_files(self.section_dict)
