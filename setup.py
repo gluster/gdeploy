@@ -12,7 +12,7 @@ setup(
                 'gdeployfeatures/update_file', 'gdeployfeatures/ctdb',
                 'gdeployfeatures/geo_replication',
                 'gdeployfeatures/service', 'gdeployfeatures/shell',
-                'gdeployfeatures/nfs_ganesha'
+                'gdeployfeatures/nfs_ganesha', 'gdeployfeatures/script'
              ],
     scripts=[
         'gdeploy/gdeploy'
