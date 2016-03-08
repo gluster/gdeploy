@@ -21,7 +21,7 @@
 
 feature_list = ['snapshot', 'quota', 'yum', 'geo_replication', 'ctdb',
 'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
-'update_file']
+'update_file', 'script']
 # All the defaults values used in gdeploy
 
 
@@ -183,4 +183,7 @@ GANESHA_VOL_EXPORT = 'gluster-volume-export-ganesha.yml'
 GANESHA_DISABLE = 'disable-nfs-ganesha.yml'
 GANESHA_ADD_NODE = 'ganesha-cluster-add.yml'
 GANESHA_DELETE_NODE = 'ganesha-cluster-delete.yml'
+
+
+RUN_SCRIPT = 'run-script.yml'
 

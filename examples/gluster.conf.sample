@@ -1414,7 +1414,7 @@ client_mount_points=/mnt/gluster{1,3}
                             ##-- Shell --##
 
 # The 'shell' section lets you run any shell command in the remote
-# machine(s).  If multiple commands are to be executed, they must be
+# machine(s). If multiple commands are to be executed, they must be
 # provided comma separated.  Provide the action option with value
 # 'execute' always.
 #
@@ -1425,4 +1425,30 @@ client_mount_points=/mnt/gluster{1,3}
 # command=touch /etc/gluster/dummy.conf,export MY_VAR="DUMMY_VALUE"
 
 
+
+
+#-----------------------------------
+
+
+
+                            ##-- Script --##
+
+# The 'script' module lets you run a shell script in the remote
+# machine(s). If multiple scripts are to be executed, they must be
+# provided comma separated.  Provide the action option with value
+# 'execute' always.
+#
+# To run a command:
+#
+# [script]
+# action=execute
+# file=/path/to/some/script.sh
+# args=arg1 arg2 arg3
+#
+# Seperate arguments for each shell script with comma
+#
+# [script]
+# action=execute
+# file=/path/to/some/script1.sh,/path/to/some/script2.sh
+# args=argForScript1 anotherArgForScript1,argForScript2
 

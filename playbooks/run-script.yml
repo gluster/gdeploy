@@ -1,0 +1,14 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Run a shell script
+    script: "{{ item }}"
+    register: result
+    failed_when: result.rc != 0
+
+    with_items: script
+
+  - debug: msg="{{ result.msg }}"

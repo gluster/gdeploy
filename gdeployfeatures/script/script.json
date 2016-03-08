@@ -1,0 +1,18 @@
+{
+  "script": {
+    "action": {
+      "execute": {
+        "options": [
+          {
+            "required": "true",
+            "name": "file"
+          },
+          {
+            "required": "false",
+            "name": "args"
+          }
+        ]
+      }
+    }
+  }
+}
