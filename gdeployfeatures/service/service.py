@@ -23,10 +23,8 @@ def service_reload(section_dict):
 
 def service_enable(section_dict):
     section_dict['enabled'] = 'yes'
-    del section_dict['state']
     return section_dict, defaults.CHKCONFIG
 
 def service_disable(section_dict):
     section_dict['enabled'] = 'no'
-    del section_dict['state']
     return section_dict, defaults.CHKCONFIG
