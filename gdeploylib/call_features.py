@@ -33,10 +33,10 @@ def call_features():
     if not Global.sections:
         return
     helpers.get_hostnames()
-    Global.current_hosts = Global.hosts
     map(get_feature_dir, Global.sections)
 
 def get_feature_dir(section):
+    Global.current_hosts = Global.hosts
     global helpers, section_name
     section_name = helpers.get_section_pattern(section)
     section_dir = os.path.join(gdeployfeatures.__path__[0], section_name)
