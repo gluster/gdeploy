@@ -1078,10 +1078,13 @@ client_mount_points=/mnt/gluster{1,3}
 # repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
 # packages=vi,glusterfs
 # gpgcheck=no
+# update=no
 #
 # If 'no' provided to gpgcheck, it will disable gpgcheck. By default
 # it is 'yes'.
 #
+# If 'no' provided to update, gdeploy will not run  'yum update' before
+# installation. By default  it is 'yes'.
 # To remove package(s)
 #
 # [yum]
