@@ -17,6 +17,7 @@
 
   - name: Yum update
     yum: name=* state=latest
+    when: update is defined and update == 'yes'
 
   - name: Installs/Removes a package using yum
     yum: name={{ item }} state="{{ yum_state }}"

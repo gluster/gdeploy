@@ -15,6 +15,11 @@
             "required": "false",
             "name": "gpgcheck",
             "default": "yes"
+          },
+          {
+            "required": "false",
+            "name": "update",
+            "default": "yes"
           }
         ]
       },
