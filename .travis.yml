@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+# command to install dependencies
+before_install:
+  - export GDEPLOY_TEMPLATES="/home/travis/build/gluster/gdeploy/"
+  - export ANSIBLE_LIBRARY="/home/travis/build/gluster/gdeploy/modules"
+install: "pip install -r requirements.txt"
+# command to run tests
+script: nosetests

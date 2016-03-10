@@ -83,6 +83,9 @@ class PvOps(object):
         return value
 
     def run_command(self, op, options):
+        if self.module.check_mode == True:
+            cmd = op + options
+            self.module.fail_json(msg=cmd, rc=0, changed=False)
         cmd = self.module.get_bin_path(op, True)  + options
         return self.module.run_command(cmd)
 
@@ -145,6 +148,7 @@ if __name__ == '__main__':
             size=dict(),
             operation=dict(choices=["expand", "shrink"]),
         ),
+        supports_check_mode=True
     )
 
     pvops = PvOps(module)

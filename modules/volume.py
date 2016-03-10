@@ -140,7 +140,11 @@ EXAMPLES = '''
 
 import sys
 import re
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:
+    # python 2.6 or earlier, use backport
+    from ordereddict import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
@@ -285,8 +289,14 @@ class Volume(object):
             self.module.fail_json(msg=err, rc=rc)
 
     def _run_command(self, op, opts):
+        if self.module.check_mode == True:
+            cmd = op + opts + ' --mode=script'
+            self.module.fail_json(rc=0, msg=cmd, changed=False)
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         return self.module.run_command(cmd)
+
+    def _return_command(self, op, opts):
+        cmd = op + opts + ' --mode=script'
 
 if __name__ == '__main__':
     module = AnsibleModule(
@@ -309,6 +319,7 @@ if __name__ == '__main__':
             redundancy_count=dict(),
 
         ),
+        supports_check_mode=True
     )
 
     Volume(module)

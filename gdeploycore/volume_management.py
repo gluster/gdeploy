@@ -82,7 +82,6 @@ class VolumeManagement(Helpers):
             Global.logger.error(msg)
             return
         msg = "Volume management(action: %s) triggered" % action
-        print "\nINFO: " + msg
         Global.logger.info(msg)
         if not action_func():
             return

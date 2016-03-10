@@ -19,7 +19,6 @@
 
 import sys
 import re
-from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
@@ -51,7 +50,8 @@ class Peer(object):
     def gluster_peer_ops(self):
         self.get_host_names()
         if self.action == 'probe':
-            self.hosts = self.get_to_be_probed_hosts()
+            if not self.module.check_mode:
+                self.hosts = self.get_to_be_probed_hosts()
         self.current_host = self._validated_params('current_host')
         try:
             self.hosts.remove(self.current_host)
@@ -95,8 +95,12 @@ class Peer(object):
             self.module.fail_json(rc=rc, msg=err)
 
     def _run_command(self, op, opts):
+        if self.module.check_mode == True:
+            cmd = op + opts + ' --mode=script'
+            self.module.fail_json(msg=cmd, rc=0, output=cmd)
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         return self.module.run_command(cmd)
+
 
 if __name__ == '__main__':
     module = AnsibleModule(
@@ -106,6 +110,7 @@ if __name__ == '__main__':
             hosts=dict(),
             force=dict(),
         ),
+        supports_check_mode=True
     )
 
     Peer(module)

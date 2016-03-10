@@ -23,7 +23,11 @@ import sys
 import os
 import time
 import shutil
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:
+    # python 2.6 or earlier, use backport
+    from ordereddict import OrderedDict
 from gdeploylib import *
 from gdeploycore import call_core_functions
 
@@ -48,6 +52,9 @@ def parse_arguments(args=None):
     parser.add_argument('-k', dest='keep',
                         action='store_true',
                         help="Keep the generated ansible utility files")
+    parser.add_argument('-t', dest='test',
+                        action='store_true',
+                        help="Do a test run")
     parser.add_argument('--trace', dest='trace',
                         action='store_true',
                         help="Turn on the trace messages in logs")
@@ -79,7 +86,8 @@ def init_global_values(args):
     sections_list = []
     Global.config = helpers.read_config(args.config_file.name)
     Global.verbose = '-vv' if args.verbose else ''
-    Global.keep = args.keep
+    Global.keep = args.keep or args.test
+    Global.test = args.test
     Global.trace = args.trace
     for sec in  Global.config._sections:
         sections = helpers.parse_patterns(sec)
@@ -119,9 +127,10 @@ def gdeploy_cleanup():
     if not Global.keep:
         shutil.rmtree(Global.base_dir)
     else:
-        print "\nYou can view the generated configuration files "\
-            "inside %s" % Global.base_dir
-        Global.logger.info("Configuration saved inside %s" %Global.base_dir)
+        if not Global.test:
+            print "\nYou can view the generated configuration files "\
+                "inside %s" % Global.base_dir
+            Global.logger.info("Configuration saved inside %s" %Global.base_dir)
     Global.logger.info("Terminating gdeploy...")
 
 @logfunction
@@ -151,6 +160,7 @@ def create_playbooks_in_local():
     helpers.copy_files(templates_dir)
 
 def main(arg):
+    log_event()
     args = parse_arguments(arg)
     if args:
         check_ansible_installation()
@@ -173,5 +183,4 @@ if __name__ == '__main__':
     '''
     and it initialises a global var to keep track of the logs
     '''
-    log_event()
     main(sys.argv[1:])

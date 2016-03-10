@@ -160,6 +160,9 @@ class VgOps(object):
         self._get_output(rc, out, err)
 
     def run_command(self, op, opts):
+        if self.module.check_mode == True:
+            cmd = op + opts
+            self.module.fail_json(msg=cmd, rc=0, changed=False)
         cmd = self.module.get_bin_path(op, True) + opts
         return self.module.run_command(cmd)
 
@@ -174,6 +177,7 @@ if __name__ == '__main__':
             disktype=dict(),
             stripesize=dict()
         ),
+        supports_check_mode=True
     )
 
     vgops = VgOps(module)

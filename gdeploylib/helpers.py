@@ -66,7 +66,7 @@ class Helpers(Global, YamlWriter):
     def cleanup_and_quit(self):
         if os.path.isdir(Global.base_dir):
             shutil.rmtree(Global.base_dir)
-        sys.exit(0)
+        sys.exit(-1)
 
     def mk_dir(self, direc):
         if os.path.isdir(direc):
@@ -348,7 +348,7 @@ class Helpers(Global, YamlWriter):
         if section_dict:
             self.create_var_files(section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
-        self.exec_ansible_cmd(yml)
+        return self.exec_ansible_cmd(yml)
 
 
     def exec_ansible_cmd(self, playbooks_file):
@@ -357,7 +357,15 @@ class Helpers(Global, YamlWriter):
                 playbooks_file]
         command = filter(None, command)
         try:
-            subprocess.call(command, shell=False)
+            FNULL = open(os.devnull, 'w') if Global.test else sys.stdout
+            if Global.test:
+                command.append('--syntax-check')
+                subprocess.call(command, shell=False)
+                command.remove('--syntax-check')
+                Global.cmd.append(command)
+                return
+            else:
+                subprocess.call(command, shell=False)
         except (OSError, subprocess.CalledProcessError) as e:
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()

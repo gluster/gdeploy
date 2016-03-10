@@ -138,9 +138,9 @@ class LvOps(object):
                            'remove': self.remove
                            }[self.action]()
         if rc:
-            self.module.fail_json(msg=err)
+            self.module.fail_json(msg=err,rc=rc)
         else:
-            self.module.exit_json(msg=output, changed=1)
+            self.module.exit_json(msg=output, changed=1, rc=0)
 
     def compute(self):
         #This is an RHS specific computation method for performance
@@ -176,10 +176,13 @@ class LvOps(object):
         value = self.module.params[opt]
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(msg=msg, rc=-1)
         return value
 
     def run_command(self, op, options):
+        if self.module.check_mode == True:
+            cmd = op + options
+            self.module.fail_json(msg=cmd, rc=0, changed=False)
         cmd = self.module.get_bin_path(op, True) + options
         return self.module.run_command(cmd)
 
@@ -290,6 +293,7 @@ def main():
             snapshot_reserve=dict(),
             force=dict()
         ),
+        supports_check_mode=True
     )
 
     lvops = LvOps(module)

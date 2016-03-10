@@ -27,6 +27,9 @@ class Global(object):
         modules
     '''
     logger = None
+    test = None
+    command = None
+    cmd = []
     trace = False
     var_file = None
     master = None

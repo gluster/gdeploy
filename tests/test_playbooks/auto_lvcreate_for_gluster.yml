@@ -1,0 +1,62 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Create logical volume named metadata
+    lv: action=create lvname=metadata compute=rhs lvtype='thick'
+        snapshot_reserve="{{ snapshot_reserve }}"
+        vgname={{ item }}
+    with_items: vgs
+    register: result
+    failed_when: "result.rc != 0"
+
+  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
+    when: "'{{ command }}' not in '{{ result.msg }}'"
+
+  - name: Create a thin pool
+    lv: action=create lvname={{ item.pool }} lvtype='thin'
+        compute=rhs disktype="{{ disktype }}" vgname={{ item.vg }}
+        snapshot_reserve="{{ snapshot_reserve }}"
+    with_items: lvpools
+    register: result
+    failed_when: "result.rc != 0"
+
+  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
+    when: "'{{ command }}' not in '{{ result.msg }}'"
+
+  - name: Convert the logical volume
+    lv: action=convert thinpool={{ item.vg }}/{{item.pool }}
+        poolmetadata={{ item.vg }}/'metadata' poolmetadataspare=n
+        vgname={{ item.vg }} compute=rhs disktype="{{disktype}}"
+        diskcount="{{ diskcount }}"
+        stripesize="{{stripesize}}"
+        snapshot_reserve="{{ snapshot_reserve }}"
+    with_items: lvpools
+    register: result
+    failed_when: "result.rc != 0"
+
+  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
+    when: "'{{ command }}' not in '{{ result.msg }}'"
+
+  - name: Create logical volume for the pools
+    lv: action=create poolname={{ item.pool }} lvtype="virtual"
+        compute=rhs disktype="{{ disktype }}"
+        vgname={{ item.vg }} lvname={{ item.lv }}
+        snapshot_reserve="{{ snapshot_reserve }}"
+    with_items: lvpools
+    register: result
+    failed_when: "result.rc != 0"
+
+  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
+    when: "'{{ command }}' not in '{{ result.msg }}'"
+
+  - name: Change the attributes of the logical volume
+    lv: action=change zero=n vgname={{ item.vg }} poolname={{ item.pool }}
+    with_items: lvpools
+    register: result
+    failed_when: "result.rc != 0"
+
+  - fail: msg="Got '{{ result.msg }}' instead of '{{ command }}'"
+    when: "'{{ command }}' not in '{{ result.msg }}'"
