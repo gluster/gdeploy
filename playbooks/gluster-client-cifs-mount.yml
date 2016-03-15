@@ -1,20 +1,22 @@
 ---
-- hosts: cifs_clients
+- hosts: clients
   remote_user: root
   gather_facts: no
 
   tasks:
   - name: Create the dir to mount the volume, skips if present
-    file: path={{ item }} state=directory
+    file: path={{ item.mountpoint }} state=directory
+    when: item.fstype == 'cifs'
 
-    with_items: client_mount_points
+    with_items: client_mounts
 
   - name: Mount the volumes
-    mount: name={{ item }}
+    mount: name={{ item.mountpoint }}
            src="\\\\{{ groups['master'][0]}}\\gluster-{{ volname }}"
            fstype="cifs"
            opts="username={{smb_username}},password={{smb_password}}"
            state=mounted
+    when: item.fstype == 'cifs'
 
-    with_items: client_mount_points
+    with_items: client_mounts
 
