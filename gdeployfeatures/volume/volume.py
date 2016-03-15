@@ -53,7 +53,7 @@ def get_smb_data(section_dict):
 def call_peer_probe(section_dict):
     global helpers
     peer_action = helpers.config_section_map(
-            'peer', 'manage', False) or 'True'
+            'peer', 'action', False) or 'True'
     if peer_action != 'ignore':
         to_be_probed = Global.current_hosts + Global.brick_hosts
         to_be_probed = sorted(set(to_be_probed))

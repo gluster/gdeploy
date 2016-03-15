@@ -21,8 +21,6 @@ import re, sys, os
 from gdeploylib import *
 from gdeploylib.defaults import *
 from backend_setup import BackendSetup
-from peer_management import PeerManagement
-from volume_management import VolumeManagement
 from client_management import ClientManagement
 from backend_reset import BackendReset
 
@@ -35,7 +33,6 @@ conf_parse = Helpers()
 def call_core_functions():
     log_methods_in_class(BackendSetup)
     tune_profile()
-    log_methods_in_class(PeerManagement)
     log_methods_in_class(ClientManagement)
     log_methods_in_class(BackendReset)
 
