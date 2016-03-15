@@ -7,7 +7,6 @@
   - name: Add bricks to an existing volume
     volume:  action=add-brick
              volume="{{ volname }}"
-             bricks="{{ new_bricks }}"
-             replica="{{ replica }}"
+             bricks="{{ mountpoints }}"
              replica_count="{{ replica_count }}"
              force="{{ force }}"

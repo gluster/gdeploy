@@ -36,7 +36,6 @@ def call_core_functions():
     log_methods_in_class(BackendSetup)
     tune_profile()
     log_methods_in_class(PeerManagement)
-    log_methods_in_class(VolumeManagement)
     log_methods_in_class(ClientManagement)
     log_methods_in_class(BackendReset)
 

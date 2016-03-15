@@ -45,11 +45,13 @@ class BackendSetup(Helpers):
         self.section_dict = dict()
         self.previous = True
         self.write_sections()
+        Global.hosts = sorted(set(Global.hosts))
         self.remove_from_sections('default')
         self.remove_from_sections('force')
         self.remove_from_sections('gluster')
         self.remove_from_sections('selinux')
         self.remove_from_sections('snapshot-reserve')
+        self.remove_from_sections('backend-setup')
 
     def write_sections(self):
         Global.logger.info("Reading configuration for backend setup")

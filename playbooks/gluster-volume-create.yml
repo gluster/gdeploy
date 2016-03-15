@@ -10,7 +10,6 @@
              bricks='{{ mountpoints }}'
              hosts="{{ hosts }}"
              transport="{{ transport }}"
-             replica="{{ replica }}"
              replica_count="{{ replica_count }}"
              arbiter_count="{{ arbiter_count }}"
              disperse="{{ disperse }}"

@@ -117,6 +117,7 @@ class Helpers(Global, YamlWriter):
         for key, value in default_value_dict.iteritems():
             if key not in dictname:
                 dictname[key] = value
+        return dictname
 
     def is_option_present(self, param, section_dict, reqd=True):
         if not section_dict.get(param):
@@ -201,12 +202,6 @@ class Helpers(Global, YamlWriter):
             val_group = re.search("(.*):(.*)", val)
             if val_group:
                 hostname = self.parse_patterns(val_group.group(1))
-                volsection = Global.sections.get('volume')
-                if volsection:
-                    if not volsection.get('action') == 'add-brick':
-                        for host in hostname:
-                            if host not in Global.hosts:
-                                Global.hosts.append(host)
                 try:
                     Global.master = [hostname[0]]
                 except:
@@ -346,6 +341,7 @@ class Helpers(Global, YamlWriter):
             if not section_dict:
                 section_dict = self.section_dict
         if section_dict:
+            self.filename = Global.group_file
             self.create_var_files(section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
         self.exec_ansible_cmd(yml)

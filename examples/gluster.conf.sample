@@ -551,9 +551,10 @@ force=yes
 #
 #               ## SMB volume share
 
-# To enable SMB volume share, along with volume creation or separately
+# To enable SMB volume share, along with volume creation
 # 'smb' option should be set to yes in 'volume' section.
-# The other options necessary along with setting smb as yes are:
+# To setup SMB share separately, use the action 'smb-setup'.
+# The other options necessary are:
 #
 # smb_username: The Samba username. Default value is 'smbuser'
 #
@@ -563,13 +564,27 @@ force=yes
 # volume on one of the Samba servers itself. For more info refer Samba
 # documentation. Default value is /mnt/smbserver
 #
+# path: It represents the path that is relative to the root of the
+# gluster volume that is being shared. Default value is '/'
+#
+# glusterfs:logfile : Path to the log file that will be used by the
+# gluster modules that are loaded by the vfs plugin. Default value is
+# /var/log/samba/<volname>.log
+#
+# glusterfs:loglevel : This option is equivalent to the
+# client-log-level option of gluster. 7 is the default value and
+# corresponds to the INFO level.
+#
+# glusterfs:volfile_server : The gluster server to be contacted to fetch
+# the volfile for the volume. Default is 'localhost'.
+#
 # NOTE: Samba needs CTDB setup as well to work. Please refer the CTDB
 # section below to setup this.
 #
 # Example:
 # [volume]
+# action=smb-setup
 # volname=smbvolume
-# smb=yes
 # smb_username=bilbo
 # smb_password=shireeleventyone
 # smb_mountpoint=/mnt/precious
@@ -577,7 +592,7 @@ force=yes
 # To disable automatic SMB sharing per-volume
 #
 # [volume]
-# smb=no
+# action=smb-disable
 # volname=smbvolume
 
 
