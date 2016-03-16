@@ -10,6 +10,7 @@
     with_items:
         - /var/lib/glusterd/hooks/1/stop/pre/S29CTDB-teardown.sh
         - /var/lib/glusterd/hooks/1/start/post/S29CTDBsetup.sh
+    ignore_errors: yes
 
   - name: Check whether configuration data exists or not
     command: grep "option rpc-auth-allow-insecure.*" /etc/glusterfs/glusterd.vol
@@ -37,7 +38,7 @@
     ignore_errors: True
     changed_when: False
 
-  - name: Create /etc/samba/smb.conf exists
+  - name: Create /etc/samba/smb.conf if doesn't exist
     file: path=/etc/samba/smb.conf state=touch
     when: file_exists.stat.exists != True
 

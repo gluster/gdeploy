@@ -1,0 +1,255 @@
+{
+  "volume": {
+    "action": {
+      "create": {
+        "options": [
+          {
+            "required": "false",
+            "name": "volname",
+            "default": "glustervol"
+          },
+          {
+            "required": "false",
+            "name": "brick_dirs"
+          },
+          {
+            "required": "false",
+            "name": "transport",
+            "default": "tcp"
+          },
+          {
+            "required": "false",
+            "name": "replica_count",
+            "default": "0"
+          },
+          {
+            "required": "false",
+            "name": "arbiter_count",
+            "default": "0"
+          },
+          {
+            "required": "false",
+            "name": "disperse",
+            "default": "no"
+          },
+          {
+            "required": "false",
+            "name": "disperse_count",
+            "default": "0"
+          },
+          {
+            "required": "false",
+            "name": "redundancy_count",
+            "default": "0"
+          },
+          {
+            "required": "false",
+            "name": "key"
+          },
+          {
+            "required": "false",
+            "name": "value"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          },
+          {
+            "required": "false",
+            "name": "smb"
+          },
+          {
+            "required": "false",
+            "name": "smb_password",
+            "default": "password"
+          },
+          {
+            "required": "false",
+            "name": "smb_username",
+            "default": "smbuser"
+          },
+          {
+            "required": "false",
+            "name": "smb_mountpoint",
+            "default": "/mnt/smbserver"
+          },
+          {
+            "required": "false",
+            "name": "path",
+            "default": "/"
+          },
+          {
+            "required": "false",
+            "name": "glusterfs:logfile"
+          },
+          {
+            "required": "false",
+            "name": "glusterfs:loglevel",
+            "default": "7"
+          },
+          {
+            "required": "false",
+            "name": "glusterfs:volfile_server",
+            "default": "localhost"
+          }
+        ]
+      },
+      "delete": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          }
+        ]
+      },
+      "stop": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          }
+        ]
+      },
+      "start": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "rebalance": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "state"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "remove-brick": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "state"
+          },
+          {
+            "required": "true",
+            "name": "bricks"
+          },
+          {
+            "required": "false",
+            "name": "replica_count",
+            "default": "0"
+          }
+        ]
+      },
+      "add-brick": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "bricks"
+          },
+          {
+            "required": "false",
+            "name": "replica_count",
+            "default": "0"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          }
+        ]
+      },
+      "set": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "key"
+          },
+          {
+            "required": "true",
+            "name": "value"
+          }
+        ]
+      },
+      "smb-setup": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "false",
+            "name": "smb_password",
+            "default": "password"
+          },
+          {
+            "required": "false",
+            "name": "smb_username",
+            "default": "smbuser"
+          },
+          {
+            "required": "false",
+            "name": "smb_mountpoint",
+            "default": "/mnt/smbserver"
+          },
+          {
+            "required": "false",
+            "name": "path",
+            "default": "/"
+          },
+          {
+            "required": "false",
+            "name": "glusterfs:logfile"
+          },
+          {
+            "required": "false",
+            "name": "glusterfs:loglevel",
+            "default": "7"
+          },
+          {
+            "required": "false",
+            "name": "glusterfs:volfile_server",
+            "default": "localhost"
+          }
+        ]
+      },
+      "smb-disable": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          }
+        ]
+      }
+    }
+  }
+}

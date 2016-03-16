@@ -1,0 +1,53 @@
+{
+  "clients": {
+    "action": {
+      "mount": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "hosts"
+          },
+          {
+            "required": "false",
+            "name": "client_mount_points",
+            "default": "/mnt/gluster"
+          },
+          {
+            "required": "false",
+            "name": "fstype",
+            "default": "glusterfs"
+          },
+          {
+            "required": "false",
+            "name": "nfs-version",
+            "default": "3"
+          },
+          {
+            "required": "false",
+            "name": "smb_username"
+          },
+          {
+            "required": "false",
+            "name": "smb_password"
+          }
+        ]
+      },
+      "unmount": {
+        "options": [
+          {
+            "required": "true",
+            "name": "hosts"
+          },
+          {
+            "required": "true",
+            "name": "client_mount_points"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "peer": {
+    "action": {
+      "probe": {
+        "options": [
+          {
+          }
+        ]
+      },
+      "detach": {
+        "options": [
+          {
+              "name": "force",
+              "required": "false",
+              "default": "no"
+          }
+        ]
+      },
+      "ignore": {
+        "options": [
+          {
+          }
+        ]
+      }
+    }
+  }
+}

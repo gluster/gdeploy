@@ -132,7 +132,6 @@ EXAMPLES = '''
              {% endfor %}'
              hosts="{{ hosts }}"
              transport=rdma
-             replica=yes
              replica_count=3
              arbiter_count=1
 
@@ -206,7 +205,7 @@ class Volume(object):
 
     def get_volume_configs(self):
         options = ' '
-        if self.module.params['replica'] == 'yes':
+        if int(self.module.params['replica_count']) != 0:
             options += ' replica %s ' % self._validated_params('replica_count')
             arbiter_count = self.module.params['arbiter_count']
             if int(arbiter_count):

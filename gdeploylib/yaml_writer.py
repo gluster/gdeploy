@@ -55,8 +55,10 @@ class YamlWriter():
 
     def write_yaml(self, data_dict, data_flow, filename):
         list_doc = {}
-        if not hasattr(self, 'filename'):
-            self.filename = filename or Global.group_file
+        if filename:
+            self.filename = filename
+        elif not hasattr(self, 'filename') or not self.filename:
+            self.filename = Global.group_file
         with open(self.filename) as f:
             list_doc = yaml.load(f) or {}
         list_doc.update(data_dict)

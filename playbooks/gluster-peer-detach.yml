@@ -8,6 +8,6 @@
     peer: action=detach
           hosts="{{ hosts }}"
           current_host={{inventory_hostname}}
-          force=yes
+          force="{{ force }}"
     register: result
     failed_when: "result.rc != 0 and 'not part of cluster' not in result.msg"

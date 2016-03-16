@@ -8,6 +8,5 @@
     volume:  action=remove-brick
              volume="{{ volname }}"
              bricks="{{ old_bricks }}"
-             replica="{{ replica }}"
              replica_count="{{ replica_count }}"
              state="{{ state }}"

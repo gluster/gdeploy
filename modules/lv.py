@@ -146,6 +146,7 @@ class LvOps(object):
         #This is an RHS specific computation method for performance
         #improvements. User can choose not to use it by providing
         # metadatasize and poolsize in the playbook.
+        metadatasize, pool_sz = 0, 0
         if self.compute_type == 'rhs':
             global error
             option = " --noheading --units m  -o vg_size %s" % self.vgname
