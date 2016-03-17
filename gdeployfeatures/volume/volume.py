@@ -39,6 +39,7 @@ def volume_create(section_dict):
         yml = helpers.listify(yml)
         section_dict = sdict
         yamls.extend(yml)
+    section_dict['transport'] = ','.join(section_dict['transport'])
     return section_dict, yamls
 
 def get_smb_data(section_dict):
