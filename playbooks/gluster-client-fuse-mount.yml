@@ -4,13 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: Create the dir to mount the volume, skips if present
-    file: path={{ item.mountpoint }} state=directory
-    when: item.fstype == 'fuse'
-
-    with_items: client_mounts
-
-  - name: Mount the volumes
+  - name: Mount the volumes, if fstype is glusterfs
     mount: name={{ item.mountpoint }}
            src="{{ groups['master'][0]}}:{{ volname }}"
            fstype="glusterfs"

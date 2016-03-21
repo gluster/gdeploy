@@ -35,8 +35,8 @@ def clients_mount(section_dict):
     write_client_mounts()
     section_dict['clients'] = clients
     helpers.write_to_inventory('clients', clients)
-    return section_dict, [defaults.FUSEMNT_YML, defaults.NFSMNT_YML,
-            defaults.CIFSMNT_YML]
+    return section_dict, [defaults.MNTCREATE_YML, defaults.FUSEMNT_YML,
+            defaults.NFSMNT_YML, defaults.CIFSMNT_YML]
 
 
 def nfs_mount(mnt, host, section_dict):
