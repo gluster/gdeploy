@@ -14,6 +14,8 @@ client_mounts = defaultdict(lambda: [], client_mounts)
 
 def clients_mount(section_dict):
     global client_mounts, helpers
+    section_dict['volname'] = helpers.split_volume_and_hostname(
+            section_dict['volname'])
     clients, mntpts = get_client_hosts(section_dict)
     fstype = helpers.listify(section_dict['fstype'])
     if len(fstype) != len(clients):
