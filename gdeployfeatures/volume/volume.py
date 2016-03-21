@@ -75,7 +75,8 @@ def get_common_brick_dirs(section_dict):
             continue
         brick_list, brick_name = ret
         check_brick_name_format(brick_name)
-        writers.create_yaml_dict('brick_dirs', brick_name, filename)
+        writers.create_yaml_dict('brick_dirs', sorted(
+            set(brick_name)), filename)
         Global.brick_hosts.append(host)
         f_brick_list.extend(brick_list)
 
@@ -86,13 +87,13 @@ def get_common_brick_dirs(section_dict):
             brick_list, brick_name = ret
             check_brick_name_format(brick_name)
             f_brick_list.extend(brick_list)
-            section_dict['brick_dirs'] = brick_name
+            section_dict['brick_dirs'] = sorted(set(brick_name))
         else:
             print "\nError: 'brick_dirs' not provided for all the "\
             "hosts."
             helpers.cleanup_and_quit()
 
-    section_dict['mountpoints'] = f_brick_list
+    section_dict['mountpoints'] = sorted(set(f_brick_list))
     return section_dict
 
 def read_brick_dir_from_file(filename):
