@@ -90,6 +90,7 @@ VOLSTART_YML = 'gluster-volume-start.yml'
 VOLCREATE_YML = 'gluster-volume-create.yml'
 CREATEDIR_YML = 'create-brick-dirs.yml'
 
+MNTCREATE_YML = 'create-mount-points.yml'
 CIFSMNT_YML = 'gluster-client-cifs-mount.yml'
 NFSMNT_YML = 'gluster-client-nfs-mount.yml'
 FUSEMNT_YML = 'gluster-client-fuse-mount.yml'

@@ -1,0 +1,11 @@
+---
+- hosts: clients
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Create the dir to mount the volume, skips if present
+    file: path={{ item.mountpoint }} state=directory
+
+    with_items: client_mounts
+

@@ -4,13 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: Create the dir to mount the volume, skips if present
-    file: path={{ item.mountpoint }} state=directory
-    when: item.fstype == 'cifs'
-
-    with_items: client_mounts
-
-  - name: Mount the volumes
+  - name: Mount the volumes, if fstype is CIFS
     mount: name={{ item.mountpoint }}
            src="\\\\{{ groups['master'][0]}}\\gluster-{{ volname }}"
            fstype="cifs"
