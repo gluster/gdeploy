@@ -24,6 +24,10 @@
       },
       "destroy-cluster": {
         "options": [
+          {
+             "name": "cluster-nodes",
+             "required": "true"
+          }
         ]
       },
       "add-node": {

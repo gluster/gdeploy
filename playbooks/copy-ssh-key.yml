@@ -18,7 +18,9 @@
     shell: cat /tmp/key >> ~/.ssh/authorized_keys
 
   - name: Keep the copy of the public key in /var/lib/glusterd/nfs/
-    copy: src=/tmp/key dest=/var/lib/glusterd/nfs/secret.pem.pub mode=0600
+    copy: src={{ item }}/var/lib/glusterd/nfs/secret.pem.pub
+          dest=/var/lib/glusterd/nfs/secret.pem.pub mode=0600
+    with_items: master_node
 
   - name: Remove the unwanted copy of key
-    file: path=~/tmp/key state=absent
+    file: path=/tmp/key state=absent
