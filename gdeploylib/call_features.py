@@ -91,7 +91,7 @@ def parse_the_user_config(section, section_dir):
         return False
 
     options = action_dict.get("options")
-    if not options[0]:
+    if not options or not options[0]:
         return section_dict
 
     reqd_vals = get_required_values(options)
