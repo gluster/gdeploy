@@ -21,7 +21,7 @@
 
 feature_list = ['snapshot', 'quota', 'yum', 'geo_replication', 'ctdb',
 'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
-'update_file', 'script', 'volume', 'peer', 'clients']
+'update_file', 'script', 'volume', 'peer', 'clients', 'pv', 'vg', 'lv']
 # All the defaults values used in gdeploy
 
 
@@ -61,6 +61,7 @@ SELINUX_YML = 'set-selinux-labels.yml'
 MOUNT_YML = 'mount.yml'
 FSCREATE_YML = 'fscreate.yml'
 PVCREATE_YML = 'pvcreate.yml'
+PVRESIZE_YML = 'pvresize.yml'
 LVCONVERT_YML = 'lvconvert.yml'
 LVCREATE_YML = 'lvcreate.yml'
 VGEXTEND_YML = 'vgextend.yml'

@@ -394,15 +394,6 @@ class BackendSetup(Helpers):
         return
 
 
-    def correct_brick_format(self, brick_list):
-        bricks = []
-        for brick in brick_list:
-            if not brick.startswith('/dev/'):
-                bricks.append('/dev/' + brick)
-            else:
-                bricks.append(brick)
-        return bricks
-
     def sub_directory_check(self, brick_dir):
         if len(brick_dir) == 1:
             brick_dir = brick_dir * len(self.mountpoints)

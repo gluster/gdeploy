@@ -365,6 +365,15 @@ class Helpers(Global, YamlWriter):
             return [var]
         return var
 
+    def correct_brick_format(self, brick_list):
+        bricks = []
+        for brick in brick_list:
+            if not brick.startswith('/dev/'):
+                bricks.append('/dev/' + brick)
+            else:
+                bricks.append(brick)
+        return bricks
+
     def volname_formatter(self, section_dict):
         volname = section_dict.get('volname')
         if not volname:
