@@ -40,11 +40,6 @@ options:
         description: Extra options that needs to be passed while creating the
                      Physical Volumes can be given here. Check the man page of
                      pvcreate for more info.
-    operation:
-        required: true if action is resize
-        choices: [expand, shrink]
-        description: Specifies how the physical volume should be resized.
-                     Either to expand or shrink
     size:
         required: true if action is resize and opertion is shrink
         description: Specifies to what size the physical volume is to be
@@ -69,11 +64,9 @@ from ast import literal_eval
 class PvOps(object):
 
     def __init__(self, module):
-        self.result = {'clears': [], 'errors': []}
         self.module = module
         self.action = self.validated_params('action')
         self.options = self.module.params['options'] or ''
-        self.pv_action()
 
     def validated_params(self, opt):
         value = self.module.params[opt]
@@ -86,7 +79,7 @@ class PvOps(object):
         cmd = self.module.get_bin_path(op, True)  + options
         return self.module.run_command(cmd)
 
-    def _get_output(self, rc, output, err):
+    def get_output(self, rc, output, err):
         if not rc:
             self.module.exit_json(rc=rc, stdout=output, changed=1)
         else:
@@ -103,38 +96,18 @@ class PvOps(object):
             ret = 1
         return ret
 
-    def iterate_disk_names(self):
+    def pv_action(self):
         self.disks = self.validated_params('disks')
         if not self.disks:
             self.module.exit_json(msg="Nothing to do")
-        self.call_ansible_run_command(self.disks)
+        return self.get_volume_command(self.disks)
 
-    def get_resize_params(self, disk):
-        size = self.validated_params('size')
-        params = " %s --setphysicalvolumesize %s %s " % (self.options, size, disk)
-        if self.pv_presence_check(disk):
-            self.run_command('pvresize', params)
-
-    def resize(self):
-        self.operation = self.validated_params('operation')
-        if self.operation == 'expand':
-            self.iterate_disk_names()
-        else:
-            disks = self.validated_params('disks'),
-            map(self.get_resize_params, disks)
-
-    def call_ansible_run_command(self, disk):
-        self.pv_presence_check(disk)
+    def get_volume_command(self, disk):
         op = 'pv' + self.action
         args = " %s %s" % (self.options, disk)
-        rc, out, err = self.run_command(op, args)
-        self._get_output(rc, out, err)
+        return args
 
-    def pv_action(self):
-        if self.action == 'resize':
-            self.resize()
-        else:
-            self.iterate_disk_names()
+
 
 if __name__ == '__main__':
     module = AnsibleModule(
@@ -143,8 +116,11 @@ if __name__ == '__main__':
             disks=dict(),
             options=dict(type='str'),
             size=dict(),
-            operation=dict(choices=["expand", "shrink"]),
         ),
     )
 
     pvops = PvOps(module)
+    cmd = pvops.pv_action()
+    pvops.pv_presence_check(pvops.disks)
+    rc, out, err = pvops.run_command('pv' + pvops.action, cmd)
+    pvops.get_output(rc, out, err)
