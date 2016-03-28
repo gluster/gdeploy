@@ -1,0 +1,36 @@
+{
+  "vg": {
+    "action": {
+      "create": {
+        "options": [
+          {
+            "required": "false",
+            "name": "pvname"
+          },
+          {
+            "required": "false",
+            "name": "vgname",
+            "default": "GLUSTER_vg"
+          },
+          {
+            "required": "false",
+            "name": "one-to-one",
+            "default": "no"
+          }
+        ]
+      },
+      "extend": {
+        "options": [
+          {
+            "required": "true"
+            "name": "vgname"
+          },
+          {
+            "required": "true"
+            "name": "pvname"
+          }
+        ]
+      }
+    }
+  }
+}

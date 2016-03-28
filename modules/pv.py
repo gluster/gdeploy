@@ -121,6 +121,6 @@ if __name__ == '__main__':
 
     pvops = PvOps(module)
     cmd = pvops.pv_action()
-    pvops.pv_presence_check(pvops.disks)
+    map(pvops.pv_presence_check, pvops.disks)
     rc, out, err = pvops.run_command('pv' + pvops.action, cmd)
     pvops.get_output(rc, out, err)
