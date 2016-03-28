@@ -381,6 +381,57 @@ class Helpers(Global, YamlWriter):
         section_dict['volname'] = self.split_volume_and_hostname(volname)
         return section_dict
 
+    def perf_spec_data_write(self):
+        '''
+        Now this one looks dirty. Couldn't help it.
+        This one reads the performance related data like
+        number of data disks and stripe unit size  if
+        the option disk type is provided in the config.
+        Some calculations are made as to enhance
+        performance
+        '''
+        disktype = Global.sections.get('disktype')
+        if disktype:
+            perf = dict(disktype=disktype[0].lower())
+            if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
+                msg = "Unsupported disk type!"
+                print "\nError: " + msg
+                Global.logger.error(msg)
+                self.cleanup_and_quit()
+            if perf['disktype'] != 'jbod':
+                diskcount = Global.sections.get('diskcount')
+                if not diskcount:
+                    print "Error: 'diskcount' not provided for " \
+                    "disktype %s" % perf['disktype']
+                perf['diskcount'] = int(diskcount)
+                stripe_size = Global.sections.get('stripesize')
+                if not stripe_size and perf['disktype'] == 'raid6':
+                    print "Error: 'stripesize' not provided for " \
+                    "disktype %s" % perf['disktype']
+                if stripe_size:
+                    perf['stripesize'] = int(stripe_size)
+                    if perf['disktype'] == 'raid10' and perf[
+                            'stripesize'] != 256:
+                        warn = "Warning: We recommend a stripe unit size of 256KB " \
+                            "for RAID 10"
+                        Global.logger.warning(warn)
+                        if warn not in Global.warnings:
+                            Global.warnings.append(warn)
+                else:
+                    perf['stripesize'] = 256
+                perf['dalign'] = {
+                    'raid6': perf['stripesize'] * perf['diskcount'],
+                    'raid10': perf['stripesize'] * perf['diskcount']
+                }[perf['disktype']]
+            else:
+                perf['dalign'] = 256
+                perf['diskcount'] = perf['stripesize'] = 0
+        else:
+            perf = dict(disktype='jbod')
+            perf['dalign'] = 256
+            perf['diskcount'] = perf['stripesize'] = 0
+        self.create_var_files(perf, False, Global.group_file)
+
     def create_inventory(self):
         if not os.path.isfile(Global.inventory):
             self.touch_file(Global.inventory)

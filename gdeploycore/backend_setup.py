@@ -411,56 +411,6 @@ class BackendSetup(Helpers):
         return brick_dir
 
 
-    def perf_spec_data_write(self):
-        '''
-        Now this one looks dirty. Couldn't help it.
-        This one reads the performance related data like
-        number of data disks and stripe unit size  if
-        the option disk type is provided in the config.
-        Some calculations are made as to enhance
-        performance
-        '''
-        disktype = self.get_options('disktype')
-        if disktype:
-            perf = dict(disktype=disktype[0].lower())
-            if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
-                msg = "Unsupported disk type!"
-                print "\nError: " + msg
-                Global.logger.error(msg)
-                self.cleanup_and_quit()
-            if perf['disktype'] != 'jbod':
-                diskcount = self.get_options('diskcount')
-                if not diskcount:
-                    print "Error: 'diskcount' not provided for " \
-                    "disktype %s" % perf['disktype']
-                perf['diskcount'] = int(diskcount[0])
-                stripe_size = self.get_options('stripesize')
-                if not stripe_size and perf['disktype'] == 'raid6':
-                    print "Error: 'stripesize' not provided for " \
-                    "disktype %s" % perf['disktype']
-                if stripe_size:
-                    perf['stripesize'] = int(stripe_size[0])
-                    if perf['disktype'] == 'raid10' and perf[
-                            'stripesize'] != 256:
-                        warn = "Warning: We recommend a stripe unit size of 256KB " \
-                            "for RAID 10"
-                        Global.logger.warning(warn)
-                        if warn not in Global.warnings:
-                            Global.warnings.append(warn)
-                else:
-                    perf['stripesize'] = 256
-                perf['dalign'] = {
-                    'raid6': perf['stripesize'] * perf['diskcount'],
-                    'raid10': perf['stripesize'] * perf['diskcount']
-                }[perf['disktype']]
-            else:
-                perf['dalign'] = 256
-                perf['diskcount'] = perf['stripesize'] = 0
-        else:
-            perf = dict(disktype='jbod')
-            perf['dalign'] = 256
-            perf['diskcount'] = perf['stripesize'] = 0
-        self.create_var_files(perf, False, Global.group_file)
 
     def insufficient_param_count(self, section, count):
         msg = "Please provide %s names for %s devices " \
