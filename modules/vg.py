@@ -99,28 +99,28 @@ class VgOps(object):
         self.op = 'vg' + self.action
         self.vgname = self.validated_params('vgname')
         self.disks = self.module.params['disks']
+        self.options = self.module.params['options'] or ''
 
     def vg_actions(self):
         if not self.vgname:
-            self.module.exit_json(msg="Nothing to be done")
+            self.module.exit_json(rc=1, msg="Nothing to be done")
         if self.action == 'create':
             if not self.disks:
-                self.module.exit_json(msg="Nothing to be done")
-            self.options = self.module.params['options'] or ''
+                self.module.exit_json(rc=1, msg="Nothing to be done")
             opts = self.vg_create()
         elif self.action == 'remove':
             opts = self.vg_remove()
         elif self.action == 'extend':
             opts = self.vg_extend()
         else:
-            self.module.fail_json(msg="Unknown action")
+            self.module.fail_json(rc=1, msg="Unknown action")
         return opts
 
     def validated_params(self, opt):
         value = self.module.params[opt]
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(rc=1, msg=msg)
         return value
 
     def _compute_size(self):
@@ -155,6 +155,10 @@ class VgOps(object):
             self.action = 'extend'
             self.op = 'vgextend'
             return
+        elif self.action == 'extend' and rc:
+            self.action = 'create'
+            self.op = 'vgcreate'
+            return
         elif self.action == 'remove' and rc:
             self.module.fail_json(rc=1, msg="%s Volume Group Doesn't Exists!" % disk)
         else:
@@ -162,13 +166,14 @@ class VgOps(object):
         return ret
 
     def pv_presence_check(self, disk):
-        if self.action != 'create':
+        if self.action not in ['create', 'extend']:
             return 1
         rc, out, err = self.run_command('pvdisplay', ' ' + disk)
         if rc:
-            pvops = PvOps(module)
-            cmd = pvops.get_volume_command(self.disks)
-            rc, out, err = pvops.run_command('pv' + pvops.action, cmd)
+            dalign = self.module.params['dalign'] or ''
+            opts = " --dataalignment %sk" % dalign if dalign else ''
+            rc, out, err = self.run_command('pvcreate', opts +
+                    ' ' + disk)
             if rc:
                 self.module.fail_json(msg="Could not create PV", rc=rc)
         return 1
@@ -190,7 +195,8 @@ if __name__ == '__main__':
             options=dict(type='str'),
             diskcount=dict(),
             disktype=dict(),
-            stripesize=dict()
+            stripesize=dict(),
+            dalign=dict()
         ),
     )
 

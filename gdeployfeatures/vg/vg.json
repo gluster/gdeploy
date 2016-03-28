@@ -22,11 +22,11 @@
       "extend": {
         "options": [
           {
-            "required": "true"
+            "required": "true",
             "name": "vgname"
           },
           {
-            "required": "true"
+            "required": "true",
             "name": "pvname"
           }
         ]
