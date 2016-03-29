@@ -26,6 +26,18 @@
           {
             "required": "true",
             "name": ["ports", "services"]
+          },
+          {
+            "required": "false",
+            "name": "permanent",
+            "default": "true"
+
+          },
+          {
+            "required": "false",
+            "name": "zone",
+            "default": "public"
+
           }
         ]
       }
