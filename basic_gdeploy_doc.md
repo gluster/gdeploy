@@ -1,5 +1,5 @@
-Introduction of gdeploy and how to use gdeploy to configure glusterfs: 
------------------------------------------------------------------------------------------------
+#### Introduction of gdeploy and how to use gdeploy to configure glusterfs: 
+-
 
 This document is intended to give a basic overview of the gdeploy tool like,
 what is gdeploy, what does it do, and how you can use it.
@@ -67,8 +67,8 @@ Installation of gdeploy:
 There are two ways to install gdeploy. This documentation is based on installation process
  on Fedora 23 on Virtual Machine Manager. 
 
-#. Clone it via github repository
-#. Using Operating System’s package manager (use rpm package manager for Fedora 23 OS)
+1.  Clone it via github repository
+1.  Using Operating System’s package manager (use rpm package manager for Fedora 23 OS)
 
 1.) Installation procedure for gdeploy using github clone.
 
@@ -101,7 +101,7 @@ if you are using any other version of Fedora.
 Or
 Run the below mentioned packages to ensure gdeploy will run.
 
-# yum install automake autoconf libtool flex bison openssl-devel libxml2-devel python-devel
+ yum install automake autoconf libtool flex bison openssl-devel libxml2-devel python-devel
  libaio-devel libibverbs-devel librdmacm-devel readline-devel lvm2-devel glib2-devel 
 userspace-rcu-devel libcmocka-devel libacl-devel sqlite-devel redhat-rpm-config
 
@@ -140,25 +140,25 @@ or
 
 You can do the same manually as well.
 
-#. Add ansible modules to ANSIBLE_LIBRARY environment variable by running the below command.
+1.  Add ansible modules to ANSIBLE_LIBRARY environment variable by running the below command.
 
     echo "export Ansible_LIBRARY=$ANSIBLE_LIBRARY:'/path/to/gdeploy/modules'" >> ~/.bashrc
 
     In my case, this would be:
 
-    echo "export Ansible_LIBRARY=$ANSIBLE_LIBRARY:'/home/poo/gdeploy/modules'" >> ~/.bashrc
+        echo "export Ansible_LIBRARY=$ANSIBLE_LIBRARY:'/home/poo/gdeploy/modules'" >> ~/.bashrc
 
 
-    #. Add ansible playbooks(inside the templates directory) to GDEPLOY_TEMPLATES environment variable.
+    Add ansible playbooks(inside the templates directory) to GDEPLOY_TEMPLATES environment variable.
     
 
-    echo "export GDEPLOY_TEMPLATES='path/to/gdeploy'" >> ~/.bashrc
+       echo "export GDEPLOY_TEMPLATES='path/to/gdeploy'" >> ~/.bashrc
 
     In my case, this would be:
 
-    echo "export GDEPLOY_TEMPLATES='/home/poo/gdeploy'" >> ~/.bashrc
+      echo "export GDEPLOY_TEMPLATES='/home/poo/gdeploy'" >> ~/.bashrc
 
-#. Install glusterlib module using setuptool.
+1. Install glusterlib module using setuptool.
 
     python setup.py install
 
@@ -173,21 +173,20 @@ You can do the same manually as well.
 
 
 
-Installation of gdeploy using  operating system's package manager:
--------------------------------------------------------------------
+### Installation of gdeploy using  operating system's package manager:
 
 Download gdeploy ( .rpm file for Fedora OS ) from here→ http://download.gluster.org/pub/gluster/gdeploy/2.0/
 
 Prerequisites to install gdeploy:
 
-    #. ansible>=1.9
+    *. ansible>=1.9
     #. python>=2.6
     #. python(abi) = 2.7
     #. python-eventlet
 
 These are the commands that needs to be executed to install the prerequisites on Fedora 23 VM.
 
-    #. dnf install ansible
+    *. dnf install ansible
     #. dnf install python-eventlet
 
 When you installed the above packages, go ahead and install the gdeploy by running the 
@@ -201,7 +200,7 @@ gdeploy should be installed without fail if you followed the steps properly. In 
  if you happen to encounter any error even after following the above steps. 
 Please do contact us here.
     
---------------------------
+
 
 Now you can use gdeploy tool to configure glusterfs. Before you can use gdeploy to
 configure glusterfs you need to have glusterfs-client installed on the machine from 
@@ -210,13 +209,13 @@ where you’ll be storing your files/data.
 
 
 
-Mandatory steps before you can configure glusterfs using gdeploy
--------------------------------------------------------------------------------------------
+### Mandatory steps before you can configure glusterfs using gdeploy
+
 
 You need to have done all the below steps before you can begin writing your
 first config file.
 
-#. Should have glusterfs-client and glusterfs-servers running
+*. Should have glusterfs-client and glusterfs-servers running
 #. Should have gdeploy installed
 #. Create passwordless ssh login for all the nodes that will used as cluster.
   In simple words, create passwordless ssh login for all the machines which
@@ -242,8 +241,8 @@ Below are the section's names that we would need to write our config file.
 #. [clients]
 
 
-Below is the sample of 2*2 distributed replication config file.
----------------------------------------------------------------
+#### Below is the sample of 2*2 distributed replication config file.
+
 
    [hosts]
    10.70.47.17
@@ -274,8 +273,8 @@ Below is the sample of 2*2 distributed replication config file.
 
 
 
-Usage:
-------
+##### Usage:
+
 
 You can execute it by typing the below command:
 
@@ -287,8 +286,7 @@ In the case of this tutorial:
    
  
 
-Where can I find more info?
----------------------------
+##### Where can I find more info?
 
 For now: https://github.com/gluster/gdeploy
 
