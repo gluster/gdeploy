@@ -24,7 +24,5 @@ def rh_subscription_attach_pool(section_dict):
 
 def register_and_subscribe(section_dict):
     section_dict['rhsm_repos'] = section_dict.get('repos') or []
-    attach = section_dict.get('auto-attach')
-    section_dict['attach'] = True if (
-            attach and attach.lower() == 'true') else ''
+    section_dict['attach'] = section_dict.get('auto-attach') or 'false'
     return section_dict, defaults.SUBS_MGMT
