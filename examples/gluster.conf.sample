@@ -72,20 +72,6 @@
 # under 'hosts' section the second configuration will be used.
 #
 #
-#  Section 'snapshot-reserve'
-#
-# While creating the thin pools, if the user intents not to use the
-# entire volume group and leave some space out for snapshots, she can
-# use this section. Under this section user needs to specify how much
-# space(in percentage) should be left unused in the Volume Group
-#
-# Example
-#
-# [snapshot-reserve]
-# 20%
-#
-# By default, the entire Volume Group will be used up for thin pooling.
-#
 #  Section 'default'
 #
 #
@@ -108,7 +94,7 @@
 #
 # Non-GlusteFS back-end setup
 #
-# For this, to avoid the automatic computations being done an additional
+# For this, to avoid the automatic computaions being done an additional
 # section 'gluster' set to no must be added
 #
 # [gluster]
@@ -136,23 +122,7 @@
 # chachemetalv=lv_cachemeta:230G
 #
 # NOTE: Specifying the name of the data LV is necessary while adding
-# SSD. Make sure the datalv is created already. Otherwise just give it
-# in the lvs section as well.
-#
-#
-#
-#
-#                 SeLinux section
-#
-# If selinux is enabled, provide the value 'yes' in this
-# section, so gdeploy can set selinux labels for the
-# brick directories. By default it is 'no'.
-#
-#
-# [selinux]
-# yes
-#
-#
+# SSD.
 #
 #      Old/Soon to be deprecated configuration option
 #
@@ -289,8 +259,8 @@ mountpoints=/gluster/brick1
 # Please look up the available tunes-adm profiles in your version of
 # RHEL using the command 'tuned-adm list'
 
-[tune-profile]
-rhgs-sequential-io
+# [tune-profile]
+# <profile-name>
 
 #----------------------------------
 
@@ -373,7 +343,7 @@ rhgs-sequential-io
 # This section helps in making all the hosts specified in the section 'hosts'
 # to either probe each other making the TSP or detach all of them from TSP
 
-# The only option in this section is the option names 'action' which can have
+# The only option in this section is the option names 'manage' which can have
 # it's values to be  [probe, detach, ignore]
 
 # If provided 'ignore' it will skip the peer probing completely even for volume
@@ -382,17 +352,12 @@ rhgs-sequential-io
 # To do a peer probe
 
 [peer]
-action=probe
+manage=probe
 
 # To do a peer detach
 
 # [peer]
-# action=detach
-#
-#
-# NOTE: In the previous releases, we used the option 'manage' instead of
-# 'action'. This option is deprecated and will be removed in the future
-# release.
+# manage=detach
 
 #-----------------------------------
 
@@ -471,6 +436,7 @@ force=yes
 # force=yes
 
 
+
 # To start a volume
 
 # [volume]
@@ -525,36 +491,11 @@ force=yes
 # key=cluster.nufa
 # value=on
 
-#
-# NOTE: If multiple volumes are to be created, or multiple actions are
-# to be done on volume using a single configuration file, suffix the
-# section name with a number.
-#
-# For example:
-#
-# [volume-1]
-# action=create
-# volname=kyloren
-# brick_dirs=/mnt/snook,/mnt/vader
-#
-# [volume-2]
-# action=create
-# volname=rey
-# brick_dirs=/mnt/luke,/mnt/kenobi
-#
-# If there are multiple volumes to be created, provide brick_dirs under
-# each section. Otherwise, it will error out.
-#
-#
-#
-#
-#
 #               ## SMB volume share
 
-# To enable SMB volume share, along with volume creation
+# To enable SMB volume share, along with colume creation or separately
 # 'smb' option should be set to yes in 'volume' section.
-# To setup SMB share separately, use the action 'smb-setup'.
-# The other options necessary are:
+# The other options necessary along with setting smb as yes are:
 #
 # smb_username: The Samba username. Default value is 'smbuser'
 #
@@ -562,38 +503,22 @@ force=yes
 #
 # smb_mountpoint: This mountpoint will be used to mount the to be shared
 # volume on one of the Samba servers itself. For more info refer Samba
-# documentation. Default value is /mnt/smbserver
-#
-# path: It represents the path that is relative to the root of the
-# gluster volume that is being shared. Default value is '/'
-#
-# glusterfs:logfile : Path to the log file that will be used by the
-# gluster modules that are loaded by the vfs plugin. Default value is
-# /var/log/samba/<volname>.log
-#
-# glusterfs:loglevel : This option is equivalent to the
-# client-log-level option of gluster. 7 is the default value and
-# corresponds to the INFO level.
-#
-# glusterfs:volfile_server : The gluster server to be contacted to fetch
-# the volfile for the volume. Default is 'localhost'.
+# documentaion. Default value is /mnt/smbserver
 #
 # NOTE: Samba needs CTDB setup as well to work. Please refer the CTDB
 # section below to setup this.
 #
 # Example:
 # [volume]
-# action=smb-setup
 # volname=smbvolume
+# smb=yes
 # smb_username=bilbo
 # smb_password=shireeleventyone
 # smb_mountpoint=/mnt/precious
 #
-# To disable automatic SMB sharing per-volume
 #
-# [volume]
-# action=smb-disable
-# volname=smbvolume
+# NOTE: Mount should be done in the client using fstype 'cifs', if SMB
+# is setup for the volume
 
 
 #-----------------------------------
@@ -612,7 +537,8 @@ force=yes
 # The choices are: ['mount', 'unmount']
 # 'hosts' field is mandatory.
 # The option 'fstype' specifies how gluster volume is to be mounted.
-# Choices are: [glusterfs, nfs] (Default is glusterfs)
+# Choices are: [glusterfs, nfs, cifs] (Default is glusterfs).
+# 'cifs' can be used as the fstype if SMB share is setup on the volume.
 
 # If the fstype is given as nfs, the version by default will be taken as
 # 3. This can be changed by providing the option 'nfs-version'.
@@ -633,7 +559,7 @@ force=yes
 
 [clients]
 action=mount
-volname=glustervol
+# volname=glustervol (If not specified earlier in 'volume' section
 hosts=10.70.46.1{3,5}
 fstype=glusterfs
 client_mount_points=/mnt/gluster{1,3}
@@ -643,31 +569,12 @@ client_mount_points=/mnt/gluster{1,3}
 
 # [clients]
 # action=mount
-# # volname=glustervol
+# # volname=glustervol (If not specified earlier in 'volume' section
 # hosts=10.70.46.13
 # fstype=nfs
 # nfs-version=4
 # client_mount_points=/mnt/gluster
 
-#
-# NOTE: If multiple volumes are to be mounted or unmounted,
-# using a single configuration file, use separate 'clients' sections with the
-# section name suffixed with appropriate numbers.
-#
-# For example:
-#
-# [clients-1]
-# action=mount
-# volname=kyloren
-# hosts=host1,host2
-# client_mount_points=/mnt/snook,/mnt/vader
-#
-# [clients-2]
-# action=mount
-# volname=rey
-# hosts=host1,host1
-# client_mount_points=/mnt/luke,/mnt/kenobi
-#
 #-----------------------------------
 
 
@@ -685,7 +592,7 @@ client_mount_points=/mnt/gluster{1,3}
 
 # The name of the snapshot can be specified as the value to the snapname option.
 # If the action is create the name of the volume is to specified as the value
-# to the option 'volname'.
+# to the option 'volname'.(If not specified under the volume section).
 
 # [snapshot]
 # action=create
@@ -1109,23 +1016,27 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [yum]
 # action=install
-# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
 # packages=vi,glusterfs
-# gpgcheck=no
-# update=no
 #
-# If 'no' provided to gpgcheck, it will disable gpgcheck. By default
-# it is 'yes'.
 #
-# If 'no' provided to update, gdeploy will not run  'yum update' before
-# installation. By default  it is 'yes'.
 # To remove package(s)
 #
 # [yum]
 # action=remove
 # packages=vi
 #
+# To add/enable repos
 #
+# [yum]
+# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
+#
+# Note: installing packages and adding repos can be done together like
+# this
+#
+# [yum]
+# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm
+# action=install
+# packages=vim
 #
 # Make sure your system is registered with subscription manager before
 # trying to install packages.
@@ -1134,13 +1045,13 @@ client_mount_points=/mnt/gluster{1,3}
 
                             ##-- Firewalld --##
 #
-# This section allows addition or deletion of ports and services in
-# either running or permanent firewalld rules.
+# This section allows addition or deletion of ports in either running
+# or permanent firewalld rules.
 #
 # To add ports in permanent firewalld rules
 #
 # [firewalld]
-# action=add
+# action=add-ports
 # ports=8081/tcp,161-162/udp
 # permanent=true
 # zone=public
@@ -1149,36 +1060,13 @@ client_mount_points=/mnt/gluster{1,3}
 #
 #
 #
-# To delete ports from permanent firewalld rules
+# To add ports in permanent firewalld rules
 #
 # [firewalld]
-# action=delete
+# action=delete-ports
 # ports=8081/tcp,161-162/udp
 #
-#
-#
-# To add services in permanent firewalld rules
-#
-# [firewalld]
-# action=add
-# services=https
-# permanent=true
-# zone=public
-#
-# To delete service from permanent firewalld rules
-#
-# [firewalld]
-# action=delete
-# services=https
-#
-# Ports and services can be added and deleted together as well
-#
-# [firewalld]
-# action=add
-# ports=8081/tcp,161-162/udp
-# services=https
-# permanent=true
-# zone=public
+
 #-----------------------------------
 
 
@@ -1192,15 +1080,15 @@ client_mount_points=/mnt/gluster{1,3}
 # To setup ctdb:
 #
 # Make sure all the nodes in the cluster are specified in the hosts
-# section. Gdeploy takes the CTDB nodes from that section.
+# section. Gdeploy taked the CTDB nodes from that section.
 # Set 'action' to be 'setup'
 #
 # Option 'physical_address': This option is only required if you plan
 # to use IP takeover. Provide the virtual public IP address which will
 # served by CTDB. The format of it's value should be like this:
-# <Virtual IP>/<routing prefix> <node interfaces separated by semicolon>
+# <Virtual IP>/<routing prefix> <node interfaces seperated by semicolon>
 #
-# Make sure that the node interfaces are separated by semicolon and
+# Make sure that the node interfaces are seperated by semicolon and
 # should follow routing prefix after a space. Interfaces are optional.
 #
 #
@@ -1259,233 +1147,4 @@ client_mount_points=/mnt/gluster{1,3}
 # [ctdb]
 # action=disable
 
-
-
-#-----------------------------------
-
-
-                            ##-- NFS-Ganesha --##
-
-# The option 'nfs-ganesha' can be used to configure NFS-Ganesha using gdeploy
-# The actions available are: [create-cluster, destroy-cluster, add-node,
-# delete-node, export-volume, unexport-volume]
 #
-# To create an HA cluster:
-#
-# [nfs-ganesha]
-# action=create-cluster
-# ha-name=ganesha-ha-360
-# cluster-nodes=10.70.46.13,10.70.46.15
-# vip=10.70.44.121,10.70.44.122
-# volname=glustervol
-#
-# ha-name       -  Name for the cluster to be created. Default is ganesha-ha-360
-# cluster-nodes -  Subset of the 'hosts' which are to be part of the cluster
-# vip           -  Virtual IPs assigned to each of the 'cluster-nodes'
-# volname       -  volume to be exported using NFS-Ganesha. If not provided, volume
-#                   export will be skipped
-#
-# To destroy an HA cluster
-#
-# [nfs-ganesha]
-# action=destroy-cluster
-#
-# To add a node to an HA cluster:
-#
-# [nfs-ganesha]
-# action=add-node
-# nodes=10.70.46.17
-# vip=10.70.44.123
-#
-# To delete a node to an HA cluster:
-#
-# [nfs-ganesha]
-# action=delete-node
-# nodes=10.70.46.15
-#
-# To export a volume:
-#
-# [nfs-ganesha]
-# action=export-volume
-# volname=glustervol
-#
-# To un-export a volume:
-#
-# [nfs-ganesha]
-# action=unexport-volume
-# volname=glustervol
-#
-#
-
-
-#-----------------------------------
-
-
-                            ##-- Update remote files --##
-
-
-#
-#
-# The section 'update-file' helps in updating the configuration file
-# in the remote machine from the local machine.
-#
-# The configuration can be updated in 2 ways:
-#
-# 1. Either copy the config created in the local
-# 2. Edit the configuration present in the remote
-# 3. Add lines to the end of the file
-#
-# 1. Copy file from local to remote
-#
-# For this, use the 'copy' action in 'update-file'.
-# 'src' should be the absolute path of the file in the local machine and
-# 'dest' should the the absolute directory path where the file should be
-# copied to in the remote machines
-#
-# [update-file]
-# action=copy
-# src=/home/bilbobaggins/hosts
-# dest=/etc/
-#
-# You can send multiple files at a time. Provide them comma separated.
-# 'dest' can be a single directory name or provide that too comma
-# separated.
-#
-# 2. Edit configuration file in the remote
-#
-# for this, use the 'edit' action in 'update-file'.
-#
-# 'dest' specifies the file to be edited.
-# 'replace' specifies the starting of the line to be edited. All the lines
-# with the specified beginning will be replaced with what is provided in
-# the 'line' option
-# 'line' option specifies what the 'replace' is to be replaced with
-#
-# You cannot edit multiple files at a time. Although you can edit
-# multiple lines at a time. Provide them comma separated.
-#
-# NOTE: Keep in mind that 'replace' specifies just the starting of the line
-# you want to replace. Provide it carefully, otherwise one can end up
-# screwing up the file.
-#
-# [update-file]
-# action=edit
-# dest=/etc/ganesha/ganesha-ha.conf
-# replace=VIP
-# line=VIP_10.70.46.15="192.168.13.14"
-#
-#
-# 3. Add lines to the end of the file
-#
-# for this, use the 'add' action in 'update-file'.
-#
-# 'dest' specifies the file to be edited.
-# 'line' specifies the new line to be added. This line will get appended
-# to the end of the file. If multiple lines are to be added, give it
-# comma separated.
-#
-#
-# [update-file]
-# action=add
-# dest=/etc/ganesha/ganesha-ha.conf
-# line=VIP_10.70.46.15="192.168.13.14",VIP_10.70.46.17="192.168.13.15"
-#
-#
-#
-#
-
-
-#-----------------------------------
-
-
-                            ##-- Service --##
-
-
-# 'service' section lets you start, stop, enable, disable, restart, or
-# reload services. The actions available are: [start, stop, restart,
-# reload, enable, disable]. Multiple service names can be provided comma
-# separated.
-#
-# To start services
-#
-# [service]
-# action=start
-# service=glusterd,httpd
-#
-# To stop services
-#
-# [service]
-# action=stop
-# service=glusterd,httpd
-#
-# To enable services
-#
-# [service]
-# action=enable
-# service=glusterd,httpd
-#
-# To disable services
-#
-# [service]
-# action=disable
-# service=glusterd,httpd
-#
-# To restart services
-#
-# [service]
-# action=restart
-# service=glusterd,httpd
-#
-# To reload services
-#
-# [service]
-# action=reload
-# service=glusterd,httpd
-
-
-
-
-#-----------------------------------
-
-
-                            ##-- Shell --##
-
-# The 'shell' section lets you run any shell command in the remote
-# machine(s). If multiple commands are to be executed, they must be
-# provided comma separated.  Provide the action option with value
-# 'execute' always.
-#
-# To run a command:
-#
-# [shell]
-# action=execute
-# command=touch /etc/gluster/dummy.conf,export MY_VAR="DUMMY_VALUE"
-
-
-
-
-#-----------------------------------
-
-
-
-                            ##-- Script --##
-
-# The 'script' module lets you run a shell script in the remote
-# machine(s). If multiple scripts are to be executed, they must be
-# provided comma separated.  Provide the action option with value
-# 'execute' always.
-#
-# To run a command:
-#
-# [script]
-# action=execute
-# file=/path/to/some/script.sh
-# args=arg1 arg2 arg3
-#
-# Seperate arguments for each shell script with comma
-#
-# [script]
-# action=execute
-# file=/path/to/some/script1.sh,/path/to/some/script2.sh
-# args=argForScript1 anotherArgForScript1,argForScript2
-
