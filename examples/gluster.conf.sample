@@ -1014,13 +1014,32 @@ client_mount_points=/mnt/gluster{1,3}
 # 'username'.
 # Set 'auto-attach' option as 'true' if the product certificates
 # are are available at /etc/pki/product/
+# 'disable-repos', if set to "yes", will disable all the repos currently
+# enabled in the system.
+# 'repos' can also be specified in the same configuration section to
+# specify which all repos it should subscribe to, at the time of
+# registration itself.
+# We can even make subscription-manager attach this system to a subscription
+# pool at this section itself. Use the option 'pool' for this.
 #
 # [RH-subscription]
 # action=register
 # username=bilbobaggins
 # password=shire46
 # auto-attach=true
+# disable-repos=yes
+# repos=rhel-7-cool-server
+# pool=a_big_pool_id_with_numbers
 #
+# Instead of using username and password, one could even use an
+# activationkey
+#
+# [RH-subscription]
+# action=register
+# activationkey=my_big_activation_key
+#
+# The options: auto-attach, disable-repos, repos, and pools applies here
+# as well
 #
 # Attaching to the Red Hat subscription
 #
