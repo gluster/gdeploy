@@ -20,7 +20,7 @@ def volume_create(section_dict):
     else:
         section_dict = validate_brick_dirs(section_dict, 'brick_dirs')
     section_dict['service'] = 'glusterd'
-    section_dict['state'] = 'restarted'
+    section_dict['state'] = 'started'
     Global.current_hosts = sorted(set(Global.current_hosts))
     section_dict['hosts'] = Global.current_hosts
     yamls = [defaults.SERVICE_MGMT, defaults.CREATEDIR_YML]
@@ -251,7 +251,7 @@ def volume_smb_setup(section_dict):
     section_dict['value'] = ['off', 'on', 0]
     section_dict, yml = volume_set(section_dict)
     section_dict['service'] = 'glusterd'
-    section_dict['state'] = 'restarted'
+    section_dict['state'] = 'started'
     return section_dict, [defaults.SMBREPLACE_YML, yml,
             defaults.SMBSRV_YML, defaults.SERVICE_MGMT]
 
