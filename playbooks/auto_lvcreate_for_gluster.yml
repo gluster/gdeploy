@@ -5,15 +5,15 @@
 
   tasks:
   - name: Create logical volume named metadata
-    lv: action=create lvname=metadata compute=rhs lvtype='thick'
+    lv: action=create lvname=metadata compute=metadata_compute lvtype='thick'
         snapshot_reserve="{{ snapshot_reserve }}"
         vgname={{ item }}
     with_items: vgs
     ignore_errors: yes
 
-  - name: Create a thin pool
-    lv: action=create lvname={{ item.pool }} lvtype='thin'
-        compute=rhs disktype="{{ disktype }}" vgname={{ item.vg }}
+  - name: create data LV that has a size which is a multiple of stripe width
+    lv: action=create lvname={{ item.pool }} lvtype='thick'
+        compute=poolsize_compute vgname={{ item.vg }}
         snapshot_reserve="{{ snapshot_reserve }}"
     with_items: lvpools
     ignore_errors: yes
@@ -28,7 +28,7 @@
     with_items: lvpools
     ignore_errors: yes
 
-  - name: Create logical volume for the pools
+  - name: create stripe-aligned thin volume:
     lv: action=create poolname={{ item.pool }} lvtype="virtual"
         compute=rhs disktype="{{ disktype }}"
         vgname={{ item.vg }} lvname={{ item.lv }}
