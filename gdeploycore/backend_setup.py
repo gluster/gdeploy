@@ -185,7 +185,7 @@ class BackendSetup(Helpers):
                 return
             self.vgs = self.set_default('vgs')
         self.section_dict['vgs'] = self.vgs
-        if not self.vgs:
+        if self.vgs:
             if not self.bricks:
                 self.device_count = len(self.vgs)
             return
