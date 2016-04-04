@@ -5,6 +5,6 @@
 
   tasks:
   - name: Create a xfs filesystem
-    filesystem: fstype=xfs dev={{ item }}
-                opts="-f -K -i size=512 -d sw=10,su=128k -n size=8192"
+    filesystem: fstype="{{ fstype }}" dev={{ item }}
+                opts="{{ opts }}"
     with_items: lvols
