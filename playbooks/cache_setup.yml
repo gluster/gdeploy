@@ -1,0 +1,56 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Setup SSD for caching | Create the physical volume
+    pv: action=create disks={{ item }}
+        options="--dataalignment {{ dalign }}k"
+    with_items: ssd
+    register: result
+    failed_when: "result.rc != 0 and 'Physical Volume Exists' not in result.msg"
+
+  - name: Setup SSD for caching | Extend the Volume Group
+    vg: action=extend disks={{ item }}
+        vgname="{{ vgname }}"
+    with_items: ssd
+    register: result
+    failed_when: "result.rc != 0 and ('is already in volume group' not in result.msg  and 'not found' not in result.msg)"
+
+  - name: Setup SSD for caching | Change the attributes of the logical volume
+    lv: action=change zero=n vgname="{{ vgname }}" poolname="{{ pool }}"
+    ignore_errors: yes
+
+  - name: Setup SSD for caching | Create cache meta logical volume
+    lv: action=create lvname="{{ chachemeta }}" lvtype='thick'
+        size="{{ size }}"
+        vgname={{ item }}
+    with_items: vgs
+    ignore_errors: yes
+
+  - name: Setup SSD for caching | Convert the logical volume
+  lv: action=convert type=cache-pool
+        poolmetadata={{ item.vg }}/"{{ cachemeta }}" poolmetadataspare=n
+        vgname={{ item.vg }} lvname="{{ lvname }}"
+    with_items: lvpools
+    ignore_errors: yes
+
+  - name: Setup SSD for caching |Convert an existing logical volume to a cache pool LV
+  lv: action=convert type=cachethinpool={{ item.vg }}/{{item.pool }}
+        poolmetadata={{ item.vg }}/"{{ metadata }}" poolmetadataspare=n
+        vgname={{ item.vg }}
+    with_items: lvpools
+    ignore_errors: yes
+  - name: Create logical volume for the pools
+    lv: action=create poolname={{ item.pool }} lvtype="virtual"
+        compute=rhs disktype="{{ disktype }}"
+        vgname={{ item.vg }} lvname={{ item.lv }}
+        snapshot_reserve="{{ snapshot_reserve }}"
+    with_items: lvpools
+    ignore_errors: yes
+
+  - name: Change the attributes of the logical volume
+    lv: action=change zero=n vgname={{ item.vg }} poolname={{ item.pool }}
+    with_items: lvpools
+    ignore_errors: yes

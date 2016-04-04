@@ -1,0 +1,51 @@
+{
+  "lv": {
+    "action": {
+      "create": {
+        "options": [
+          {
+            "required": "false",
+            "name": "lvname",
+            "default": "GLUSTER_lv"
+          },
+          {
+            "required": "false",
+            "name": "pool",
+            "default": "GLUSTER_pool"
+          },
+          {
+            "required": "false",
+            "name": "type",
+            "default": "thick"
+          },
+          {
+            "required": "false",
+            "name": "size",
+            "default": "100%FREE"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "no"
+          },
+          {
+            "required": "true",
+            "name": "vgname"
+          },
+          {
+            "required": "no",
+            "name": "pvname"
+          },
+          {
+            "name": "chunksize",
+            "required": "false"
+          },
+          {
+            "name": "poolmetadatasize",
+            "required": "false"
+          }
+        ]
+      }
+    }
+  }
+}
