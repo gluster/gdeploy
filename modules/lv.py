@@ -166,12 +166,14 @@ class LvOps(object):
             else:
                 METADATA_SIZE_MB = vg_size / 200
                 metadatasize = floor(floor(METADATA_SIZE_MB) * 1024)
-        return metadatasize
+            self.vg_size = vg_size
+            return metadatasize
+        self.module.fail_json(msg=err, rc=rc)
 
 
     def poolsize_compute(self):
         metadatasize = self.metadata_compute()
-        pool_sz = floor(vg_size * 1024) - metadatasize
+        pool_sz = floor(self.vg_size * 1024) - metadatasize
         snapshot_space = int(self.validated_params(
                 'snapshot_reserve'))
         pool_sz -= (pool_sz * snapshot_space / 100)
@@ -179,7 +181,7 @@ class LvOps(object):
 
     def validated_params(self, opt):
         value = self.module.params[opt]
-        if value is None:
+        if value is None or not value.strip(' '):
             msg = "Please provide %s option in the playbook!" % opt
             self.module.fail_json(msg=msg)
         return value
@@ -191,10 +193,12 @@ class LvOps(object):
     def create_thick_pool(self):
         compute_type = self.module.params['compute'] or ''
         compute_func = getattr(self, compute_type, None)
-        try:
-            size = compute_func()
-        except:
-            size = self.validated_params('size')
+        lvname = self.validated_params('lvname')
+        self.lv_presence_check(lvname)
+        # try:
+        size = str(compute_func()) + 'K'
+        # except:
+            # size = self.validated_params('size')
         pvname = self.module.params.get('pvname') or ''
         opts = ' -Wn -L %s -n %s %s %s' %(size, lvname, self.vgname, pvname)
         return opts
@@ -213,8 +217,10 @@ class LvOps(object):
     def create_thin_lv(self):
         lvcreate = {}
         lvcreate['virtualsize'] = self.module.params[
-                'virtualsize'] or self.poolsize_compute()
-        lvcreate['name'] = self.validated_params('lvname')
+                'virtualsize'] or (str(self.poolsize_compute()) + 'K')
+        lvname = self.validated_params('lvname')
+        self.lv_presence_check(lvname)
+        lvcreate['name'] = lvname
         poolname = self.validated_params('poolname')
         cmd = self.parse_playbook_data(lvcreate)
         return ' --thin ' + cmd + ' ' + poolname
@@ -234,17 +240,11 @@ class LvOps(object):
 
     def create(self):
         self.lvtype = self.validated_params('lvtype')
-        lvname = self.validated_params('lvname')
-        self.lv_presence_check(lvname)
 
-        if self.lvtype in ['virtual']:
-            poolname = self.validated_params('poolname')
-        else:
-            poolname = ''
-        options = {'thick': self.create_thick_pool(),
-                   'thinpool':  self.create_thin_pool(),
-                   'thinlv': self.create_thin_lv()
-                   }[self.lvtype]
+        options = {'thick': self.create_thick_pool,
+                   'thinpool':  self.create_thin_pool,
+                   'thinlv': self.create_thin_lv
+                   }[self.lvtype]()
                    # 'virtual': ' -V %sK -T /dev/%s/%s -n %s'
                    # % (pool_sz, self.vgname, poolname, lvname)
                    # }[self.lvtype]
@@ -260,18 +260,18 @@ class LvOps(object):
         chunksize = ''
         if disktype:
             stripe_unit_size = self.validated_params('stripesize')
-            diskcount = validated_params('diskcount')
-            chunksize = {'raid10': int(self.stripe_unit_size) * int(diskcount),
+            diskcount = self.validated_params('diskcount')
+            chunksize = {'raid10': int(stripe_unit_size) * int(diskcount),
                          'raid6': 256,
                          'jbod': 256
-                       }[self.disktype]
+                       }[disktype]
         if not chunksize:
             chunksize = self.module.params['chunksize']
         return chunksize
 
-    def parse_playbook_data(self, dictionary, cmd):
+    def parse_playbook_data(self, dictionary, cmd=''):
         for key, value in dictionary.iteritems():
-            if value:
+            if value and str(value).strip(' '):
                 cmd += ' --%s %s ' % (key, value)
         return cmd
 
@@ -280,9 +280,9 @@ class LvOps(object):
         lvconvert['type'] = self.module.params['lvtype']
         force = ''
         lvname = ''
-        if self.module.params['force']:
-            if self.module.params['force'].lower() == 'yes':
-                force = ' force'
+        if  not self.module.params['force'] or self.module.params[
+                'force'].lower() != 'no':
+                force = ' -ff --yes'
         if lvconvert.get('type'):
             if lvconvert['type'].lower() == 'cache-pool':
                 poolmetadata = self.module.params['poolmetadata']
@@ -300,7 +300,7 @@ class LvOps(object):
                 lvconvert['cachepool'] = cachepool
             lv = self.validated_params('lvname')
             if not '/' in lv:
-                lvname = self.vgname + '/' + self.validated_params('lv')
+                lvname = self.vgname + '/' + lv
             else:
                 lvname = lv
             self.lv_presence_check(lvname)
@@ -310,15 +310,16 @@ class LvOps(object):
         lvconvert['chunksize'] = self.get_thin_pool_chunk_sz()
         lvconvert['poolmetadataspare'] = self.module.params[
                 'poolmetadataspare']
-        lvconvert['options'] = self.module.params['options']
-        cmd = self.parse_playbook_data(lvconvert, ' -ff --yes')
-        return cmd + ' ' + lvname + force
+        options = self.module.params['options'] or ''
+        cmd = self.parse_playbook_data(lvconvert, force)
+        return cmd + ' ' + options + ' ' + lvname
 
     def change(self):
-        poolname = self.validated_params('poolname')
+        poolname = self.validated_params('lvname')
         self.lv_presence_check(poolname)
-        zero = self.module.params['zero'] or ''
-        options = ' -Z %s %s/%s' % (zero, self.vgname, poolname)
+        zero = self.module.params['zero'] or 'n'
+        options = self.module.params['options']
+        options = ' -Z %s %s %s/%s' % (zero, options, self.vgname, poolname)
         return options
 
     def remove(self):
@@ -348,6 +349,7 @@ if __name__ == '__main__':
             disktype=dict(),
             diskcount=dict(),
             stripesize=dict(),
+            virtualsize=dict(),
             snapshot_reserve=dict(),
             force=dict()
         ),

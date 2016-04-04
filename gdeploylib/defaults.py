@@ -64,9 +64,12 @@ PVCREATE_YML = 'pvcreate.yml'
 PVRESIZE_YML = 'pvresize.yml'
 LVCONVERT_YML = 'lvconvert.yml'
 LVCREATE_YML = 'lvcreate.yml'
+LVCHANGE_YML = 'lvchange.yml'
 VGEXTEND_YML = 'vgextend.yml'
 GLUSTER_LV_YML = 'auto_lvcreate_for_gluster.yml'
 VGCREATE_YML = 'vgcreate.yml'
+
+SETUP_CACHE_YML = "cache_setup.yml"
 
 TUNE_YML = 'tune-profile.yml'
 

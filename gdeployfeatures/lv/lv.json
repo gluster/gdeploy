@@ -10,12 +10,12 @@
           },
           {
             "required": "false",
-            "name": "pool",
+            "name": "poolname",
             "default": "GLUSTER_pool"
           },
           {
             "required": "false",
-            "name": "type",
+            "name": "lvtype",
             "default": "thick"
           },
           {
@@ -34,15 +34,150 @@
           },
           {
             "required": "no",
-            "name": "pvname"
+            "name": "pvname",
+            "default": ' '
+
+          },
+          {
+            "name": "chunksize",
+            "required": "false",
+            "default": ' '
+
+          },
+          {
+            "name": "poolmetadatasize",
+            "required": "false",
+            "default": ' '
+          },
+          {
+            "name": "virtualsize",
+            "required": "no",
+            "default": ' '
+          },
+          {
+            "name": "mkfs",
+            "required": "false"
+          }
+          {
+            "name": "mkfs-opts",
+            "required": "false"
+          },
+          {
+            "name": "xfs-opts",
+            "required": "false"
+            "default": "-f -K -i size=512 -d sw=10,su=128k -n size=8192"
+          },
+          {
+            "name": "mount",
+            "required": "false"
+          }
+        ]
+      },
+      "setup-cache": {
+        "options": [
+          {
+            "name": "ssd",
+            "required": "true"
+          },
+          {
+            "name": "vgname",
+            "required": "true"
+          },
+          {
+            "name": "poolname",
+            "required": "true"
+          },
+          {
+            "name": "chache_meta_lv",
+            "required": "false",
+            "default": "rhs_cache_meta"
+          },
+          {
+            "name": "meta_lvsize",
+            "required": "false",
+            "default": "2G"
+          },
+          {
+            "name": "chache_lv",
+            "required": "false",
+            "default": "rhs_cache"
+          }
+        ]
+      },
+      "convert": {
+        "options": [
+          {
+            "name": "lvtype",
+            "required": "true"
+          },
+          {
+            "name": "force",
+            "required": "no",
+            "default": "no"
+          },
+          {
+            "name": "vgname",
+            "required": "true"
+          },
+          {
+            "name": "poolmetadata",
+            "required": "false"
+            "default": ' '
+          },
+          {
+            "name": "cachemode",
+            "required": "false",
+            "default": "writethrough"
+          },
+          {
+            "name": "cachepool",
+            "required": "false"
+          },
+          {
+            "name": "lvname",
+            "required": "false"
           },
           {
             "name": "chunksize",
             "required": "false"
+            "default": ' '
           },
           {
-            "name": "poolmetadatasize",
-            "required": "false"
+            "name": "poolmetadataspare",
+            "required": "false",
+            "default": ' '
+          },
+          {
+            "name": "thinpool",
+            "required": "false",
+            "default": ' '
+          },
+          {
+            "name": "options",
+            "required": "false",
+            "default": ' '
+          }
+        ]
+      },
+      "change": {
+        "options": [
+          {
+            "required": "true",
+            "name": "lvname"
+          },
+          {
+            "required": "true",
+            "name": "vgname"
+          },
+          {
+            "required": "false",
+            "name": "zero",
+            "default": "n"
+          },
+          {
+            "required": "false",
+            "name": "options",
+            "default": ' '
           }
         ]
       }

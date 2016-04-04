@@ -21,15 +21,15 @@
   - name: Convert the logical volume
     lv: action=convert thinpool={{ item.vg }}/{{item.pool }}
         poolmetadata={{ item.vg }}/'metadata' poolmetadataspare=n
-        vgname={{ item.vg }} compute=rhs disktype="{{disktype}}"
+        vgname={{ item.vg }} disktype="{{disktype}}"
         diskcount="{{ diskcount }}"
         stripesize="{{stripesize}}"
         snapshot_reserve="{{ snapshot_reserve }}"
     with_items: lvpools
     ignore_errors: yes
 
-  - name: create stripe-aligned thin volume:
-    lv: action=create poolname={{ item.pool }} lvtype="virtual"
+  - name: create stripe-aligned thin volume
+    lv: action=create poolname={{ item.pool }} lvtype="thinlv"
         compute=rhs disktype="{{ disktype }}"
         vgname={{ item.vg }} lvname={{ item.lv }}
         snapshot_reserve="{{ snapshot_reserve }}"
@@ -37,6 +37,6 @@
     ignore_errors: yes
 
   - name: Change the attributes of the logical volume
-    lv: action=change zero=n vgname={{ item.vg }} poolname={{ item.pool }}
+    lv: action=change zero=n vgname={{ item.vg }} lvname={{ item.pool }}
     with_items: lvpools
     ignore_errors: yes

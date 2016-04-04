@@ -303,8 +303,10 @@ class BackendSetup(Helpers):
             return
         lvols = ['/dev/%s/%s' % (i, j.split(':')[0]) for i, j in
                                       zip(self.vgs, self.lvs)]
-        self.section_dict['lvols'] = lvols
-        if self.section_dict['lvols']:
+        if lvols:
+            self.section_dict['lvols'] = lvols
+            self.section_dict['opts'] = "-f -K -i size=512 -d sw=10,su=128k -n size=8192"
+            self.section_dict['fstype'] = "xfs"
             self.run_playbook(FSCREATE_YML)
 
     def write_mount_options(self):
