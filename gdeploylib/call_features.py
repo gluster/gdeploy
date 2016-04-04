@@ -46,6 +46,9 @@ def get_feature_dir(section):
 
 
     section_name = helpers.get_section_pattern(section)
+    if not section_name:
+        return
+
     section_dir = os.path.join(gdeployfeatures.__path__[0], section_name)
     if not os.path.isdir(section_dir):
         return
