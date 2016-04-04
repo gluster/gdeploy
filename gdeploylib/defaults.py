@@ -73,7 +73,6 @@ TUNE_YML = 'tune-profile.yml'
 BRESET_YML = 'backend-reset.yml'
 
 
-GLUSTERD_YML = 'glusterd-start.yml'
 PROBE_YML = 'gluster-peer-probe.yml'
 DETACH_YML = 'gluster-peer-detach.yml'
 
