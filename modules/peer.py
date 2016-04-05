@@ -27,7 +27,6 @@ class Peer(object):
     def __init__(self, module):
         self.module = module
         self.action = self._validated_params('action')
-        self.gluster_peer_ops()
 
     def get_playbook_params(self, opt):
         return self.module.params[opt]
@@ -46,28 +45,27 @@ class Peer(object):
            {{ hostvars[host]['private_ip'] }},{% endfor %}"
 
         '''
-        self.hosts = literal_eval(self._validated_params('hosts'))
-
-    def gluster_peer_ops(self):
-        self.get_host_names()
-        if self.action == 'probe':
-            self.hosts = self.get_to_be_probed_hosts()
+        hosts = literal_eval(self._validated_params('hosts'))
         current_host = self._validated_params('master')
         try:
-            self.hosts.remove(current_host)
+            hosts.remove(current_host)
         except:
             pass
-        self.force = 'force' if self.module.params.get('force') == 'yes' else ''
-        if self.hosts:
-            rc, output, err = [0, 0, 0]
-            for hostname in self.hosts:
-                rc, output, err = self.call_gluster_cmd('peer',
-                        self.action, hostname, self.force)
-            self._get_output(rc, output, err)
-        else:
-            self.module.exit_json()
+        return hosts
 
-    def get_to_be_probed_hosts(self):
+    def gluster_peer_ops(self):
+        hosts = self.get_host_names()
+        force = 'force' if self.module.params.get('force') == 'yes' else ''
+        if self.action == 'probe':
+            hosts = self.get_to_be_probed_hosts(hosts)
+        cmd = []
+        if hosts:
+            for hostname in hosts:
+                cmd.append(' peer ' + self.action + ' ' + ' ' +
+                        hostname + ' ' + force)
+        return cmd
+
+    def get_to_be_probed_hosts(self, hosts):
         rc, output, err = self.module.run_command(
                 "gluster pool list")
         peers_in_cluster = [line.split('\t')[1].strip() for
@@ -76,23 +74,24 @@ class Peer(object):
             peers_in_cluster.remove('localhost')
         except:
             pass
-        hosts_to_be_probed = [host for host in self.hosts if host not in
+        hosts_to_be_probed = [host for host in hosts if host not in
                 peers_in_cluster]
         return hosts_to_be_probed
 
 
-    def call_gluster_cmd(self, *args, **kwargs):
-        params = ' '.join(opt for opt in args)
-        key_value_pair = ' '.join(' %s %s ' % (key, value)
-                for key, value in kwargs)
-        return self._run_command('gluster', ' ' + params + ' ' + key_value_pair)
+    def call_peer_commands(self, cmds):
+        errors = []
+        for cmd in cmds:
+            rc, out, err = pops._run_command('gluster', cmd)
+            if rc:
+                errors.append(err)
+        return errors
 
-    def _get_output(self, rc, output, err):
-        changed = 0 if rc else 1
-        if not rc:
-            self.module.exit_json(rc=rc, stdout=output, changed=changed)
+    def get_output(self, errors):
+        if not errors:
+            self.module.exit_json(rc=0, changed=1)
         else:
-            self.module.fail_json(rc=rc, msg=err)
+            self.module.fail_json(rc=1, msg='\n'.join(errors))
 
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
@@ -108,4 +107,7 @@ if __name__ == '__main__':
         ),
     )
 
-    Peer(module)
+    pops = Peer(module)
+    cmds = pops.gluster_peer_ops()
+    errors = pops.call_peer_commands(cmds)
+    pops.get_output(errors)
