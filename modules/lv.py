@@ -209,6 +209,7 @@ class LvOps(object):
         lvcreate['poolmetadatasize'] = self.module.params[
                 'poolmetadatasize'] or ''
         lvcreate['thinpool'] = self.validated_params('poolname')
+        self.lv_presence_check(lvcreate['thinpool'])
         lvcreate['size'] = self.module.params['size'] or ''
         cmd = self.parse_playbook_data(lvcreate)
         opts = ' -Wn %s' %cmd
@@ -221,12 +222,13 @@ class LvOps(object):
         lvname = self.validated_params('lvname')
         self.lv_presence_check(lvname)
         lvcreate['name'] = lvname
-        poolname = self.validated_params('poolname')
+        poolname = self.get_vg_appended_name(self.validated_params('poolname'))
         cmd = self.parse_playbook_data(lvcreate)
-        return ' --thin ' + cmd + ' ' + poolname
+        return (cmd + ' -T ' + poolname)
 
     def lv_presence_check(self, lvname):
-        rc, out, err = self.run_command('lvdisplay', ' ' + lvname)
+        rc, out, err = self.run_command('lvdisplay', ' ' + self.vgname +
+                '/' + lvname)
         ret = 0
         if self.action == 'create' and not rc:
             self.module.exit_json(changed=0, msg="%s Logical Volume Exists!"
@@ -256,17 +258,14 @@ class LvOps(object):
         #JBOD and stripe unit size times the data disks count in case of RAID10
         #If disktype not specified will take user input for chunksize or
         #follow the default behaviour of lvconvert.
-        disktype = self.module.params['disktype']
+        disktype = self.module.params['disktype'] or 'jbod'
         chunksize = ''
-        if disktype:
+        if disktype == 'raid10':
             stripe_unit_size = self.validated_params('stripesize')
             diskcount = self.validated_params('diskcount')
-            chunksize = {'raid10': int(stripe_unit_size) * int(diskcount),
-                         'raid6': 256,
-                         'jbod': 256
-                       }[disktype]
-        if not chunksize:
-            chunksize = self.module.params['chunksize']
+            chunksize = str(int(stripe_unit_size) * int(diskcount)) + 'K'
+        else:
+            chunksize = self.module.params['chunksize'] or '256K'
         return chunksize
 
     def parse_playbook_data(self, dictionary, cmd=''):
@@ -286,33 +285,32 @@ class LvOps(object):
         if lvconvert.get('type'):
             if lvconvert['type'].lower() == 'cache-pool':
                 poolmetadata = self.module.params['poolmetadata']
-                if not '/' in poolmetadata:
-                    poolmetadata = self.vg + '/' + poolmetadata
-                lvcreate['poolmetada'] = poolmetadata
-
+                lvconvert['poolmetada'] = self.get_vg_appended_name(poolmetadata)
                 lvconvert['cachemode'] = self.module.params[
                         'cachemode'] or 'writethrough'
-            elif lvconvert['type'].lower() == 'cache':
-                cachepool = self.validated_params(
-                        'cachepool')
-                if not '/' in cachepool:
-                    cachepool == self.vg + '/' + cachepool
-                lvconvert['cachepool'] = cachepool
-            lv = self.validated_params('lvname')
-            if not '/' in lv:
-                lvname = self.vgname + '/' + lv
-            else:
-                lvname = lv
-            self.lv_presence_check(lvname)
 
-        lvconvert['thinpool'] = self.module.params[
-                'thinpool'] or ''
+            elif lvconvert['type'].lower() == 'cache':
+                cachepool = self.validated_params('cachepool')
+                lvconvert['cachepool'] = self.get_vg_appended_name(cachepool)
+            lv = self.validated_params('lvname')
+            lvconvert['lvname'] = self.get_vg_appended_name(lv)
+            self.lv_presence_check(lv)
+
+        lvconvert['thinpool'] = self.get_vg_appended_name(self.module.params[
+                                                                'thinpool'])
         lvconvert['chunksize'] = self.get_thin_pool_chunk_sz()
         lvconvert['poolmetadataspare'] = self.module.params[
                 'poolmetadataspare']
         options = self.module.params['options'] or ''
         cmd = self.parse_playbook_data(lvconvert, force)
         return cmd + ' ' + options + ' ' + lvname
+
+    def get_vg_appended_name(self, lv):
+        if not lv:
+            return ''
+        if not '/' in lv:
+            return self.vgname + '/' + lv
+        return lv
 
     def change(self):
         poolname = self.validated_params('lvname')
@@ -349,6 +347,7 @@ if __name__ == '__main__':
             disktype=dict(),
             diskcount=dict(),
             stripesize=dict(),
+            chunksize=dict(),
             virtualsize=dict(),
             snapshot_reserve=dict(),
             force=dict()
@@ -357,6 +356,6 @@ if __name__ == '__main__':
 
     lvops = LvOps(module)
     cmd = lvops.lv_action()
-    rc, out, err = lvops.run_command('lv' + lvops.action, cmd)
+    rc, out, err = lvops.run_command('lv' + lvops.action, ' ' + cmd)
     lvops.get_output(rc, out, err)
 
