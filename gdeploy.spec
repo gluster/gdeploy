@@ -1,6 +1,6 @@
 %define name gdeploy
 %define version 2.0
-%define release 0
+%define release 3
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/doc/gdeploy
@@ -16,7 +16,7 @@ URL:		http://www.redhat.com/storage
 Source0:	%{name}-%{version}-%{release}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Requires:	ansible >= 1.9 python >= 2.6
+Requires:	ansible >= 1.9 python >= 2.6 lvm2
 
 BuildRequires:  python-setuptools
 
