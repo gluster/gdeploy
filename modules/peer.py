@@ -52,9 +52,9 @@ class Peer(object):
         self.get_host_names()
         if self.action == 'probe':
             self.hosts = self.get_to_be_probed_hosts()
-        self.current_host = self._validated_params('current_host')
+        current_host = self._validated_params('master')
         try:
-            self.hosts.remove(self.current_host)
+            self.hosts.remove(current_host)
         except:
             pass
         self.force = 'force' if self.module.params.get('force') == 'yes' else ''
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
             action=dict(required=True),
-            current_host=dict(),
+            master=dict(),
             hosts=dict(),
             force=dict(),
         ),
