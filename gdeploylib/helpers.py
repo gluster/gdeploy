@@ -341,6 +341,7 @@ class Helpers(Global, YamlWriter):
             if not section_dict:
                 section_dict = self.section_dict
         if section_dict:
+            section_dict['master'] = Global.master
             self.filename = Global.group_file
             self.create_var_files(section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
