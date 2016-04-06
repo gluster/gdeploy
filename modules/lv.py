@@ -174,9 +174,8 @@ class LvOps(object):
     def poolsize_compute(self):
         metadatasize = self.metadata_compute()
         pool_sz = floor(self.vg_size * 1024) - metadatasize
-        snapshot_space = int(self.validated_params(
-                'snapshot_reserve'))
-        pool_sz -= (pool_sz * snapshot_space / 100)
+        snapshot_space = self.module.params['snapshot_reserve'] or 0
+        pool_sz -= (pool_sz * int(snapshot_space) / 100)
         return pool_sz
 
     def validated_params(self, opt):
@@ -195,10 +194,10 @@ class LvOps(object):
         compute_func = getattr(self, compute_type, None)
         lvname = self.validated_params('lvname')
         self.lv_presence_check(lvname)
-        # try:
-        size = str(compute_func()) + 'K'
-        # except:
-            # size = self.validated_params('size')
+        try:
+            size = str(compute_func()) + 'K'
+        except:
+            size = self.validated_params('size')
         pvname = self.module.params.get('pvname') or ''
         opts = ' -Wn -L %s -n %s %s %s' %(size, lvname, self.vgname, pvname)
         return opts
@@ -208,8 +207,9 @@ class LvOps(object):
         lvcreate['chunksize'] = self.get_thin_pool_chunk_sz()
         lvcreate['poolmetadatasize'] = self.module.params[
                 'poolmetadatasize'] or ''
-        lvcreate['thinpool'] = self.validated_params('poolname')
-        self.lv_presence_check(lvcreate['thinpool'])
+        poolname = self.validated_params('poolname')
+        self.lv_presence_check(poolname)
+        lvcreate['thinpool'] = self.get_vg_appended_name(poolname)
         lvcreate['size'] = self.module.params['size'] or ''
         cmd = self.parse_playbook_data(lvcreate)
         opts = ' -Wn %s' %cmd
@@ -285,7 +285,7 @@ class LvOps(object):
         if lvconvert.get('type'):
             if lvconvert['type'].lower() == 'cache-pool':
                 poolmetadata = self.module.params['poolmetadata']
-                lvconvert['poolmetada'] = self.get_vg_appended_name(poolmetadata)
+                lvconvert['poolmetadata'] = self.get_vg_appended_name(poolmetadata)
                 lvconvert['cachemode'] = self.module.params[
                         'cachemode'] or 'writethrough'
 
@@ -293,14 +293,17 @@ class LvOps(object):
                 cachepool = self.validated_params('cachepool')
                 lvconvert['cachepool'] = self.get_vg_appended_name(cachepool)
             lv = self.validated_params('lvname')
-            lvconvert['lvname'] = self.get_vg_appended_name(lv)
+            lvname = self.get_vg_appended_name(lv)
             self.lv_presence_check(lv)
 
-        lvconvert['thinpool'] = self.get_vg_appended_name(self.module.params[
-                                                                'thinpool'])
-        lvconvert['chunksize'] = self.get_thin_pool_chunk_sz()
-        lvconvert['poolmetadataspare'] = self.module.params[
-                'poolmetadataspare']
+        else:
+            poolmetadata = self.module.params['poolmetadata']
+            lvconvert['poolmetadata'] = self.get_vg_appended_name(poolmetadata)
+            lvconvert['thinpool'] = self.get_vg_appended_name(self.module.params[
+                                                                    'thinpool'])
+            lvconvert['chunksize'] = self.get_thin_pool_chunk_sz()
+            lvconvert['poolmetadataspare'] = self.module.params[
+                    'poolmetadataspare']
         options = self.module.params['options'] or ''
         cmd = self.parse_playbook_data(lvconvert, force)
         return cmd + ' ' + options + ' ' + lvname
@@ -315,6 +318,7 @@ class LvOps(object):
     def change(self):
         poolname = self.validated_params('lvname')
         self.lv_presence_check(poolname)
+        poolname = self.get_vg_appended_name(poolname)
         zero = self.module.params['zero'] or 'n'
         options = self.module.params['options']
         options = ' -Z %s %s %s/%s' % (zero, options, self.vgname, poolname)
@@ -336,9 +340,11 @@ if __name__ == '__main__':
             cachemode=dict(),
             cachepool=dict(),
             lvtype=dict(),
+            pvname=dict(),
             vgname=dict(),
             thinpool=dict(),
             poolmetadata=dict(),
+            poolmetadatasize=dict(),
             poolmetadataspare=dict(),
             poolname=dict(),
             zero=dict(),
@@ -349,6 +355,7 @@ if __name__ == '__main__':
             stripesize=dict(),
             chunksize=dict(),
             virtualsize=dict(),
+            size=dict(),
             snapshot_reserve=dict(),
             force=dict()
         ),

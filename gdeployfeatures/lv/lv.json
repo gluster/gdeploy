@@ -26,46 +26,39 @@
           {
             "required": "false",
             "name": "force",
-            "default": "no"
+            "default": "yes"
           },
           {
-            "required": "true",
+            "required": "no",
             "name": "vgname"
           },
           {
             "required": "no",
             "name": "pvname",
-            "default": ' '
-
+            "default": " "
           },
           {
             "name": "chunksize",
             "required": "false",
-            "default": ' '
-
+            "default": " "
           },
           {
             "name": "poolmetadatasize",
             "required": "false",
-            "default": ' '
+            "default": " "
           },
           {
             "name": "virtualsize",
             "required": "no",
-            "default": ' '
+            "default": " "
           },
           {
             "name": "mkfs",
             "required": "false"
-          }
+          },
           {
             "name": "mkfs-opts",
             "required": "false"
-          },
-          {
-            "name": "xfs-opts",
-            "required": "false"
-            "default": "-f -K -i size=512 -d sw=10,su=128k -n size=8192"
           },
           {
             "name": "mount",
@@ -88,19 +81,27 @@
             "required": "true"
           },
           {
-            "name": "chache_meta_lv",
+            "name": "cache_meta_lv",
             "required": "false",
             "default": "rhs_cache_meta"
           },
           {
-            "name": "meta_lvsize",
-            "required": "false",
-            "default": "2G"
+            "name": "cache_meta_lvsize",
+            "required": "true"
           },
           {
-            "name": "chache_lv",
+            "name": "cache_lv",
             "required": "false",
             "default": "rhs_cache"
+          },
+          {
+            "name": "cache_lvsize",
+            "required": "true"
+          },
+          {
+            "name": "force",
+            "required": "false",
+            "default": "yes"
           }
         ]
       },
@@ -112,8 +113,8 @@
           },
           {
             "name": "force",
-            "required": "no",
-            "default": "no"
+            "required": "false",
+            "default": "yes"
           },
           {
             "name": "vgname",
@@ -121,8 +122,8 @@
           },
           {
             "name": "poolmetadata",
-            "required": "false"
-            "default": ' '
+            "required": "false",
+            "default": " "
           },
           {
             "name": "cachemode",
@@ -139,23 +140,23 @@
           },
           {
             "name": "chunksize",
-            "required": "false"
-            "default": ' '
+            "required": "false",
+            "default": " "
           },
           {
             "name": "poolmetadataspare",
             "required": "false",
-            "default": ' '
+            "default": " "
           },
           {
             "name": "thinpool",
             "required": "false",
-            "default": ' '
+            "default": " "
           },
           {
             "name": "options",
             "required": "false",
-            "default": ' '
+            "default": " "
           }
         ]
       },
@@ -177,7 +178,7 @@
           {
             "required": "false",
             "name": "options",
-            "default": ' '
+            "default": " "
           }
         ]
       }
