@@ -89,9 +89,9 @@ class PvOps(object):
         rc, out, err = self.run_command('pvdisplay', ' ' + disk)
         ret = 0
         if self.action == 'create' and not rc:
-            self.module.fail_json(rc=1, msg="%s Physical Volume Exists!" % disk)
+            self.module.exit_json(rc=0, changed= 0, msg="%s Physical Volume Exists!" % disk)
         elif self.action == 'remove' and rc:
-            self.module.fail_json(rc=1, msg="%s Physical Volume Doesn't Exists!" % disk)
+            self.module.exit_json(rc=0, changed=0,msg="%s Physical Volume Doesn't Exists!" % disk)
         else:
             ret = 1
         return ret

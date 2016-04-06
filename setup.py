@@ -15,7 +15,7 @@ setup(
                 'gdeployfeatures/nfs_ganesha', 'gdeployfeatures/script',
                 'gdeployfeatures/volume', 'gdeployfeatures/clients',
                 'gdeployfeatures/peer', 'gdeployfeatures/pv',
-                'gdeployfeatures/vg',  #'gdeployfeatures/lv',
+                'gdeployfeatures/vg',  'gdeployfeatures/lv',
 
              ],
     scripts=[

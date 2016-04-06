@@ -160,7 +160,7 @@ class VgOps(object):
             self.op = 'vgcreate'
             return
         elif self.action == 'remove' and rc:
-            self.module.fail_json(rc=1, msg="%s Volume Group Doesn't Exists!" % disk)
+            self.module.exit_json(changed=changed, rc=1, msg="%s Volume Group Doesn't Exists!" % disk)
         else:
             ret = 1
         return ret
