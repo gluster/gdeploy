@@ -1,0 +1,23 @@
+{
+  "kubectl": {
+    "action": {
+      "action1": {
+        "options": [
+          {
+            "required": "true", 
+            "name": "name1"
+          }
+        ]
+      }, 
+      "action2": {
+        "options": [
+          {
+            "default": "my_name", 
+            "required": "false", 
+            "name": "name2"
+          }
+        ]
+      }
+    }
+  }
+}
