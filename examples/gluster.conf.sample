@@ -221,6 +221,17 @@ vgs=CUSTOM_vg1
 pools=CUSTOM_pool1
 lvs=CUSTOM_lv1
 mountpoints=/gluster/brick1
+#
+#
+#
+#------------------------------
+                            ##-- pv, vg, and lv sections --##
+
+# 'backend-setup' section works pretty well for the recommended
+# provisioning for GlusterFS, but if a user needs more control over the
+# creation of pv, vg, and lv(say, specifying the poolsize), then this
+# section becomes a bit flaky. In such cases, individually one can
+# control PV, VG, and LV
 #------------------------------
                             ##-- Disktype, Disk count and stripe size --##
 
