@@ -1,0 +1,187 @@
+{
+  "lv": {
+    "action": {
+      "create": {
+        "options": [
+          {
+            "required": "false",
+            "name": "lvname",
+            "default": "GLUSTER_lv"
+          },
+          {
+            "required": "false",
+            "name": "poolname",
+            "default": "GLUSTER_pool"
+          },
+          {
+            "required": "false",
+            "name": "lvtype",
+            "default": "thick"
+          },
+          {
+            "required": "false",
+            "name": "size",
+            "default": "100%FREE"
+          },
+          {
+            "required": "false",
+            "name": "force",
+            "default": "yes"
+          },
+          {
+            "required": "no",
+            "name": "vgname"
+          },
+          {
+            "required": "no",
+            "name": "pvname",
+            "default": " "
+          },
+          {
+            "name": "chunksize",
+            "required": "false",
+            "default": " "
+          },
+          {
+            "name": "poolmetadatasize",
+            "required": "false",
+            "default": " "
+          },
+          {
+            "name": "virtualsize",
+            "required": "no",
+            "default": " "
+          },
+          {
+            "name": "mkfs",
+            "required": "false"
+          },
+          {
+            "name": "mkfs-opts",
+            "required": "false"
+          },
+          {
+            "name": "mount",
+            "required": "false"
+          }
+        ]
+      },
+      "setup-cache": {
+        "options": [
+          {
+            "name": "ssd",
+            "required": "true"
+          },
+          {
+            "name": "vgname",
+            "required": "true"
+          },
+          {
+            "name": "poolname",
+            "required": "true"
+          },
+          {
+            "name": "cache_meta_lv",
+            "required": "false",
+            "default": "rhs_cache_meta"
+          },
+          {
+            "name": "cache_meta_lvsize",
+            "required": "true"
+          },
+          {
+            "name": "cache_lv",
+            "required": "false",
+            "default": "rhs_cache"
+          },
+          {
+            "name": "cache_lvsize",
+            "required": "true"
+          },
+          {
+            "name": "force",
+            "required": "false",
+            "default": "yes"
+          }
+        ]
+      },
+      "convert": {
+        "options": [
+          {
+            "name": "lvtype",
+            "required": "true"
+          },
+          {
+            "name": "force",
+            "required": "false",
+            "default": "yes"
+          },
+          {
+            "name": "vgname",
+            "required": "true"
+          },
+          {
+            "name": "poolmetadata",
+            "required": "false",
+            "default": " "
+          },
+          {
+            "name": "cachemode",
+            "required": "false",
+            "default": "writethrough"
+          },
+          {
+            "name": "cachepool",
+            "required": "false"
+          },
+          {
+            "name": "lvname",
+            "required": "false"
+          },
+          {
+            "name": "chunksize",
+            "required": "false",
+            "default": " "
+          },
+          {
+            "name": "poolmetadataspare",
+            "required": "false",
+            "default": " "
+          },
+          {
+            "name": "thinpool",
+            "required": "false",
+            "default": " "
+          },
+          {
+            "name": "options",
+            "required": "false",
+            "default": " "
+          }
+        ]
+      },
+      "change": {
+        "options": [
+          {
+            "required": "true",
+            "name": "lvname"
+          },
+          {
+            "required": "true",
+            "name": "vgname"
+          },
+          {
+            "required": "false",
+            "name": "zero",
+            "default": "n"
+          },
+          {
+            "required": "false",
+            "name": "options",
+            "default": " "
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+
+  - name: Change the attributes of the logical volume
+    lv: action=change zero=n vgname="{{ vgname }}" lvname="{{ lvname }}"
+        options="{{ options }}"
+

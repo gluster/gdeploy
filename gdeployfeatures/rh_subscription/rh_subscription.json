@@ -5,16 +5,29 @@
           "options": [
             {
               "required": "true",
-              "name": "username"
+              "name": ["username", "activationkey"]
             },
             {
               "required": "true",
-              "name": "password"
+              "name": ["password", "activationkey"]
             },
             {
               "required": "false",
               "name": "auto-attach",
               "default": "false"
+            },
+            {
+              "required": "false",
+              "name": "pool"
+            },
+            {
+              "required": "false",
+              "name": "repos"
+            },
+            {
+              "required": "false",
+              "name": "disable-repos",
+              "default": "no"
             }
           ]
       },

@@ -98,29 +98,32 @@ class VgOps(object):
         self.action = self.validated_params('action')
         self.op = 'vg' + self.action
         self.vgname = self.validated_params('vgname')
+        self.disks = self.module.params['disks']
+        self.options = self.module.params['options'] or ''
+
+    def vg_actions(self):
         if not self.vgname:
-            self.module.exit_json(msg="Nothing to be done")
+            self.module.exit_json(rc=1, msg="Nothing to be done")
         if self.action == 'create':
-            self.disks = self.validated_params('disks')
             if not self.disks:
-                self.module.exit_json(msg="Nothing to be done")
-            self.options = self.module.params['options'] or ''
-            self.vg_create()
+                self.module.exit_json(rc=1, msg="Nothing to be done")
+            opts = self.vg_create()
         elif self.action == 'remove':
-            self.vg_remove(self.vgname)
+            opts = self.vg_remove()
         elif self.action == 'extend':
-            self.vg_extend()
+            opts = self.vg_extend()
         else:
-            self.module.fail_json(msg="Unknown action")
+            self.module.fail_json(rc=1, msg="Unknown action")
+        return opts
 
     def validated_params(self, opt):
         value = self.module.params[opt]
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
-            self.module.fail_json(msg=msg)
+            self.module.fail_json(rc=1, msg=msg)
         return value
 
-    def compute_size(self):
+    def _compute_size(self):
         self.stripe_unit_size = self.validated_params('stripesize')
         self.diskcount = self.validated_params('diskcount')
         pe_size = int(self.stripe_unit_size) * int(self.diskcount)
@@ -129,35 +132,55 @@ class VgOps(object):
     def vg_create(self):
         self.disktype = self.module.params['disktype']
         if self.disktype and self.disktype not in ['jbod']:
-            self.options += ' -s %sK ' % self.compute_size()
+            self.options += ' -s %sK ' % self._compute_size()
         opts = " %s %s %s" % (self.vgname, self.options, self.disks)
-        rc, out, err = self.run_command(self.op, opts)
-        if rc != 0:
-            self.vg_extend()
-        self._get_output(rc, out, err)
+        return opts
 
     def vg_extend(self):
-        self.op = 'vgextend'
         if not hasattr(self, 'disks'):
             self.disks = self.validated_params('disks')
         opts = " %s %s" % (self.vgname, self.disks)
-        rc, out, err = self.run_command(self.op, opts)
-        self._get_output(rc, out, err)
+        return opts
 
-    def _get_output(self, rc, output, err):
+    def get_output(self, rc, output, err):
         if not rc:
             self.module.exit_json(rc=rc, stdout=output, changed=1)
         else:
             self.module.fail_json(rc=rc, msg=err)
 
-    def vg_remove(self, vgname):
-        vg_absent = self.run_command('vgdisplay', ' ' + vgname)
-        if not vg_absent[0]:
-            opts = " -y -ff " + vgname
-            rc, out, err = self.run_command(self.op, opts)
+    def vg_presence_check(self, vg):
+        rc, out, err = self.run_command('vgdisplay', ' ' + vg)
+        ret = 0
+        if self.action == 'create' and not rc:
+            self.action = 'extend'
+            self.op = 'vgextend'
+            return
+        elif self.action == 'extend' and rc:
+            self.action = 'create'
+            self.op = 'vgcreate'
+            return
+        elif self.action == 'remove' and rc:
+            self.module.exit_json(changed=changed, rc=1, msg="%s Volume Group Doesn't Exists!" % disk)
         else:
-            rc, out, err =  vg_absent
-        self._get_output(rc, out, err)
+            ret = 1
+        return ret
+
+    def pv_presence_check(self, disk):
+        if self.action not in ['create', 'extend']:
+            return 1
+        rc, out, err = self.run_command('pvdisplay', ' ' + disk)
+        if rc:
+            dalign = self.module.params['dalign'] or ''
+            opts = " --dataalignment %sk" % dalign if dalign else ''
+            rc, out, err = self.run_command('pvcreate', opts +
+                    ' ' + disk)
+            if rc:
+                self.module.fail_json(msg="Could not create PV", rc=rc)
+        return 1
+
+    def vg_remove(self):
+        opts = " -y -ff " + self.vgname
+        return opts
 
     def run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts
@@ -172,8 +195,14 @@ if __name__ == '__main__':
             options=dict(type='str'),
             diskcount=dict(),
             disktype=dict(),
-            stripesize=dict()
+            stripesize=dict(),
+            dalign=dict()
         ),
     )
 
     vgops = VgOps(module)
+    vgops.vg_presence_check(vgops.vgname)
+    opts = vgops.vg_actions()
+    vgops.pv_presence_check(vgops.disks)
+    rc, out, err = vgops.run_command(vgops.op, opts)
+    vgops.get_output(rc, out, err)

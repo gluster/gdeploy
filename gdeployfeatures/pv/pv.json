@@ -1,0 +1,32 @@
+{
+  "pv": {
+    "action": {
+      "create": {
+        "options": [
+          {
+            "required": "true",
+            "name": "devices"
+          }
+        ]
+      },
+      "resize": {
+        "options": [
+          {
+            "required": "true",
+            "name": "devices"
+          },
+          {
+            "required": "false",
+            "name": "expand",
+            "default": "no"
+          },
+          {
+            "required": "false",
+            "name": "shrink",
+            "default": "0"
+          }
+        ]
+      }
+    }
+  }
+}
