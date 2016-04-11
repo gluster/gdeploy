@@ -188,7 +188,7 @@ class BackendSetup(Helpers):
         if self.vgs:
             if not self.bricks:
                 self.device_count = len(self.vgs)
-            return
+                return
         data = []
         if self.device_count != len(self.section_dict['vgs']):
             if self.device_count > 1 and len(self.vgs) == 1:
