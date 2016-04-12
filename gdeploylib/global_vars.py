@@ -32,6 +32,8 @@ class Global(object):
     master = None
     brick_hosts = []
     log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
+    templates_dir = os.path.expanduser('~/.gdeploy/templates')
+    extras = '/usr/share/ansible/gdeploy/extras'
     hosts = []
     current_hosts = []
     current_host = None

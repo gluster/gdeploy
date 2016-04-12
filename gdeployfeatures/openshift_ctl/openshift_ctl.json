@@ -1,0 +1,73 @@
+{
+  "oc": {
+    "action": {
+      "create": {
+        "options": [
+          {
+            "required": "false",
+            "name": "filename"
+          },
+          {
+            "required": "false",
+            "name": "resourcename"
+          },
+          {
+            "required": "false",
+            "name": "filetype",
+            "default": "json"
+          },
+          {
+            "required": "false",
+            "name": "variable",
+            "default": " "
+          }
+        ]
+      }
+      //"run": {
+        //"options": [
+          //{
+            //"default": "my_name",
+            //"required": "false",
+            //"name": "name2"
+          //}
+        //]
+      //},
+      //"exec": {
+        //"options": [
+          //{
+            //"default": "my_name",
+            //"required": "false",
+            //"name": "name2"
+          //}
+        //]
+      //},
+      //"delete": {
+        //"options": [
+          //{
+            //"default": "my_name",
+            //"required": "false",
+            //"name": "name2"
+          //}
+        //]
+      //},
+      //"stop": {
+        //"options": [
+          //{
+            //"default": "my_name",
+            //"required": "false",
+            //"name": "name2"
+          //}
+        //]
+      //},
+      //"get": {
+        //"options": [
+          //{
+            //"default": "my_name",
+            //"required": "false",
+            //"name": "name2"
+          //}
+        //]
+      //}
+    }
+  }
+}

@@ -192,3 +192,7 @@ GANESHA_DELETE_NODE = 'ganesha-cluster-delete.yml'
 
 RUN_SCRIPT = 'run-script.yml'
 
+
+# Kubectl
+
+OC_CREATE = 'oc-create.yml'

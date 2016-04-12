@@ -131,24 +131,24 @@ def create_playbooks_in_local():
     /var/tmp/playbooks
     '''
     global helpers
-    templates_path_pkg = '/usr/share/ansible/gdeploy/playbooks'
-    templates_env_var = os.getenv('GDEPLOY_TEMPLATES')
+    playbooks_path_pkg = '/usr/share/ansible/gdeploy/playbooks'
+    playbooks_env_var = os.getenv('GDEPLOY_TEMPLATES')
     # Is environment variable GDEPLOY_TEMPLATES set
-    if templates_env_var:
-        templates_dir = helpers.get_file_dir_path(templates_env_var,
+    if playbooks_env_var:
+        playbooks_dir = helpers.get_file_dir_path(playbooks_env_var,
                 'playbooks')
     # Or assumes the templates are present as a part of ansible installation
     else:
-        templates_dir = templates_path_pkg
-    if not os.path.isdir(templates_dir):
-        msg = "Template files not found.\n\n" \
+        playbooks_dir = playbooks_path_pkg
+    if not os.path.isdir(playbooks_dir):
+        msg = "Playbook files not found.\n\n" \
             "Gdeploy looks inside the directory %s or \n" \
             "wants the environment varible GDEPLOY_TEMPLATES set."\
-             % (templates_path_pkg)
+             % (playbooks_path_pkg)
         print "\nError: " + msg
         Global.logger.error(msg.strip('\n\t\r'))
         helpers.cleanup_and_quit()
-    helpers.copy_files(templates_dir)
+    helpers.copy_files(playbooks_dir)
 
 def main(arg):
     args = parse_arguments(arg)
