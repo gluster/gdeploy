@@ -49,7 +49,7 @@ class Kubectl:
         filetype = self.module.params['filetype'] or ''
         if filetype == 'template' and filename:
             val = self.module.params['variable']
-            if val and re.match('.*=.*', val):
+            if val and val.strip() and re.match('.*=.*', val):
                 v = ' -v %s ' % val
             else:
                 v = ' '
