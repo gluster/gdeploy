@@ -16,7 +16,7 @@ setup(
                 'gdeployfeatures/volume', 'gdeployfeatures/clients',
                 'gdeployfeatures/peer', 'gdeployfeatures/pv',
                 'gdeployfeatures/vg',  'gdeployfeatures/lv',
-
+                'gdeployfeatures/openshift_ctl'
              ],
     scripts=[
         'gdeploy/gdeploy'

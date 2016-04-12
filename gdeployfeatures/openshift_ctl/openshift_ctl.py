@@ -4,10 +4,11 @@ Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
 """
 from gdeploylib import defaults, Helpers, Global
+import os, re
 
 helpers = Helpers()
 
-def oc_create(section_dict):
+def openshift_ctl_create(section_dict):
     global helpers
     if not section_dict.get('filename'):
         resource = section_dict.get('resourcename')
@@ -15,19 +16,23 @@ def oc_create(section_dict):
             print "Error: Please provide the resourcename or filename "\
                     "to complete create action"
             helpers.cleanup_and_quit()
-        section_dict['filename'] = get_filename(resource)
-        if not section_dict['filename']:
+        filepath = get_filename(resource, section_dict)
+        if not filepath:
             print "Error: Could not find %s file "\
                     "to complete create action" % section_dict.get('filetype')
             helpers.cleanup_and_quit()
+    else:
+        filepath = section_dict.get('filename')
+    section_dict['filepath'] = filepath
+    section_dict['filedest'] = os.path.basename(filepath)
 
     return section_dict, defaults.OC_CREATE
 
-def get_filename(resource):
+def get_filename(resource, section_dict):
     global helpers
     filenames = []
-    filenames.expand(get_templates(Global.extras))
-    filenames.expand(get_templates(Global.templates))
+    filenames.extend(get_templates(Global.extras))
+    filenames.extend(get_templates(Global.templates_dir))
     filetype = section_dict.get('filetype')
     if filetype == 'template':
         filepattern = resource + '-template.json'
@@ -40,9 +45,11 @@ def get_filename(resource):
         helpers.cleanup_and_quit()
 
     for each in filenames:
-        if not re.match(filepattern, each):
+        current = os.path.basename(each)
+        if not re.match(filepattern, current):
             continue
-        return each
+        else:
+            return each
     return False
 
 def get_templates(dirname):

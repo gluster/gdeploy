@@ -1,5 +1,5 @@
 {
-  "oc": {
+  "openshift_ctl": {
     "action": {
       "create": {
         "options": [
@@ -23,51 +23,6 @@
           }
         ]
       }
-      //"run": {
-        //"options": [
-          //{
-            //"default": "my_name",
-            //"required": "false",
-            //"name": "name2"
-          //}
-        //]
-      //},
-      //"exec": {
-        //"options": [
-          //{
-            //"default": "my_name",
-            //"required": "false",
-            //"name": "name2"
-          //}
-        //]
-      //},
-      //"delete": {
-        //"options": [
-          //{
-            //"default": "my_name",
-            //"required": "false",
-            //"name": "name2"
-          //}
-        //]
-      //},
-      //"stop": {
-        //"options": [
-          //{
-            //"default": "my_name",
-            //"required": "false",
-            //"name": "name2"
-          //}
-        //]
-      //},
-      //"get": {
-        //"options": [
-          //{
-            //"default": "my_name",
-            //"required": "false",
-            //"name": "name2"
-          //}
-        //]
-      //}
     }
   }
 }

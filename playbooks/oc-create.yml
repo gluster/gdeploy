@@ -1,0 +1,13 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+   - name: Move the json/yml file to master
+     template: src="{{ filepath }}" dest=/var/tmp
+
+   - name: kubectl create pod from json input
+     kubectl: action=create filename="/var/tmp/{{ filedest }}"
+              filetype="{{ filetype }}" variable="{{ variable }}"
+

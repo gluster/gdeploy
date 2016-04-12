@@ -21,7 +21,8 @@
 
 feature_list = ['snapshot', 'quota', 'yum', 'geo_replication', 'ctdb',
 'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
-'update_file', 'script', 'volume', 'peer', 'clients', 'pv', 'vg', 'lv']
+'update_file', 'script', 'volume', 'peer', 'clients', 'pv', 'vg', 'lv',
+'openshift_ctl']
 # All the defaults values used in gdeploy
 
 
