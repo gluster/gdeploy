@@ -10,6 +10,6 @@
 
    - name: kubectl create pod from json input
      kubectl: action=create filename="/var/tmp/{{ item.filedest }}"
-              filetype="{{ filetype }}" variable="{{ item.variable }}"
+              filetype="{{ filetype }}" variable={{ item.variable }}
      with_items: filelist
 

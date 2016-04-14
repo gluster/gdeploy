@@ -24,7 +24,7 @@ def openshift_ctl_create(section_dict):
         var = section_dict.get('variable')
         if not var:
             var = section_dict.get('variable' + str(filepaths.index(filepath) +1))
-        var = ' '.join(helpers.listify(var)) if var else ''
+        var = ','.join(helpers.listify(var)) if var else ''
         filelist['filepath'] = filepath
         filelist['filedest'] = os.path.basename(filepath)
         filelist['variable'] = var
