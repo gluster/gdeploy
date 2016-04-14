@@ -75,6 +75,29 @@ def get_templates(dirname):
             filenames.append(helpers.get_file_dir_path(dirname,
                 each))
     return filenames
+
+
+
+def openshift_ctl_delete(section_dict):
+    global helpers
+    typename = ','.join(helpers.listify(section_dict.get('type')))
+    section_dict['type'] = typename
+    section_dict['filename'] = get_unique_item_names(section_dict,
+            'filename') or None
+    section_dict['resourcename'] =  get_unique_item_names(section_dict,
+            'resourcename') or None
+    section_dict['label'] = get_unique_item_names(section_dict, 'label') or None
+    section_dict['uuid'] = get_unique_item_names(section_dict, 'uuid') or None
+    return section_dict, defaults.OC_DELETE
+
+def get_unique_item_names(section_dict, option):
+    global helpers
+    name = helpers.listify(section_dict.get(option))
+    if not name:
+        return None
+    uniqueval = filter(None, map(lambda s: s.strip(), name))
+    return uniqueval
+
 #def kubectl_run(section_dict):
 #    return section_dict, defaults.YML_NAME
 #
@@ -84,8 +107,6 @@ def get_templates(dirname):
 #def kubectl_get(section_dict):
 #    return section_dict, defaults.YML_NAME
 #
-#def kubectl_delete(section_dict):
-#    return section_dict, defaults.YML_NAME
 #
 #def kubectl_stop(section_dict):
 #    return section_dict, defaults.YML_NAME

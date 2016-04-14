@@ -197,3 +197,4 @@ RUN_SCRIPT = 'run-script.yml'
 # Kubectl
 
 OC_CREATE = 'oc-create.yml'
+OC_DELETE = 'oc-delete.yml'

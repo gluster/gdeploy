@@ -42,6 +42,7 @@ def get_feature_dir(section):
     playbook returned back by the function
     '''
     global helpers, section_name
+    Global.master = None
     Global.current_hosts = Global.hosts
 
 
@@ -71,8 +72,13 @@ def get_feature_dir(section):
 
     feature_func = getattr(gdeployfeatures, section_name)
     feature_mod = getattr(feature_func, section_name)
-    feature_call = getattr(feature_mod, section_name + '_' + section_dict[
-        'action'].replace('-', '_'))
+    try:
+        feature_call = getattr(feature_mod, section_name + '_' + section_dict[
+            'action'].replace('-', '_'))
+    except:
+        print "Error: No method found for action %s" %(section_name +
+                '_' + section_dict['action'])
+        helpers.cleanup_and_quit()
 
     section_dict, yml = feature_call(section_dict)
 

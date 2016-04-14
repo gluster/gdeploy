@@ -75,11 +75,11 @@ class Kubectl:
 
     def oc_delete(self):
         filename = self.module.params['filename']
-        if filename:
+        if filename and filename.strip():
             return "cat %s | oc %s -f -" % (filename, self.action)
         ropts = self._validated_params('type') or ''
         label = self.module.params['label'] or ''
-        if label:
+        if label and label.strip():
             return "oc %s %s -l %s" % (self.action, ropts, label)
         name = self.module.params['name']
         name = ' '.join(name.split(',')) if name else '--all'
@@ -121,7 +121,7 @@ class Kubectl:
 
     def _validated_params(self, opt):
         value = self.module.params[opt]
-        if value is None:
+        if value is None or not value.strip():
             msg = "Please provide %s option in the playbook!" % opt
             self.module.fail_json(msg=msg)
         return value
