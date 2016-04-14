@@ -4,12 +4,8 @@
       "create": {
         "options": [
           {
-            "required": "false",
-            "name": "filename"
-          },
-          {
-            "required": "false",
-            "name": "resourcename"
+            "required": "true",
+            "name": ["filename", "resourcename"]
           },
           {
             "required": "false",
@@ -18,8 +14,20 @@
           },
           {
             "required": "false",
-            "name": "variable",
-            "default": " "
+            "name": "variable"
+          }
+        ]
+      },
+      "delete": {
+        "options": [
+          {
+            "required": "false",
+            "name": ["filename", "resourcename", "label", "uuid"]
+          },
+          {
+            "required": "false",
+            "name": "type",
+            "default": "pods"
           }
         ]
       }
