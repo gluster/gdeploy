@@ -49,7 +49,14 @@ def get_feature_dir(section):
     if not section_name:
         return
 
-    section_dir = os.path.join(gdeployfeatures.__path__[0], section_name)
+    try:
+        section_dir = os.path.join(gdeployfeatures.__path__[0], section_name)
+    except:
+        print "Error: Could not find the installation path for "\
+        "'gdeployfeatures' module. Please check the installation of gdeploy"
+        helpers.cleanup_and_quit()
+
+
     if not os.path.isdir(section_dir):
         return
 
