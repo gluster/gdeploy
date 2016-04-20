@@ -1,0 +1,77 @@
+{
+  "heketi": {
+    "action": {
+      "load-topology": {
+        "options": [
+          {
+            "required": "false",
+            "name": "filename"
+          },
+          {
+            "required": "false",
+            "name": "load_topology",
+            "default": "false"
+          },
+          {
+            "required": "false",
+            "name": "server"
+          },
+          {
+            "required": "false",
+            "name": "port",
+            "default": "8080"
+          }
+        ]
+      },
+      "heketi-init": {
+        "options": [
+          {
+              "name": "admin_key",
+              "required": "true"
+          },
+          {
+              "name": "user_key",
+              "required": "true"
+          },
+          {
+              "name": "ssh_keyfile",
+              "required": "true"
+          },
+          {
+              "name": "ssh_user",
+              "required": "true"
+          },
+          {
+              "name": "db",
+              "required": "false",
+              "default": "/var/lib/heketi/heketi.db"
+          },
+          {
+              "name": "executor",
+              "required": "false",
+              "default": "mock"
+          },
+          {
+            "required": "false",
+            "name": "port",
+            "default": "8080"
+          },
+          {
+            "required": "false",
+            "name": "use_auth",
+            "default": "false"
+          },
+          {
+            "required": "false",
+            "name": "filename"
+          },
+          {
+            "required": "false",
+            "name": "load_topology",
+            "default": "false"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -52,3 +52,8 @@ class Global(object):
                         'ansible_playbooks.yml')
 
 
+
+    #HEKETI DATA
+
+    port = None
+    server = None

@@ -22,7 +22,7 @@
 feature_list = ['snapshot', 'quota', 'yum', 'geo_replication', 'ctdb',
 'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
 'update_file', 'script', 'volume', 'peer', 'clients', 'pv', 'vg', 'lv',
-'openshift_ctl']
+'openshift_ctl', 'heketi']
 # All the defaults values used in gdeploy
 
 
@@ -198,3 +198,8 @@ RUN_SCRIPT = 'run-script.yml'
 
 OC_CREATE = 'oc-create.yml'
 OC_DELETE = 'oc-delete.yml'
+
+# HEKETI
+
+HKT_LOAD_TOPO = 'heketi-load-topology.yml'
+HKT_CONFIG_COPY = 'heketi-json-copy.yml'
