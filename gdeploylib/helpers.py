@@ -391,7 +391,7 @@ class Helpers(Global, YamlWriter):
         Some calculations are made as to enhance
         performance
         '''
-        disktype = Global.sections.get('disktype')
+        disktype = self.config_get_options('disktype', False)
         if disktype:
             perf = dict(disktype=disktype[0].lower())
             if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
@@ -400,17 +400,15 @@ class Helpers(Global, YamlWriter):
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
-                diskcount = Global.sections.get('diskcount')
-                if not diskcount:
-                    print "Error: 'diskcount' not provided for " \
-                    "disktype %s" % perf['disktype']
-                perf['diskcount'] = int(diskcount)
-                stripe_size = Global.sections.get('stripesize')
+                diskcount = self.config_get_options('diskcount', True)
+                perf['diskcount'] = int(diskcount[0])
+                stripe_size = self.config_get_options('stripesize', False)
                 if not stripe_size and perf['disktype'] == 'raid6':
                     print "Error: 'stripesize' not provided for " \
                     "disktype %s" % perf['disktype']
+                    self.cleanup_and_quit()
                 if stripe_size:
-                    perf['stripesize'] = int(stripe_size)
+                    perf['stripesize'] = int(stripe_size[0])
                     if perf['disktype'] == 'raid10' and perf[
                             'stripesize'] != 256:
                         warn = "Warning: We recommend a stripe unit size of 256KB " \
