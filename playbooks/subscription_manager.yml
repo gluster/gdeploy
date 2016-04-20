@@ -20,7 +20,7 @@
     ignore_errors: True
 
   - name: Disable all rhsm repos
-    command: subscription-manager repos --disable=\'*\'
+    command: subscription-manager repos --disable=*
     when: disable_repos == "yes"
     ignore_errors: yes
 
