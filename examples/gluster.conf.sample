@@ -1540,3 +1540,70 @@ client_mount_points=/mnt/gluster{1,3}
 # resourcename=heketi,rhgs
 # variable1=NAME=heketiresource
 # variable2=NAME=rhgsresource,HOSTNAME=mytestvar
+
+
+
+#-----------------------------------
+
+
+                            ##-- heketi --##
+#
+# This module can be used to start and configure heketi service
+#
+# The actions available are: heketi-init, load-topology
+#
+# heketi-init action updates the heketi.json configuration file and
+# starts and enables heketi service. If templatefile is provided under
+# the same section, gdeploy will take care of loading the topology as
+# well.
+#
+# Required keys:
+# 1. admin_key: JWT Auth key for the Heketi administrator
+# 2. user_key: JWT Auth key for the Heketi user
+# 3. ssh_keyfile: File with private ssh key
+# 4. ssh_user: SSH user
+#
+# Optional keys:
+# 1. server: Heketi server. Default: hostname provided under the hosts
+#            section
+# 2. port:  Heketi REST service port number, Default: 8080
+# 3. use_auth: Enable JWT Authentication. Default:  false
+# 4. executor: Determines the type of command executor to use.
+#              Possible values are:
+#              mock: Does not send any commands out to servers. Can be used for
+#                    development and tests
+#              ssh: Sends commands to real systems over ssh
+#              Default: mock
+# 5. db: Location of Heketi database. Default: /var/lib/heketi/heketi.db
+# 6. topologyfile: Path to the JSON file that defines the cluster
+#                  topology
+#
+# Example:
+#
+# [heketi]
+# action=heketi-init
+# admin_key=secret
+# user_key=secret2
+# ssh_user=bilbobaggins
+# ssh_keyfile=/shire/bilbobaggins/.ssh/id_rsa.pub
+# topologyfile=/shire/bilbobaggins/topology.json
+#
+# load-topology action just loads the topology defined in the topology
+# file
+#
+# Required keys:
+# 1. topologyfile: Path to the JSON file that defines the cluster
+#                  topology
+#
+#
+# Optional keys:
+# 1. server: Heketi server. Default: hostname provided under the hosts
+#            section
+# 2. port:  Heketi REST service port number, Default: 8080
+#
+# Example:
+#
+# [heketi]
+# action=load-topology
+# topologyfile=/shire/bilbobaggins/topology.json
+#

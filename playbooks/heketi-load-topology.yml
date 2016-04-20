@@ -1,0 +1,13 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  vars:
+    env:
+        HEKETI_CLI_SERVER: "http://{{server}}:{{port}}"
+
+  tasks:
+  - name: Load Heketi topology
+    heketi: action=load filename="{{ filename }}"
+    environment: env

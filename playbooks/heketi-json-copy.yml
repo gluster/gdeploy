@@ -1,0 +1,10 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Modifying heketi.json file
+    template: src=heketi.json
+              dest=/
+

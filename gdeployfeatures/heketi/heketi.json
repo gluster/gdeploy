@@ -5,7 +5,7 @@
         "options": [
           {
             "required": "false",
-            "name": "filename"
+            "name": "topologyfile"
           },
           {
             "required": "false",
@@ -63,7 +63,7 @@
           },
           {
             "required": "false",
-            "name": "filename"
+            "name": "topologyfile"
           },
           {
             "required": "false",
