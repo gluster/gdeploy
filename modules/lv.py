@@ -153,6 +153,7 @@ class LvOps(object):
         # metadatasize and poolsize in the playbook.
         metadatasize = 0
         global error
+        self.vg_presence_check(self.vgname)
         option = " --noheading --units m  -o vg_size %s" % self.vgname
         rc, vg_size, err = self.run_command('vgs', option)
         if not rc:
@@ -197,9 +198,14 @@ class LvOps(object):
         try:
             size = str(compute_func()) + 'K'
         except:
-            size = self.validated_params('size')
+            sop = ''
+            size = self.module.params.get('size')
+            sop = ' -L %s' % size
+            if not size:
+                extend = self.module.params.get('extent') or '100%FREE'
+                sop = ' -l %s' % extend
         pvname = self.module.params.get('pvname') or ''
-        opts = ' -Wn -L %s -n %s %s %s' %(size, lvname, self.vgname, pvname)
+        opts = ' -Wn %s -n %s %s %s' %(sop, lvname, self.vgname, pvname)
         return opts
 
     def create_thin_pool(self):
@@ -225,6 +231,12 @@ class LvOps(object):
         poolname = self.get_vg_appended_name(self.validated_params('poolname'))
         cmd = self.parse_playbook_data(lvcreate)
         return (cmd + ' -T ' + poolname)
+
+    def vg_presence_check(self, vg):
+        rc, out, err = self.run_command('vgdisplay', ' ' + vg)
+        if rc:
+            self.module.fail_json(rc=rc, msg="%s Volume Group Doesn't Exists!" % vg)
+        return rc
 
     def lv_presence_check(self, lvname):
         rc, out, err = self.run_command('lvdisplay', ' ' + self.vgname +
@@ -356,6 +368,7 @@ if __name__ == '__main__':
             chunksize=dict(),
             virtualsize=dict(),
             size=dict(),
+            extent=dict(),
             snapshot_reserve=dict(),
             force=dict()
         ),

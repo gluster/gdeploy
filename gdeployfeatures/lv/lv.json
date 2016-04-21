@@ -20,7 +20,11 @@
           },
           {
             "required": "false",
-            "name": "size",
+            "name": "size"
+          },
+          {
+            "required": "false",
+            "name": "extent",
             "default": "100%FREE"
           },
           {

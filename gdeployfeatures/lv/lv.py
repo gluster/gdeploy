@@ -13,7 +13,7 @@ def lv_create(section_dict):
         vg_section = Global.sections.get('vg')
         if not vg_section or not vg_section['vgname']:
             data_not_found('vgname')
-        sections['vgname'] = vg_section['vgname']
+        section_dict['vgname'] = vg_section['vgname']
 
     lvtype = section_dict.get('lvtype')
     if lvtype == 'thinlv':
@@ -44,15 +44,18 @@ def get_lv_vg_names(name, section_dict):
     global helpers
     vgname = helpers.listify(section_dict['vgname'])
     lvname = helpers.listify(section_dict[name])
-    size = helpers.listify(section_dict['size'])
+    size = helpers.listify(section_dict.get('size')) or ['']
+    extend = helpers.listify(section_dict.get('extent')) or ['']
     lvname, vgname = validate_the_numbers(lvname, vgname)
     lvname, size = validate_the_numbers(lvname, size)
+    lvname, extend = validate_the_numbers(lvname, extend)
     data = []
-    for lv, vg, size in zip(lvname, vgname, size):
+    for lv, vg, size, extend in zip(lvname, vgname, size, extend):
         lvnames = {}
         lvnames['lv'] = lv
         lvnames['vg'] = vg
         lvnames['size'] = size
+        lvnames['extent'] = extend
         data.append(lvnames)
     ymls = []
     if name != 'poolname':
