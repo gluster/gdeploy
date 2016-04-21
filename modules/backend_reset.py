@@ -35,10 +35,10 @@ class BackendReset(object):
             self.pvs = literal_eval(self.validated_params('pvs'))
         except:
             self.pvs = None
-        self.vgs = self.validated_params('vgs')
-        self.lvs = self.validated_params('lvs')
-        self.unmount = self.validated_params('unmount')
-        self.mountpoints = self.validated_params('mountpoints')
+        self.vgs = self.module.params.get('vgs') or None
+        self.lvs = self.module.params.get('lvs') or None
+        self.unmount = self.module.params.get('unmount') or 'no'
+        self.mountpoints = self.module.params.get('mountpoints') or None
         self.remove_lvs()
         self.remove_vgs()
         self.remove_pvs()
@@ -85,8 +85,6 @@ class BackendReset(object):
         self.get_lvs()
         if not self.lvs:
             return
-        if not type(self.vgs) is list:
-            self.vgs = literal_eval(self.vgs)
         if not self.mountpoints:
             self.mountpoints = self.lvs
         self.umount_bricks()
@@ -95,7 +93,7 @@ class BackendReset(object):
         self.output.append([rc, out, err])
 
     def umount_bricks(self):
-        if literal_eval(self.unmount)[0].lower() != 'yes':
+        if not self.unmount or literal_eval(self.unmount)[0].lower() != 'yes':
             return
         if not self.mountpoints:
             return
@@ -122,9 +120,11 @@ class BackendReset(object):
             return
         if not self.vgs:
             self.get_vgs()
+        self.lvs = []
+        if not self.vgs:
+            return
         if not type(self.vgs) is list:
             self.vgs = literal_eval(self.vgs)
-        self.lvs = []
         if self.vgs:
             for vg in self.vgs:
                 option = " --noheading -o lv_name %s" % vg

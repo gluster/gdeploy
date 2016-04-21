@@ -1525,7 +1525,7 @@ client_mount_points=/mnt/gluster{1,3}
 # HOSTNAME=10.70.47.89
 #
 # Multiple pod creations can be done in a single go if filenames or
-# resource names are given comma seperated. In this case, the variables
+# resource names are given comma separated. In this case, the variables
 # can be common to all the pod files and can be defined in 'variable'
 # option or separate variables can be provided for each pod file by
 # using the option variable post-fixed by a digit showing the count of
