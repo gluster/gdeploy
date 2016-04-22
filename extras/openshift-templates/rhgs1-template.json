@@ -45,7 +45,10 @@
             },
             "spec": {
                 "strategy": {
-                    "type": "Recreate"
+                    "type": "Custom",
+                    "customParams": {
+                        "image": "rhgs3/rhgs-server-rhel7"
+                    }
                 },
                 "replicas": 1,
                 "selector": {
