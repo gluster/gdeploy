@@ -131,7 +131,12 @@ def get_mount_data(section_dict, devices, vgnames):
         mntpath['device'] = dev
         data.append(mntpath)
     section_dict['mntpath'] = data
-    return section_dict, [defaults.FSCREATE_YML, defaults.MOUNT_YML]
+    selinux = helpers.config_get_options('selinux', False)
+    ymls = [defaults.FSCREATE_YML, defaults.MOUNT_YML]
+    if selinux:
+        if selinux[0].lower() == 'yes':
+            ymls.append(defaults.SELINUX_YML)
+    return section_dict, ymls
 
 
 
