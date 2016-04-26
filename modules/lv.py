@@ -195,15 +195,16 @@ class LvOps(object):
         compute_func = getattr(self, compute_type, None)
         lvname = self.validated_params('lvname')
         self.lv_presence_check(lvname)
+        sop = ''
         try:
             size = str(compute_func()) + 'K'
         except:
-            sop = ''
             size = self.module.params.get('size')
+        if not size:
+            extend = self.module.params.get('extent') or '100%FREE'
+            sop = ' -l %s' % extend
+        else:
             sop = ' -L %s' % size
-            if not size:
-                extend = self.module.params.get('extent') or '100%FREE'
-                sop = ' -l %s' % extend
         pvname = self.module.params.get('pvname') or ''
         opts = ' -Wn %s -n %s %s %s' %(sop, lvname, self.vgname, pvname)
         return opts
