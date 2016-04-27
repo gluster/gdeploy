@@ -87,11 +87,11 @@
           {
             "name": "cache_meta_lv",
             "required": "false",
-            "default": "rhs_cache_meta"
+            "default": ''
           },
           {
             "name": "cache_meta_lvsize",
-            "required": "true"
+            "required": "false"
           },
           {
             "name": "cache_lv",
