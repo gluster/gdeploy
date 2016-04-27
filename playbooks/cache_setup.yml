@@ -28,6 +28,7 @@
     lv: action=create lvname="{{ cache_meta_lv }}" lvtype=thick
         size="{{ cache_meta_lvsize }}" vgname="{{ vgname }}" pvname="{{ ssd }}"
     ignore_errors: yes
+    when: cache_meta_lv is defined and cache_meta_lv != ''
 
   - name: Setup SSD for caching | Create cache logical volume
     lv: action=create lvname="{{ cache_lv }}" lvtype=thick
