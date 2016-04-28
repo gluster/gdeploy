@@ -9,8 +9,15 @@
           },
           {
             "required": "false",
-            "name": "load_topology",
-            "default": "false"
+            "name": "zone"
+          },
+          {
+            "required": "false",
+            "name": "hostnames"
+          },
+          {
+            "required": "false",
+            "name": "cluster"
           },
           {
             "required": "false",
@@ -18,8 +25,20 @@
           },
           {
             "required": "false",
+            "name": "devices"
+          },
+          {
+            "required": "false",
             "name": "port",
             "default": "8080"
+          },
+          {
+              "name": "user_key",
+              "required": "true"
+          },
+          {
+              "name": "ssh_user",
+              "required": "true"
           }
         ]
       },
@@ -67,8 +86,23 @@
           },
           {
             "required": "false",
-            "name": "load_topology",
-            "default": "false"
+            "name": "zone"
+          },
+          {
+            "required": "false",
+            "name": "hostnames"
+          },
+          {
+            "required": "false",
+            "name": "cluster"
+          },
+          {
+            "required": "false",
+            "name": "server"
+          },
+          {
+            "required": "false",
+            "name": "devices"
           }
         ]
       }

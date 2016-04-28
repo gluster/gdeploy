@@ -28,14 +28,51 @@ def heketi_heketi_init(section_dict):
 
 def heketi_load_topology(section_dict):
     filename = section_dict.get('topologyfile')
-    section_dict['filename'] = filename
-    topo = section_dict.get('load_topology')
-    if not filename and topo.lower() == 'false':
-        return section_dict, None
+    if filename:
+        section_dict['filename'] = filename
+    else:
+        hostnames = helpers.listify(section_dict.get("hostnames"))
+        zone = helpers.listify(section_dict.get("zone"))
+        devices = helpers.listify(section_dict.get("devices"))
+        if not (hostnames and zone and devices):
+            return section_dict, None
+        section_dict = get_hostnames(section_dict, hostnames, zone,
+                devices)
 
     if not Global.server or Global.port:
-        get_server_name(section_dict)
+        section_dict = get_server_name(section_dict)
     return section_dict, defaults.HKT_LOAD_TOPO
+
+def get_hostnames(section_dict, hostnames, zone, devices):
+    global helpers
+    if len(hostnames) != len(zone) or len(zone) != len(devices):
+        print "Error: Entity number mismatch"
+        helpers.cleanup_and_quit()
+    data = []
+    for hosts, zone, devs in zip(hostnames, zone, devices):
+        hdict = {}
+        h = hosts.split(';')
+        manage = ''
+        storage = ''
+        for each in h:
+            mgroup = re.match('manage=(.*)', each)
+            if mgroup:
+                manage = mgroup.group(1)
+            sgroup = re.match('storage=(.*)', each)
+            if sgroup:
+                storage = sgroup.group(1)
+        hdict["manage"] = h[0] if not manage else manage
+        hdict["storage"] = h[-1] if not storage else storage
+        devnames = devs.split(';')
+        if devnames:
+            hdict["devices"] = helpers.correct_brick_format(devnames)
+        else:
+            hdict["devices"] = ''
+        hdict["zone"] = zone
+        data.append(hdict)
+    section_dict['hdict'] = data
+    return section_dict
+
 
 def get_server_name(section_dict):
     global helpers
@@ -52,5 +89,6 @@ def get_server_name(section_dict):
         port = server_group.group(2)
     Global.server = server
     Global.port = port
-    return
+    section_dict["servername"] = "http://{0}:{1}".format(server, port)
+    return section_dict
 

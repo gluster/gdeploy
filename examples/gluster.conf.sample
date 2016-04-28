@@ -1592,14 +1592,52 @@ client_mount_points=/mnt/gluster{1,3}
 # file
 #
 # Required keys:
-# 1. topologyfile: Path to the JSON file that defines the cluster
-#                  topology
+# 1. hostnames: Name of the nodes that is to be added to the cluster. It
+#               needs manage and storage nodes. The format to provide it is:
+#               hostname=manage=10.70.1.144;storage=10.70.1.144
+#               Make sure you separate both types with semi colon. You could also use
+#               the format:
+#               hostname=10.70.1.144;10.70.1.144
+#               In which case first one would be considered as manage node and second
+#               the storage node
+#               If only one node is given:
+#               hostname=10.70.1.144
+#               The same IP will be considered as both manage and storage
+# 2. user_key: JWT Auth key for the Heketi user
+# 3. ssh_user: SSH user
+#
+# If you want to add more than one nodes to the cluster, provide it
+# comma separated:
+#
+# hostname=manage=10.70.1.144;storage=10.70.1.144,manage=10.70.1.145,storage=10.70.1.145
+#
+#
+# 2. zone:  Failure domain. If more than one hostname is to be added,
+# provide it comma separated
+#
+# 3. devices: Device name. It more than one device is to be added in a
+# single node, provide it semicolon separated. If for multiple nodes,
+# provide it comma separated.
+#
+#  EXAMPLE:
+# [heketi]
+# action=load-topology
+# user_key=secret
+# ssh_user=user
+# hostnames=manage=10.70.1.144;storage=10.70.1.144
+# zone=1
+# devices=/dev/sdb;/dev/vdb
 #
 #
 # Optional keys:
-# 1. server: Heketi server. Default: hostname provided under the hosts
+# 1. cluster: UUID of cluster in the topology. If not given a new
+#    cluster will be created
+# 2. server: Heketi server. Default: hostname provided under the hosts
 #            section
-# 2. port:  Heketi REST service port number, Default: 8080
+# 3. port:  Heketi REST service port number, Default: 8080
+#
+# Instead of this, one can directly load a topology from the topology
+# file
 #
 # Example:
 #
