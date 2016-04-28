@@ -14,3 +14,6 @@
             managehost={{ item.manage }} storagehost={{ item.storage }} zone={{ item.zone }}
             devices="{{ item.devices }}"
     with_items: hdict
+    register: result
+
+  - debug: msg="{{ result.results[0]['msg'] }}"

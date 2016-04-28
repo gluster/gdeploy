@@ -229,11 +229,13 @@ class Heketi(HeketiClient):
             rc, out, err = self.run_command(op, cmd)
             self.get_output(rc, out, err)
         else:
-            print "yes"
             self.init_heketi()
             cluster_id = self.module.params['cluster'] or  self.heketi_cluster_create()
             node_id = self.heketi_add_node(cluster_id)
-            dev_id = self.heketi_add_device(node_id)
+            dev = self.heketi_add_device(node_id)
+            result = {"cluster_id": cluster_id, "node_id": node_id,
+                    "device_create": dev}
+            self.module.exit_json(msg=result,rc=0, changed=1)
 
     def init_heketi(self):
         user = self._validated_params('sshuser')
@@ -249,22 +251,22 @@ class Heketi(HeketiClient):
             hostname["storage"] = [self._validated_params('storagehost')]
         except:
             return
-        node_dict = str(dict(zone=zone,cluster=cluster_id,hostnames=hostname))
-        ret = self.heketi.node_add(literal_eval(node_dict))
+        node_dict = dict(zone=int(zone),hostnames=hostname,cluster=cluster_id)
+        ret = self.heketi.node_add(node_dict)
         return ret['id']
-
 
     def heketi_add_device(self, node_id):
         try:
-            devices = literal_eval(self._validated_params('devices'))
+            devices = self._validated_params('devices')
         except:
-            return
+            return False
+        devices = literal_eval(devices)
         dev_dict = {}
         dev_dict["node"] = node_id
         for dev in devices:
             dev_dict["name"] = dev
             ret = self.heketi.device_add(dev_dict)
-        return ret['id']
+        return True
 
     def heketi_cluster_create(self):
         ret = self.heketi.cluster_create()
