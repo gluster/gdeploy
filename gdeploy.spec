@@ -50,6 +50,12 @@ install -m 755 modules/* \
 mkdir -p %{buildroot}/%{gdeploytemp}
 cp -r playbooks %{buildroot}/%{gdeploytemp}
 
+# Install scripts
+cp -r extras/scripts %{buildroot}/%{gdeploytemp}
+
+# Install Openshift-templates
+cp -r extras/openshift-templates %{buildroot}/%{gdeploytemp}
+
 # Documentation
 mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
        %{buildroot}/%{_mandir}/man5/
