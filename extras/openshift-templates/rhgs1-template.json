@@ -13,28 +13,6 @@
     },
     "objects": [
         {
-            "kind": "Service",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "${NAME}",
-                "annotations": {
-                    "description": "Exposes and load balances rhgs"
-                }
-            },
-            "spec": {
-                "ports": [
-                    {
-                        "name": "rhgs-service",
-                        "port": 8000,
-                        "targetPort": 8000
-                    }
-                ],
-                "selector": {
-                    "name": "${NAME}"
-                }
-            }
-        },
-        {
             "kind": "DeploymentConfig",
             "apiVersion": "v1",
             "metadata": {
