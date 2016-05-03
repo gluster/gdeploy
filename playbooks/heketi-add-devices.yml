@@ -1,0 +1,13 @@
+---
+- hosts: all
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Add devices to heketi nodes
+    heketi: action=adddevice sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
+            node="{{ node }}" devices="{{ item.devices }}"
+    with_items: hdict
+    register: result
+
+  - debug: msg="{{ result.results[0]['msg'] }}"

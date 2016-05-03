@@ -27,6 +27,11 @@ def heketi_heketi_init(section_dict):
 
 
 def heketi_load_topology(section_dict):
+    if not Global.server or Global.port:
+        section_dict = get_server_name(section_dict)
+    section_dict["servername"] = "http://{0}:{1}".format(Global.server,
+            Global.port)
+
     filename = section_dict.get('topologyfile')
     if filename:
         section_dict['filename'] = filename
@@ -34,17 +39,29 @@ def heketi_load_topology(section_dict):
         hostnames = helpers.listify(section_dict.get("hostnames"))
         zone = helpers.listify(section_dict.get("zone"))
         devices = helpers.listify(section_dict.get("devices"))
-        if not (hostnames and zone and devices):
+        if not (hostnames or zone or devices):
             return section_dict, None
         section_dict = get_hostnames(section_dict, hostnames, zone,
                 devices)
 
-    if not Global.server or Global.port:
-        section_dict = get_server_name(section_dict)
+    if not section_dict.get("topologyfile"):
+        section_dict["topologyfile"] = ''
     return section_dict, defaults.HKT_LOAD_TOPO
+
+def get_devices(devs):
+    devnames = devs.split(';')
+    if devs and devnames:
+        return helpers.correct_brick_format(devnames)
+    else:
+        return ''
 
 def get_hostnames(section_dict, hostnames, zone, devices):
     global helpers
+    if (hostnames and zone) and not devices:
+        devices = [''] * len(hostnames)
+    if not (hostnames and zone) and devices:
+        hostnames = [''] * len(devices)
+        zone = [''] * len(devices)
     if len(hostnames) != len(zone) or len(zone) != len(devices):
         print "Error: Entity number mismatch"
         helpers.cleanup_and_quit()
@@ -63,11 +80,7 @@ def get_hostnames(section_dict, hostnames, zone, devices):
                 storage = sgroup.group(1)
         hdict["manage"] = h[0] if not manage else manage
         hdict["storage"] = h[-1] if not storage else storage
-        devnames = devs.split(';')
-        if devnames:
-            hdict["devices"] = helpers.correct_brick_format(devnames)
-        else:
-            hdict["devices"] = ''
+        hdict["devices"] = get_devices(devs)
         hdict["zone"] = zone
         data.append(hdict)
     section_dict['hdict'] = data
@@ -89,6 +102,12 @@ def get_server_name(section_dict):
         port = server_group.group(2)
     Global.server = server
     Global.port = port
-    section_dict["servername"] = "http://{0}:{1}".format(server, port)
     return section_dict
 
+def heketi_add_node(section_dict):
+    section_dict, yml = heketi_load_topology(section_dict)
+    return section_dict, defaults.HKT_ADD_NODE
+
+def heketi_add_device(section_dict):
+    section_dict, yml = heketi_load_topology(section_dict)
+    return section_dict, defaults.HKT_ADD_DEVICE

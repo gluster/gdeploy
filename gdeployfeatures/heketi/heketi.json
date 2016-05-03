@@ -25,6 +25,10 @@
           },
           {
             "required": "false",
+            "name": "node"
+          },
+          {
+            "required": "false",
             "name": "devices"
           },
           {
@@ -39,6 +43,68 @@
           {
               "name": "ssh_user",
               "required": "true"
+          }
+        ]
+      },
+      "add-node": {
+          "options": [
+          {
+              "name": "user_key",
+              "required": "true"
+          },
+          {
+              "name": "ssh_user",
+              "required": "true"
+          },
+          {
+            "required": "false",
+            "name": "port",
+            "default": "8080"
+          },
+          {
+            "required": "true",
+            "name": "cluster"
+          },
+          {
+            "required": "false",
+            "name": "server"
+          },
+          {
+            "required": "true",
+            "name": "zone"
+          },
+          {
+            "required": "true",
+            "name": "hostnames"
+          }
+        ]
+      },
+      "add-device": {
+          "options": [
+          {
+              "name": "user_key",
+              "required": "true"
+          },
+          {
+              "name": "ssh_user",
+              "required": "true"
+          },
+          {
+            "required": "false",
+            "name": "port",
+            "default": "8080"
+          },
+          {
+            "required": "false",
+            "name": "server"
+          },
+          {
+            "required": "true",
+            "name": "devices"
+          },
+          {
+            "required": "true",
+            "name": "node"
           }
         ]
       },
@@ -103,6 +169,10 @@
           {
             "required": "false",
             "name": "devices"
+          },
+          {
+            "required": "false",
+            "name": "node"
           }
         ]
       }

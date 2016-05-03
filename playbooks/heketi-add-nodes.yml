@@ -1,0 +1,14 @@
+---
+- hosts: all
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Add a node to heketi cluster
+    heketi: action=addnode sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
+            managehost={{ item.manage }} storagehost={{ item.storage }} zone={{ item.zone }}
+            cluster="{{ cluster }}"
+    with_items: hdict
+    register: result
+
+  - debug: msg="{{ result.results[0]['msg'] }}"

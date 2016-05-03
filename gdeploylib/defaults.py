@@ -1,4 +1,5 @@
 #!/usr/bin/python
+HKT_ADD_NODE = 'heketi-add-nodes.yml'
 # -*- coding: utf-8 -*- #
 #
 # Copyright 2016 Nandaja Varma <nvarma@redhat.com>
@@ -203,3 +204,5 @@ OC_DELETE = 'oc-delete.yml'
 
 HKT_LOAD_TOPO = 'heketi-load-topology.yml'
 HKT_CONFIG_COPY = 'heketi-json-copy.yml'
+HKT_ADD_NODE = 'heketi-add-nodes.yml'
+HKT_ADD_DEVICE = 'heketi-add-devices.yml'

@@ -12,8 +12,9 @@
   - name: Load Heketi topology
     heketi: action=load sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
             managehost={{ item.manage }} storagehost={{ item.storage }} zone={{ item.zone }}
-            devices="{{ item.devices }}"
+            devices="{{ item.devices }}" filename="{{ topologyfile }}"
     with_items: hdict
     register: result
+    environment: "{{ env }}"
 
   - debug: msg="{{ result.results[0]['msg'] }}"
