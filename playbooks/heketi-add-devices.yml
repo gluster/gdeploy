@@ -2,6 +2,7 @@
 - hosts: all
   remote_user: root
   gather_facts: no
+  connection: local
 
   tasks:
   - name: Add devices to heketi nodes

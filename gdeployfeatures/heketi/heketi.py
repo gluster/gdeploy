@@ -9,6 +9,7 @@ import re
 helpers = Helpers()
 
 def heketi_heketi_init(section_dict):
+    Global.master="127.0.0.1"
     yamls = []
     get_server_name(section_dict)
     section_dict['port'] = Global.port
@@ -27,6 +28,7 @@ def heketi_heketi_init(section_dict):
 
 
 def heketi_load_topology(section_dict):
+    Global.master="127.0.0.1"
     if not Global.server or Global.port:
         section_dict = get_server_name(section_dict)
     section_dict["servername"] = "http://{0}:{1}".format(Global.server,
@@ -105,9 +107,11 @@ def get_server_name(section_dict):
     return section_dict
 
 def heketi_add_node(section_dict):
+    Global.master="127.0.0.1"
     section_dict, yml = heketi_load_topology(section_dict)
     return section_dict, defaults.HKT_ADD_NODE
 
 def heketi_add_device(section_dict):
+    Global.master="127.0.0.1"
     section_dict, yml = heketi_load_topology(section_dict)
     return section_dict, defaults.HKT_ADD_DEVICE
