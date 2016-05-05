@@ -13,7 +13,7 @@
   - name: Load Heketi topology
     heketi: action=load sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
             managehost={{ item.manage }} storagehost={{ item.storage }} zone={{ item.zone }}
-            devices="{{ item.devices }}" filename="{{ topologyfile }}"
+            devices="{{ item.devices }}" filename="{{ topologyfile }}" cluster="{{ cluster }}"
     with_items: hdict
     register: result
     environment: "{{ env }}"

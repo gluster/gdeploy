@@ -17,10 +17,12 @@
           },
           {
             "required": "false",
-            "name": "cluster"
+            "name": "cluster",
+            "default": " "
+
           },
           {
-            "required": "false",
+            "required": "true",
             "name": "server"
           },
           {
@@ -63,10 +65,11 @@
           },
           {
             "required": "true",
-            "name": "cluster"
+            "name": "cluster",
+            "default": " "
           },
           {
-            "required": "false",
+            "required": "true",
             "name": "server"
           },
           {
@@ -95,7 +98,7 @@
             "default": "8080"
           },
           {
-            "required": "false",
+            "required": "true",
             "name": "server"
           },
           {
@@ -160,10 +163,11 @@
           },
           {
             "required": "false",
-            "name": "cluster"
+            "name": "cluster",
+            "default": " "
           },
           {
-            "required": "false",
+            "required": "true",
             "name": "server"
           },
           {

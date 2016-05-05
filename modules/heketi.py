@@ -56,7 +56,7 @@ class Heketi(HeketiClient):
             rc, out, err = self.run_command(op, cmd)
             self.get_output(rc, out, err)
         else:
-            cluster_id = self._get_params('cluster', False) or self.heketi_cluster_create()
+            cluster_id = self.heketi_cluster_create()
             node_id = self.heketi_add_node(cluster_id)
             dev = self.heketi_add_device(node_id)
             result = {"cluster_id": cluster_id, "node_id": node_id,
@@ -98,6 +98,9 @@ class Heketi(HeketiClient):
         return True
 
     def heketi_cluster_create(self):
+        cid = self._get_params('cluster', False)
+        if cid:
+            return cid
         ret = self.heketi.cluster_create()
         return  ret['id']
 
