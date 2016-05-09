@@ -10,6 +10,15 @@
         HEKETI_CLI_SERVER: "http://{{servername}}"
 
   tasks:
+  - name: Create cluster, if not provided
+    heketi: action=load sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
+    register: result
+    environment: "{{ env }}"
+    when: cluster is not defined or not cluster or  cluster == " "
+
+  - set_fact: cluster="{{ result['msg']['cluster_id'] }}"
+    when: cluster is not defined or not cluster or cluster == " "
+
   - name: Load Heketi topology
     heketi: action=load sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
             managehost={{ item.manage }} storagehost={{ item.storage }} zone={{ item.zone }}

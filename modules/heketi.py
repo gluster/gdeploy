@@ -84,7 +84,9 @@ class Heketi(HeketiClient):
 
     def heketi_add_device(self, node_id=None):
         if not node_id:
-            node_id = self._get_params('node')
+            node_id = self._get_params('node', False)
+        if not node_id:
+            return ''
         try:
             devices = self._get_params('devices')
         except:
