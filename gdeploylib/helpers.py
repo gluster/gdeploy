@@ -307,9 +307,9 @@ class Helpers(Global, YamlWriter):
         return not is_subdir
 
 
-    def get_section_dict(self, pattern):
+    def get_section_dict(self, section_dict, pattern):
         d = []
-        for k, v in Global.sections.iteritems():
+        for k, v in section_dict.iteritems():
             if re.search(pattern, k):
                 d.append(v)
         return d

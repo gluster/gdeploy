@@ -38,12 +38,12 @@ def heketi_load_topology(section_dict):
     if filename:
         section_dict['filename'] = filename
     else:
-        hostnames = helpers.listify(section_dict.get("hostnames"))
+        hostnames = helpers.get_section_dict(section_dict, "hostnames")
         zone = helpers.listify(section_dict.get("zone"))
         devices = helpers.listify(section_dict.get("devices"))
         if not (hostnames or zone or devices):
             return section_dict, None
-        section_dict = get_hostnames(section_dict, hostnames, zone,
+        section_dict = get_hostnames(section_dict, hostnames,
                 devices)
 
     if not section_dict.get("topologyfile"):
@@ -57,20 +57,19 @@ def get_devices(devs):
     else:
         return ''
 
-def get_hostnames(section_dict, hostnames, zone, devices):
+def get_hostnames(section_dict, hostnames, devices):
     global helpers
-    if (hostnames and zone) and not devices:
+    if hostnames and not devices:
         devices = [''] * len(hostnames)
-    if not (hostnames and zone) and devices:
+    if not hostnames and devices:
         hostnames = [''] * len(devices)
-        zone = [''] * len(devices)
-    if len(hostnames) != len(zone) or len(zone) != len(devices):
+    if len(hostnames) != len(devices):
         print "Error: Entity number mismatch"
         helpers.cleanup_and_quit()
     data = []
-    for hosts, zone, devs in zip(hostnames, zone, devices):
+    for hosts, devs in zip(hostnames, devices):
         hdict = {}
-        h = hosts.split(';')
+        h = helpers.listify(hosts)
         manage = ''
         storage = ''
         for each in h:
@@ -80,6 +79,11 @@ def get_hostnames(section_dict, hostnames, zone, devices):
             sgroup = re.match('storage=(.*)', each)
             if sgroup:
                 storage = sgroup.group(1)
+            zgroup = re.match('zone=(.*)', each)
+            if zgroup:
+                zone = zgroup.group(1)
+            else:
+                zone = 1
         hdict["manage"] = h[0] if not manage else manage
         hdict["storage"] = h[-1] if not storage else storage
         hdict["devices"] = get_devices(devs)

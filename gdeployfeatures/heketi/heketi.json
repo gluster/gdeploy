@@ -9,10 +9,6 @@
           },
           {
             "required": "false",
-            "name": "zone"
-          },
-          {
-            "required": "false",
             "name": "hostnames"
           },
           {
@@ -71,10 +67,6 @@
           {
             "required": "true",
             "name": "server"
-          },
-          {
-            "required": "true",
-            "name": "zone"
           },
           {
             "required": "true",
@@ -152,10 +144,6 @@
           {
             "required": "false",
             "name": "topologyfile"
-          },
-          {
-            "required": "false",
-            "name": "zone"
           },
           {
             "required": "false",

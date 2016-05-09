@@ -1550,72 +1550,34 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # This module can be used to start and configure heketi service
 #
-# The actions available are: heketi-init, load-topology
+# The actions available are: load-topology, add-nodes, add-devices
 #
-# heketi-init action updates the heketi.json configuration file and
-# starts and enables heketi service. If templatefile is provided under
-# the same section, gdeploy will take care of loading the topology as
-# well.
-#
-# Required keys:
-# 1. admin_key: JWT Auth key for the Heketi administrator
-# 2. user_key: JWT Auth key for the Heketi user
-# 3. ssh_keyfile: File with private ssh key
-# 4. ssh_user: SSH user
-#
-# Optional keys:
-# 1. server: Heketi server. Default: hostname provided under the hosts
-#            section
-# 2. port:  Heketi REST service port number, Default: 8080
-# 3. use_auth: Enable JWT Authentication. Default:  false
-# 4. executor: Determines the type of command executor to use.
-#              Possible values are:
-#              mock: Does not send any commands out to servers. Can be used for
-#                    development and tests
-#              ssh: Sends commands to real systems over ssh
-#              Default: mock
-# 5. db: Location of Heketi database. Default: /var/lib/heketi/heketi.db
-# 6. topologyfile: Path to the JSON file that defines the cluster
-#                  topology
-#
-# Example:
-#
-# [heketi]
-# action=heketi-init
-# admin_key=secret
-# user_key=secret2
-# ssh_user=bilbobaggins
-# ssh_keyfile=/shire/bilbobaggins/.ssh/id_rsa.pub
-# topologyfile=/shire/bilbobaggins/topology.json
 #
 # load-topology action just loads the topology defined in the topology
 # file
 #
 # Required keys:
 # 1. hostnames: Name of the nodes that is to be added to the cluster. It
-#               needs manage and storage nodes. The format to provide it is:
-#               hostname=manage=10.70.1.144;storage=10.70.1.144
+#               needs manage node, storage node and zone. zone is Failure domain.
+#               If more than one hostname is to be added. The format to provide it is:
+#               hostname=manage=10.70.1.144,storage=10.70.1.144,zone=1
 #               Make sure you separate both types with semi colon. You could also use
 #               the format:
-#               hostname=10.70.1.144;10.70.1.144
+#               hostname=10.70.1.144,10.70.1.144,zone=1
 #               In which case first one would be considered as manage node and second
 #               the storage node
 #               If only one node is given:
-#               hostname=10.70.1.144
+#               hostname=10.70.1.144,zone=1
 #               The same IP will be considered as both manage and storage
 # 2. user_key: JWT Auth key for the Heketi user
 # 3. ssh_user: SSH user
 #
 # If you want to add more than one nodes to the cluster, provide it
-# comma separated:
 #
-# hostname=manage=10.70.1.144;storage=10.70.1.144,manage=10.70.1.145,storage=10.70.1.145
+# hostnames1=manage=10.70.1.144,storage=10.70.1.144,zone=1
+# hostnames2=manage=10.70.1.145,storage=10.70.1.145,zone=2
 #
-#
-# 4. zone:  Failure domain. If more than one hostname is to be added,
-# provide it comma separated
-#
-# 5. devices: Device name. If more than one device is to be added in a
+# 4. devices: Device name. If more than one device is to be added in a
 # single node, provide it semicolon separated. If for multiple nodes,
 # provide it comma separated.
 #
@@ -1624,8 +1586,7 @@ client_mount_points=/mnt/gluster{1,3}
 # action=load-topology
 # user_key=secret
 # ssh_user=user
-# hostnames=manage=10.70.1.144;storage=10.70.1.144
-# zone=1
+# hostnames=manage=10.70.1.144,storage=10.70.1.144,zone=1
 # devices=/dev/sdb;/dev/vdb
 #
 #
@@ -1654,15 +1615,16 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # Required keys:
 # 1. hostnames: Name of the nodes that is to be added to the cluster. It
-#               needs manage and storage nodes. The format to provide it is:
-#               hostname=manage=10.70.1.144;storage=10.70.1.144
+#               needs manage node, storage node and zone. zone is Failure domain.
+#               If more than one hostname is to be added. The format to provide it is:
+#               hostname=manage=10.70.1.144,storage=10.70.1.144,zone=1
 #               Make sure you separate both types with semi colon. You could also use
 #               the format:
-#               hostname=10.70.1.144;10.70.1.144
+#               hostname=10.70.1.144,10.70.1.144,zone=1
 #               In which case first one would be considered as manage node and second
 #               the storage node
 #               If only one node is given:
-#               hostname=10.70.1.144
+#               hostname=10.70.1.144,zone=1
 #               The same IP will be considered as both manage and storage
 # 2. user_key: JWT Auth key for the Heketi user
 # 3. ssh_user: SSH user
@@ -1670,13 +1632,13 @@ client_mount_points=/mnt/gluster{1,3}
 #             cluster will be created
 #
 #          If you want to add more than one nodes to the cluster, provide it
-#          comma separated:
+#          separately with a postfix number specifying the order of the
+#          hostnames
 #
-#          hostname=manage=10.70.1.144;storage=10.70.1.144,manage=10.70.1.145,storage=10.70.1.145
+#          hostnames1=manage=10.70.1.144,storage=10.70.1.144,zone=1
+#          hostnames2=manage=10.70.1.145,storage=10.70.1.145,zone=2
 #
 #
-# 5. zone:  Failure domain. If more than one hostname is to be added,
-# provide it comma separated
 #
 #  EXAMPLE:
 # [heketi]
@@ -1684,8 +1646,7 @@ client_mount_points=/mnt/gluster{1,3}
 # user_key=secret
 # ssh_user=user
 # cluster=773428c0db5f81866ed3040ca34d189a
-# hostnames=manage=10.70.1.144;storage=10.70.1.144
-# zone=1
+# hostnames1=manage=10.70.1.144,storage=10.70.1.144,zone=1
 #
 #
 # add-device adds devices to an existing node in the cluster
