@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
+import json, os
 
 class Kubectl:
 
@@ -53,7 +53,9 @@ class Kubectl:
                 v = ' -v %s ' % val
             else:
                 v = ' '
-            return "cat %s | oc process %s -f - | oc create -f -" %(filename, v)
+            template = os.path.basename(filename).split('-')[0]
+            return "cat {0} | oc create -f -; oc process {1} {2} | oc "\
+                                "create -f -".format(filename,template,  v)
         if filename:
             return "cat %s | oc %s -f -" % (filename, self.action)
 
