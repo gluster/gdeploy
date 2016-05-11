@@ -18,7 +18,7 @@
 
           },
           {
-            "required": "true",
+            "required": "false",
             "name": "server"
           },
           {
@@ -65,7 +65,7 @@
             "default": " "
           },
           {
-            "required": "true",
+            "required": "false",
             "name": "server"
           },
           {
@@ -90,7 +90,7 @@
             "default": "8080"
           },
           {
-            "required": "true",
+            "required": "false",
             "name": "server"
           },
           {
@@ -155,7 +155,7 @@
             "default": " "
           },
           {
-            "required": "true",
+            "required": "false",
             "name": "server"
           },
           {
@@ -165,6 +165,71 @@
           {
             "required": "false",
             "name": "node"
+          }
+        ]
+      },
+      "create-volume": {
+        "options": [
+          {
+              "name": "size",
+              "required": "true"
+          },
+          {
+              "name": "name",
+              "required": "false",
+              "default": " "
+          },
+          {
+              "name": "durability",
+              "required": "false",
+              "default": "none"
+          },
+          {
+              "name": "replica_count",
+              "required": "false",
+              "default": "2"
+          },
+          {
+              "name": "disperse_data",
+              "required": "false",
+              "default": "8"
+          },
+          {
+              "name": "redundancy",
+              "required": "false",
+              "default": "2"
+          },
+          {
+              "name": "snapshot",
+              "required": "false",
+              "default": "false"
+          },
+          {
+              "name": "snapshot_factor",
+              "required": "false",
+              "default": "1.2"
+          },
+          {
+              "name": "clusters",
+              "required": "false",
+              "default": " "
+          },
+          {
+              "name": "user_key",
+              "required": "true"
+          },
+          {
+              "name": "ssh_user",
+              "required": "true"
+          },
+          {
+            "required": "false",
+            "name": "port",
+            "default": "8080"
+          },
+          {
+            "required": "false",
+            "name": "server"
           }
         ]
       }

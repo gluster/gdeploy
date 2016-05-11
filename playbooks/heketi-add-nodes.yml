@@ -8,7 +8,7 @@
   - name: Add a node to heketi cluster
     heketi: action=addnode sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
             managehost={{ item.manage }} storagehost={{ item.storage }} zone={{ item.zone }}
-            cluster="{{ cluster }}"
+            cluster="{{ cluster }}" hostnames="{{ heketiservers }}"
     with_items: hdict
     register: result
 

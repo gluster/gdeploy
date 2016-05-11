@@ -4,16 +4,11 @@
   gather_facts: no
   connection: local
 
-
-  vars:
-    env:
-        HEKETI_CLI_SERVER: "http://{{servername}}"
-
   tasks:
   - name: Create cluster, if not provided
     heketi: action=load sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
+            hostnames="{{ heketiservers }}"
     register: result
-    environment: "{{ env }}"
     when: cluster is not defined or not cluster or  cluster == " "
 
   - set_fact: cluster="{{ result['msg']['cluster_id'] }}"
@@ -23,8 +18,8 @@
     heketi: action=load sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
             managehost={{ item.manage }} storagehost={{ item.storage }} zone={{ item.zone }}
             devices="{{ item.devices }}" filename="{{ topologyfile }}" cluster="{{ cluster }}"
+            hostnames="{{ heketiservers }}"
     with_items: hdict
     register: result
-    environment: "{{ env }}"
 
   - debug: msg="{{ result.results[0]['msg'] }}"

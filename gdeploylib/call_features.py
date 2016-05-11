@@ -139,8 +139,9 @@ def get_action_data(section, section_dir, section_dict):
     json_data.close()
     action_dict = data[section_name]["action"].get(section_dict.get("action"))
     if not action_dict:
-        print "\nError: We could not find the operations corresponding " \
-                "to the action specified. Check your configuration file"
+        print "\nWarning: We could not find the operations corresponding " \
+                "to the action specified for the section {0}. "\
+                "Skipping this section.".format(section_name)
         return False
     else:
         return action_dict

@@ -34,11 +34,14 @@ class Heketi(HeketiClient):
         self.init_heketi()
 
     def hkt_action(self):
-        msg = {  'load': self.load_topology,
+        msg = {
+                 'load': self.load_topology,
                  'addnode': self.heketi_add_node,
-                 'adddevice': self.heketi_add_device
+                 'adddevice': self.heketi_add_device,
+                 'createvolume': self.heketi_create_volume
               }[self.action]()
         return msg
+
 
     def _get_params(self, opt, reqd=True):
         value = self.module.params[opt]
@@ -63,10 +66,22 @@ class Heketi(HeketiClient):
                     "device_create": dev}
             return result
 
-    def init_heketi(self):
+    def init_heketi(self, server=None):
         user = self._get_params('sshuser')
         key = self._get_params('userkey')
-        server = self._get_params('server')
+        server = self._get_params('server', False)
+        if not server:
+            hostnames = self._get_params('hostnames')
+            hostnames = literal_eval(hostnames)
+            for host in hostnames:
+                self.heketi = HeketiClient(host, user, key)
+                try:
+                    self.heketi.hello()
+                    server = host
+                except:
+                    pass
+        if not server:
+            self.module.fail_json(msg="Could not find the heketi service")
         self.heketi = HeketiClient(server, user, key)
 
     def heketi_add_node(self, cluster_id=None):
@@ -106,6 +121,45 @@ class Heketi(HeketiClient):
         ret = self.heketi.cluster_create()
         return  ret['id']
 
+    def heketi_create_volume(self):
+        vol = {}
+        vol["size"] = int(self._get_params('size'))
+
+        vname = self._get_params('name', False)
+        if vname:
+            vol['name'] = vname
+
+        snapshot = self._get_params('snapshot', False)
+        if snapshot and snapshot == 'true':
+            vol['snapshot'], h = {}, {}
+            h['enable'] = "true"
+            f = self._get_params('snapshot_factor', False)
+            if f:
+                h['factor'] = int(f)
+            vol['snapshot'] = h
+
+        durability = self._get_params('durability', False)
+        if durability and durability.lower() != 'none':
+            vol['durability'], h = {}, {}
+            if durability.lower() == 'replicate':
+                h['type'] = 'replicate'
+                c = self._get_params('replica_count', False)
+                if c:
+                    h['replicate'] = {'replica': int(c)}
+            if durability.lower() == 'disperse':
+                h['type'] = 'disperse'
+                d = self._get_params('disperse_data', False)
+                r = self._get_params('redundancy', False)
+                h['disperse'] = {'data': int(d), 'redundancy': int(r)}
+                h = dict((k, v) for k, v in h.iteritems() if v)
+            vol['durability'] = h
+
+        clusters = self._get_params('clusters', False)
+        if clusters:
+            vol['clusters'] = clusters
+        ret = self.heketi.volume_create(vol)
+        return ret
+
 
     def run_command(self, op, options):
         cmd = self.module.get_bin_path(op, True)  + options
@@ -117,7 +171,8 @@ class Heketi(HeketiClient):
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
-            action=dict(choices=["load", "addnode", "adddevice"], required=True),
+            action=dict(choices=["load", "addnode", "adddevice",
+            "createvolume"], required=True),
             filename=dict(),
             server=dict(),
             port=dict(),
@@ -128,7 +183,17 @@ if __name__ == '__main__':
             devices=dict(),
             cluster=dict(),
             zone=dict(),
-            node=dict()
+            node=dict(),
+            size=dict(),
+            snapshot=dict(),
+            snapshot_factor=dict(),
+            durability=dict(),
+            replica_count=dict(),
+            disperse_data=dict(),
+            redundancy=dict(),
+            clusters=dict(),
+            name=dict(),
+            hostnames=dict()
         ),
     )
 
