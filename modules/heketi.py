@@ -67,21 +67,9 @@ class Heketi(HeketiClient):
             return result
 
     def init_heketi(self, server=None):
-        user = self._get_params('sshuser')
+        user = self._get_params('user')
         key = self._get_params('userkey')
-        server = self._get_params('server', False)
-        if not server:
-            hostnames = self._get_params('hostnames')
-            hostnames = literal_eval(hostnames)
-            for host in hostnames:
-                self.heketi = HeketiClient(host, user, key)
-                try:
-                    self.heketi.hello()
-                    server = host
-                except:
-                    pass
-        if not server:
-            self.module.fail_json(msg="Could not find the heketi service")
+        server = self._get_params('server')
         self.heketi = HeketiClient(server, user, key)
 
     def heketi_add_node(self, cluster_id=None):
@@ -176,7 +164,7 @@ if __name__ == '__main__':
             filename=dict(),
             server=dict(),
             port=dict(),
-            sshuser=dict(),
+            user=dict(),
             userkey=dict(),
             managehost=dict(),
             storagehost=dict(),

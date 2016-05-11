@@ -9,7 +9,6 @@ import re
 helpers = Helpers()
 
 def heketi_heketi_init(section_dict):
-    Global.master="127.0.0.1"
     yamls = []
     get_server_name(section_dict)
     section_dict['port'] = Global.port
@@ -28,13 +27,11 @@ def heketi_heketi_init(section_dict):
 
 
 def heketi_load_topology(section_dict):
-    Global.master="127.0.0.1"
     if not Global.server or Global.port:
         section_dict = get_server_name(section_dict)
     if Global.server and Global.port:
         section_dict["servername"] = "http://{0}:{1}".format(Global.server,
                 Global.port)
-        section_dict["heketiservers"] = ""
 
     filename = section_dict.get('topologyfile')
     if filename:
@@ -99,27 +96,6 @@ def get_server_name(section_dict):
     global helpers
     server = section_dict.get('server')
     if not server:
-        hostnames = []
-        var = helpers.config_get_options('openshift-ctl', True)
-        if 'hostnames' in var:
-            hostnames = helpers.config_section_map('opneshift-ctl',
-            'hostnames')
-        else:
-            reg = [m.group(0) for m in (re.search('variable.*', l) for l in
-                var) if m]
-            if reg:
-                vals = [helpers.config_section_map('openshift-ctl',
-                i) for i in reg]
-                hostnames = [m.group(1) for m in
-                        (re.search('.*HOSTNAME=(.*)$', l) for l in vals)
-                            if m]
-        if not hostnames:
-            print "Could not find the service where Heketi service" \
-            "is running"
-            helpers.cleanup_and_quit()
-        hostnames.extend(Global.hosts)
-        hostnames = ["http://{0}:8080".format(x) for x in hostnames]
-        section_dict['heketiservers'] = hostnames
         section_dict['servername'] = ''
     else:
         server_group = re.match('(.*):(.*)', server)
@@ -133,16 +109,13 @@ def get_server_name(section_dict):
     return section_dict
 
 def heketi_add_node(section_dict):
-    Global.master="127.0.0.1"
     section_dict, yml = heketi_load_topology(section_dict)
     return section_dict, defaults.HKT_ADD_NODE
 
 def heketi_add_device(section_dict):
-    Global.master="127.0.0.1"
     section_dict, yml = heketi_load_topology(section_dict)
     return section_dict, defaults.HKT_ADD_DEVICE
 
 def heketi_create_volume(section_dict):
-    Global.master="127.0.0.1"
     section_dict, yml = heketi_load_topology(section_dict)
     return section_dict, defaults.HKT_CREATE_VOLUME

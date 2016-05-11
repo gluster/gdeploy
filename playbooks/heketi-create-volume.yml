@@ -2,15 +2,31 @@
 - hosts: master
   remote_user: root
   gather_facts: no
+
+  tasks:
+   - name: Get the heketi service IP
+     kubectl: action=get type=service name=heketi
+     register: result
+     when: servername is not defined or not servername
+
+   - set_fact: servername="http://{{result["msg"].split('\\n')[1].split()[1]}}:{{port}}"
+     when: (servername is not defined or servername) and result["msg"].split('\\n')[1].split()[1] is defined
+
+   - fail: msg="Could not find the IP of heketi service running"
+     when: servername is not defined
+
+---
+- hosts: localhost
+  remote_user: root
+  gather_facts: no
   connection: local
 
   tasks:
   - name: Create a volume
-    heketi: action=createvolume sshuser="{{ ssh_user }}"  userkey="{{ user_key }}" server="{{ servername }}"
+    heketi: action=createvolume user="{{ user }}"  userkey="{{ user_key }}" server="{{ servername }}"
             clusters="{{ clusters }}" durability="{{ durability }}" replica_count="{{ replica_count }}"
             disperse_data="{{ disperse_data }}" redundancy="{{ redundancy }}" snapshot="{{ snapshot }}"
             snapshot_factor="{{snapshot_factor}}" size="{{size}}" name="{{ name }}"
-            hostnames="{{ heketiservers }}"
     register: result
 
   - debug: msg="{{ result["msg"] }}"

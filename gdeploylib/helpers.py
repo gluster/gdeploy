@@ -446,11 +446,11 @@ class Helpers(Global, YamlWriter):
             pass
         try:
             hostname = Global.master or Global.current_hosts[0]
-            self.write_config('master', hostname, Global.inventory)
         except:
-            print "\nError: Insufficient host names or IPs. Please check " \
-            "your configuration file"
-            self.cleanup_and_quit()
+            print "\nWarning: Insufficient host names or IPs. Running  " \
+            "in the localhost"
+            hostname = "127.0.0.1"
+        self.write_config('master', hostname, Global.inventory)
 
     def call_config_parser(self):
         config = ConfigParser.ConfigParser(allow_no_value=True)
