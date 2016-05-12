@@ -15,9 +15,8 @@
    - fail: msg="Could not find the IP of heketi service running"
      when: servername is not defined or not servername
 
-   - debug: var=servername
 
-- hosts: localhost
+- hosts: master
   remote_user: root
   gather_facts: no
   connection: local
