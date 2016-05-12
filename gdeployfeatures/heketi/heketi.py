@@ -38,56 +38,42 @@ def heketi_load_topology(section_dict):
         section_dict['filename'] = filename
     else:
         hostnames = helpers.get_section_dict(section_dict, "hostnames")
-        zone = helpers.listify(section_dict.get("zone"))
-        devices = helpers.listify(section_dict.get("devices"))
-        if not (hostnames or zone or devices):
+        if not hostnames:
             return section_dict, None
-        section_dict = get_hostnames(section_dict, hostnames,
-                devices)
+        section_dict = get_hostnames(section_dict, hostnames)
 
     if not section_dict.get("topologyfile"):
         section_dict["topologyfile"] = ''
     return section_dict, defaults.HKT_LOAD_TOPO
 
 def get_devices(devs):
-    devnames = devs.split(';')
-    if devs and devnames:
-        return helpers.correct_brick_format(devnames)
+    if devs:
+        return helpers.correct_brick_format(devs)
     else:
         return ''
 
-def get_hostnames(section_dict, hostnames, devices):
+def get_hostnames(section_dict, hostnames):
     global helpers
-    if hostnames and not devices:
-        devices = [''] * len(hostnames)
-    if not hostnames and devices:
-        hostnames = [''] * len(devices)
-    if len(hostnames) != len(devices):
-        print "Error: Entity number mismatch"
-        helpers.cleanup_and_quit()
     data = []
-    for hosts, devs in zip(hostnames, devices):
+    for hosts in hostnames:
         hdict = {}
         h = helpers.listify(hosts)
         manage = ''
         storage = ''
-        for each in h:
-            mgroup = re.match('manage=(.*)', each)
-            if mgroup:
-                manage = mgroup.group(1)
-            sgroup = re.match('storage=(.*)', each)
-            if sgroup:
-                storage = sgroup.group(1)
-            zgroup = re.match('zone=(.*)', each)
-            if zgroup:
-                zone = zgroup.group(1)
-            else:
-                zone = 1
+        manage = [m.group(1) for m in (re.search('manage:(.*)', l) for l in
+            hosts) if m]
+        storage = [m.group(1) for m in (re.search('storage:(.*)', l) for l in
+            hosts) if m]
+        zone = [m.group(1) for m in (re.search('zone:(.*)', l) for l in
+            hosts) if m]
+        devices = [m.group(1) for m in (re.search('devices:(.*)', l) for l in
+            hosts) if m]
         hdict["manage"] = h[0] if not manage else manage
         hdict["storage"] = h[-1] if not storage else storage
-        hdict["devices"] = get_devices(devs)
+        hdict["devices"] = get_devices(devices)
         hdict["zone"] = zone
         data.append(hdict)
+    print data
     section_dict['hdict'] = data
     return section_dict
 
