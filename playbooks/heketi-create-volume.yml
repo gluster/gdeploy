@@ -10,12 +10,13 @@
      when: servername is not defined or not servername
 
    - set_fact: servername="http://{{result["msg"].split('\\n')[1].split()[1]}}:{{port}}"
-     when: (servername is not defined or servername) and result["msg"].split('\\n')[1].split()[1] is defined
+     when: (servername is not defined or not servername) and result["msg"].split('\\n')[1].split()[1] is defined
 
    - fail: msg="Could not find the IP of heketi service running"
-     when: servername is not defined
+     when: servername is not defined or not servername
 
----
+   - debug: var=servername
+
 - hosts: localhost
   remote_user: root
   gather_facts: no

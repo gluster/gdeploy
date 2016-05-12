@@ -68,12 +68,11 @@ def get_hostnames(section_dict, hostnames):
             hosts) if m]
         devices = [m.group(1) for m in (re.search('devices:(.*)', l) for l in
             hosts) if m]
-        hdict["manage"] = h[0] if not manage else manage
-        hdict["storage"] = h[-1] if not storage else storage
+        hdict["manage"] = manage[0] if manage else manage
+        hdict["storage"] = storage[-1] if storage else storage
         hdict["devices"] = get_devices(devices)
-        hdict["zone"] = zone
+        hdict["zone"] = zone[0] if zone else '1'
         data.append(hdict)
-    print data
     section_dict['hdict'] = data
     return section_dict
 

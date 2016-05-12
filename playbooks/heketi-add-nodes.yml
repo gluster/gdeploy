@@ -13,7 +13,7 @@
      when: (servername is not defined or not servername) and result["msg"].split('\\n')[1].split()[1] is defined
 
    - fail: msg="Could not find the IP of heketi service running"
-     when: servername is not defined
+     when: servername is not defined or not servername
 
 
 ---
