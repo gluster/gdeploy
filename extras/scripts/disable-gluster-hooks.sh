@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # Renames the hook scripts. This is a GNU/Linux specific script, uses rename(1)
 # to rename the files
 
