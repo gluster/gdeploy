@@ -1,5 +1,6 @@
 #!/usr/bin/sh
 
+multipath -F
 cat <<EOF>> /etc/multipath.conf
 blacklist
 {
