@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/usr/bin/env bash
 
 multipath -F
 cat <<EOF>> /etc/multipath.conf
