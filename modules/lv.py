@@ -315,14 +315,15 @@ class LvOps(object):
             lvconvert['thinpool'] = self.get_vg_appended_name(self.module.params[
                                                                     'thinpool'])
             lvconvert['chunksize'] = self.get_thin_pool_chunk_sz()
-            lvconvert['poolmetadataspare'] = self.module.params[
-                    'poolmetadataspare']
+            if lvconvert.get('poolmetadata'):
+                lvconvert['poolmetadataspare'] = self.module.params[
+                        'poolmetadataspare']
         options = self.module.params['options'] or ''
         cmd = self.parse_playbook_data(lvconvert, force)
         return cmd + ' ' + options + ' ' + lvname
 
     def get_vg_appended_name(self, lv):
-        if not lv:
+        if not lv or not lv.strip():
             return ''
         if not '/' in lv:
             return self.vgname + '/' + lv

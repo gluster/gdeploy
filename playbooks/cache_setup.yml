@@ -21,14 +21,14 @@
     ignore_errors: yes
 
   - name: Setup SSD for caching | Change the attributes of the logical volume
-    lv: action=change zero=n vgname="{{ vgname }}" lvname="{{ lvname }}"
+    lv: action=change zero=n vgname="{{ vgname }}" lvname="{{ poolname }}"
     ignore_errors: yes
 
   - name: Setup SSD for caching | Create cache meta logical volume
     lv: action=create lvname="{{ cache_meta_lv }}" lvtype=thick
         size="{{ cache_meta_lvsize }}" vgname="{{ vgname }}" pvname="{{ ssd }}"
     ignore_errors: yes
-    when: cache_meta_lv is defined and cache_meta_lv != ''
+    when: cache_meta_lv is defined and cache_meta_lv != ' '
 
   - name: Setup SSD for caching | Create cache logical volume
     lv: action=create lvname="{{ cache_lv }}" lvtype=thick
