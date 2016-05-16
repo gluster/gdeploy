@@ -23,7 +23,7 @@ HKT_ADD_NODE = 'heketi-add-nodes.yml'
 feature_list = ['snapshot', 'quota', 'yum', 'geo_replication', 'ctdb',
 'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
 'update_file', 'script', 'volume', 'peer', 'clients', 'pv', 'vg', 'lv',
-'openshift_ctl', 'heketi']
+'openshift_ctl']
 # All the defaults values used in gdeploy
 
 
@@ -199,11 +199,3 @@ RUN_SCRIPT = 'run-script.yml'
 
 OC_CREATE = 'oc-create.yml'
 OC_DELETE = 'oc-delete.yml'
-
-# HEKETI
-
-HKT_LOAD_TOPO = 'heketi-load-topology.yml'
-HKT_CONFIG_COPY = 'heketi-json-copy.yml'
-HKT_ADD_NODE = 'heketi-add-nodes.yml'
-HKT_ADD_DEVICE = 'heketi-add-devices.yml'
-HKT_CREATE_VOLUME = 'heketi-create-volume.yml'
