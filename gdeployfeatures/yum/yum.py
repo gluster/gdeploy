@@ -4,8 +4,8 @@ Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
 """
 from gdeploylib import defaults, Helpers
-from datetime import datetime
-import os
+from uuid import uuid4
+from os.path import realpath, basename
 
 helpers = Helpers()
 
@@ -14,8 +14,8 @@ def yum_install(section_dict):
     repo = section_dict.get('repos')
     if repo:
         repo = helpers.listify(repo)
-        reponame = [os.path.basename(x) for x in repo]
-        reponame = [(str(x) + '_' + datetime.now().strftime('%Y%m%d%H%M%S'))
+        reponame = [basename(realpath(x)) for x in repo]
+        reponame = [(str(x) + '_' + uuid4().hex)
                 for x in reponame]
         data = []
         for url, name in zip(repo, reponame):
