@@ -15,7 +15,7 @@ def yum_install(section_dict):
     if repo:
         repo = helpers.listify(repo)
         reponame = [re.sub(r'http(s*):\/\/', '', x) for x in repo]
-        reponame = [x.replace('/', '_') for x in reponame]
+        reponame = [x.rstrip('/').replace('/', '_') for x in reponame]
         data = []
         for url, name in zip(repo, reponame):
             repolist = dict()
