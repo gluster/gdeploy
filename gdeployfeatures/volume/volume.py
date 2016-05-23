@@ -21,7 +21,7 @@ def volume_create(section_dict):
         section_dict = validate_brick_dirs(section_dict, 'brick_dirs')
     section_dict['service'] = 'glusterd'
     section_dict['state'] = 'started'
-    Global.current_hosts = sorted(set(Global.current_hosts))
+    Global.current_hosts = helpers.unique(Global.current_hosts)
     section_dict['hosts'] = Global.current_hosts
     yamls = [defaults.SERVICE_MGMT, defaults.CREATEDIR_YML]
     ret = call_peer_probe(section_dict)
@@ -58,7 +58,7 @@ def call_peer_probe(section_dict):
             'peer', 'action', False) or 'True'
     if peer_action != 'ignore':
         to_be_probed = Global.current_hosts + Global.brick_hosts
-        to_be_probed = sorted(set(to_be_probed))
+        to_be_probed = helpers.unique(to_be_probed)
         section_dict['to_be_probed'] = to_be_probed
         return section_dict
     return False
@@ -87,13 +87,13 @@ def get_common_brick_dirs(section_dict):
             brick_list, brick_name = ret
             check_brick_name_format(brick_name)
             f_brick_list.extend(brick_list)
-            section_dict['brick_dirs'] = sorted(set(brick_name))
+            section_dict['brick_dirs'] = helpers.unique(brick_name)
         else:
             print "\nError: 'brick_dirs' not provided for all the "\
             "hosts."
             helpers.cleanup_and_quit()
 
-    section_dict['mountpoints'] = sorted(set(f_brick_list))
+    section_dict['mountpoints'] = helpers.unique(f_brick_list)
     return section_dict
 
 def read_brick_dir_from_file(filename):
@@ -141,14 +141,14 @@ def validate_brick_dirs(section_dict, section):
             helpers.create_yaml_dict('brick_dirs', bname, filename)
 
     check_brick_name_format(brick_name)
-    section_dict['brick_dirs'] = sorted(set(brick_name))
-    section_dict['mountpoints'] = sorted(set(brick_list))
+    section_dict['brick_dirs']  = helpers.unique(brick_name)
+    section_dict['mountpoints'] = helpers.unique(brick_list)
     return section_dict
 
 def check_brick_name_format(brick_name):
     global helpers
     if False in [brick.startswith('/') for brick in
-           sorted(set(brick_name))]:
+           helpers.unique(brick_name)]:
         msg = "values to 'brick_dirs' should be absolute"\
                " path. Relative given. Exiting!"
         print msg

@@ -283,6 +283,11 @@ class Helpers(Global, YamlWriter):
         for c in xrange(ord(c1), ord(c2)+1):
             yield chr(c)
 
+    def unique(self, mylist):
+        uniquelist = []
+        [uniquelist.append(item) for item in mylist if item not in
+                uniquelist]
+        return uniquelist
 
 
     def check_backend_setup_format(self):
