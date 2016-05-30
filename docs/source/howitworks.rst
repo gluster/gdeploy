@@ -29,6 +29,8 @@ Invoke gdeploy with configuration file as an argument::
 
   $ gdeploy -c sample.conf
 
+.. _rst_writingconfig:
+
 Writing configuration file for gdeploy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
