@@ -1,7 +1,5 @@
-.. _rst_developerdoc:
-
-Developer Documenatation
-========================
+Developer Guide
+===============
 
 
 With gdeploy, the user get to remotely configure a lot of features in
@@ -11,7 +9,7 @@ to worry about all these things. Adding a new feature to gdeploy is
 relatively easy, but comes with the cost of writing playbooks and
 modules(if necessary) for Ansible. So this guide assumes that the
 developer is comfortable with Python and has got the basic working
-knowledge of Ansible.
+knowlegde of Ansible.
 
 gdeploy - Developer setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -38,3 +36,5 @@ Testing your code
 
 Guidelines for contribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
