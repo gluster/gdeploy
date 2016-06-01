@@ -29,6 +29,7 @@ Hostnames or ip addresses have to be listed one per line. For example::
 gdeploy supports a lot of features, a comprehensive list can be found in the
 sample file `here
 <https://github.com/gluster/gdeploy/blob/master/examples/gluster.conf.sample>`_.
+
 And more examples can be found `here
 <https://github.com/gluster/gdeploy/tree/master/examples>`_.
 
@@ -36,48 +37,46 @@ gdeploy was initially written to create and configure GlusterFS volumes, now it
 supports more features than just creating and configuring GlusterFS
 volumes. The following are the features supported:
 
-1. `LVM Support`_
+1. `LVM`_
 
    a. `[backend-setup]`_ section
    b. `PV`_
    c. `VG`_
    d. `LV`_
 
-2. Subscription Manager Support
+2. `Subscription Manager`_
 
-   a. Register
-   b. Unregister
-   c. Enable
-   d. Disable
-   e. Attach pools
+   a. `Register`_
+   b. `Unregister`_
+   c. `Enable`_
+   d. `Disable`_
+   e. `Attach pools`_
 
-3. yum Support
+3. `yum`_
 
-   a. Install packages
-   b. Uninstall packages
-   c. Add a repo
+   a. `Install packages`_
+   b. `Uninstall packages`_
 
-4. systemd Support
+4. `systemd`_
 
-   a. Enable service
-   b. Disable
-   c. Start
-   d. Stop
+   a. `Enable Service`_
+   b. `Disable Service`_
+   c. `Start Service`_
+   d. `Stop Service`_
+   e. `Restart Service`_
 
-5. Shell Module
+5. `shell`_
 
-6. Script Module
+6. `script`_
 
-7. SELinux Support
+7. `firewalld`_
 
-8. FirewallD Support
+8. `Updating a file`_
 
-9. Updating a file
+9. `Creating GlusterFS Volumes`_
 
-10. Creating Volumes
-
-LVM Support
-^^^^^^^^^^^
+LVM
+^^^
 
 gdeploy allows to setup backend for GlusterFS in two ways. User can either setup
 backend using the modules: *pv*, *vg*, and *lv* or user can use the
@@ -311,3 +310,344 @@ sections, like [lv1], [lv2] ...
 Refer `hc.conf
 <https://github.com/gluster-deploy/gdeploy/blob/2.0/examples/hc.conf>`_ for
 complete example.
+
+Subscription Manager
+^^^^^^^^^^^^^^^^^^^^
+
+This module is used to subscribe/unsubscribe to channels, attach a pool, enable
+repos etc. Subscription Manager module is named RH-subscription
+The RH-subscription module allows the following variables:
+
+  1. action - This variable allows the following values, *register*,
+     *attach-pool*, *enable-repos*, *disable-repos*, *unregister*.
+
+
+Register
+--------
+If the action is *register* the following options are supported:
+
+1. username/activationkey - Username or activationkey
+2. password/actiavtionkey - Password or activation key
+3. auto-attach - true / false
+4. pool - Name of the pool
+5. repos - Repos to subscribe to
+6. disable-repos - Repo names to disable. Leaving black will disable all the
+   repos
+
+For example::
+
+  [RH-subscription1]
+  action=register
+  username=user@user.com
+  password=<passwd>
+  pool=<pool>
+
+
+Unregister
+----------
+If the action is *unregister* the systems will be unregistered.
+
+
+Enable
+------
+If the action is *enable-repos* the following options are supported:
+
+1. repos - List of comma separated repos that are to be subscribed to.
+
+Disable
+-------
+If the action is *disable-repos* the following options are supported:
+
+1. repos - List of comma separated repos that are to be subscribed to.
+
+Attach pools
+------------
+If the action is *attach-pool* the following options are supported:
+
+1. pool - Pool name to be attached.
+
+Refer `hc.conf
+<https://github.com/gluster-deploy/gdeploy/blob/2.0/examples/hc.conf>`_ for
+complete example.
+
+yum
+^^^
+
+This module is used to install or remove rpm packages, with the yum module we
+can add repos during the install operation.
+
+**If a single configuration has more than one yum section, then the sections
+have to be numbered like [yum-1], [yum-2], [yum-3] ...**
+
+1. *action* - This variable allows two values *install* and *remove*.
+
+Install packages
+----------------
+
+If the action is install the following options are supported:
+
+1. *packages* - Comma separated list of packages that are to be installed.
+2. *repos* - The repositories that have to be added.
+3. *gpgcheck* - yes/no values have to be provided.
+4. *update* - yes/no; Whether yum update has to be initiated.
+
+For example::
+
+  [yum]
+  action=install
+  gpgcheck=no
+  # Repos should be an url; eg: http://repo-pointing-glusterfs-builds
+  repos=<glusterfs.repo>,<vdsm.repo>
+  packages=vdsm,vdsm-gluster,ovirt-hosted-engine-setup,screen,gluster-nagios-addons,xauth
+  update=yes
+
+Install a package on a particular host::
+
+  [yum:host1]
+  action=install
+  gpgcheck=no
+  packages=rhevm-appliance
+
+Uninstall packages
+------------------
+
+If the action is *remove* then only one option has to be provided:
+
+1. *remove* - The comma separated list of packages to be removed.
+
+Unstall a package on a particular host::
+
+  [yum:host1]
+  action=remove
+  packages=rhevm-appliance
+
+systemd
+^^^^^^^
+
+[service] module in gdeploy adds systemd support. The *service* module allows
+user to *start*, *stop*, *restart*, *reload*, *enable*, or *disable* a
+service. The action variable specifies these values.
+
+Enable Service
+--------------
+
+When the *action* variable is set to *enable* the *service* variable has to be
+set. For example::
+
+  [service]
+  action=enable
+  service=ntpd
+
+
+Disable Service
+---------------
+
+When the *action* variable is set to *enable* the *service* variable has to be
+set. For example::
+
+  [service]
+  action=enable
+  service=ntpd
+
+
+Start Service
+-------------
+
+When the *action* variable is set to *start* the *service* variable has to be
+set. For example, below configuration starts the ntpd service ::
+
+  [service]
+  action=start
+  service=ntpd
+
+
+Stop Service
+------------
+
+When the *action* variable is set to *stop* the *service* variable has to be
+set. For example::
+
+  [service]
+  action=stop
+  service=ntpd
+
+
+Restart Service
+---------------
+
+When the *action* variable is set to *restart* the *service* variable has to be
+set. For example::
+
+  [service]
+  action=restart
+  service=ntpd
+
+shell
+^^^^^
+
+shell module allows user to run shell commands on the remote nodes.
+
+Currently shell provides a single *action* variable with value *execute*. And a
+*command* variable with any valid shell command as value.
+
+The below config will execute vdsm-tool on all the nodes::
+
+  [shell]
+  action=execute
+  command=vdsm-tool configure --force
+
+Refer `hc.conf
+<https://github.com/gluster-deploy/gdeploy/blob/2.0/examples/hc.conf>`_ for
+complete example.
+
+script
+^^^^^^
+
+script module enables user to execute a script/binary on the remote
+machine. action variable is set to execute. Allows user to specify two variables
+*file* and *args*.
+
+1. file - An executable on the local machine.
+2. args - Arguments to the above program.
+
+Example: Execute script disable-multipath.sh on all the remote nodes listed in *hosts* section::
+
+  [script]
+  action=execute
+  file=/usr/share/ansible/gdeploy/scripts/disable-multipath.sh
+
+Refer `hc.conf
+<https://github.com/gluster-deploy/gdeploy/blob/2.0/examples/hc.conf>`_ for a
+complete example.
+
+
+firewalld
+^^^^^^^^^
+
+firewalld module allows the user to manipulate firewall rules. *action* variable
+supports two values *add* and *delete*.
+Both *add* and *delete* support the following variables:
+
+1. ports/services - The ports or services to add to firewall.
+2. permanent - Whether to make the entry permanent. Allowed values are true/false
+3. zone - Default zone is public
+
+For example::
+
+  [firewalld]
+  action=add
+  ports=111/tcp,2049/tcp,54321/tcp,5900/tcp,5900-6923/tcp,5666/tcp,16514/tcp
+  services=glusterfs
+
+Updating a file
+^^^^^^^^^^^^^^^
+
+*update-file* module allows user to copy a file, edit a line in a file, or add
+new lines to a file. action variable can be any of *copy*, *edit*, or *add*.
+
+When the *action* variable is set to *copy*, the following variables are
+supported.
+
+1. src - The source path of the file to be copied from.
+2. dest - The destination path on the remote machine to where the file is to be
+   copied to.
+
+When the *action* variable is set to *edit*, the following variables are
+supported.
+
+1. dest - The destination file name which has to be edited.
+2. replace - A regular expression, which will match a line that will be replaced.
+3. line - Text that has to be replaced.
+
+When the *action* variable is set to *add*, the following variables are
+supported.
+
+1. dest - File on the remote machine to which a line has to be added.
+2. line - Line which has to be added to the file. Line will be added towards the end of the file.
+
+Example 1: Copy a file to a remote machine ::
+
+  [update-file]
+  action=copy
+  src=/tmp/foo.cfg
+  dest=/etc/nagios/nrpe.cfg
+
+
+Example 2: Edit a line in the remote machine, in the below example lines that
+have allowed_hosts will be replaced with allowed_hosts=host.redhat.com ::
+
+  [update-file]
+  action=edit
+  dest=/etc/nagios/nrpe.cfg
+  replace=allowed_hosts
+  line=allowed_hosts=host.redhat.com
+
+Example 3: Add a line to the end of a file ::
+
+  [update-file]
+  action=add
+  dest=/etc/ntp.conf
+  line=server clock.redhat.com iburst
+
+Creating GlusterFS Volumes
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The *volume* module allows users to create volume using a specified list of
+hosts and bricks. Volume section supports the following variables:
+
+1. volname - Name of the volume, if no name is provided gdeploy generates a
+   volume name.
+2. action - Action supports the following values *create*, *delete*,
+   *add-brick*, *remove-brick*, *rebalance*, and *set*.
+3. brick_dirs - This variable specifies the brick directories to use. The
+   brick_dirs variable can take values in ip:brick_dir format or just brick_dir
+   format. For example:
+
+   brick_dir=10.0.0.1:/mnt/data1/1,10.0.0.2:/mnt/data2/2
+
+   Or
+
+   brick_dir=/mnt/data1/1,/mnt/data2/2
+4. transport - The transport type. Possible values are tcp,tcp,rdma,rdma
+5. replica_count - The replication count for replica volumes.
+6. force - If set to yes, force is used while creating volumes.
+7. disperse - Identifies if the volume should be disperse. Possible options are
+   [yes, no].
+8. disperse_count - Optional argument. If none given, the number of bricks
+   specified in the commandline is taken as the disperse_count value.
+9. redundancy_count - If redundancy_count is not specified, and if *disperse* is
+   yes, it's default value is computed so that it generates an optimal
+   configuration.
+
+Example 1::
+  [volume]
+  action=create
+  volname=foo
+  transport=tcp
+  replica_count=2
+  force=yes
+
+Example 2::
+  [backend-setup]
+  devices=sdb,sdc
+  vgs=vg1,vg2
+  pools=pool1,pool2
+  lvs=lv1,lv2
+  brick_dirs=/gluster/brick/brick{1,2}
+
+  # If backend-setup is different for each host
+  # [backend-setup:10.70.46.13]
+  # devices=sdb
+  # brick_dirs=/gluster/brick/brick1
+  #
+  # [backend-setup:10.70.46.17]
+  # devices=sda,sdb,sdc
+  # brick_dirs=/gluster/brick/brick{1,2,3}
+  #
+
+  [volume]
+  action=create
+  volname=sample_volname
+  replica=yes
+  replica_count=2
+  force=yes
