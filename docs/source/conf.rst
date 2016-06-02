@@ -620,6 +620,7 @@ hosts and bricks. Volume section supports the following variables:
    configuration.
 
 Example 1::
+
   [volume]
   action=create
   volname=foo
@@ -628,6 +629,7 @@ Example 1::
   force=yes
 
 Example 2::
+
   [backend-setup]
   devices=sdb,sdc
   vgs=vg1,vg2
