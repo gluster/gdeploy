@@ -16,10 +16,7 @@ knowledge of Ansible.
 gdeploy - Developer setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To setup the development environment, one can follow the
-`Installing from source
-<http://gdeploy.readthedocs.io/en/latest/installation.html#installing-from-source>`
-instructions from the `Installation <http://gdeploy.readthedocs.io/en/latest/installation.html>` section.
+To setup the development environment, refer :ref:`rst_sourceinstall`.
 
 Proceed further once you are done with the setup.
 

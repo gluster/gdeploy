@@ -24,6 +24,7 @@ Installing gdeploy
 
 gdeploy can be installed using pre-built RPM or can be installed from source.
 
+
 Installing from RPM
 ~~~~~~~~~~~~~~~~~~~
 
@@ -36,6 +37,7 @@ Latest version of gdeploy RPMs can be downloaded from `here
   Using dnf:
   $ sudo dnf install ./gdeploy-<version>-<release>.rpm
 
+.. _rst_sourceinstall:
 
 Installing from source
 ~~~~~~~~~~~~~~~~~~~~~~
