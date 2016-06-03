@@ -28,6 +28,7 @@ gdeploy is a very lightweight, simple tool that efficiently make use of
 Ansible, hiding the major complexities of it from the user, that does
 numerous operations on remote machines sequentially. To do this, gdeploy
 divides the logic to 3 parts:
+
 1. Ansible module that implements the desired logic to be executed in
    the remote machine.
 2. Ansible playbook that makes use of the already present Ansible module
@@ -50,7 +51,7 @@ In order to add a new feature to Ansible, the developer has to make sure
 the three above mentioned components or sections are written properly
 and works as intended.
 
-The development process can be started in the following order:
+The development process can be started in the following order::
 
 1. Write the Ansible module, if needed.
 2. Write Ansible playbooks that does the necessary operations in the
