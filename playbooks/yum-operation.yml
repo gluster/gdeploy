@@ -4,12 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: Create repo file, if necessary
-    file: path=/etc/yum.repos.d/{{item.name}} state=touch
-    with_items: repolist
-    when: repolist is defined and repolist|length > 0
-
-  - name: Enabling yum repos
+  - name: Create/Enabling yum repos
     template: src=yum.repos.d
             dest=/etc/yum.repos.d/{{ item.name }}.repo
     with_items: repolist
