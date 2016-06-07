@@ -24,6 +24,8 @@ Hostnames or ip addresses have to be listed one per line. For example::
   10.0.0.2
   10.0.0.3
 
+.. _rst_features:
+
 **2. Features**
 
 gdeploy supports a lot of features, a comprehensive list can be found in the
