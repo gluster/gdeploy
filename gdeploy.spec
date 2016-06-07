@@ -1,38 +1,40 @@
 %define name gdeploy
 %define version 2.0
-%define release 0
+%define release 16
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/doc/gdeploy
+%define gdeploysrc http://download.gluster.org/pub/gluster/gdeploy/LATEST
 
-Name:		%{name}
-Version:	%{version}
-Release:	%{?release}
-Summary:	Tool to deploy and manage GlusterFS cluster.
+Name:           %{name}
+Version:        %{version}
+Release:        %{?release}
+Summary:        Tool to deploy and manage GlusterFS cluster
 
-Group:		Applications/System
-License:	GPLv3
-URL:		http://www.redhat.com/storage
-Source0:	%{name}-%{version}-%{release}.tar.gz
-BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Requires:	ansible >= 1.9 python >= 2.6
+Group:          Applications/System
+License:        GPLv3
+URL:            http://www.redhat.com/storage
+Source0:        %{gdeploysrc}/%{name}-%{version}-%{release}.tar.gz
+BuildArch:      noarch
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Requires:       ansible >= 1.9 python >= 2.6 ecdsa >= 0.13 Jinja2 >= 2.7.3
+Requires:       MarkupSafe >= 0.23 paramiko >= 1.15.2 pycrypto >= 2.6.1
+Requires:       PyYAML >= 3.11
+
 
 BuildRequires:  python-setuptools
 
 %description
-This package provides ansible modules to setup and configure GluterFS. With
-these modules you can:
- Configure backend to setup GlusterFS
-  * Setup backend with lvm thinpool support
-  * Create Filesystem
-  * Mount the filesystem
-  * Create and start a GlusterFS volume
-  * Mount the clients
- Tool to generate the playbooks, group_vars/host_vars
+gdeploy is an Ansible based deployment tool. Initially gdeploy was written to
+install GlusterFS clusters, eventually it grew out to do lot of other things. On
+a given set of hosts, gdeploy can create physical volumes, volume groups, and
+logical volumes, install packages, subscribe to RHN channels, run shell
+commands, create GlusterFS volumes and lot more.
+
+See http://gdeploy.readthedocs.io/en/latest/ for more details
 
 %prep
-%setup -n %{name}-%{version}-%{release}
+%setup -q -n %{name}-%{version}-%{release}
 
 %build
 python setup.py build
@@ -82,6 +84,9 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Fri Jun 3 2016 Sachidananda Urs <sac@redhat.com> 2.0-16
+- Cleaning up the spec file
+
 * Mon Feb 1 2016 Sachidananda Urs <sac@redhat.com> 2.0
 - New design, refer: doc/gdeploy-2
 

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 from gdeploylib import defaults
 from gdeploylib import Helpers
 """
