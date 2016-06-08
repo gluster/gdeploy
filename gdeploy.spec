@@ -1,9 +1,9 @@
 %define name gdeploy
 %define version master
-%define release 0
+%define release 2
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
-%define gdeploydoc /usr/share/doc/gdeploy
+%define gdeploydoc /usr/share/docs/gdeploy
 %define gdeploysrc http://download.gluster.org/pub/gluster/gdeploy/LATEST
 
 Name:           %{name}
@@ -58,7 +58,7 @@ cp -r extras/scripts %{buildroot}/%{gdeploytemp}
 # Documentation
 mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
        %{buildroot}/%{_mandir}/man5/
-cp -r doc/* README.md examples %{buildroot}/%{gdeploydoc}
+cp -r docs/* README.md examples %{buildroot}/%{gdeploydoc}
 cp man/gdeploy.1* %{buildroot}/%{_mandir}/man1/
 cp man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
@@ -81,6 +81,9 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Wed Jun 8 2016 Sachidananda Urs <sac@redhat.com> master-2
+- First release after master rebase
+
 * Fri Jun 3 2016 Sachidananda Urs <sac@redhat.com> 2.0-16
 - Cleaning up the spec file
 
