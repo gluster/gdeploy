@@ -1,6 +1,6 @@
 %define name gdeploy
-%define version master
-%define release 3
+%define version 2.1
+%define release 0
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/docs/gdeploy
@@ -81,6 +81,12 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Wed Jun 8 2016 Sachidananda Urs <sac@redhat.com> 2.1-0
+- Branched 2.1 from master.
+
+* Wed Jun 8 2016 Sachidananda Urs <sac@redhat.com> master-3
+- Fixed dependency names and remvoed heketi
+
 * Wed Jun 8 2016 Sachidananda Urs <sac@redhat.com> master-2
 - First release after master rebase
 
