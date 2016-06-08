@@ -1,6 +1,6 @@
 %define name gdeploy
 %define version master
-%define release 2
+%define release 3
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/docs/gdeploy
@@ -17,9 +17,9 @@ URL:            http://www.redhat.com/storage
 Source0:        %{gdeploysrc}/%{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Requires:       ansible >= 1.9 python >= 2.6 ecdsa >= 0.13 Jinja2 >= 2.7.3
-Requires:       MarkupSafe >= 0.23 paramiko >= 1.15.2 pycrypto >= 2.6.1
-Requires:       PyYAML >= 3.11
+Requires:       ansible >= 1.9 python >= 2.6 python-ecdsa >= 0.11
+Requires:       python-markupsafe >= 0.23 python-crypto >= 2.6.1
+Requires:       PyYAML >= 3.11 python-jinja2 >= 2.7.3 python-paramiko >= 1.15.2
 
 
 BuildRequires:  python-setuptools
