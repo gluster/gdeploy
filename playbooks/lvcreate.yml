@@ -10,4 +10,4 @@
             chunksize="{{ chunksize }}" poolmetadatasize="{{ poolmetadatasize }}"
             poolname={{ item.lv }}
             pvname="{{ pvname }}"
-        with_items: lvnamelist
+        with_items: "{{ lvnamelist }}"

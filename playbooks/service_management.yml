@@ -6,5 +6,5 @@
   tasks:
   - name: start/stop/restart/reload services
     service: name={{ item }} state="{{ state }}"
-    with_items: service
+    with_items: "{{ service }}"
 
