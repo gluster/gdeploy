@@ -60,5 +60,5 @@
 
   - name: Set smb password
     raw: (echo {{ item }}; echo {{ item }}) | smbpasswd -s -a "{{ smb_username }}"
-    with_items: smb_password
+    with_items: "{{ smb_password }}"
 

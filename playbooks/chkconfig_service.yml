@@ -6,5 +6,5 @@
   tasks:
   - name: Enable or disable services
     service: name={{ item }} enabled="{{ enabled }}"
-    with_items: service
+    with_items: "{{ service }}"
 

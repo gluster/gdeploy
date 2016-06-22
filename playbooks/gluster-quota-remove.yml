@@ -8,4 +8,4 @@
     quota:  action="{{ action }}"
             volume="{{ volname }}"
             path={{ item }}
-    with_items: path
+    with_items: "{{ path }}"

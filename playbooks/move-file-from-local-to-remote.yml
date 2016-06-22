@@ -7,5 +7,5 @@
   - name: Copy the file from local to remote
     copy: src={{ item.src }}
           dest={{ item.dest }}
-    with_items: file_paths
+    with_items: "{{ file_paths }}"
 

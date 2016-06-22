@@ -8,4 +8,4 @@
     volume-set: action=set
                 volume="{{ volname }}"
                 key={{ item.key }} value={{ item.value }}
-    with_items: set
+    with_items: "{{ set }}"

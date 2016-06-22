@@ -6,4 +6,4 @@
   tasks:
   - name: Enable specified rhsm repos
     command: subscription-manager repos --enable={{ item }}
-    with_items: repos
+    with_items: "{{ repos }}"
