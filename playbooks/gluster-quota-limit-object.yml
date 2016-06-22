@@ -9,4 +9,4 @@
             volume="{{ volname }}"
             path={{ item.path }}
             number={{ item.number }}
-    with_items: limits
+    with_items: "{{ limits }}"

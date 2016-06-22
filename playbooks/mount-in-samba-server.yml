@@ -7,7 +7,7 @@
   - name: Create the dir to mount the volume, skips if present
     file: path={{ item }} state=directory
 
-    with_items: smb_mountpoint
+    with_items: "{{ smb_mountpoint }}"
 
   - name: Mount the volumes
     mount: name={{ item }}

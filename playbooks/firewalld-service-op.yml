@@ -7,7 +7,7 @@
   - name: Add/Delete services to firewalld rules
     firewalld: service={{ item }} permanent="{{ permanent }}" state="{{ firewall_state }}"
                zone="{{ zone }}"
-    with_items: services
+    with_items: "{{ services }}"
 
   - name: Reloads the firewall
     shell: firewall-cmd --reload

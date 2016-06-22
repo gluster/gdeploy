@@ -14,7 +14,7 @@
 
   - name: Copying local key to slave node
     local_action: shell cat /tmp/id_rsa.tmp | ssh  "{{user}}"@{{ item }} "cat >> ~/.ssh/authorized_keys"
-    with_items: groups['georep_slave']
+    with_items: "{{ groups['georep_slave'] }}"
 
   - name: Deleting temporal files
     local_action: file  path=/tmp/id_rsa.tmp state=absent

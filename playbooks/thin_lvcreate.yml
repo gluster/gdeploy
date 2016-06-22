@@ -8,4 +8,4 @@
         lv: action=create lvtype="{{ lvtype }}" lvname={{ item.lv }}
             virtualsize={{ item.virtualsize }} vgname={{ item.vg }}
               poolname={{ item.pool }}
-        with_items: lvnamelist
+        with_items: "{{ lvnamelist }}"

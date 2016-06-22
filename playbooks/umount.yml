@@ -7,8 +7,8 @@
   - name: Unmount the volumes
     mount: name={{ item.path }} src={{ item.path }} fstype=xfs
            state=absent
-    with_items: mntpath
+    with_items: "{{ mntpath }}"
 
   - name: Delete the mount points
     file: path={{ item.path }} state=absent
-    with_items: mntpath
+    with_items: "{{ mntpath }}"
