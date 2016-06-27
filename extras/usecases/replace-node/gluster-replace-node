@@ -28,7 +28,7 @@ continue_replacement()
     sed -e "s/@@GOODNODE@@/$GOODNODE/g" \
         -e "s/@@REPLACEMENTNODE@@/$REPLACEMENTNODE/g" \
         -e "s/@@VOLUMENAME@@/$VOLUMENAME/g" \
-        replace_node.conf.template > /var/tmp/replace_node.conf
+        $TEMPLATE_FILE > /var/tmp/replace_node.conf
     gdeploy -c /var/tmp/replace_node.conf
 }
 

@@ -59,7 +59,9 @@ cp -r extras/scripts %{buildroot}/%{gdeploytemp}
 cp -r extras/usecases %{buildroot}/%{gdeploytemp}
 
 # Install the script to /usr/local/bin
-install -m 755 extras/usecases/replace-node/gluster-replace-node /usr/local/bin
+mkdir -p %{buildroot}/usr/local/bin
+install -m 755 extras/usecases/replace-node/gluster-replace-node \
+        %{buildroot}/usr/local/bin
 
 # Documentation
 mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
