@@ -7,7 +7,7 @@ Prerequisites
 gdeploy requires the following packages:
 
 * Python 2.x
-* Ansible 1.9.x (*Note that gdeploy is not compatible with Ansible 2.x*)
+* Ansible >= 1.9.x
 * python-argparse
 * PyYAML
 * Jinja2
@@ -49,7 +49,7 @@ Alternatively gdeploy can be installed from source ::
 
 Make sure you have gcc and python-devel installed ::
 
-   $ sudo yum install gcc python-devel
+   $ sudo yum install gcc python-devel redhat-rpm-config
    $ sudo pip install -r requirements.txt
 
 
@@ -64,12 +64,17 @@ Run the gdeploy_setup.sh file from the root directory of gdeploy ::
 
 1. Add ansible modules to ANSIBLE_LIBRARY environment variable ::
 
-   $ echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:/path/to/gdeploy/modules/" >> ~/.bashrc
+   $ echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:path/to/gdeploy/modules/" >> ~/.bashrc
+
+'path/to' will be replaced by the path on your system on which gdeploy is installed.
 
 2. Add ansible playbooks(inside the templates directory) to GDEPLOY_TEMPLATES
    environment variable ::
 
      $ echo "export GDEPLOY_TEMPLATES='path/to/gdeploy'" >> ~/.bashrc
+
+'path/to' will be replaced by the path on your system on which gdeploy is installed.
+
      $ source ~/.bashrc
 
 3. Install gdeploy using setuptools ::
