@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+# Expect the hostname
+if test $# -ne 3; then
+    echo "Usage: $0 NODENAME NEWNODENAME VOLUMENAME"
+    exit 1
+fi
+
+GOODNODE=$1
+REPLACEMENTNODE=$2
+VOLUMENAME=$3
+
+TEMPLATE_PATH="/usr/share/ansible/gdeploy/usecases/replace-node"
+TEMPLATE_FILE="$TEMPLATE_PATH/replace_node.conf.template"
+
+exit_replacement()
+{
+    echo "Aborting..."
+    exit 255
+}
+
+continue_replacement()
+{
+    if [ ! -f $TEMPLATE_FILE ]; then
+        echo "Template file not found, exiting..."
+        exit 255
+    fi
+    sed -e "s/@@GOODNODE@@/$GOODNODE/g" \
+        -e "s/@@REPLACEMENTNODE@@/$REPLACEMENTNODE/g" \
+        -e "s/@@VOLUMENAME@@/$VOLUMENAME/g" \
+        replace_node.conf.template > /var/tmp/replace_node.conf
+    gdeploy -c /var/tmp/replace_node.conf
+}
+
+cat <<EOF
+
+*******************************************************************************
+Node $REPLACEMENTNODE will be replaced with configuration from $GOODNODE
+It is very important to give the node names right. Review before continuing.
+
+
+ENSURE TO EDIT THE FILE:
+/usr/share/ansible/gdeploy/usecases/replace-node/replace_node.conf.template
+And change the devices variable to point the right device.
+*******************************************************************************
+
+EOF
+echo -n "Continue(y/N): "
+
+read choice
+case $choice in
+    y)
+        continue_replacement
+        ;;
+    n)
+        exit_replacement
+        ;;
+    *)
+        exit_replacement
+esac

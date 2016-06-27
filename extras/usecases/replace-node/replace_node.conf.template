@@ -1,0 +1,50 @@
+[hosts]
+@@GOODNODE@@
+@@REPLACEMENTNODE@@                           # Node to be replaced
+
+[service1:@@REPLACEMENTNODE@@]
+action=stop
+service=glusterd
+
+# Setup backend on the new node.
+[backend-setup:@@REPLACEMENTNODE@@]
+devices=/dev/vdb
+vgs=vg1
+pools=pool1
+lvs=lv1
+mountpoints=/mnt/brick
+
+# This script will setup the necessary UUID, peer-info, and other stuff.
+#
+# It is *** VERY IMPORTANT*** to give the parameters RIGHT
+#
+[script1:@@GOODNODE@@]
+action=execute
+file=/usr/share/ansible/gdeploy/usecases/replace-node/replace_prep.sh
+args=@@GOODNODE@@ @@REPLACEMENTNODE@@ @@VOLUMENAME@@
+
+[shell1:@@REPLACEMENTNODE@@]
+action=execute
+command=/var/tmp/replace_uuid.sh
+
+[service2:@@REPLACEMENTNODE@@]
+action=start
+service=glusterd
+
+# Mount to ensure replication happens right
+[clients]
+action=mount
+volname=@@VOLUMENAME@@
+hosts=@@GOODNODE@@
+fstype=glusterfs
+client_mount_points=/mnt/glusterfs
+
+# Below tasks are needed to change the Automatic File Replication extended
+# attributes so that the heal process happens from the correct brick
+[shell3:@@GOODNODE@@]
+action=execute
+command=mkdir /mnt/glusterfs/foo, rmdir /mnt/glusterfs/foo, setfattr -n trusted.non-existent-key -v foobar /mnt/glusterfs, setfattr -x trusted.non-existent-key /mnt/glusterfs, umount /mnt/glusterfs
+
+[shell4:@@REPLACEMENTNODE@@]
+action=execute
+command=gluster volume heal @@VOLUMENAME@@
