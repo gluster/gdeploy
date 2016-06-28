@@ -55,6 +55,14 @@ cp -r playbooks %{buildroot}/%{gdeploytemp}
 # Install scripts
 cp -r extras/scripts %{buildroot}/%{gdeploytemp}
 
+# Install usecases
+cp -r extras/usecases %{buildroot}/%{gdeploytemp}
+
+# Install the script to /usr/local/bin
+mkdir -p %{buildroot}/usr/local/bin
+install -m 755 extras/usecases/replace-node/gluster-replace-node \
+        %{buildroot}/usr/local/bin
+
 # Documentation
 mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
        %{buildroot}/%{_mandir}/man5/
@@ -73,6 +81,7 @@ rm -rf %{buildroot}
 %{python_sitelib}/%{gdeploymod}
 %{gdeploytemp}
 %{python_sitelib}/gdeploy-%{version}-*.egg-info/
+/usr/local/bin/gluster-replace-node
 
 %doc README.md
 %docdir %{gdeploydoc}
