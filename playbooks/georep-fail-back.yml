@@ -16,7 +16,7 @@
             slavevol="{{ mastervol }}"
 
   - name: Sets options for volume
-    volume-set: action=reset
+    volume_set: action=reset
                 volume="{{ volname }}"
                 key={{ item }}
                 force="{{force}}"
