@@ -5,7 +5,7 @@
 
   tasks:
   - name: Make the volume a gluster shared volume
-    volume-set: action=set
+    volume_set: action=set
                 volume=all
                 key=cluster.enable-shared-storage
                 value=enable

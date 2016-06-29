@@ -5,7 +5,7 @@
 
   tasks:
   - name: Disable gluster.nfs
-    volume-set: action=set
+    volume_set: action=set
                 volume="{{ volname }}"
                 key=nfs.disable value=on
 
