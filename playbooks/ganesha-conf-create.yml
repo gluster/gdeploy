@@ -8,7 +8,11 @@
     template: src=ganesha-ha.conf
               dest="{{ ha_base_dir }}"
 
-  - name: Replacing quotes in conf file
-    replace: dest="{{ ha_base_dir }}"/ganesha-ha.conf
-             regexp='"(((VIP.*)\n*)*)"$'
-             replace='\1'
+# We don't need quotes in the template file ganesha-ha.conf
+# The below block can be commented out.
+
+  # - name: Replacing quotes in conf file
+  #   replace: dest="{{ ha_base_dir }}"/ganesha-ha.conf
+  #            regexp='"(((VIP.*)\n*)*)"$'
+  #            replace='\1'
+

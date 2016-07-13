@@ -8,3 +8,4 @@
     shell: gluster nfs-ganesha enable --mode=script
     register: result
     failed_when: "'is already enabled' not in result.stderr"
+    ignore_errors: yes

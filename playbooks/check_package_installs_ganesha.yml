@@ -8,19 +8,26 @@
         shell: rpm -q nfs-ganesha
         register: rpm_check
 
-      - fail: msg="Package nfs-ganesha is not installed"
+      - fail: msg="Skip if nfs-ganesha is installed"
         when: rpm_check.rc != 0
 
       - name: Check if corosync is installed
         shell: rpm -q corosync
         register: rpm_check
 
-      - fail: msg="Package corosync is not installed"
+      - fail: msg="Skip if corosync is installed"
         when: rpm_check.rc != 0
 
       - name: Check if pacemaker is installed
         shell: rpm -q pacemaker
         register: rpm_check
 
-      - fail: msg="Package pacemaker is not installed"
+      - fail: msg="Skip if pacemaker is installed"
+        when: rpm_check.rc != 0
+
+      - name: Check if libntirpc is installed
+        shell: rpm -q libntirpc
+        register: rpm_check
+
+      - fail: msg="Skip if libntirpc is installed"
         when: rpm_check.rc != 0
