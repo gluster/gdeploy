@@ -5,5 +5,6 @@
 
   tasks:
   - name: Pcs cluster authenticate the hacluster users in all the nodes
-    shell: pcs cluster auth -u hacluster -p hacluster
+    shell: pcs cluster auth -u hacluster -p hacluster {{ item }}
     register: result
+    with_items: "{{ cluster_nodes }}"
