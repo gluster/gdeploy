@@ -4,8 +4,11 @@
   gather_facts: no
 
   tasks:
-  - name: Enable nfs-ganesha in all the nodes in the cluster
+  - name: Enable nfs-ganesha
     shell: gluster nfs-ganesha enable --mode=script
     register: result
-    failed_when: "'is already enabled' not in result.stderr"
+    failed_when:
+      - "'is already enabled' not in result.stderr"
+      - "'success' not in result.stderr"
+      - "'success' not in result.stdout"
     ignore_errors: yes
