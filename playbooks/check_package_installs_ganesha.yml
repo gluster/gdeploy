@@ -31,3 +31,10 @@
 
       - fail: msg="Skip if libntirpc is installed"
         when: rpm_check.rc != 0
+
+      - name: Check if pcs is installed
+        shell: rpm -q pcs
+        register: rpm_check
+
+      - fail: msg="Skip if pcs is installed"
+        when: rpm_check.rc != 0
