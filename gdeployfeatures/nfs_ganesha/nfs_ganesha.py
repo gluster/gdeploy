@@ -19,8 +19,8 @@ def nfs_ganesha_create_cluster(section_dict):
     ymls = [ defaults.GANESHA_BOOTSTRAP, defaults.GANESHA_PUBKEY,
             defaults.COPY_SSH, defaults.SHARED_MOUNT,
             defaults.SET_AUTH_PASS, defaults.PCS_AUTH,
-            defaults.GANESHA_CONF_CREATE, defaults.ENABLE_GANESHA,
-            defaults.GANESHA_VOL_CONFS, defaults.GANESHA_VOL_EXPORT]
+             defaults.GANESHA_CONF_CREATE, defaults.DEFINE_SERVICE_PORTS,
+             defaults.ENABLE_GANESHA, defaults.GANESHA_VOL_EXPORT]
     section_dict = get_base_dir(section_dict)
     return section_dict, ymls
 

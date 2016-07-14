@@ -1,0 +1,23 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: yes
+
+  tasks:
+  - name: Define service port
+    lineinfile: dest=/etc/sysconfig/nfs regexp=^#(STATD_PORT=.*) line=\1 backrefs=yes
+
+  - name: Restart statd service (RHEL 6 only)
+    service: name=nfslock state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+    ignore_errors: yes
+
+  - name: Restart nfs-config service
+    service: name=nfs-config state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+    ignore_errors: yes
+
+  - name: Restart rpc-statd service
+    service: name=rpc-statd state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+    ignore_errors: yes

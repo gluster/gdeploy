@@ -27,8 +27,5 @@
   - name: Enable pcsd service
     service: name=pcsd enabled=yes
 
-  - name: Start pacemaker service
-    service: name=pacemaker state=started
-
   - name: Enable pacemaker service
     service: name=pacemaker enabled=yes
