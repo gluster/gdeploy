@@ -29,6 +29,7 @@ Contents
    usage
    debugging
    conf
+   glustervolume
    maintainer
    developer
    design
