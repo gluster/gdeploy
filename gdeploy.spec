@@ -1,5 +1,5 @@
 %define name gdeploy
-%define version 2.1.dev0
+%define version 2.1.dev1
 %define release 0
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
@@ -90,6 +90,9 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Fri Jul 15 2016 Sachidananda Urs <sac@redhat.com> dev1
+- NFS Ganesha related bug fixes.
+
 * Wed Jun 8 2016 Sachidananda Urs <sac@redhat.com> master-2
 - First release after master rebase
 
