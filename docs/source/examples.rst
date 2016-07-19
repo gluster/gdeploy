@@ -78,4 +78,3 @@ You can also check whether the files have been created and replicated thrice ins
 
 
 We can see that the files have been successfully replicated on all the three nodes.
->>>>>>> b8f33e06e862706917c901ee66dad043e03953aa
