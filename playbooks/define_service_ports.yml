@@ -1,13 +1,20 @@
 ---
 - hosts: gluster_servers
   remote_user: root
-  gather_facts: yes
+  gather_facts: no
 
   tasks:
   - name: Define service port
-    lineinfile: dest=/etc/sysconfig/nfs regexp='^#(STATD_PORT=.*)' line='\1' backrefs=yes
+    shell: sed -i 's/#\(STATD_PORT=.*\)/\1/' /etc/sysconfig/nfs
+
+# Some of our channels provide only ansible1.9 and backrefs in lineinfile
+# fails.
+# replace the above shell task with lineinfile: once all channels are
+# updated with ansible 2.0
+    # lineinfile: dest=/etc/sysconfig/nfs regexp='^#(STATD_PORT=.*)' line='\1' backrefs=yes
 
 # We do not need the below services for now. Enable them in future if needed.
+# Ensure to set gather_facts to `yes' if the below code block is enabled.
 
   # - name: Restart statd service (RHEL 6 only)
   #   service: name=nfslock state=restarted
