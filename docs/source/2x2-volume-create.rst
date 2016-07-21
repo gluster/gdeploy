@@ -4,32 +4,33 @@ Using gdeploy to create 2x2 gluster volume
 To create 2x2 gluster volume, you would need four bricks which may or may not be on the same machine.
 It is recommended that that these four bricks reside on different machines.
 
-**Step:**
+**Step 1:**
+
  Create the following configuration file::
 
- [hosts]
- 10.70.43.127
- 10.70.42.190
- 10.70.42.232
- 10.70.43.67
+   [hosts]
+   10.70.43.127
+   10.70.42.190
+   10.70.42.232
+   10.70.43.67
 
- [backend-setup]
- devices=/dev/vdb
- mountpoints=/gluster/brick1
- brick_dirs=/gluster/brick1/one
+   [backend-setup]
+   devices=/dev/vdb
+   mountpoints=/gluster/brick1
+   brick_dirs=/gluster/brick1/one
 
- [volume]
- action=create
- volname=sample_volume
- replica=yes
- replica_count=2
- force=yes
+   [volume]
+   action=create
+   volname=sample_volume
+   replica=yes
+   replica_count=2
+   force=yes
 
- [clients]
- action=mount
- hosts=192.168.122.19
- fstype=glusterfs
- client_mount_points=/home/poo/random_client
+   [clients]
+   action=mount
+   hosts=192.168.122.19
+   fstype=glusterfs
+   client_mount_points=/home/poo/random_client
 
 **Step 2:**
 
