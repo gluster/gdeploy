@@ -5,11 +5,13 @@
 
   tasks:
   - name: Define service port
-    shell: sed -i 's/#\(STATD_PORT=.*\)/\1/' /etc/sysconfig/nfs
+    lineinfile: dest=/etc/sysconfig/nfs regexp='^#STATD_PORT=.*' line='STATD_PORT=662'
+
+# The above hack is way too ugly. But no other choice on Ansible 1.9
 
 # Some of our channels provide only ansible1.9 and backrefs in lineinfile
-# fails.
-# replace the above shell task with lineinfile: once all channels are
+# fails. Currently hardcoding to 662
+# replace the above lineinfile with the below backrefs, once all channels are
 # updated with ansible 2.0
     # lineinfile: dest=/etc/sysconfig/nfs regexp='^#(STATD_PORT=.*)' line='\1' backrefs=yes
 
