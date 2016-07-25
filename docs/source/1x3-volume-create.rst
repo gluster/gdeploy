@@ -37,7 +37,7 @@ Create the following configuration file::
     volname=volume1
     hosts=192.168.122.19
     fstype=glusterfs
-    client_mount_points=/home/poo/client_mount
+    client_mount_points=/mnt/client_mount
 
 
 **Step 2:**
