@@ -11,3 +11,4 @@ examples
    set_5gb_limit
    nfs_ganesha_setup
    enable_nfs_ganesha
+   destroy_nfs_ganesha
