@@ -1228,6 +1228,12 @@ client_mount_points=/mnt/gluster{1,3}
 # option should not be set at all, leave the value empty or specify it
 # as 'none'.
 #
+# The public_address variable type in the below example fails because of bug:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1360351
+#
+# Replace the below public_address with:
+# public_address=192.168.1.1/24 eth1, 192.168.1.4/24 eth1
+#
 # Example:
 #
 # [ctdb]
