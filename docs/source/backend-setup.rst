@@ -8,8 +8,7 @@ backend on the particular host.
 
 **Step 1:**
 
-Create an empty file and give it a any arbitrary name and save it with a
-``.conf`` extension at the end of the file. Add the following lines to it::
+Create an empty file and give it any arbitrary name and add the following lines to it::
 
    # This is a mandatory section, and hostnames/ip-address are listed one per line.
 
