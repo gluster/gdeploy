@@ -8,28 +8,17 @@
   - name: Creates /etc/ctdb directory
     file: path=/etc/ctdb state=directory
 
-  - name: Clean up /etc/sysconfig/ctdb
-    file: path=/etc/sysconfig/ctdb state=absent
-
   - name: Clean up /etc/ctdb/nodes
     file: path=/etc/ctdb/nodes state=absent
 
   - name: Clean /etc/ctdb/public_addresses
     file: path=/etc/ctdb/public_addresses state=absent
 
-  - name: Create /etc/sysconfig/ctdb
-    file: path=/etc/sysconfig/ctdb state=touch
-
   - name: Create /etc/ctdb/nodes
     file: path=/etc/ctdb/nodes state=touch
 
   - name: Create /etc/ctdb/public_addresses
     file: path=/etc/ctdb/public_addresses state=touch
-
-  - name: Add confs to /etc/sysconfig/ctdb
-    lineinfile: dest=/etc/sysconfig/ctdb
-                line="{{ options }}"
-    when: options is defined
 
   - name: Add confs to /etc/ctdb/nodes
     lineinfile: dest=/etc/ctdb/nodes
@@ -40,3 +29,17 @@
     lineinfile: dest=/etc/ctdb/public_addresses
                 line="{{ paddress }}"
     when: paddress is defined
+
+  - name: Add volume name to ctdb setup/teardown scripts
+    replace: dest={{ item }} regexp='^META="?all"?' replace='META="{{ volname }}"'
+    with_items:
+        - /var/lib/glusterd/hooks/1/stop/pre/S29CTDB-teardown.sh
+        - /var/lib/glusterd/hooks/1/start/post/S29CTDBsetup.sh
+    ignore_errors: yes
+
+  - name: Enable clustering in Samba
+    lineinfile:
+        dest=/etc/samba/smb.conf
+        line="clustering=yes"
+        insertafter='^\[global\]'
+

@@ -31,9 +31,10 @@ def ctdb_setup(section_dict):
     opt_matches = [opt for opt in list(section_dict) if
             re.search(pattern, opt)]
     for key in opt_matches:
-        if section_dict[key] and section_dict[key].lower() != 'none':
+        # This is a hack to side step the AttributeError. Will replace this with
+        # much cleaner default settings for Samba, in later releases.
+        if section_dict[key] and str(section_dict[key]).lower() != 'none':
             option += key + '=' + str(section_dict[key]) + '\n'
-
     section_dict['options'] = option
     section_dict['nodes'] = '\n'.join(sorted(set(Global.hosts)))
     paddress = section_dict.get('public_address')
@@ -57,4 +58,5 @@ def ctdb_setup(section_dict):
         section_dict['paddress'] = '\n'.join(paddress)
     section_dict, enable_yml = ctdb_enable(section_dict)
     section_dict, start_yml = ctdb_start(section_dict)
-    return section_dict, [defaults.CTDB_SETUP, enable_yml, start_yml]
+    return section_dict, [defaults.CTDB_SETUP, defaults.VOLSTOP_YML,
+                          defaults.VOLUMESTART_YML, enable_yml, start_yml]
