@@ -5,6 +5,10 @@
         "options": [
           {
             "required": "false",
+            "name": "volname"
+          },
+          {
+            "required": "false",
             "name": "physical_address"
           },
           {
