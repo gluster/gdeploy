@@ -35,7 +35,7 @@ def ctdb_setup(section_dict):
             option += key + '=' + str(section_dict[key]) + '\n'
 
     section_dict['options'] = option
-    section_dict['nodes'] = '\n'.join(Global.hosts)
+    section_dict['nodes'] = '\n'.join(sorted(set(Global.hosts)))
     paddress = section_dict.get('public_address')
     if paddress:
         if not isinstance(paddress, list):

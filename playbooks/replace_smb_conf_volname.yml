@@ -6,7 +6,7 @@
   tasks:
 
   - name: Add confs to ctdb conf files
-    replace: dest={{ item }} regexp='^META=all' replace='META={{ volname }}'
+    replace: dest={{ item }} regexp='^META="?all"?' replace='META="{{ volname }}"'
     with_items:
         - /var/lib/glusterd/hooks/1/stop/pre/S29CTDB-teardown.sh
         - /var/lib/glusterd/hooks/1/start/post/S29CTDBsetup.sh
@@ -48,6 +48,13 @@
         dest=/etc/samba/smb.conf
         line="{{ smb_options }}"
         insertbefore=EOF
+    ignore_errors: True
+
+  - name: Enable clustering in Samba
+    lineinfile:
+        dest=/etc/samba/smb.conf
+        line="clustering=yes"
+        insertafter='^\[global\]'
 
   - name: Start SMB service
     service: name=smb state=restarted
