@@ -9,6 +9,8 @@ examples
    enabling_disabling_quota 
    quota_implementation
    set_5gb_limit
+   create_volume_profile
+   existing_volume_profile
    nfs_ganesha_setup
    enable_nfs_ganesha
    destroy_nfs_ganesha
