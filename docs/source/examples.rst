@@ -10,6 +10,7 @@ examples
    set_options_volumes
    subscription
    package_installation
+   disable_repos
    quota_setup_existing
    enabling_disabling_quota 
    quota_implementation
