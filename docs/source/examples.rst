@@ -7,6 +7,9 @@ examples
    2x2-volume-create
    backend-setup
    starting_services
+   set_options_volumes
+   subscription
+   package_installation
    quota_setup_existing
    enabling_disabling_quota 
    quota_implementation
