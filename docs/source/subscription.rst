@@ -1,4 +1,4 @@
-Subscribe to RedHat Subscription Management
+Subscribe to Red Hat Subscription Management
 ===========================================
 
 The section 'RH-subscription' can be used to register the system to RHSM,
