@@ -9,7 +9,7 @@ parameter in our configuration file.
 This tutorial will take you through just that. It's intended to show you how
 you can set different volume options on an existing Gluster volume. (To create
 a Gluster volume, please refer to `1x3-gluster-volume <1x3-volume-create.html>`_
-or `2x2-gluster-volume <2x2-volume-create.html>`_.
+or `2x2-gluster-volume <2x2-volume-create.html>`_).
 
 Setting the options on an existing volume
 =========================================
@@ -40,7 +40,7 @@ lines to your newly created config file::
 
 **Step 2:**
 
-Invoke gdpeloy and run the file using::
+Invoke gdeploy and run the file using::
 
    $ gdeploy -c set_options_vol.conf
 
@@ -48,7 +48,7 @@ Invoke gdpeloy and run the file using::
 
 **Step 3:**
 
-To verify if these options have been set on the volume, run the following command::
+To verify if these options are indeed set on the volume, run the following command::
 
    $ gluster vol info
    
@@ -68,9 +68,8 @@ config file.
 
 **Step 1:**
 
-Create an empty file and give it any arbitrary name. For the purpose of this
-demonstration, let's call our file ``reset_options_vol.conf``. Add the following
-lines to your newly created config file::
+Let's call your reset configuration file ``reset_options_vol.conf``. Add the
+following lines to reset _options_vol.conf::
 
   # This config resets options for the volume
 
