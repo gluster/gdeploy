@@ -6,32 +6,47 @@ Installing packages from yum repositories
 **Note :**
 
 Make sure that  your system is registered with subscription manager before
-trying to install packages otherwise it will throw error.
+trying to install packages otherwise you'll get an error while following the
+steps below.
 
 **Step 1:**
 
 Create an empty file and give it any arbitrary name. For the purpose of this
-demonstration, let's call our file ``install_packages.conf``. Add the following
+demonstration, let's call our file  ``install_packages.conf``. Add the following
 lines to your newly created config file::
 
 
    # To install package(s):
-   # Make sure you have the appropriate values in all the placeholders shown in this configuration file.
-   # These values are just for demonstartion purposes.
 
-    [yum]prerequistet
+   # Make sure you have the appropriate values in all the placeholders shown in this configuration file.
+   # These values are just for demonstration purposes.
+
+    [yum]
     action=install
     repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
     packages=vi,glusterfs
     gpgcheck=no
     update=no
 
+   # Explanation of the above parameters
 
-   # If gpgcheck is set to `no`, gpgcheck will be disabled. By default
-   # it is 'yes'.
-   #
-   # If 'no' provided to update, gdeploy will not run  'yum update' before
-   # installation. By default  it is 'yes'.
+   # packages
+   # --------
+
+   # This takes a comma separate list of values that are packages names you
+   # wish to install.
+   
+   # gpgcheck
+   # --------
+
+   # gpgcheck is set to `yes` by default. You can override it 
+   # by setting it to `no` as illustrated above.
+
+   # update
+   # -------
+
+   # By default,  gdeploy runs `yum update` before installation. To disable
+   # this behaviour, set update=no as shown above. The default value is `yes`.
 
    # To remove package(s):
    # [yum]
@@ -40,8 +55,7 @@ lines to your newly created config file::
 
 **Step 2:**
 
-  Invoke gdeploy and run the following command::
+  As always, to invoke gdeploy run the following command::
   
    $ gdeploy -c install_packages.conf
-
 
