@@ -56,6 +56,12 @@ def ctdb_setup(section_dict):
             public_add = ip + ' ' + inter
             paddress.append(public_add)
         section_dict['paddress'] = '\n'.join(paddress)
+    ctdbnodes = section_dict.get('ctdb_nodes')
+    if ctdbnodes:
+        # If there is a single item listify it
+        if not isinstance(ctdbnodes, list):
+            ctdbnodes = [ctdbnodes]
+        section_dict['ctdbnodes'] = "\n".join(ctdbnodes)
     section_dict, enable_yml = ctdb_enable(section_dict)
     section_dict, start_yml = ctdb_start(section_dict)
     return section_dict, [defaults.CTDB_SETUP, defaults.VOLSTOP_YML,

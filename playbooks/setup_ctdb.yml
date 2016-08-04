@@ -22,8 +22,7 @@
 
   - name: Add confs to /etc/ctdb/nodes
     lineinfile: dest=/etc/ctdb/nodes
-                line="{{ nodes }}"
-    when: nodes is defined
+                line="{{ ctdbnodes | default(nodes) }}"
 
   - name: Add confs to /etc/ctdb/public_addresses
     lineinfile: dest=/etc/ctdb/public_addresses
