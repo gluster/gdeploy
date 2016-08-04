@@ -9,7 +9,8 @@ attach to a pool, enable repos, disable repos, and unregister from RHSM.
 
 Create an empty file and give it any arbitrary name. For the purpose of this
 demonstration, let's call our file ``subscription.conf``. Add the following
-lines to your newly created config file::
+lines to your newly created config file.
+(lines beginning with # are comments for your information and can be ignored)::
 
  # Registering the system
  #
@@ -28,11 +29,14 @@ lines to your newly created config file::
  [RH-subscription]
  action=register
  username=bilbobaggins
+ # use a valid username in place of bilbobaggins
  password=shire46
+ # use a valid password in place of shire46
  auto-attach=true
  disable-repos=yes
  repos=rhel-7-cool-server
  pool=a_big_pool_id_with_numbers
+ # Replace above placeholder string with appropriate pool id
 
  # Instead of using username and password, one could even use an
  # activationkey
@@ -40,7 +44,9 @@ lines to your newly created config file::
  # [RH-subscription]
  # action=register
  # activationkey=my_big_activation_key
- #
+ # Replace above activationkey with appropriate activation key you may have
+ # received.
+
  # The options: auto-attach, disable-repos, repos, and pools applies here
  # as well
  #
@@ -62,12 +68,12 @@ lines to your newly created config file::
  #
  # [RH-subscription]
  # action=enable-repos
- # repos=fancy_repo1,fancy,repo2
+ # repos=fancy_repo1,fancy_repo2
  #
  #
  # Registering, subscribing and enabling repos together
  #
- # These 3 can be done together in a single config leaving the action empty as
+ # These 3 can be done together in a single config block leaving the action empty as
  # follows
  #
  # [RH-subscription]
@@ -75,7 +81,7 @@ lines to your newly created config file::
  # username=bilbobaggins
  # password=shire46
  # pool=a_big_pool_id_with_numbers
- # repos=fancy_repo1,fancy,repo2
+ # repos=fancy_repo1,fancy_repo2
  #
  # Disabling repos
  #
@@ -85,7 +91,7 @@ lines to your newly created config file::
  #
  # [RH-subscription]
  # action=disable-repos
- # repos=fancy_repo1,fancy,repo2
+ # repos=fancy_repo1,fancy_repo2
  #
  #
  # Unregister from RHSM
@@ -98,8 +104,8 @@ lines to your newly created config file::
 **Step 2:**
 
 Make sure you have appropriate values in all the placeholders shown in the
-sample above, namely, username, password, activation key and etc. Invoke gdepoy
-and run the file using::
+sample above, namely, ``username``, ``password``, ``activation key`` and etc.
+Invoke gdepoy as follows to run the file::
   
   $ gdeploy -c subscription.conf
 
