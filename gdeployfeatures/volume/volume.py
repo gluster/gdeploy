@@ -223,14 +223,6 @@ def volume_smb_setup(section_dict):
     global helpers
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
-    try:
-        ctdb = Global.sections['ctdb']
-    except:
-        msg = "For SMB setup, please ensure you " \
-                "configure 'ctdb' using ctdb " \
-                "section. Refer documentation for more."
-        print "Warning: " + msg
-        Global.logger.info(msg)
     SMB_DEFAULTS = {
                     'glusterfs:logfile': '/var/log/samba/' +
                         section_dict['volname'] + '.log',
@@ -240,19 +232,14 @@ def volume_smb_setup(section_dict):
     for key, value in SMB_DEFAULTS.iteritems():
         if section_dict[key]:
             options += key + ' = ' + str(section_dict[key]) + '\n'
-    section_dict['smb_options'] = "[gluster-{0}]\n"\
-            "comment = For samba share of volume {0}\n"\
-            "vfs objects = glusterfs\nglusterfs:volume = {0}\n"\
-            "read only = no\nguest ok = "\
-            "yes\n{1}".format(section_dict['volname'], options)
     section_dict['key'] = ['stat-prefetch', 'server.allow-insecure',
             'storage.batch-fsync-delay-usec']
     section_dict['value'] = ['off', 'on', 0]
     section_dict, yml = volume_set(section_dict)
     section_dict['service'] = 'glusterd'
     section_dict['state'] = 'started'
-    return section_dict, [defaults.SMBREPLACE_YML, yml,
-            defaults.SMBSRV_YML, defaults.SERVICE_MGMT]
+    return section_dict, [defaults.SERVICE_MGMT, yml, defaults.SMBREPLACE_YML,
+                          defaults.SMBSRV_YML]
 
 def volume_smb_disable(section_dict):
     section_dict['key'] = "user.smb"
