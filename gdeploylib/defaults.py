@@ -84,6 +84,8 @@ DETACH_YML = 'gluster-peer-detach.yml'
 
 SMBSRV_YML = 'mount-in-samba-server.yml'
 SMBREPLACE_YML = 'replace_smb_conf_volname.yml'
+SMB_FOR_CTDB = 'samba_for_ctdb.yml'
+
 VOLUMESET_YML = 'gluster-volume-set.yml'
 REBALANCE_YML = 'gluster-volume-rebalance.yml'
 VOLUMESTART_YML = 'gluster-volume-start.yml'
