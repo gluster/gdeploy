@@ -14,6 +14,23 @@
             {
                 "required": "false",
                 "name": "ctdb_nodes"
+            },
+            {
+                "required": "false",
+                "name": "enable_samba",
+                "default": "no"
+            },
+            {
+                "required": "false",
+                "name": "smb_password"
+            },
+            {
+                "required": "false",
+                "name": "smb_username"
+            },
+            {
+                "required": "false",
+                "name": "smb_mountpoint"
             }
         ]
       },

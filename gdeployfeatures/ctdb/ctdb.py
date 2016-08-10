@@ -38,6 +38,9 @@ def ctdb_setup(section_dict):
     section_dict['options'] = option
     section_dict['nodes'] = '\n'.join(sorted(set(Global.hosts)))
     paddress = section_dict.get('public_address')
+    ctdbnodes = section_dict.get('ctdb_nodes')
+    enable_samba = section_dict.get('enable_samba')
+
     if paddress:
         if not isinstance(paddress, list):
             paddress= [paddress]
@@ -56,7 +59,7 @@ def ctdb_setup(section_dict):
             public_add = ip + ' ' + inter
             paddress.append(public_add)
         section_dict['paddress'] = '\n'.join(paddress)
-    ctdbnodes = section_dict.get('ctdb_nodes')
+
     if ctdbnodes:
         # If there is a single item listify it
         if not isinstance(ctdbnodes, list):
@@ -64,5 +67,27 @@ def ctdb_setup(section_dict):
         section_dict['ctdbnodes'] = "\n".join(ctdbnodes)
     section_dict, enable_yml = ctdb_enable(section_dict)
     section_dict, start_yml = ctdb_start(section_dict)
-    return section_dict, [defaults.CTDB_SETUP, defaults.VOLSTOP_YML,
-                          defaults.VOLUMESTART_YML, enable_yml, start_yml]
+
+    # There are three combinations possible:
+    # a. Setup CTDB
+    # b. Setup CTDB and enable samba
+    # c. Enable samba on a ctdb node
+
+    # Scenario a. Setup CTDB
+    if paddress and str(enable_samba).upper() != "YES":
+        yaml_list = [defaults.CTDB_SETUP, defaults.VOLSTOP_YML,
+                     defaults.VOLUMESTART_YML, enable_yml, start_yml,
+                     defaults.SMBSRV_YML]
+
+    # Setup CTDB and enable Samba
+    if paddress and str(enable_samba).upper() == "YES":
+        yaml_list = [defaults.CTDB_SETUP, defaults.VOLSTOP_YML,
+                     defaults.VOLUMESTART_YML, enable_yml, start_yml,
+                     defaults.SMB_FOR_CTDB, defaults.SMBSRV_YML]
+
+    # Enable Samba on an existing CTDB setup
+    if not paddress and str(enable_samba).upper() == "YES":
+        yaml_list = [enable_yml, start_yml, defaults.SMB_FOR_CTDB,
+                     defaults.SMBSRV_YML]
+
+    return section_dict, yaml_list
