@@ -22,18 +22,15 @@
             },
             {
                 "required": "false",
-                "name": "smb_password",
-                "default": "password"
+                "name": "smb_password"
             },
             {
                 "required": "false",
-                "name": "smb_username",
-                "default": "smbuser"
+                "name": "smb_username"
             },
             {
                 "required": "false",
-                "name": "smb_mountpoint",
-                "default": "/mnt/smbserver"
+                "name": "smb_mountpoint"
             }
         ]
       },
