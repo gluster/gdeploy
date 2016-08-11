@@ -65,6 +65,8 @@ class BackendReset(Helpers):
         except:
             self.filename =  Global.group_file
             Global.current_hosts = Global.hosts
+        Global.logger.info("Resetting disks on %s"%Global.hosts)
+        Global.logger.info("Executing playbook %s"%BRESET_YML)
         self.run_playbook(BRESET_YML)
         return True
 

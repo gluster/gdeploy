@@ -153,6 +153,9 @@ def create_playbooks_in_local():
 
 def main(arg):
     args = parse_arguments(arg)
+    Global.logger.info("**** gdeploy run started with options %s ****"%arg)
+    Global.logger.info("For complete CLI log, set log_path in "\
+                       "/etc/ansible/ansible.cfg")
     if args:
         check_ansible_installation()
         init_global_values(args)

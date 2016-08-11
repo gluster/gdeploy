@@ -46,7 +46,7 @@ def tune_profile():
     if not profile:
         return
     yaml_write.create_yaml_dict('profile', profile, False)
+    Global.logger.info("Running tuneadm to apply profile %s"%profile)
+    Global.logger.info("Executing playbook %s"%TUNE_YML)
     conf_parse.run_playbook(TUNE_YML)
     conf_parse.remove_from_sections('tune-profile')
-
-
