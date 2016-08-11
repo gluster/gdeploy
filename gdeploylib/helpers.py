@@ -396,6 +396,7 @@ class Helpers(Global, YamlWriter):
         Some calculations are made as to enhance
         performance
         '''
+        Global.logger.info("Performing GlusterFS specific performance tuning.")
         disktype = self.config_get_options('disktype', False)
         if disktype:
             perf = dict(disktype=disktype[0].lower())
@@ -409,8 +410,10 @@ class Helpers(Global, YamlWriter):
                 perf['diskcount'] = int(diskcount[0])
                 stripe_size = self.config_get_options('stripesize', False)
                 if not stripe_size and perf['disktype'] == 'raid6':
-                    print "Error: 'stripesize' not provided for " \
-                    "disktype %s" % perf['disktype']
+                    msg = "Error: 'stripesize' not provided for disktype %s"\
+                          % perf['disktype']
+                    print msg
+                    Global.logger.error(msg)
                     self.cleanup_and_quit()
                 if stripe_size:
                     perf['stripesize'] = int(stripe_size[0])

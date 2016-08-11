@@ -56,8 +56,8 @@ def log_event():
     fh = logging.FileHandler(Global.log_file)
 
     formatter = MyFormatter('[%(asctime)s] -  %(levelname)s     -   ' \
-            '%(pathname)s:%(lineno)s    : ' \
-            '%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+                            '%(filename)s[%(lineno)s]    : ' \
+                            '%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     fh.setFormatter(formatter)
 
     # add handler to logger object
