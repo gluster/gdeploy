@@ -1040,6 +1040,9 @@ client_mount_points=/mnt/gluster{1,3}
 # disable-repos=yes
 # repos=rhel-7-cool-server
 # pool=a_big_pool_id_with_numbers
+# ignore_register_errors=no
+# ignore_attach_pool_errors=no
+# 
 #
 # Instead of using username and password, one could even use an
 # activationkey
@@ -1060,7 +1063,7 @@ client_mount_points=/mnt/gluster{1,3}
 # [RH-subscription]
 # action=attach-pool
 # pool=a_big_pool_id_with_numbers
-#
+# ignore_attach_pool_errors=yes
 #
 # Enabling repos
 #
@@ -1070,6 +1073,7 @@ client_mount_points=/mnt/gluster{1,3}
 # [RH-subscription]
 # action=enable-repos
 # repos=fancy_repo1,fancy,repo2
+# ignore_enable_errors=no
 #
 #
 # Registering, subscribing and enabling repos together
@@ -1123,6 +1127,7 @@ client_mount_points=/mnt/gluster{1,3}
 # packages=vi,glusterfs
 # gpgcheck=no
 # update=no
+# ignore_yum_errors=no   # Do not continue if yum errors out.
 #
 # If 'no' provided to gpgcheck, it will disable gpgcheck. By default
 # it is 'yes'.

@@ -28,6 +28,10 @@
               "required": "false",
               "name": "disable-repos",
               "default": "no"
+            },
+            {
+              "required": "false",
+              "name": "ignore-register-errors"
             }
           ]
       },
@@ -36,6 +40,10 @@
           {
             "required": "true",
             "name": "pool"
+          },
+          {
+            "required": "false",
+            "name": "ignore-attach-pool-errors"
           }
         ]
       },
@@ -44,6 +52,10 @@
           {
             "required": "true",
             "name": "repos"
+          },
+          {
+            "required": "false",
+            "name": "ignore-enable-errors"
           }
         ]
       },
@@ -52,12 +64,18 @@
           {
             "required": "false",
             "name": "repos"
+          },
+          {
+            "required": "false",
+            "name": "ignore-disable-errors"
           }
         ]
       },
       "unregister": {
         "options": [
           {
+            "required": "false",
+            "name": "ignore-unregister-errors"
           }
         ]
       }

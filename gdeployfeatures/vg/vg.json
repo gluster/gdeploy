@@ -16,6 +16,10 @@
             "required": "false",
             "name": "one-to-one",
             "default": "no"
+          },
+          {
+            "required": "false",
+            "name": "ignore_vg_errors"
           }
         ]
       },
@@ -28,6 +32,10 @@
           {
             "required": "true",
             "name": "pvname"
+          },
+          {
+            "required": "false",
+            "name": "ignore_vg_errors"
           }
         ]
       }
