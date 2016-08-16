@@ -82,6 +82,9 @@ def get_feature_dir(section):
 
     section_dict, yml = feature_call(section_dict)
 
+    if section_dict == False or section_dict == None or section_dict == {}:
+        return
+
     for key in section_dict.keys():
         section_dict[key.replace('-', '_')] = section_dict.pop(key)
 

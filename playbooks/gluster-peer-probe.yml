@@ -9,5 +9,5 @@
           hosts="{{ to_be_probed }}"
           master="{{master}}"
 
-  - name: Pause for some seconds
+  - name: Pause for a few seconds
     pause: seconds=5
