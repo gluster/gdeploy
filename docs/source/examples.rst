@@ -1,4 +1,4 @@
-examples
+Examples
 ==============
 .. toctree::
    :maxdepth: 2

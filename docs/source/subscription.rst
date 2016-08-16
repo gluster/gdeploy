@@ -7,10 +7,10 @@ attach to a pool, enable repos, disable repos, and unregister from RHSM.
 
 **Step 1:**
 
-Create an empty file and give it any arbitrary name. For the purpose of this
-demonstration, let's call our file ``subscription.conf``. Add the following
-lines to your newly created config file.
-(lines beginning with # are comments for your information and can be ignored)::
+Create a config file and for the purpose of this demonstration, let's call our
+file ``subscription.conf``. Add the following lines to your newly created
+config file.(lines beginning with # are comments for your information and can
+be ignored)::
 
  # Registering the system
  #
@@ -28,8 +28,8 @@ lines to your newly created config file.
 
  [RH-subscription]
  action=register
- username=bilbobaggins
- # use a valid username in place of bilbobaggins
+ username=user@redhat.com
+ # use a valid username in place of user@redhat.com
  password=shire46
  # use a valid password in place of shire46
  auto-attach=true

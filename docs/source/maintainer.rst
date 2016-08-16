@@ -1,2 +1,2 @@
-maintainer
+Maintainer
 ==============
