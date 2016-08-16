@@ -63,10 +63,16 @@ class Helpers(Global, YamlWriter):
         with open(filename, 'r') as f:
             return yaml.load(f)
 
-    def cleanup_and_quit(self):
-        if os.path.isdir(Global.base_dir):
+    def cleanup_and_quit(self, ret=0):
+        if os.path.isdir(Global.base_dir) and not Global.keep:
             shutil.rmtree(Global.base_dir)
-        sys.exit(0)
+            Global.logger.info("Deleting playbook data %s"%Global.base_dir)
+        else:
+            print "\nYou can view the generated configuration files "\
+                "inside %s" % Global.base_dir
+            Global.logger.info("Configuration saved inside %s" %Global.base_dir)
+        Global.logger.info("Terminating gdeploy...")
+        sys.exit(ret)
 
     def mk_dir(self, direc):
         if os.path.isdir(direc):
@@ -359,7 +365,13 @@ class Helpers(Global, YamlWriter):
                 playbooks_file]
         command = filter(None, command)
         try:
-            subprocess.call(command, shell=False)
+            retcode = subprocess.call(command, shell=False)
+            # Exit gdeploy in case of errors and user has explicitly set
+            # not to ignore errors
+            if retcode != 0 and Global.ignore_errors != 'yes':
+                self.cleanup_and_quit(1)
+            elif retcode != 0 and Global.ignore_errors == 'yes':
+                print "Ignoring errors..."
         except (OSError, subprocess.CalledProcessError) as e:
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()

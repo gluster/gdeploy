@@ -8,6 +8,7 @@ helpers = Helpers()
 
 def lv_create(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_lv_errors')
     if not section_dict.get('vgname'):
         vg_section = Global.sections.get('vg')
         if not vg_section or not vg_section['vgname']:
@@ -27,16 +28,19 @@ def lv_create(section_dict):
     return section_dict, yml
 
 def lv_convert(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_lv_errors')
     return section_dict, defaults.YML_NAME
 
 def lv_setup_cache(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_lv_errors')
     section_dict['ssd'] = helpers.correct_brick_format(
             helpers.listify(section_dict['ssd']))[0]
     helpers.perf_spec_data_write()
     return section_dict, defaults.SETUP_CACHE_YML
 
 def lv_change(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_lv_errors')
     return section_dict, defaults.LVCHANGE_YML
 
 def get_lv_vg_names(name, section_dict):
@@ -92,6 +96,7 @@ def thin_lv_data(section_dict):
 
 def get_mount_data(section_dict, devices, vgnames):
     fstype = helpers.listify(section_dict.get('mkfs'))
+    Global.ignore_errors = section_dict.get('ignore_mount_errors')
     if not fstype:
         fstype = 'xfs'
     else:

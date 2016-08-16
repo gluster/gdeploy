@@ -113,19 +113,6 @@ def create_files_and_dirs():
     helpers.mk_dir(Global.host_vars_dir)
 
 @logfunction
-def gdeploy_cleanup():
-    '''
-    Remove created temp directory if not explicitly asked to keep
-    '''
-    if not Global.keep:
-        shutil.rmtree(Global.base_dir)
-    else:
-        print "\nYou can view the generated configuration files "\
-            "inside %s" % Global.base_dir
-        Global.logger.info("Configuration saved inside %s" %Global.base_dir)
-    Global.logger.info("Terminating gdeploy...")
-
-@logfunction
 def create_playbooks_in_local():
     '''
     Templates directory in this codebase's repo will be moved to
@@ -164,7 +151,7 @@ def main(arg):
         create_playbooks_in_local()
         call_core_functions()
         call_features()
-        gdeploy_cleanup()
+        helpers.cleanup_and_quit(0)
 
 if __name__ == '__main__':
     '''

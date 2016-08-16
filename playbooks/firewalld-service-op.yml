@@ -4,6 +4,9 @@
   gather_facts: no
 
   tasks:
+  - name: Start firewalld if not already started
+    service: name=firewalld state=started
+
   - name: Add/Delete services to firewalld rules
     firewalld: service={{ item }} permanent="{{ permanent }}" state="{{ firewall_state }}"
                zone="{{ zone }}"

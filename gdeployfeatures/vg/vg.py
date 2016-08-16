@@ -10,6 +10,7 @@ def vg_create(section_dict):
     global helpers
     pvnames = get_pv_names(section_dict)
     vgnames = helpers.listify(section_dict['vgname'])
+    Global.ignore_errors = section_dict.get('ignore_vg_errors')
     section_dict = set_default_values(section_dict, pvnames, vgnames)
     helpers.perf_spec_data_write()
     return section_dict, defaults.VGCREATE_YML
@@ -18,6 +19,7 @@ def vg_extend(section_dict):
     global helpers
     pvnames = get_pv_names(section_dict)
     vgnames = helpers.listify(section_dict['vgname'])
+    Global.ignore_errors = section_dict.get('ignore_vg_errors')
     if len(vgnames) != 1:
         print "Error: We can only extend one vg at a time"
         helpers.cleanup_and_quit()
