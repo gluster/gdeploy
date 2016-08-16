@@ -370,6 +370,8 @@ class Helpers(Global, YamlWriter):
             # not to ignore errors
             if retcode != 0 and Global.ignore_errors != 'yes':
                 self.cleanup_and_quit(1)
+            elif retcode != 0 and Global.ignore_errors == 'yes':
+                print "Ignoring errors..."
         except (OSError, subprocess.CalledProcessError) as e:
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()
