@@ -51,9 +51,15 @@ def fuse_mount(mnt, host, section_dict):
     return section_dict
 
 def cifs_mount(mnt, host, section_dict):
-    if not section_dict['smb_username'] or not section_dict[
-            'smb_password']:
-        print "\nError: Provide smb_username and smb_password " \
+    try:
+        samba_username = section_dict['smb_username']
+        samba_password = section_dict['smb_password']
+    except KeyError, k:
+        print "%s is a required field"%k
+        samba_username = samba_password = False
+
+    if not samba_username or not samba_password:
+        print "Error: Provide smb_username and smb_password " \
                 "for CIFS mount"
         return False
     global client_mounts, helpers

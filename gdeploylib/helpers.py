@@ -460,8 +460,18 @@ class Helpers(Global, YamlWriter):
             Global.inventory)
         try:
             if not Global.master:
-                Global.master = [list(set(Global.current_hosts) - set(
-                    Global.brick_hosts))[0]]
+                # We set the `master' variable in group_vars/all file here.
+                # If brick_hosts are present use one of them as master.
+                # Else use one from Global.current_hosts.
+                #
+                # Previous solution: [list(set(Global.current_hosts) - set(
+                # Global.brick_hosts))[0]] fails when length of
+                # Global.current_hosts was equal to Global.brick_hosts
+                # Or less than Global.brick_hosts
+                if Global.brick_hosts:
+                    Global.master = Global.brick_hosts[0]
+                else:
+                    Global.master = Global.current_hosts[0]
         except:
             pass
         try:
