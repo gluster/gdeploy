@@ -12,6 +12,7 @@ writers = YamlWriter()
 
 def volume_create(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     if not section_dict.get('brick_dirs'):
@@ -156,24 +157,28 @@ def check_brick_name_format(brick_name):
 
 def volume_delete(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     return section_dict, defaults.VOLDEL_YML
 
 def volume_start(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     return section_dict, defaults.VOLUMESTART_YML
 
 def volume_stop(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     return section_dict, defaults.VOLSTOP_YML
 
 def volume_add_brick(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     yamls = []
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
@@ -187,6 +192,7 @@ def volume_add_brick(section_dict):
 
 def volume_remove_brick(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     section_dict['old_bricks'] = section_dict.pop('bricks')
@@ -194,6 +200,7 @@ def volume_remove_brick(section_dict):
 
 def volume_rebalance(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     return section_dict, [defaults.VOLUMESTART_YML,
@@ -202,6 +209,7 @@ def volume_rebalance(section_dict):
 
 def volume_set(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     keys = section_dict.get('key')
@@ -221,6 +229,7 @@ def volume_set(section_dict):
 
 def volume_smb_setup(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     SMB_DEFAULTS = {

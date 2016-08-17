@@ -7,12 +7,14 @@ from gdeploylib import defaults, Global
 def peer_probe(section_dict):
     if not check_for_host_names():
         return False, False
+    Global.ignore_errors = section_dict.get('ignore_peer_errors')
     to_be_probed = Global.hosts + Global.brick_hosts
     to_be_probed = sorted(set(to_be_probed))
     section_dict['to_be_probed'] = to_be_probed
     return section_dict, defaults.PROBE_YML
 
 def peer_detach(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_peer_errors')
     section_dict['hosts'] = Global.hosts
     if not check_for_host_names():
         return False, False
