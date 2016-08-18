@@ -32,5 +32,8 @@ def yum_remove(section_dict):
     return get_common_data(section_dict)
 
 def get_common_data(section_dict):
-    section_dict['name'] = ','.join(section_dict.pop('packages'))
+    packages = section_dict.pop('packages')
+    if type(packages) != list:
+        packages = [packages]
+    section_dict['name'] = ','.join(packages)
     return section_dict, defaults.YUM_OP

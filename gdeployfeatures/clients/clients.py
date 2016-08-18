@@ -40,7 +40,10 @@ def clients_mount(section_dict):
 
 def nfs_mount(mnt, host, section_dict):
     global client_mounts, helpers
-    section_dict['nfsversion'] = section_dict.pop('nfs-version')
+    options = section_dict.pop('options')
+    if type(options) != list:
+        options = [options]
+    section_dict['opts'] = ",".join(options)
     client_mounts[host].append({'mountpoint': mnt, 'fstype': 'nfs'})
     return section_dict
 
