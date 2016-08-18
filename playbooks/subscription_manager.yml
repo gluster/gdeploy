@@ -13,7 +13,7 @@
   - name: Register with subscription-manager with username and password
     redhat_subscription: state=present username="{{ username }}" password="{{ password }}" autosubscribe="{{ attach }}"
     when: ((username is defined and username) and (password is defined and password))
-    ignore_errors: "{{ ignore_register_errors | default(yes) }}"
+    ignore_errors: "{{ ignore_register_errors | default('yes') }}"
 
   - name: Attach to Red Hat subscription pool
     command: subscription-manager attach --pool="{{ pool }}"
@@ -25,13 +25,13 @@
   - name: Disable all rhsm repos
     command: subscription-manager repos --disable=*
     when: disable_repos == "yes"
-    ignore_errors: "{{ ignore_disable_errors | default(yes) }}"
+    ignore_errors: "{{ ignore_disable_errors | default('yes') }}"
 
   - name: Enable necessary rhsm repos
     command: subscription-manager repos --enable {{ item }}
     with_items: "{{ rhsm_repos }}"
     when: rhsm_repos is defined and rhsm_repos
-    ignore_errors: "{{ ignore_enable_errors | default(yes) }}"
+    ignore_errors: "{{ ignore_enable_errors | default('yes') }}"
 
   - name: Remove old apt-mirror repository definition.
     file:
