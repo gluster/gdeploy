@@ -1,2 +1,2 @@
-testsuite
+Testsuite
 ==============

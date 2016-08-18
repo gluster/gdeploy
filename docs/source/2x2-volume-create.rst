@@ -30,7 +30,7 @@ It is recommended that that these four bricks reside on different machines.
    action=mount
    hosts=192.168.122.19
    fstype=glusterfs
-   client_mount_points=/home/poo/random_client
+   client_mount_points=/mnt/random_client
 
 **Step 2:**
 
