@@ -23,8 +23,8 @@
           },
           {
             "required": "false",
-            "name": "nfs-version",
-            "default": "3"
+            "name": "options",
+            "default": "rw"
           },
           {
             "required": "false",
