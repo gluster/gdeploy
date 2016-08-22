@@ -8,6 +8,7 @@
     file: path={{ item }} state=directory
     with_items: "{{ smb_mountpoint | default([]) }}"
     when: item is defined
+    ignore_errors: yes
 
   - name: Mount the volumes
     mount: name={{ item }}
@@ -21,3 +22,10 @@
   - name: Provide permissions using setfacl
     command: setfacl -m user:"{{ smb_username }}":rwx "{{smb_mountpoint}}"
     when: smb_username is defined
+
+  - name: Unmount the volumes
+    mount: name="{{ item }}"
+           state=absent
+    with_items: "{{ smb_mountpoint | default([]) }}"
+    when: item is defined
+    ignore_errors: yes

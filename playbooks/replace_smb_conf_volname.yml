@@ -14,16 +14,23 @@
   - name: Restart glusterd services
     service: name=glusterd state=restarted
 
-  - name: Start SMB service
-    service: name=smb state=restarted
+# Setting volume options: 'stat-prefetch', 'server.allow-insecure',
+# 'storage.batch-fsync-delay-usec' happens in volume.py:volume_smb_setup
 
-  - name: Enable SMB service
-    service: name=smb enabled=yes
+# Leaving the below section commented for now. As per discussion with
+# developers, we _do not care_ about samba setup from gdeploy. Focus
+# is only on CTDB setup.
 
-  - name: Create a new user
-    user: name="{{ smb_username }}"
-    when: smb_username is defined
+  # - name: Start SMB service
+  #   service: name=smb state=restarted
 
-  - name: Set smb password
-    raw: (echo {{ smb_password }}; echo {{ smb_password }}) | smbpasswd -s -a "{{ smb_username }}"
-    when: smb_username is defined and smb_password is defined
+  # - name: Enable SMB service
+  #   service: name=smb enabled=yes
+
+  # - name: Create a new user
+  #   user: name="{{ smb_username }}"
+  #   when: smb_username is defined
+
+  # - name: Set smb password
+  #   raw: (echo {{ smb_password }}; echo {{ smb_password }}) | smbpasswd -s -a "{{ smb_username }}"
+  #   when: smb_username is defined and smb_password is defined
