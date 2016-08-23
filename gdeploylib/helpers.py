@@ -571,3 +571,17 @@ class Helpers(Global, YamlWriter):
                 "I need in the conf " \
                 "file. Please populate the conf file and retry!"
             self.cleanup_and_quit()
+
+    def split_string(self, string, sep):
+        """Split a string separated by sep
+
+        Return a list of tokens."""
+        pattern = r'((?:[^'+sep+'\\\\]+'+sep+'\\\\.)*)(['+sep+'])?'
+        regex = re.compile(pattern)
+        result = []
+
+        for match in regex.finditer(string):
+            result.append(match.group(1))
+            if (not match.group(2)):
+                break
+        return result

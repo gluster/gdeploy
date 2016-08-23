@@ -1241,16 +1241,6 @@ client_mount_points=/mnt/gluster{1,3}
 # `ctdb_nodes' variable in the above example is optional, if it is removed the
 # nodes used to create volume are used as ctdb nodes.
 #
-# Other supported variables include:
-# CTDB_PUBLIC_ADDRESSES=/etc/ctdb/public_addresses
-# CTDB_NODES=/etc/ctdb/nodes
-# CTDB_MANAGES_SAMBA=no
-# CTDB_SET_DeterministicIPs=1
-# CTDB_SET_RecoveryBanPeriod=120
-# CTDB_SET_KeepaliveInterval=5
-# CTDB_SET_KeepaliveLimit=5
-# CTDB_SET_MonitorInterval=15
-# CTDB_RECOVERY_LOCK=/mnt/lock/reclock
 #
 # NOTE: Expect the user to specify nodes in the cluster under section
 # 'hosts'
@@ -1288,7 +1278,7 @@ client_mount_points=/mnt/gluster{1,3}
 # action=setup
 # public_address=10.70.37.6/24 eth0,10.70.37.8/24 eth0
 # volname=ctdb
-# 
+#
 #-----------------------------------
 
 

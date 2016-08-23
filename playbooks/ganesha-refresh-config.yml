@@ -1,0 +1,36 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+
+  - name: Delete lines from Ganesha export file
+    lineinfile:
+        dest=/etc/ganesha/exports/export.ganesha.conf
+        regexp="{{ item }}"
+        state=absent
+    with_items: "{{ del_config_lines | default([]) }}"
+    when: del_config_lines is defined
+
+  - name: Add lines to Ganesha export file
+    lineinfile:
+        dest=/etc/ganesha/exports/export.ganesha.conf
+        line="{{ item }}"
+        insertbefore="}"
+    with_items: "{{ add_config_lines | default([]) }}"
+    when: add_config_lines is defined
+
+  # Use blockinfile when all the channles are updated with ansible 2.x
+  # Using lineinfile for now.
+  - name: Add a block to Ganesha export file
+    lineinfile:
+        dest=/etc/ganesha/exports/export.ganesha.conf
+        line="{{ item }}"
+        insertbefore="}"
+        state=present
+    with_items: "{{ config_block | default([]) }}"
+    when: config_block is defined
+
+  - name: Refresh NFS-Ganesha config
+    shell: /usr/libexec/ganesha/ganesha-ha.sh --refresh-config "{{ ha_conf_dir }}" "{{ volname }}"
