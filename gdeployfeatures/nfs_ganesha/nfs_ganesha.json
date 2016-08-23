@@ -64,6 +64,32 @@
               "required": "true"
           }
         ]
+      },
+      "refresh-config": {
+        "options": [
+          {
+            "required": "false",
+            "name": "del-config-lines"
+          },
+          {
+             "name": "add-config-lines",
+             "required": "false"
+          },
+          {
+              "name": "block-name",
+              "required": "false",
+              "default": "client"
+          },
+          {
+              "name": "volname",
+              "required": "true"
+          },
+          {
+              "name": "ha-conf-dir",
+              "required": "false",
+              "default": "/etc/ganesha"
+          }
+        ]
       }
     }
   }

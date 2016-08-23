@@ -192,6 +192,7 @@ GANESHA_DISABLE = 'disable-nfs-ganesha.yml'
 GANESHA_ADD_NODE = 'ganesha-cluster-add.yml'
 GANESHA_DELETE_NODE = 'ganesha-cluster-delete.yml'
 DEFINE_SERVICE_PORTS = 'define_service_ports.yml'
+GANESHA_REFRESH_CONFIG = 'ganesha-refresh-config.yml'
 
 RUN_SCRIPT = 'run-script.yml'
 
