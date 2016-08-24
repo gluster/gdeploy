@@ -4,6 +4,15 @@
   gather_facts: no
 
   tasks:
+  # Remove the filesystem signature. pvcreate fails if signature is present.
+  # Safe to remove signatures, no harm done.
+  # TODO: add wipe_signature=yes/no in future.
+  - name: Clean up filesystem signature
+    command: wipefs -af {{ item }}
+    with_items: "{{ bricks | default([]) }}"
+    when: item is defined
+    ignore_errors: yes
+
   # Create pv on all the disks
   - name: Create Physical Volume
     pv: action=create disks={{ item }}

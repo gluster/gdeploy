@@ -3,7 +3,7 @@
 %define release 2
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
-%define gdeploydoc /usr/share/docs/gdeploy
+%define gdeploydoc /usr/share/doc/gdeploy
 %define gdeploysrc http://download.gluster.org/pub/gluster/gdeploy/LATEST
 
 Name:           %{name}
