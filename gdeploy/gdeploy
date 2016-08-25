@@ -91,16 +91,6 @@ def init_global_values(args):
 
 
 @logfunction
-def check_ansible_installation():
-    ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
-    if ret:
-        msg =  "gdeploy requires Ansible to run. \nPlease install " \
-                "Ansible(version >= 1.9.2) to continue."
-        print "Error: " + msg
-        Global.logger.error(msg)
-        return
-
-@logfunction
 def create_files_and_dirs():
     global helpers
     '''
@@ -144,7 +134,6 @@ def main(arg):
     Global.logger.info("For complete CLI log, set log_path in "\
                        "/etc/ansible/ansible.cfg")
     if args:
-        check_ansible_installation()
         init_global_values(args)
         create_files_and_dirs()
         helpers.get_hostnames()
