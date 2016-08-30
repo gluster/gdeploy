@@ -94,6 +94,15 @@
             "required": "false",
             "name": "ignore_volume_errors",
             "default": "yes"
+          },
+          {
+            "required": "false",
+            "name": "enable_ssl",
+            "default": "no"
+          },
+          {
+            "required": "false",
+            "name": "ssl_clients"
           }
         ]
       },
@@ -276,6 +285,18 @@
             "required": "false",
             "name": "ignore_volume_errors",
             "default": "yes"
+          }
+        ]
+      },
+      "enable-ssl": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "false",
+            "name": "ssl_clients"
           }
         ]
       }

@@ -1,0 +1,5 @@
+---
+- include: ssl-gen-keys.yml
+- include: ssl-vol-set.yml
+- include: ssl-restart-services.yml
+- include: ssl-vol-start.yml

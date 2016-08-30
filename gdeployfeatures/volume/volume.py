@@ -41,6 +41,19 @@ def volume_create(section_dict):
         yamls.extend(yml)
     if type(section_dict['transport']) is list:
         section_dict['transport'] = ','.join(section_dict['transport'])
+    # Configure SSL on the volume if enable_ssl is set.
+    if section_dict['enable_ssl'].lower() == "yes":
+        if section_dict.has_key('ssl_clients'):
+            section_dict['ssl_hosts'] = list(set(section_dict['ssl_clients'] +
+                                                 Global.hosts))
+        else:
+            section_dict['ssl_hosts'] = list(set(Global.hosts))
+
+        section_dict['ssl_allow_list'] = ','.join(section_dict['ssl_hosts'])
+        section_dict['ssl_base_dir'] = Global.base_dir
+        helpers.write_to_inventory('ssl_hosts', section_dict['ssl_hosts'])
+        # Enable SSL on the volume
+        yamls.append(defaults.ENABLE_SSL)
     return section_dict, yamls
 
 def get_smb_data(section_dict):
@@ -254,3 +267,21 @@ def volume_smb_disable(section_dict):
     section_dict['key'] = "user.smb"
     section_dict['value'] = "disable"
     return volume_set(section_dict)
+
+def volume_enable_ssl(section_dict):
+    """
+    Enable ssl on an existing volume
+    """
+    print "Ensure clients are unmounted before continuing. Add umount "\
+    "section in config."
+    if section_dict.has_key('ssl_clients'):
+        section_dict['ssl_hosts'] = list(set(section_dict['ssl_clients'] +
+                                             Global.hosts))
+    else:
+        section_dict['ssl_hosts'] = list(set(Global.hosts))
+
+    section_dict['ssl_allow_list'] = ','.join(section_dict['ssl_hosts'])
+    section_dict['ssl_base_dir'] = Global.base_dir
+    helpers.write_to_inventory('ssl_hosts', section_dict['ssl_hosts'])
+    # Enable SSL on the volume
+    return section_dict, [defaults.ENABLE_SSL]

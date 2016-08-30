@@ -1,0 +1,31 @@
+---
+- hosts: ssl_hosts
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Generate private key
+    command: openssl genrsa -out /etc/ssl/glusterfs.key 2048
+
+  - name: Generate self-signed certificates
+    command: openssl req -new -x509 -key /etc/ssl/glusterfs.key \
+             -subj /CN={{ inventory_hostname }} \
+             -out /etc/ssl/glusterfs.pem -days 365
+
+  - name: Copy the signed certificate to localhost
+    fetch: src=/etc/ssl/glusterfs.pem
+           dest={{ ssl_base_dir }}/ssl_keys/{{ inventory_hostname }}.pem
+           flat=yes
+
+  - name: Create CA file on servers
+    assemble: remote_src=False
+              src={{ ssl_base_dir }}/ssl_keys/
+              dest=/etc/ssl/glusterfs.ca
+              mode=0600
+
+  - name: Create /var/lib/glusterd if not present
+    file: path=/var/lib/glusterd state=directory
+    ignore_errors: yes
+
+  - name: Enable management encryption
+    file: path=/var/lib/glusterd/secure-access state=touch
