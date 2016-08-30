@@ -201,3 +201,6 @@ RUN_SCRIPT = 'run-script.yml'
 
 OC_CREATE = 'oc-create.yml'
 OC_DELETE = 'oc-delete.yml'
+
+# SSL on volumes
+ENABLE_SSL = 'enable-ssl.yml'
