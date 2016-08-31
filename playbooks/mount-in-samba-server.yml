@@ -10,6 +10,9 @@
     when: item is defined
     ignore_errors: yes
 
+  - name: Pause a few seconds, allow glusterd to start before mounting
+    pause: seconds=10
+
   - name: Mount the volumes
     mount: name={{ item }}
            src="{{ groups['master'][0]}}:{{ volname }}"
@@ -21,10 +24,10 @@
 
   - name: Provide permissions using setfacl
     command: setfacl -m user:"{{ smb_username }}":rwx "{{smb_mountpoint}}"
-    when: smb_username is defined
+    when: smb_username is defined and smb_mountpoint is defined
 
   - name: Unmount the volumes
-    mount: name="{{ item }}"
+    mount: name="{{ item }}" src="{{ item }}" fstype=glusterfs
            state=absent
     with_items: "{{ smb_mountpoint | default([]) }}"
     when: item is defined
