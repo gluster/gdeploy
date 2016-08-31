@@ -18,7 +18,7 @@ Source0:        %{gdeploysrc}/%{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires:       ansible >= 1.9 python >= 2.6 python-ecdsa >= 0.11
-Requires:       python-markupsafe >= 0.23 python-crypto >= 2.6.1
+Requires:       python-markupsafe >= 0.23 python-crypto >= 2.6.1 lvm2 >= 2
 Requires:       PyYAML >= 3.11 python-jinja2 >= 2.7.3 python-paramiko >= 1.15.2
 
 
