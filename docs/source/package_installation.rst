@@ -23,7 +23,7 @@ lines to your newly created config file::
 
     [yum]
     action=install
-    repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
+    repos=<reponames>
     packages=vi,glusterfs
     gpgcheck=no
     update=no
@@ -35,11 +35,11 @@ lines to your newly created config file::
 
    # This takes a comma separate list of values that are packages names you
    # wish to install.
-   
+
    # gpgcheck
    # --------
 
-   # gpgcheck is set to `yes` by default. You can override it 
+   # gpgcheck is set to `yes` by default. You can override it
    # by setting it to `no` as illustrated above.
 
    # update
@@ -56,6 +56,5 @@ lines to your newly created config file::
 **Step 2:**
 
   As always, to invoke gdeploy run the following command::
-  
-   $ gdeploy -c install_packages.conf
 
+   $ gdeploy -c install_packages.conf
