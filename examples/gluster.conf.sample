@@ -1123,7 +1123,7 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [yum]
 # action=install
-# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
+# repos=<repos>
 # packages=vi,glusterfs
 # gpgcheck=no
 # update=no
