@@ -1,5 +1,5 @@
 ---
-- hosts: master
+- hosts: gluster_servers
   remote_user: root
   gather_facts: no
 
