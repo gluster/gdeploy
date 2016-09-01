@@ -63,16 +63,19 @@ def nfs_ganesha_unexport_volume(section_dict):
 def nfs_ganesha_refresh_config(section_dict):
     del_lines = list_to_string(section_dict.get('del-config-lines'))
     # Split the string which is `|' delimited. Escaped `|' is handled gracefully
-    section_dict['del-config-lines'] = helpers.split_string(del_lines, '|')
+    if del_lines:
+        section_dict['del-config-lines'] = helpers.split_string(del_lines, '|')
 
     add_lines = list_to_string(section_dict.get('add-config-lines'))
-    section_dict['add-config-lines'] = helpers.split_string(add_lines, '|')
+    if add_lines:
+        section_dict['add-config-lines'] = helpers.split_string(add_lines, '|')
 
     block_name = section_dict.get('block-name')
     section_dict['block-name'] = block_name
 
     config_block = list_to_string(section_dict.get('config-block'))
-    section_dict['config-block'] = helpers.split_string(config_block, '|')
+    if config_block:
+        section_dict['config-block'] = helpers.split_string(config_block, '|')
 
     section_dict['ha-conf-dir'] = section_dict.get('ha-conf-dir')
     section_dict = get_base_dir(section_dict)
@@ -114,7 +117,7 @@ def get_host_vips(section_dict, cluster):
 
 def get_base_dir(section_dict):
     section_dict['base_dir'] = Global.base_dir
-    section_dict['ha_base_dir'] = '/etc/ganesha'
+    section_dict['ha_base_dir'] = '/var/run/gluster/shared_storage/nfs-ganesha'
     return section_dict
 
 def list_to_string(l):
