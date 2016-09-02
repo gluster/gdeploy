@@ -9,10 +9,13 @@
 ###Install the requirements:
 
  Make sure you have gcc and python-devel installed
- 
+
  `yum install gcc python-devel`
- 
+
 ` pip install -r requirements.txt`
+
+ python-setuptools is needed to run setup.py, lookup specific pacakage in your
+ distribution and install it.
 
 ###Setup GDeploy
 

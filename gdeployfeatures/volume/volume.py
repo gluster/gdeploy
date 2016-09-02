@@ -29,11 +29,11 @@ def volume_create(section_dict):
         section_dict = ret
         yamls.append(defaults.PROBE_YML)
     yamls.append(defaults.VOLCREATE_YML)
-    section_dict, start_yml = volume_start(section_dict)
-    yamls.append(start_yml)
     section_dict, set_yml = volume_set(section_dict)
     if set_yml:
         yamls.append(set_yml)
+    section_dict, start_yml = volume_start(section_dict)
+    yamls.append(start_yml)
     sdict, yml = get_smb_data(section_dict)
     if sdict:
         yml = helpers.listify(yml)
