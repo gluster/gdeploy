@@ -17,6 +17,9 @@
  python-setuptools is needed to run setup.py, lookup specific pacakage in your
  distribution and install it.
 
+ If [backend-setup] or any other lvm releated sections are used, ensure to
+ install lvm2 package.
+
 ###Setup GDeploy
 
 **Run the gdeploy_setup.sh file from the root directory of gdeploy**
