@@ -156,6 +156,7 @@ YUM_OP = 'yum-operation.yml'
 SERVICE_MGMT = 'service_management.yml'
 CHKCONFIG = 'chkconfig_service.yml'
 SHELL_YML = 'shell_cmd.yml'
+SLICE_SETUP = 'slice_setup.yml'
 
 # CTDB
 

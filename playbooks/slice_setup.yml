@@ -1,0 +1,32 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: yes
+  vars:
+    slice_dir: /etc/systemd/system/glusterd.service.d
+
+
+  # This is a glusterd only setup of slice. In future versions a generic slice
+  # setup would be implemented. Please see doc TODO for more details
+
+  tasks:
+  - name: Create slice directory for glusterd
+    file: path="{{ slice_dir }}" state=directory
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+  - name: Add systemd slice details
+    template: src=99-cpu.conf
+              dest="{{ slice_dir }}"
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+
+  - name: Add CPUQuota for glusterd slice
+    template: src=glusterfs.slice
+              dest=/etc/systemd/system/
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+  # Use shell command to do daemon-reload. systemd module is available only
+  # in ansible 2.x. We had to be backward compatible to 1.x
+  - name: Run daemon-reload
+    shell: systemctl daemon-reload
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
