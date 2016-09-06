@@ -1,0 +1,19 @@
+Implement systemd slice setup support in glusterd. See example below.
+The config should look more or less like the example configuration below.
+
+# Create a glusterfs slice.
+# WARNING: Works only on RHEL7.
+
+[service]
+action=create-slice
+# A directory named /etc/systemd/system/%service%.service.d will be created
+# where %service% is the service mentioned below. In our case here;
+# /etc/systemd/system/glusterd.service.d will be created.
+service=glusterd
+service_filename=99-cpu.conf
+service_section=Service
+service_keys=CPUAccounting,Slice
+service_values=yes,glusterfs.slice
+slice_section=Slice
+slice_keys=CPUQuota
+slice_values=400%

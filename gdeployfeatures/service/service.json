@@ -6,6 +6,11 @@
           {
             "required": "true",
             "name": "service"
+          },
+          {
+            "required": "false",
+            "name": "slice_setup",
+            "default": "no"
           }
         ]
       },
@@ -22,6 +27,11 @@
           {
             "required": "true",
             "name": "service"
+          },
+          {
+            "required": "false",
+            "name": "slice_setup",
+            "default": "no"
           }
         ]
       },
