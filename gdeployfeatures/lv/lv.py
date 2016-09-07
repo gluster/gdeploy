@@ -29,7 +29,7 @@ def lv_create(section_dict):
 
 def lv_convert(section_dict):
     Global.ignore_errors = section_dict.get('ignore_lv_errors')
-    return section_dict, defaults.YML_NAME
+    return section_dict, defaults.LVCONVERT_YML
 
 def lv_setup_cache(section_dict):
     global helpers
