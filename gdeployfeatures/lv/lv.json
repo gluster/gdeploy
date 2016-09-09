@@ -116,6 +116,11 @@
             "required": "false",
             "name": "ignore_lv_errors",
             "default": "yes"
+          },
+          {
+            "name": "cachemode",
+            "required": "false",
+            "default": "writethrough"
           }
         ]
       },
