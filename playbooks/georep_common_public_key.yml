@@ -9,12 +9,12 @@
 
   - name: Copy the public key to the local
     fetch: src=~/.ssh/id_rsa.pub
-           dest=/tmp/id_rsa.tmp
+           dest="{{ base_dir }}"/id_rsa.tmp
            flat=yes
 
   - name: Copying local key to slave node
-    local_action: shell cat /tmp/id_rsa.tmp | ssh  "{{user}}"@{{ item }} "cat >> ~/.ssh/authorized_keys"
+    local_action: shell cat "{{ base_dir }}"/id_rsa.tmp | ssh  "{{user}}"@{{ item }} "cat >> ~/.ssh/authorized_keys"
     with_items: "{{ groups['georep_slave'] }}"
 
   - name: Deleting temporal files
-    local_action: file  path=/tmp/id_rsa.tmp state=absent
+    local_action: file  path="{{ base_dir }}"/id_rsa.tmp state=absent

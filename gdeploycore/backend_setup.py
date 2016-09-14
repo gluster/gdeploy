@@ -325,7 +325,20 @@ class BackendSetup(Helpers):
                                       zip(self.vgs, self.lvs)]
         if lvols:
             self.section_dict['lvols'] = lvols
-            self.section_dict['opts'] = "-f -K -i size=512 -d sw=10,su=128k -n size=8192"
+            # If RAID data is provided use it to set the stripe_width and
+            # stripe_unit_size from the config.
+            disktype = self.config_get_options('disktype', False)
+            if disktype:
+                sw = self.config_get_options('diskcount', True)
+                su = self.config_get_options('stripesize', False)
+                if not su:
+                    # No stripe size given assuming 256
+                    su = 256
+                self.section_dict['opts'] = "-f -K -i size=512 -d sw=%s,su=%sk\
+ -n size=8192"%(sw[0],su[0])
+            else:
+                self.section_dict['opts'] = "-f -K -i size=512 -n size=8192"
+
             self.section_dict['fstype'] = "xfs"
             Global.logger.info("Creating %s filesystem on %s with options %s"\
                                %(self.section_dict['fstype'],

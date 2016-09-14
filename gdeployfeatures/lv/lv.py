@@ -112,7 +112,25 @@ def get_mount_data(section_dict, devices, vgnames):
     if section_dict.get('mkfs-opts'):
         section_dict['opts'] = section_dict['mkfs-opts']
     elif fstype == 'xfs':
-        section_dict['opts'] = "-f -K -i size=512 -d sw=10,su=128k -n size=8192"
+        # If RAID data is provided use it to set the stripe_width and
+        # stripe_unit_size from the config.
+        disktype = helpers.config_get_options('disktype', False)
+        if disktype:
+            sw = helpers.config_get_options('diskcount', True)
+            su = helpers.config_get_options('stripesize', False)
+            if not su:
+                # No stripe size given assuming 256
+                su = 256
+            section_dict['opts'] = "-f -K -i size=512 -d sw=%s,su=%sk\
+ -n size=8192"%(sw[0],su[0])
+        else:
+            section_dict['opts'] = "-f -K -i size=512 -n size=8192"
+
+    Global.logger.info("Creating %s filesystem on %s with options %s"\
+                       %(section_dict['fstype'],
+                         section_dict['lvols'],
+                         section_dict['opts']))
+
 
     mountpoint = helpers.listify(section_dict.get('mount'))
     if not mountpoint:
