@@ -82,6 +82,8 @@ def init_global_values(args):
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
     Global.trace = args.trace
+    if trace:
+        Global.logger.info("**** global variables successfully initialised ****")
     for sec in  Global.config._sections:
         sections = helpers.parse_patterns(sec)
         for each in sections:
@@ -99,8 +101,14 @@ def create_files_and_dirs():
     hosts, creating a group var file anyway.
     '''
     helpers.mk_dir(Global.group_vars_dir)
+    if trace:
+        Global.logger.info("**** Group_vars directory successfully created locally ****")
     helpers.touch_file(Global.group_file)
+    if trace:
+        Global.logger.info("**** Group_file directory successfully created locally ****")
     helpers.mk_dir(Global.host_vars_dir)
+    if trace:
+        Global.logger.info("**** Host_vars directory successfully created locally ****")
 
 @logfunction
 def create_playbooks_in_local():
@@ -112,7 +120,9 @@ def create_playbooks_in_local():
     playbooks_path_pkg = '/usr/share/ansible/gdeploy/playbooks'
     playbooks_env_var = os.getenv('GDEPLOY_TEMPLATES')
     # Is environment variable GDEPLOY_TEMPLATES set
-    if playbooks_env_var:
+    if not playbooks_env_var:
+        Global.logger.info("**** Environment variable GDEPLOY_TEMPLATES is not set ****")
+    elif playbooks_env_var:
         playbooks_dir = helpers.get_file_dir_path(playbooks_env_var,
                 'playbooks')
     # Or assumes the templates are present as a part of ansible installation
@@ -125,8 +135,15 @@ def create_playbooks_in_local():
              % (playbooks_path_pkg)
         print "\nError: " + msg
         Global.logger.error(msg.strip('\n\t\r'))
+        if trace:
+            Global.logger.info("**** Either the path to playbooks is incorrect or env variable"\
+                               "GDEPLOY_TEMPLATES is not set properly ****")
         helpers.cleanup_and_quit()
+        if trace:
+            Global.logger.info("**** Cleaning up the process and quitting ****")
     helpers.copy_files(playbooks_dir)
+    if trace:
+        Global.logger.info("**** Adding the playbooks to the playbooks source directory ****")
 
 def main(arg):
     Global.logger.info("**** gdeploy run started with options %s ****"%arg)
@@ -139,10 +156,18 @@ def main(arg):
         init_global_values(args)
         create_files_and_dirs()
         helpers.get_hostnames()
+        if trace:
+            Global.logger.info("**** Retrieved hostnames successfully ****")
         create_playbooks_in_local()
         call_core_functions()
+        if trace:
+            Global.logger.info("**** Calling core functions for backend setup ****")
         call_features()
+        if trace:
+            Global.logger.info("**** Retrieving hostnames and the feature directory ****")
         helpers.cleanup_and_quit(0)
+        if trace:
+            Global.logger.info("**** Run was successful, cleaning up and quitting ****")
     else:
         Global.logger.info("**** Log parser error ****")
 
