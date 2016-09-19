@@ -129,11 +129,13 @@ def create_playbooks_in_local():
     helpers.copy_files(playbooks_dir)
 
 def main(arg):
-    args = parse_arguments(arg)
     Global.logger.info("**** gdeploy run started with options %s ****"%arg)
     Global.logger.info("For complete CLI log, set log_path in "\
                        "/etc/ansible/ansible.cfg")
+    args = parse_arguments(arg)
     if args:
+        if trace:
+            Global.logger.info("**** arguments parsed successfully ****")
         init_global_values(args)
         create_files_and_dirs()
         helpers.get_hostnames()
@@ -141,6 +143,8 @@ def main(arg):
         call_core_functions()
         call_features()
         helpers.cleanup_and_quit(0)
+    else:
+        Global.logger.info("**** Log parser error ****")
 
 if __name__ == '__main__':
     '''
