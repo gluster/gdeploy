@@ -102,13 +102,13 @@ def create_files_and_dirs():
     '''
     helpers.mk_dir(Global.group_vars_dir)
     if Global.trace:
-        Global.logger.info("Group_vars directory successfully created locally.")
+        Global.logger.info("group_vars directory successfully created locally.")
     helpers.touch_file(Global.group_file)
     if Global.trace:
-        Global.logger.info("Group_file directory successfully created locally.")
+        Global.logger.info("group_file directory successfully created locally.")
     helpers.mk_dir(Global.host_vars_dir)
     if Global.trace:
-        Global.logger.info("Host_vars directory successfully created locally.")
+        Global.logger.info("host_vars directory successfully created locally.")
 
 @logfunction
 def create_playbooks_in_local():
