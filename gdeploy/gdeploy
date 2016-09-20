@@ -138,7 +138,7 @@ def create_playbooks_in_local():
         Global.logger.error(msg.strip('\n\t\r'))
         if Global.trace:
             Global.logger.info("Either the path to playbooks is incorrect or env variable"\
-                               "GDEPLOY_TEMPLATES is not set properly.")
+                               " GDEPLOY_TEMPLATES is not set properly.")
         helpers.cleanup_and_quit()
         if Global.trace:
             Global.logger.info("Cleaning up the process and quitting.")
