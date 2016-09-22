@@ -1,3 +1,5 @@
+.. _rst_writingconfig:
+
 Configuration file format
 =========================
 
@@ -29,7 +31,7 @@ There can be more than one feature listed in the configuration file, each
 separated by a newline. Every feature section has one or more variables which
 controls how the feature is configured/deployed. The below example has two
 features, firewalld and service that will be configured on all the hosts listed
-in the [hosts] section.
+in the [hosts] section::
 
   [hosts]
   10.0.0.1
@@ -55,4 +57,4 @@ If a feature has to be used more than once, then it has to be in different
 sections and numbered to make it unique as shown in the above example.
 
 The list of available features and their complete documentation can be found in
-:ref:`rst_features` page.
+:ref:`rst_gdeployfeatures` page.
