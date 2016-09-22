@@ -49,8 +49,6 @@ Invoke gdeploy with configuration file as an argument::
 
   $ gdeploy -c sample.conf
 
-.. _rst_writingconfig:
-
 Writing configuration file for gdeploy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -80,8 +78,6 @@ Invoke gdeploy with configuration file as an argument::
 
   $ gdeploy -c sample.conf
 
-.. _rst_writingconfig:
-
 The configuration file given above will enable and start ntpd on three
 nodes. 10.0.0.1, 10.0.0.2, and 10.0.0.3 when the following command is invoked::
 
@@ -93,26 +89,3 @@ ntp".
 
 For more details on the list of all the features supported by gdeploy, refer
 `gdeploy features` topic.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
