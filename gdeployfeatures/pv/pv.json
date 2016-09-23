@@ -6,6 +6,11 @@
           {
             "required": "true",
             "name": "devices"
+          },
+          {
+            "required": "false",
+            "name": "wipefs",
+            "default": "no"
           }
         ]
       },
