@@ -34,7 +34,7 @@ def volume_create(section_dict):
     yamls = [defaults.SERVICE_MGMT, defaults.CREATEDIR_YML]
     if Global.trace:
         Global.logger.info("Added yaml files are %s and %s."\
-                           % defaults.SERVICE_MGMT, defaults.CREATEDIR_YML)
+                           % (defaults.SERVICE_MGMT, defaults.CREATEDIR_YML))
     ret = call_peer_probe(section_dict)
     if ret:
         section_dict = ret
