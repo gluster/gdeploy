@@ -15,26 +15,45 @@ def volume_create(section_dict):
     Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
+    if Global.trace:
+        Global.logger.info("Creation of volume successful")
+        Global.logger.info("Splitting volume and hostnames")
     if not section_dict.get('brick_dirs'):
        section_dict = get_common_brick_dirs(section_dict)
+       if Global.trace:
+           Global.logger.info("Retrieving common brick directories among hosts.")
     else:
         section_dict = validate_brick_dirs(section_dict, 'brick_dirs')
+        if Global.trace:
+            Global.logger.info("Error in retrieving brick directories"\
+                               "Validating brick directories.")
     section_dict['service'] = 'glusterd'
     section_dict['state'] = 'started'
     Global.current_hosts = helpers.unique(Global.current_hosts)
     section_dict['hosts'] = Global.current_hosts
     yamls = [defaults.SERVICE_MGMT, defaults.CREATEDIR_YML]
+    if Global.trace:
+        Global.logger.info("Added yaml files are %s and %s."\
+                           % (defaults.SERVICE_MGMT, defaults.CREATEDIR_YML))
     ret = call_peer_probe(section_dict)
     if ret:
         section_dict = ret
         yamls.append(defaults.PROBE_YML)
+        if Global.trace:
+            Global.logger.info("Checked for peer probes \n"\
+                               "Therefore, appending probe yaml %s file."% defaults.PROBE_YML)
     yamls.append(defaults.VOLCREATE_YML)
+    if Global.trace:
+        Global.logger.info("Appending the %s yaml file to create volume."% defaults.VOLCREATE_YML)
     section_dict, set_yml = volume_set(section_dict)
     if set_yml:
         yamls.append(set_yml)
     section_dict, start_yml = volume_start(section_dict)
     yamls.append(start_yml)
     sdict, yml = get_smb_data(section_dict)
+    if Global.trace:
+        Global.logger.info("Appending the start yaml file.")
+        Global.logger.info("Retrieved smb data whether enabled or not.")
     if sdict:
         yml = helpers.listify(yml)
         section_dict = sdict
@@ -55,6 +74,9 @@ def volume_create(section_dict):
         # Enable SSL on the volume
         yamls.append(defaults.ENABLE_SSL)
     return section_dict, yamls
+    if Global.trace:
+        Global.logger.info("Configuring SSL on the volume since enable_ssl is set.")
+        Global.logger.info("Appending %s yaml file."% defaults.ENABLE_SSL)
 
 def get_smb_data(section_dict):
     smb = section_dict.get('smb')
