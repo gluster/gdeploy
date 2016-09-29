@@ -1,5 +1,5 @@
 %define name gdeploy
-%define version 2.1.dev1
+%define version 2.0.1
 %define release 2
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
