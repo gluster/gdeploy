@@ -20,14 +20,15 @@
 
 
 import argparse
-import sys
 import os
-import time
 import shutil
+import subprocess
+import sys
+import time
 from collections import OrderedDict
 from gdeploylib import *
 from gdeploycore import call_core_functions
-
+from platform import dist
 
 helpers = Helpers()
 
@@ -73,6 +74,45 @@ def parse_arguments(args=None):
             add_feature(args.feature_name)
             return None
     return args
+
+def check_ansible_installation():
+    # On RHEL6 machines complain if ansible is not installed. We do not handle
+    # dependencies in spec file, since ansible is not shipped with RHEL6.
+    if Global.trace:
+        Global.logger.info("Checking for ansible installation.")
+    dist_type = dist()
+    op_system = dist_type[0]
+    if op_system != 'redhat':
+        return
+    major_vers = dist_type[1].split('.')[0]
+
+    # gdeploy currently is supported only on RHEL6 or above
+    if int(major_vers) < 6:
+        msg = "Error: gdeploy is supported only on RHEL6 or above"
+        print msg
+        Global.logger.error(msg)
+        helpers.cleanup_and_quit()
+
+    if major_vers == '6':
+        pkg = subprocess.Popen(["rpm", "-qa", "ansible"],
+                               stdout=subprocess.PIPE).communicate()[0]
+        msg =  "Please install Ansible(version >= 2.2) to use gdeploy."
+        if pkg == '':           # Ansible not installed
+            print "Error: " + msg
+            Global.logger.error(msg)
+            helpers.cleanup_and_quit()
+        else:                   # Extraxt ansible version
+            if Global.trace:
+                Global.logger.info("Found package: %s"%pkg)
+            ansible_version = pkg.split('-')[1]
+            major_version = int(ansible_version[0])
+            minor_version = int(ansible_version[2])
+            if major_version < 2 or (major_version == 2 and minor_version < 2):
+                print "Error: " + msg
+                Global.logger.error(msg)
+                helpers.cleanup_and_quit()
+    return
+
 
 @logfunction
 def init_global_values(args):
@@ -155,6 +195,7 @@ def main(arg):
         if Global.trace:
             Global.logger.info("arguments parsed successfully.")
         init_global_values(args)
+        check_ansible_installation()
         create_files_and_dirs()
         helpers.get_hostnames()
         if Global.trace:
