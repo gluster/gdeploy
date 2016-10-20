@@ -11,5 +11,7 @@ FILES="1/set/post/S30samba-set.sh 1/start/post/S30samba-start.sh \
        1/stop/pre/S29CTDB-teardown.sh"
 
 for f in $FILES; do
-    rename -v S D $HOOKSDIR/$f
+    for g in $HOOKSDIR/$f;do
+        test ! -x $g || rename -v S D $g
+    done
 done
