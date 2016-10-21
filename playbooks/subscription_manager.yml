@@ -18,8 +18,6 @@
   - name: Attach to Red Hat subscription pool
     command: subscription-manager attach --pool="{{ pool }}"
     when: pool is defined
-    register: result
-    failed_when: "'already had the subscription matching pool ID' not in result['stdout']"
     ignore_errors: "{{ ignore_attach_pool_errors | default(True) }}"
 
   - name: Disable all rhsm repos
