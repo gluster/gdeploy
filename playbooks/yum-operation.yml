@@ -7,8 +7,8 @@
   - name: Create/Enabling yum repos
     template: src=yum.repos.d
             dest=/etc/yum.repos.d/{{ item.name }}.repo
-    with_items: "{{ repolist }}"
     when: repolist is defined and repolist|length > 0
+    with_items: "{{ repolist | default('') }}"
 
   - name: Yum update
     yum: name=* state=latest
