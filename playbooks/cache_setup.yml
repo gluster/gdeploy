@@ -7,7 +7,7 @@
   - name: Setup SSD for caching | Create the physical volume
     pv: action=create disks={{ item }}
         options="--dataalignment {{ dalign }}k"
-    with_items: ssd
+    with_items: "{{ ssd }}"
     register: result
     failed_when: "result.rc != 0 and 'Physical Volume Exists' not in result.msg"
     ignore_errors: yes
@@ -15,7 +15,7 @@
   - name: Setup SSD for caching | Extend the Volume Group
     vg: action=extend disks={{ item }}
         vgname="{{ vgname }}"
-    with_items: ssd
+    with_items: "{{ ssd }}"
     register: result
     failed_when: "result.rc != 0 and ('is already in volume group' not in result.msg  and 'not found' not in result.msg)"
     ignore_errors: yes
