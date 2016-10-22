@@ -40,7 +40,8 @@ divides the logic to 3 parts:
    about these variable can be found in the `Ansible documentation about
    them <http://docs.ansible.com/ansible/playbooks_variables.html>`_
 
-   For this, gdeploy provide what we call the sections or features(:ref:`rst_features`).
+   For this, gdeploy provide what we call the sections or
+   features(:ref:`rst_gdeployfeatures`).
    Each feature will have n-number of options for which the user will
    specify the value.
 
@@ -53,11 +54,11 @@ and works as intended.
 
 The development process can be started in the following order::
 
-1. Write the Ansible module, if needed.
-2. Write Ansible playbooks that does the necessary operations in the
-   right order.
-3. Add a feature with a suitable name matching your requirement to the
-   gdeploy framework.
+  1. Write the Ansible module, if needed.
+  2. Write Ansible playbooks that does the necessary operations in the
+     right order.
+  3. Add a feature with a suitable name matching your requirement to the
+     gdeploy framework.
 
 ** Add a feature to gdeploy **
 

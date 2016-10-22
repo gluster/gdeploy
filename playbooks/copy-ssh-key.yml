@@ -4,23 +4,15 @@
   gather_facts: no
 
   tasks:
-  - name: Get the public key from local to remote
+  - name: Copy the public key to remote nodes
     copy: src={{ item }}/var/lib/glusterd/nfs/secret.pem.pub
-          dest=/tmp/key
-    with_items: master_node
+          dest=/var/lib/glusterd/nfs/secret.pem.pub mode=600
+    with_items: "{{ master_node }}"
 
-  - name: Get the public key from local to remote
+  - name: Copy the private key to remote node
     copy: src={{ item }}/var/lib/glusterd/nfs/secret.pem
           dest=/var/lib/glusterd/nfs/secret.pem mode=0600
-    with_items: master_node
+    with_items: "{{ master_node }}"
 
   - name: Deploy the pubkey ~/root/.ssh/authorized_keys on all nodes
-    shell: cat /tmp/key >> ~/.ssh/authorized_keys
-
-  - name: Keep the copy of the public key in /var/lib/glusterd/nfs/
-    copy: src={{ item }}/var/lib/glusterd/nfs/secret.pem.pub
-          dest=/var/lib/glusterd/nfs/secret.pem.pub mode=0600
-    with_items: master_node
-
-  - name: Remove the unwanted copy of key
-    file: path=/tmp/key state=absent
+    shell: cat /var/lib/glusterd/nfs/secret.pem.pub >> ~/.ssh/authorized_keys

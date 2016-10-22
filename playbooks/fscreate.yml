@@ -7,4 +7,4 @@
   - name: Create a xfs filesystem
     filesystem: fstype="{{ fstype }}" dev={{ item }}
                 opts="{{ opts }}"
-    with_items: lvols
+    with_items: "{{ lvols }}"

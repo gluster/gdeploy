@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
@@ -20,8 +19,8 @@ def nfs_ganesha_create_cluster(section_dict):
     ymls = [ defaults.GANESHA_BOOTSTRAP, defaults.GANESHA_PUBKEY,
             defaults.COPY_SSH, defaults.SHARED_MOUNT,
             defaults.SET_AUTH_PASS, defaults.PCS_AUTH,
-            defaults.GANESHA_CONF_CREATE, defaults.ENABLE_GANESHA,
-            defaults.GANESHA_VOL_CONFS, defaults.GANESHA_VOL_EXPORT]
+             defaults.GANESHA_CONF_CREATE, defaults.DEFINE_SERVICE_PORTS,
+             defaults.ENABLE_GANESHA, defaults.GANESHA_VOL_EXPORT]
     section_dict = get_base_dir(section_dict)
     return section_dict, ymls
 
@@ -61,6 +60,32 @@ def nfs_ganesha_unexport_volume(section_dict):
     section_dict = get_base_dir(section_dict)
     return section_dict, defaults.GANESHA_VOL_EXPORT
 
+def nfs_ganesha_refresh_config(section_dict):
+    del_lines = list_to_string(section_dict.get('del-config-lines'))
+    # Split the string which is `|' delimited. Escaped `|' is handled gracefully
+    if del_lines:
+        section_dict['del-config-lines'] = helpers.split_string(del_lines, '|')
+
+    add_lines = list_to_string(section_dict.get('add-config-lines'))
+    if add_lines:
+        section_dict['add-config-lines'] = helpers.split_string(add_lines, '|')
+
+    block_name = section_dict.get('block-name')
+    section_dict['block-name'] = block_name
+
+    config_block = list_to_string(section_dict.get('config-block'))
+    if config_block:
+        section_dict['config-block'] = helpers.split_string(config_block, '|')
+
+    section_dict['ha-conf-dir'] = section_dict.get('ha-conf-dir')
+    section_dict = get_base_dir(section_dict)
+
+    if config_block:
+        section_dict['config-block'].insert(0, '%s {'%block_name)
+        section_dict['config-block'].append('}\n')
+
+    return section_dict, defaults.GANESHA_REFRESH_CONFIG
+
 def get_cluster_nodes(section_dict):
     global helpers
     cluster_nodes = section_dict.get('cluster-nodes')
@@ -92,5 +117,13 @@ def get_host_vips(section_dict, cluster):
 
 def get_base_dir(section_dict):
     section_dict['base_dir'] = Global.base_dir
-    section_dict['ha_base_dir'] = '/etc/ganesha'
+    section_dict['ha_base_dir'] = '/var/run/gluster/shared_storage/nfs-ganesha'
     return section_dict
+
+def list_to_string(l):
+    # If l is a list of lines, join and return string
+    if type(l) is list:
+        return ",".join(l)
+    else:
+        # Return the string
+        return l

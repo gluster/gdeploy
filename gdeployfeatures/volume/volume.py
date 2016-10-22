@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
@@ -13,35 +12,68 @@ writers = YamlWriter()
 
 def volume_create(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
+    if Global.trace:
+        Global.logger.info("Splitting volume and hostnames")
     if not section_dict.get('brick_dirs'):
        section_dict = get_common_brick_dirs(section_dict)
+       if Global.trace:
+           Global.logger.info("Retrieving common brick directories among hosts.")
     else:
         section_dict = validate_brick_dirs(section_dict, 'brick_dirs')
+        if Global.trace:
+            Global.logger.info("Error in retrieving brick directories"\
+                               " Validating brick directories.")
     section_dict['service'] = 'glusterd'
     section_dict['state'] = 'started'
     Global.current_hosts = helpers.unique(Global.current_hosts)
     section_dict['hosts'] = Global.current_hosts
     yamls = [defaults.SERVICE_MGMT, defaults.CREATEDIR_YML]
+    if Global.trace:
+        Global.logger.info("Executing yamls %s and %s."\
+                           % (defaults.SERVICE_MGMT, defaults.CREATEDIR_YML))
     ret = call_peer_probe(section_dict)
     if ret:
         section_dict = ret
         yamls.append(defaults.PROBE_YML)
+        if Global.trace:
+            Global.logger.info("Executing %s."% defaults.PROBE_YML)
     yamls.append(defaults.VOLCREATE_YML)
-    section_dict, start_yml = volume_start(section_dict)
-    yamls.append(start_yml)
+    if Global.trace:
+        Global.logger.info("Executing %s."% defaults.VOLCREATE_YML)
     section_dict, set_yml = volume_set(section_dict)
     if set_yml:
         yamls.append(set_yml)
+    section_dict, start_yml = volume_start(section_dict)
+    yamls.append(start_yml)
     sdict, yml = get_smb_data(section_dict)
+    if Global.trace:
+        Global.logger.info("Checking if Samba is enabled on volume.")
     if sdict:
         yml = helpers.listify(yml)
         section_dict = sdict
         yamls.extend(yml)
     if type(section_dict['transport']) is list:
         section_dict['transport'] = ','.join(section_dict['transport'])
+    # Configure SSL on the volume if enable_ssl is set.
+    if section_dict['enable_ssl'].lower() == "yes":
+        if section_dict.has_key('ssl_clients'):
+            section_dict['ssl_hosts'] = list(set(helpers.listify
+                                                 (section_dict['ssl_clients'])\
+                                                  + Global.hosts))
+        else:
+            section_dict['ssl_hosts'] = list(set(Global.hosts))
+
+        section_dict['ssl_allow_list'] = ','.join(section_dict['ssl_hosts'])
+        section_dict['ssl_base_dir'] = Global.base_dir
+        helpers.write_to_inventory('ssl_hosts', section_dict['ssl_hosts'])
+        # Enable SSL on the volume
+        yamls.append(defaults.ENABLE_SSL)
     return section_dict, yamls
+    if Global.trace:
+        Global.logger.info("Executing %s."% defaults.ENABLE_SSL)
 
 def get_smb_data(section_dict):
     smb = section_dict.get('smb')
@@ -157,24 +189,28 @@ def check_brick_name_format(brick_name):
 
 def volume_delete(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     return section_dict, defaults.VOLDEL_YML
 
 def volume_start(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     return section_dict, defaults.VOLUMESTART_YML
 
 def volume_stop(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     return section_dict, defaults.VOLSTOP_YML
 
 def volume_add_brick(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     yamls = []
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
@@ -188,6 +224,7 @@ def volume_add_brick(section_dict):
 
 def volume_remove_brick(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     section_dict['old_bricks'] = section_dict.pop('bricks')
@@ -195,6 +232,7 @@ def volume_remove_brick(section_dict):
 
 def volume_rebalance(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     return section_dict, [defaults.VOLUMESTART_YML,
@@ -203,6 +241,7 @@ def volume_rebalance(section_dict):
 
 def volume_set(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     keys = section_dict.get('key')
@@ -222,16 +261,9 @@ def volume_set(section_dict):
 
 def volume_smb_setup(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
-    try:
-        ctdb = Global.sections['ctdb']
-    except:
-        msg = "For SMB setup, please ensure you " \
-                "configure 'ctdb' using ctdb " \
-                "section. Refer documentation for more."
-        print "Warning: " + msg
-        Global.logger.info(msg)
     SMB_DEFAULTS = {
                     'glusterfs:logfile': '/var/log/samba/' +
                         section_dict['volname'] + '.log',
@@ -241,21 +273,34 @@ def volume_smb_setup(section_dict):
     for key, value in SMB_DEFAULTS.iteritems():
         if section_dict[key]:
             options += key + ' = ' + str(section_dict[key]) + '\n'
-    section_dict['smb_options'] = "[gluster-{0}]\n"\
-            "comment = For samba share of volume {0}\n"\
-            "vfs objects = glusterfs\nglusterfs:volume = {0}\n"\
-            "read only = no\nguest ok = "\
-            "yes\n{1}".format(section_dict['volname'], options)
     section_dict['key'] = ['stat-prefetch', 'server.allow-insecure',
             'storage.batch-fsync-delay-usec']
     section_dict['value'] = ['off', 'on', 0]
     section_dict, yml = volume_set(section_dict)
     section_dict['service'] = 'glusterd'
     section_dict['state'] = 'started'
-    return section_dict, [defaults.SMBREPLACE_YML, yml,
-            defaults.SMBSRV_YML, defaults.SERVICE_MGMT]
+    return section_dict, [defaults.SERVICE_MGMT, yml, defaults.SMBREPLACE_YML,
+                          defaults.SMBSRV_YML]
 
 def volume_smb_disable(section_dict):
     section_dict['key'] = "user.smb"
     section_dict['value'] = "disable"
     return volume_set(section_dict)
+
+def volume_enable_ssl(section_dict):
+    """
+    Enable ssl on an existing volume
+    """
+    print "Ensure clients are unmounted before continuing. Add umount "\
+    "section in config."
+    if section_dict.has_key('ssl_clients'):
+        section_dict['ssl_hosts'] = list(set(section_dict['ssl_clients'] +
+                                             Global.hosts))
+    else:
+        section_dict['ssl_hosts'] = list(set(Global.hosts))
+
+    section_dict['ssl_allow_list'] = ','.join(section_dict['ssl_hosts'])
+    section_dict['ssl_base_dir'] = Global.base_dir
+    helpers.write_to_inventory('ssl_hosts', section_dict['ssl_hosts'])
+    # Enable SSL on the volume
+    return section_dict, [defaults.ENABLE_SSL]

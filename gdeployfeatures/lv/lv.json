@@ -67,6 +67,11 @@
           {
             "name": "mount",
             "required": "false"
+          },
+          {
+            "required": "false",
+            "name": "ignore_lv_errors",
+            "default": "yes"
           }
         ]
       },
@@ -106,6 +111,16 @@
             "name": "force",
             "required": "false",
             "default": "yes"
+          },
+          {
+            "required": "false",
+            "name": "ignore_lv_errors",
+            "default": "yes"
+          },
+          {
+            "name": "cachemode",
+            "required": "false",
+            "default": "writethrough"
           }
         ]
       },
@@ -161,6 +176,11 @@
             "name": "options",
             "required": "false",
             "default": " "
+          },
+          {
+            "required": "false",
+            "name": "ignore_lv_errors",
+            "default": "yes"
           }
         ]
       },
@@ -183,6 +203,16 @@
             "required": "false",
             "name": "options",
             "default": " "
+          },
+          {
+            "required": "false",
+            "name": "ignore_lv_errors",
+            "default": "yes"
+          },
+          {
+            "required": "false",
+            "name": "ignore_mount_errors",
+            "default": "yes"
           }
         ]
       }

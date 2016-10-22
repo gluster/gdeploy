@@ -8,7 +8,7 @@
       #are enlarged using fdisk
   - name: Expand Physical Volumes on all the nodes
     pv: action=resize disks="{{ item }}"
-    with_items: bricks
+    with_items: "{{ bricks }}"
     when: pvexpand is defined
 
 
@@ -18,4 +18,4 @@
     pv: action=resize disks={{ item.disk }}
         options=" --setphysicalvolumesize {{ item.size }}"
     when: pvshrink is defined
-    with_items: pvshrink
+    with_items: "{{ pvshrink }}"

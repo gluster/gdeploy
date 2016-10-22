@@ -3,59 +3,26 @@
     "action": {
       "setup": {
         "options": [
-          {
-            "required": "false",
-            "name": "physical_address"
-          },
-          {
-            "required": "false",
-            "name": "physical_address"
-          },
-          {
-            "required": "false",
-            "name": "CTDB_PUBLIC_ADDRESSES",
-            "default": "/etc/ctdb/public_addresses"
-          },
-          {
-            "required": "false",
-            "name": "CTDB_NODES",
-            "default": "/etc/ctdb/nodes"
-          },
-          {
-            "required": "false",
-            "name": "CTDB_MANAGES_SAMBA",
-            "default": "no"
-          },
-          {
-            "required": "false",
-            "name": "CTDB_SET_DeterministicIPs",
-            "default": 1
-          },
-          {
-            "required": "false",
-            "name": "CTDB_SET_RecoveryBanPeriod",
-            "default": 120
-          },
-          {
-            "required": "false",
-            "name": "CTDB_SET_KeepaliveInterval",
-            "default": 5
-          },
-          {
-            "required": "false",
-            "name": "CTDB_SET_KeepaliveLimit",
-            "default": 5
-          },
-          {
-            "required": "false",
-            "name": "CTDB_SET_MonitorInterval",
-            "default": 15
-          },
-          {
-            "required": "false",
-            "name": "CTDB_RECOVERY_LOCK",
-            "default": "/mnt/lock/reclock"
-          }
+            {
+                "required": "true",
+                "name": "volname"
+            },
+            {
+                "required": "false",
+                "name": "physical_address"
+            },
+            {
+                "required": "false",
+                "name": "ctdb_nodes"
+            },
+            {
+                "required": "false",
+                "name": "smb_password"
+            },
+            {
+                "required": "false",
+                "name": "smb_username"
+            }
         ]
       },
       "stop": {

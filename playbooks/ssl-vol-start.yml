@@ -1,0 +1,10 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Start the volume
+    volume: action=start
+            volume="{{ volname }}"
+            force=yes

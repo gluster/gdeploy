@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Copyright 2016 Nandaja Varma <nvarma@redhat.com>
@@ -15,7 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+# USA.
 #
 
 import os, json
@@ -81,6 +81,9 @@ def get_feature_dir(section):
         helpers.cleanup_and_quit()
 
     section_dict, yml = feature_call(section_dict)
+
+    if section_dict == False or section_dict == None or section_dict == {}:
+        return
 
     for key in section_dict.keys():
         section_dict[key.replace('-', '_')] = section_dict.pop(key)

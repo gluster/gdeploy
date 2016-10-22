@@ -6,8 +6,12 @@
   tasks:
   - name: Create the dir to mount the volume, skips if present
     file: path={{ item }} state=directory
+    with_items: "{{ smb_mountpoint | default([]) }}"
+    when: item is defined
+    ignore_errors: yes
 
-    with_items: smb_mountpoint
+  - name: Pause a few seconds, allow glusterd to start before mounting
+    pause: seconds=10
 
   - name: Mount the volumes
     mount: name={{ item }}
@@ -15,8 +19,16 @@
            fstype=glusterfs,
            opts=acl,
            state=mounted
-
-    with_items: smb_mountpoint
+    with_items: "{{ smb_mountpoint | default([]) }}"
+    when: item is defined
 
   - name: Provide permissions using setfacl
     command: setfacl -m user:"{{ smb_username }}":rwx "{{smb_mountpoint}}"
+    when: smb_username is defined and smb_mountpoint is defined
+
+  - name: Unmount the volumes
+    mount: name="{{ item }}" src="{{ item }}" fstype=glusterfs
+           state=absent
+    with_items: "{{ smb_mountpoint | default([]) }}"
+    when: item is defined
+    ignore_errors: yes

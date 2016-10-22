@@ -4,7 +4,27 @@
   gather_facts: no
 
   tasks:
-  - name: Enable nfs-ganesha in all the nodes in the cluster
+  - name: Enable nfs-ganesha
     shell: gluster nfs-ganesha enable --mode=script
     register: result
-    failed_when: "'is already enabled' not in result.stderr"
+    failed_when:
+      - "'is already enabled' not in result.stderr"
+      - "'success' not in result.stderr"
+      - "'success' not in result.stdout"
+    ignore_errors: yes
+
+  - name: Pause for 30 seconds (takes a while to enable NFS Ganesha)
+    pause: seconds=30
+
+  - name: Check NFS Ganesha status
+    shell: /usr/libexec/ganesha/ganesha-ha.sh --status |
+           awk '!/Online|^$/ { gsub(/-cluster_ip-1|-trigger_ip-1/, "");
+           if ($1 != $2) { print $1, $2, "--  NFS Ganesha status is FAULTY";
+           status = "fail"; exit 0 }} END { if (status != "fail")
+           print "--  NFS Ganesha status is HEALTHY" }'
+    register: result
+    ignore_errors: yes
+
+  - name: Report NFS Ganesha status
+    debug: msg={{ result.stdout_lines[0] }} verbosity=0
+

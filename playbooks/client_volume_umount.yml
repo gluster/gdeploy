@@ -7,8 +7,8 @@
   - name: Unmount the volumes
     mount: name={{ item }} src="{{ mountpoint }}" fstype=glusterfs
            state=absent
-    with_items: mountpoint
+    with_items: "{{ mountpoint }}"
 
   - name: Delete the mount points
     file: path={{ item }} state=absent
-    with_items: mountpoint
+    with_items: "{{ mountpoint }}"

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
@@ -41,7 +40,10 @@ def clients_mount(section_dict):
 
 def nfs_mount(mnt, host, section_dict):
     global client_mounts, helpers
-    section_dict['nfsversion'] = section_dict.pop('nfs-version')
+    options = section_dict.pop('options')
+    if type(options) is not list:
+        options = [options]
+    section_dict['opts'] = ",".join(options)
     client_mounts[host].append({'mountpoint': mnt, 'fstype': 'nfs'})
     return section_dict
 
@@ -52,9 +54,15 @@ def fuse_mount(mnt, host, section_dict):
     return section_dict
 
 def cifs_mount(mnt, host, section_dict):
-    if not section_dict['smb_username'] or not section_dict[
-            'smb_password']:
-        print "\nError: Provide smb_username and smb_password " \
+    try:
+        samba_username = section_dict['smb_username']
+        samba_password = section_dict['smb_password']
+    except KeyError, k:
+        print "%s is a required field"%k
+        samba_username = samba_password = False
+
+    if not samba_username or not samba_password:
+        print "Error: Provide smb_username and smb_password " \
                 "for CIFS mount"
         return False
     global client_mounts, helpers

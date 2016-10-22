@@ -2,8 +2,7 @@
 
 multipath -F
 cat <<EOF>> /etc/multipath.conf
-blacklist
-{
+blacklist {
         devnode "*"
 }
 EOF

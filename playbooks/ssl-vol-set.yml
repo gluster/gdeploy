@@ -1,0 +1,21 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Stop the volume
+    volume:  action=stop
+             volume="{{ volname }}"
+    register: result
+    failed_when: "result.rc != 0 and ('already stopped' not in result.msg and 'does not exist' and 'not in the started state' not in result.msg)"
+
+  - name: Set volume options for SSL
+    volume_set: action=set
+                volume="{{ volname }}"
+                key="{{ item.key }}"
+                value="{{ item.value }}"
+    with_items:
+      - { key: 'client.ssl', value: 'on' }
+      - { key: 'server.ssl', value: 'on' }
+      - { key: 'auth.ssl-allow', value: "{{ ssl_allow_list }}" }

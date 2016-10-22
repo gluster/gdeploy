@@ -8,14 +8,14 @@
     lv: action=create lvname=metadata compute=metadata_compute lvtype='thick'
         snapshot_reserve="{{ snapshot_reserve }}"
         vgname={{ item }}
-    with_items: vgs
+    with_items: "{{ vgs }}"
     ignore_errors: yes
 
   - name: create data LV that has a size which is a multiple of stripe width
     lv: action=create lvname={{ item.pool }} lvtype='thick'
         compute=poolsize_compute vgname={{ item.vg }}
         snapshot_reserve="{{ snapshot_reserve }}"
-    with_items: lvpools
+    with_items: "{{ lvpools }}"
     ignore_errors: yes
 
   - name: Convert the logical volume
@@ -25,7 +25,7 @@
         diskcount="{{ diskcount }}"
         stripesize="{{stripesize}}"
         snapshot_reserve="{{ snapshot_reserve }}"
-    with_items: lvpools
+    with_items: "{{ lvpools }}"
     ignore_errors: yes
 
   - name: create stripe-aligned thin volume
@@ -33,10 +33,10 @@
         compute=rhs disktype="{{ disktype }}"
         vgname={{ item.vg }} lvname={{ item.lv }}
         snapshot_reserve="{{ snapshot_reserve }}"
-    with_items: lvpools
+    with_items: "{{ lvpools }}"
     ignore_errors: yes
 
   - name: Change the attributes of the logical volume
     lv: action=change zero=n vgname={{ item.vg }} lvname={{ item.pool }}
-    with_items: lvpools
+    with_items: "{{ lvpools }}"
     ignore_errors: yes

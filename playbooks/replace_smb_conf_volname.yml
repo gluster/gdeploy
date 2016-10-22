@@ -5,60 +5,32 @@
 
   tasks:
 
-  - name: Add confs to ctdb conf files
-    replace: dest={{ item }} regexp='^META=all' replace='META={{ volname }}'
-    with_items:
-        - /var/lib/glusterd/hooks/1/stop/pre/S29CTDB-teardown.sh
-        - /var/lib/glusterd/hooks/1/start/post/S29CTDBsetup.sh
-    ignore_errors: yes
-
-  - name: Check whether configuration data exists or not
-    command: grep "option rpc-auth-allow-insecure.*" /etc/glusterfs/glusterd.vol
-    register: checkmyconf
-    always_run: True
-    ignore_errors: True
-    changed_when: False
-
   - name: Add confs to glusterd.vol
     lineinfile:
         dest=/etc/glusterfs/glusterd.vol
-        line="    option rpc-auth-allow-insecure on\n"
+        line="    option rpc-auth-allow-insecure on"
         insertbefore='end-volume'
-    when: checkmyconf.rc != 0
 
-  - name: Add confs to glusterd.vol
-    replace: dest=/etc/glusterfs/glusterd.vol
-        regexp="option rpc-auth-allow-insecure [on|off]\n"
-        replace="option rpc-auth-allow-insecure on"
-    when: checkmyconf.rc == 0
+  - name: Restart glusterd services
+    service: name=glusterd state=restarted
 
-  - name: Checks if /etc/samba/smb.conf  exists
-    stat: path=/etc/samba/smb.conf
-    register: file_exists
-    ignore_errors: True
-    changed_when: False
+# Setting volume options: 'stat-prefetch', 'server.allow-insecure',
+# 'storage.batch-fsync-delay-usec' happens in volume.py:volume_smb_setup
 
-  - name: Create /etc/samba/smb.conf if doesn't exist
-    file: path=/etc/samba/smb.conf state=touch
-    when: file_exists.stat.exists != True
+# Leaving the below section commented for now. As per discussion with
+# developers, we _do not care_ about samba setup from gdeploy. Focus
+# is only on CTDB setup.
 
+  # - name: Start SMB service
+  #   service: name=smb state=restarted
 
-  - name: Add conf to /etc/samba/smb.conf
-    lineinfile:
-        dest=/etc/samba/smb.conf
-        line="{{ smb_options }}"
-        insertbefore=EOF
+  # - name: Enable SMB service
+  #   service: name=smb enabled=yes
 
-  - name: Start SMB service
-    service: name=smb state=restarted
+  # - name: Create a new user
+  #   user: name="{{ smb_username }}"
+  #   when: smb_username is defined
 
-  - name: Enable SMB service
-    service: name=smb enabled=yes
-
-  - name: Create a new user
-    user: name="{{ smb_username }}"
-
-  - name: Set smb password
-    raw: (echo {{ item }}; echo {{ item }}) | smbpasswd -s -a "{{ smb_username }}"
-    with_items: smb_password
-
+  # - name: Set smb password
+  #   raw: (echo {{ smb_password }}; echo {{ smb_password }}) | smbpasswd -s -a "{{ smb_username }}"
+  #   when: smb_username is defined and smb_password is defined

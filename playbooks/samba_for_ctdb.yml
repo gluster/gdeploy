@@ -1,0 +1,23 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+
+  - name: Add confs to glusterd.vol
+    lineinfile:
+        dest=/etc/glusterfs/glusterd.vol
+        line="    option rpc-auth-allow-insecure on"
+        insertbefore='end-volume'
+
+  - name: Restart glusterd services
+    service: name=glusterd state=restarted
+
+  - name: Create a new user
+    user: name="{{ smb_username }}"
+    when: smb_username is defined
+
+  - name: Set smb password
+    raw: (echo {{ smb_password }}; echo {{ smb_password }}) | smbpasswd -s -a "{{ smb_username }}"
+    when: smb_password is defined and smb_username is defined

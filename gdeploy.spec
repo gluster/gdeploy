@@ -1,38 +1,40 @@
 %define name gdeploy
-%define version 2.0
-%define release 0
+%define version 2.0.1
+%define release 2
 %define gdeploymod ansible/modules/extras/system/glusterfs
 %define gdeploytemp /usr/share/ansible/gdeploy
 %define gdeploydoc /usr/share/doc/gdeploy
+%define gdeploysrc http://download.gluster.org/pub/gluster/gdeploy/LATEST
 
-Name:		%{name}
-Version:	%{version}
-Release:	%{?release}
-Summary:	Tool to deploy and manage GlusterFS cluster.
+Name:           %{name}
+Version:        %{version}
+Release:        %{?release}
+Summary:        Tool to deploy and manage GlusterFS cluster
 
-Group:		Applications/System
-License:	GPLv3
-URL:		http://www.redhat.com/storage
-Source0:	%{name}-%{version}-%{release}.tar.gz
-BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Requires:	ansible >= 1.9 python >= 2.6
+Group:          Applications/System
+License:        GPLv3
+URL:            http://www.redhat.com/storage
+Source0:        %{gdeploysrc}/%{name}-%{version}-%{release}.tar.gz
+BuildArch:      noarch
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Requires:       ansible >= 1.9 python >= 2.6 python-ecdsa >= 0.11
+Requires:       python-markupsafe >= 0.23 python-crypto >= 2.6.1 lvm2 >= 2
+Requires:       PyYAML >= 3.11 python-jinja2 >= 2.7.3 python-paramiko >= 1.15.2
+
 
 BuildRequires:  python-setuptools
 
 %description
-This package provides ansible modules to setup and configure GluterFS. With
-these modules you can:
- Configure backend to setup GlusterFS
-  * Setup backend with lvm thinpool support
-  * Create Filesystem
-  * Mount the filesystem
-  * Create and start a GlusterFS volume
-  * Mount the clients
- Tool to generate the playbooks, group_vars/host_vars
+gdeploy is an Ansible based deployment tool. Initially gdeploy was written to
+install GlusterFS clusters, eventually it grew out to do lot of other things. On
+a given set of hosts, gdeploy can create physical volumes, volume groups, and
+logical volumes, install packages, subscribe to RHN channels, run shell
+commands, create GlusterFS volumes and lot more.
+
+See http://gdeploy.readthedocs.io/en/latest/ for more details
 
 %prep
-%setup -n %{name}-%{version}-%{release}
+%setup -q -n %{name}-%{version}-%{release}
 
 %build
 python setup.py build
@@ -53,13 +55,18 @@ cp -r playbooks %{buildroot}/%{gdeploytemp}
 # Install scripts
 cp -r extras/scripts %{buildroot}/%{gdeploytemp}
 
-# Install Openshift-templates
-cp -r extras/openshift-templates %{buildroot}/%{gdeploytemp}
+# Install usecases
+cp -r extras/usecases %{buildroot}/%{gdeploytemp}
+
+# Install the script to /usr/local/bin
+mkdir -p %{buildroot}/usr/local/bin
+install -m 755 extras/usecases/replace-node/gluster-replace-node \
+        %{buildroot}/usr/local/bin
 
 # Documentation
 mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
        %{buildroot}/%{_mandir}/man5/
-cp -r doc/* README.md examples %{buildroot}/%{gdeploydoc}
+cp -r docs/* README.md examples %{buildroot}/%{gdeploydoc}
 cp man/gdeploy.1* %{buildroot}/%{_mandir}/man1/
 cp man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
@@ -74,6 +81,7 @@ rm -rf %{buildroot}
 %{python_sitelib}/%{gdeploymod}
 %{gdeploytemp}
 %{python_sitelib}/gdeploy-%{version}-*.egg-info/
+/usr/local/bin/gluster-replace-node
 
 %doc README.md
 %docdir %{gdeploydoc}
@@ -82,6 +90,15 @@ rm -rf %{buildroot}
 %{gdeploydoc}
 
 %changelog
+* Fri Jul 15 2016 Sachidananda Urs <sac@redhat.com> dev1
+- NFS Ganesha related bug fixes.
+
+* Wed Jun 8 2016 Sachidananda Urs <sac@redhat.com> master-2
+- First release after master rebase
+
+* Fri Jun 3 2016 Sachidananda Urs <sac@redhat.com> 2.0-16
+- Cleaning up the spec file
+
 * Mon Feb 1 2016 Sachidananda Urs <sac@redhat.com> 2.0
 - New design, refer: doc/gdeploy-2
 

@@ -1,5 +1,3 @@
-#!/usr/bin/python
-HKT_ADD_NODE = 'heketi-add-nodes.yml'
 # -*- coding: utf-8 -*- #
 #
 # Copyright 2016 Nandaja Varma <nvarma@redhat.com>
@@ -16,7 +14,8 @@ HKT_ADD_NODE = 'heketi-add-nodes.yml'
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+# USA.
 
 # ALL features
 
@@ -85,6 +84,8 @@ DETACH_YML = 'gluster-peer-detach.yml'
 
 SMBSRV_YML = 'mount-in-samba-server.yml'
 SMBREPLACE_YML = 'replace_smb_conf_volname.yml'
+SMB_FOR_CTDB = 'samba_for_ctdb.yml'
+
 VOLUMESET_YML = 'gluster-volume-set.yml'
 REBALANCE_YML = 'gluster-volume-rebalance.yml'
 VOLUMESTART_YML = 'gluster-volume-start.yml'
@@ -155,6 +156,7 @@ YUM_OP = 'yum-operation.yml'
 SERVICE_MGMT = 'service_management.yml'
 CHKCONFIG = 'chkconfig_service.yml'
 SHELL_YML = 'shell_cmd.yml'
+SLICE_SETUP = 'slice_setup.yml'
 
 # CTDB
 
@@ -190,7 +192,8 @@ GANESHA_VOL_EXPORT = 'gluster-volume-export-ganesha.yml'
 GANESHA_DISABLE = 'disable-nfs-ganesha.yml'
 GANESHA_ADD_NODE = 'ganesha-cluster-add.yml'
 GANESHA_DELETE_NODE = 'ganesha-cluster-delete.yml'
-
+DEFINE_SERVICE_PORTS = 'define_service_ports.yml'
+GANESHA_REFRESH_CONFIG = 'ganesha-refresh-config.yml'
 
 RUN_SCRIPT = 'run-script.yml'
 
@@ -199,3 +202,6 @@ RUN_SCRIPT = 'run-script.yml'
 
 OC_CREATE = 'oc-create.yml'
 OC_DELETE = 'oc-delete.yml'
+
+# SSL on volumes
+ENABLE_SSL = 'enable-ssl.yml'

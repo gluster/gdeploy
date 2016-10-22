@@ -12,5 +12,5 @@
            state=mounted
     when: item.fstype == 'cifs'
 
-    with_items: client_mounts
+    with_items: "{{ client_mounts }}"
 

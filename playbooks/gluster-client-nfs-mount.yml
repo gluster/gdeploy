@@ -1,15 +1,69 @@
 ---
 - hosts: clients
   remote_user: root
-  gather_facts: no
+  gather_facts: yes
 
   tasks:
+  # Not using lineinfile/replace in the below statements, backrefs not
+  # available in ansible 1.9, once our channels are updated with 2.1.x
+  # change to lineinfile/replace
+
+  - name: Uncomment STATD_PORT for rpc.statd to listen on
+    shell: sed -i '/STATD_PORT/s/^#//' /etc/sysconfig/nfs
+    when: item.fstype == 'nfs'
+    with_items: "{{ client_mounts }}"
+
+  - name: Uncomment LOCKD_TCPPORT for rpc.lockd to listen on
+    shell: sed -i '/LOCKD_TCPPORT/s/^#//' /etc/sysconfig/nfs
+    when: item.fstype == 'nfs'
+    with_items: "{{ client_mounts }}"
+
+  - name: Uncomment LOCKD_UDPPORT for rpc.lockd to listen on
+    shell: sed -i '/LOCKD_UDPPORT/s/^#//' /etc/sysconfig/nfs
+    when: item.fstype == 'nfs'
+    with_items: "{{ client_mounts }}"
+
+  - name: Uncomment MOUNTD_PORT for rpc.mountd to listen on
+    shell: sed -i '/MOUNTD_PORT/s/^#//' /etc/sysconfig/nfs
+    when: item.fstype == 'nfs'
+    with_items: "{{ client_mounts }}"
+
+  - name: Restart nfs service (RHEL 6 only)
+    service: name=nfs state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6" and item.fstype == 'nfs'
+    ignore_errors: yes
+    with_items: "{{ client_mounts }}"
+
+  - name: Restart rpc-statd service
+    service: name=rpc-statd state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7" and item.fstype == 'nfs'
+    ignore_errors: yes
+    with_items: "{{ client_mounts }}"
+
+  - name: Restart nfs-config service
+    service: name=nfs-config state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7" and item.fstype == 'nfs'
+    ignore_errors: yes
+    with_items: "{{ client_mounts }}"
+
+  - name: Restart nfs-mountd service
+    service: name=nfs-mountd state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7" and item.fstype == 'nfs'
+    ignore_errors: yes
+    with_items: "{{ client_mounts }}"
+
+  - name: Restart nfslock service (RHEL 6 & 7)
+    service: name=nfslock state=restarted
+    ignore_errors: yes
+    when: item.fstype == 'nfs'
+    with_items: "{{ client_mounts }}"
+
   - name: Mount the volumes if fstype is NFS
     mount: name={{ item.mountpoint }}
            src="{{ groups['master'][0]}}:{{ volname }}"
            fstype=nfs
-           opts=vers="{{ nfsversion }}"
+           opts="{{ opts }}"
            state=mounted
     when: item.fstype == 'nfs'
 
-    with_items: client_mounts
+    with_items: "{{ client_mounts }}"

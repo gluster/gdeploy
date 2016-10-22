@@ -4,6 +4,9 @@
       "probe": {
         "options": [
           {
+             "required": "false",
+             "name": "ignore_peer_errors",
+             "default": "yes"
           }
         ]
       },
@@ -13,6 +16,11 @@
               "name": "force",
               "required": "false",
               "default": "no"
+          },
+          {
+             "required": "false",
+             "name": "ignore_peer_errors",
+             "default": "yes"
           }
         ]
       },

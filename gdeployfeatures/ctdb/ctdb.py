@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
@@ -27,17 +26,10 @@ def ctdb_disable(section_dict):
     return section_dict, defaults.CHKCONFIG
 
 def ctdb_setup(section_dict):
-    option = ''
-    pattern = '^CTDB_.*'
-    opt_matches = [opt for opt in list(section_dict) if
-            re.search(pattern, opt)]
-    for key in opt_matches:
-        if section_dict[key] and section_dict[key].lower() != 'none':
-            option += key + '=' + str(section_dict[key]) + '\n'
-
-    section_dict['options'] = option
-    section_dict['nodes'] = '\n'.join(Global.hosts)
+    section_dict['nodes'] = '\n'.join(sorted(set(Global.hosts)))
     paddress = section_dict.get('public_address')
+    ctdbnodes = section_dict.get('ctdb_nodes')
+
     if paddress:
         if not isinstance(paddress, list):
             paddress= [paddress]
@@ -56,6 +48,17 @@ def ctdb_setup(section_dict):
             public_add = ip + ' ' + inter
             paddress.append(public_add)
         section_dict['paddress'] = '\n'.join(paddress)
+
+    if ctdbnodes:
+        # If there is a single item listify it
+        if not isinstance(ctdbnodes, list):
+            ctdbnodes = [ctdbnodes]
+        section_dict['ctdbnodes'] = "\n".join(ctdbnodes)
     section_dict, enable_yml = ctdb_enable(section_dict)
     section_dict, start_yml = ctdb_start(section_dict)
-    return section_dict, [defaults.CTDB_SETUP, enable_yml, start_yml]
+
+    yaml_list = [defaults.CTDB_SETUP, defaults.VOLSTOP_YML,
+                 defaults.VOLUMESTART_YML, enable_yml, start_yml,
+                 defaults.SMB_FOR_CTDB]
+
+    return section_dict, yaml_list

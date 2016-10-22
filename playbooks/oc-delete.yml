@@ -6,22 +6,22 @@
   tasks:
   - name: Kubectl delete resources based on filename
     kubectl: action=delete filename="{{ item }}"
-    with_items: filename
+    with_items: "{{ filename }}"
     when: filename is defined and filename
 
   - name: Kubectl delete resources based on name
     kubectl: action=delete type="{{ type }}" name="{{ item }}"
-    with_items: resourcename
+    with_items: "{{ resourcename }}"
     when: resourcename is defined and resourcename
 
   - name: Kubectl delete resources based on label
     kubectl: action=delete type="{{ type }}" label="{{ item }}"
-    with_items: label
+    with_items: "{{ label }}"
     when: label is defined and label
 
   - name: Kubectl delete resources based on UUID
     kubectl: action=delete type="{{ type }}" uuid="{{ item }}"
-    with_items: uuid
+    with_items: "{{ uuid }}"
     when: uuid is defined and uuid
 
   - name: Kubectl delete all resources otherwise

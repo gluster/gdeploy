@@ -6,6 +6,6 @@
   tasks:
   - name: Starts a volume
     volume:  action=start volume="{{ volname }}"
-             force="{{ force }}"
+             force="{{ force | default(False) }}"
     register: result
     ignore_errors: yes

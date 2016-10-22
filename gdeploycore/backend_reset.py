@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 #
@@ -16,7 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+# USA.
 
 from gdeploylib import *
 from gdeploylib.defaults import *
@@ -65,6 +65,8 @@ class BackendReset(Helpers):
         except:
             self.filename =  Global.group_file
             Global.current_hosts = Global.hosts
+        Global.logger.info("Resetting disks on %s"%Global.hosts)
+        Global.logger.info("Executing playbook %s"%BRESET_YML)
         self.run_playbook(BRESET_YML)
         return True
 

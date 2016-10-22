@@ -8,6 +8,7 @@
   - name: Extend volume group
     vg: action=extend disks={{ item }}
         vgname="{{ vg }}"
-    with_items: disk
+    with_items: "{{ disk }}"
     register: result
     failed_when: "result.rc != 0 and ('is already in volume group' not in result.msg  and 'not found' not in result.msg)"
+    ignore_errors: "{{ ignore_vg_errors | default(True) }}"

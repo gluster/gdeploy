@@ -12,36 +12,33 @@ Frequently Asked Questions
 Why do we need gdeploy, when Ansible is available?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-With gdeploy, deployment and configuration is a **lot** easier, it abstracts the
-complexities of learning and writing YAML files. And reusing the gdeploy
-configuration files with slight modification is lot easier than editing the YAML
-files, and debugging the errors.
+gdeploy enables configuration and provisioning of GlusterFS and the file access protocols using configurations and tunables which are tested and recommended by the maintainers. This enables a system administrator to have an easy way to create consistent and repeatable deployment paths.
+
 
 How does gdeploy help in setting up GlusterFS clusters?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Setting up a GlusterFS volume involves quite a bit of tasks like:
+Installation, configuration and provisioning of a GlusterFS deployment involves a sequence of steps to be executed in the proper order. This would include deployment-specific detail such as:
+
 1. Setting up PV, VG, LV (thinpools if necessary).
 2. Peer probing the nodes.
-3. And a CLI to create volume (which can get lengthy and error prone as the
-number of nodes increase).
+3. Using the CLI based volume creation steps
 
-gdeploy helps in simplifying the above tasks and adds many more useful features
-like installing packages, handling volumes remotely, setting volume options
-while creating the volume so on...
+gdeploy provides a simple way to complete the steps and include specifics such as configuring volume options and such.
+
 
 Does gdeploy help in installing GlusterFS packages?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Yes. gdeploy has feature to register to subscription manager and features to use
-yum via the configuration file. User can install GlusterFS packages either from
-Red Hat channels or from upstream builds.
+gdeploy has a configuration workflow design which enables it to be used for package installation, either from upstream builds or, from a specific vendor provided content distribution mechanism viz. Red Hat's CDN
+
 
 Is gdeploy only for installing and deploying GlusterFS?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-No. With gdeploy user can install any package and user shell and script modules
-to configure them. Refer `hc.conf
+While gdeploy is intended to streamline the administrator experience during installation and deployment of GlusterFS, it can be used to install other packages, custom scripts and modules for configuration. The hc.conf is an example of how gdeploy can enable the set-up and configuration for a HyperConverged stack using GlusterFS.
+
+Refer `hc.conf
 <https://github.com/gluster-deploy/gdeploy/blob/2.0/examples/hc.conf>`_ for an
 example for things gdeploy can achieve.
 
@@ -49,7 +46,9 @@ example for things gdeploy can achieve.
 Can I run arbitrary scripts using gdeploy?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Yes. See the *script* module. Refer `hc.conf
+Yes. Scripts which aid and extend the deployment setup can be configured to run from gdeploy.
+
+See the *script* module. Refer `hc.conf
 <https://github.com/gluster-deploy/gdeploy/blob/2.0/examples/hc.conf>`_ for an
 example for script module usage.
 

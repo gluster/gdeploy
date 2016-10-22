@@ -12,7 +12,7 @@
     ignore_errors: yes
 
   - name: Disable network manager service
-    service: name=NetworkManager enabled=yes
+    service: name=NetworkManager enabled=no
     ignore_errors: yes
 
   - name: Start network service
@@ -27,3 +27,5 @@
   - name: Enable pcsd service
     service: name=pcsd enabled=yes
 
+  - name: Enable pacemaker service
+    service: name=pacemaker enabled=yes

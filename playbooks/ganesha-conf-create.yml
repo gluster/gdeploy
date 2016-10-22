@@ -4,11 +4,20 @@
   gather_facts: no
 
   tasks:
+  - name: Create configuration directory for nfs-ganesha
+    file: path="{{ ha_base_dir }}" state=directory
+
+  - name: Copy ganesha.conf to config directory on shared volume
+    shell: cp -rf /etc/ganesha/* "{{ ha_base_dir }}"
+
   - name: Creating ganesha-ha.conf file
     template: src=ganesha-ha.conf
               dest="{{ ha_base_dir }}"
 
-  - name: Replacing quotes in conf file
-    replace: dest="{{ ha_base_dir }}"/ganesha-ha.conf
-             regexp='"(((VIP.*)\n*)*)"$'
-             replace='\1'
+# We don't need quotes in the template file ganesha-ha.conf
+# The below block can be commented out.
+
+  # - name: Replacing quotes in conf file
+  #   replace: dest="{{ ha_base_dir }}"/ganesha-ha.conf
+  #            regexp='"(((VIP.*)\n*)*)"$'
+  #            replace='\1'

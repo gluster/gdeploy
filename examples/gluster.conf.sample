@@ -1040,6 +1040,9 @@ client_mount_points=/mnt/gluster{1,3}
 # disable-repos=yes
 # repos=rhel-7-cool-server
 # pool=a_big_pool_id_with_numbers
+# ignore_register_errors=no
+# ignore_attach_pool_errors=no
+# 
 #
 # Instead of using username and password, one could even use an
 # activationkey
@@ -1060,7 +1063,7 @@ client_mount_points=/mnt/gluster{1,3}
 # [RH-subscription]
 # action=attach-pool
 # pool=a_big_pool_id_with_numbers
-#
+# ignore_attach_pool_errors=yes
 #
 # Enabling repos
 #
@@ -1070,6 +1073,7 @@ client_mount_points=/mnt/gluster{1,3}
 # [RH-subscription]
 # action=enable-repos
 # repos=fancy_repo1,fancy,repo2
+# ignore_enable_errors=no
 #
 #
 # Registering, subscribing and enabling repos together
@@ -1119,10 +1123,11 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [yum]
 # action=install
-# repos=http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/vdsm,http://jenkins.lab.eng.blr.redhat.com/rhsc/hc/glusterfs
+# repos=<repos>
 # packages=vi,glusterfs
 # gpgcheck=no
 # update=no
+# ignore_yum_errors=no   # Do not continue if yum errors out.
 #
 # If 'no' provided to gpgcheck, it will disable gpgcheck. By default
 # it is 'yes'.
@@ -1216,32 +1221,26 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # If option 'physical_address' is specified, the CTDB_PUBLIC_ADDRESSES
 # configuration option must be set to point to the file
-# /etc/ctdb/public_addresses . This value is set by default:
-#
-# Other options with default value set are:
-#
-# CTDB_NODES=/etc/ctdb/nodes
-# CTDB_MANAGES_SAMBA=no
-# CTDB_RECOVERY_LOCK=/mnt/lock/reclock
+# /etc/ctdb/public_addresses
 #
 # To override these default values, specify them as the values. If the
 # option should not be set at all, leave the value empty or specify it
 # as 'none'.
 #
+# The public_address variable type in the below example fails because of bug:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1360351
+#
 # Example:
 #
 # [ctdb]
 # action=setup
-# public_address=192.168.1.{1,4}/24 eth1;eth2,192.168.1.1/24 eth2
-# CTDB_PUBLIC_ADDRESSES=/etc/ctdb/public_addresses
-# CTDB_NODES=/etc/ctdb/nodes
-# CTDB_MANAGES_SAMBA=no
-# CTDB_SET_DeterministicIPs=1
-# CTDB_SET_RecoveryBanPeriod=120
-# CTDB_SET_KeepaliveInterval=5
-# CTDB_SET_KeepaliveLimit=5
-# CTDB_SET_MonitorInterval=15
-# CTDB_RECOVERY_LOCK=/mnt/lock/reclock
+# public_address=10.70.37.6/24 eth0,10.70.37.8/24 eth0
+# ctdb_nodes=192.168.1.1,192.168.2.5
+# volname=samba1
+#
+# `ctdb_nodes' variable in the above example is optional, if it is removed the
+# nodes used to create volume are used as ctdb nodes.
+#
 #
 # NOTE: Expect the user to specify nodes in the cluster under section
 # 'hosts'
@@ -1268,9 +1267,18 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # [ctdb]
 # action=disable
-
-
-
+#
+# Setup ctdb on an existing volume
+#
+# [hosts]
+# 10.70.37.192
+# 10.70.37.88
+#
+# [ctdb]
+# action=setup
+# public_address=10.70.37.6/24 eth0,10.70.37.8/24 eth0
+# volname=ctdb
+#
 #-----------------------------------
 
 
@@ -1282,10 +1290,14 @@ client_mount_points=/mnt/gluster{1,3}
 #
 # To create an HA cluster:
 #
+# ** IMPORTANT **
+# Cluster nodes *HAVE TO* be hostnames, IP addresses are not allowed. Also
+# ensue to give hostnames in the `hosts' section. See example below.
+#
 # [nfs-ganesha]
 # action=create-cluster
 # ha-name=ganesha-ha-360
-# cluster-nodes=10.70.46.13,10.70.46.15
+# cluster-nodes=host1,host2
 # vip=10.70.44.121,10.70.44.122
 # volname=glustervol
 #
@@ -1294,6 +1306,43 @@ client_mount_points=/mnt/gluster{1,3}
 # vip           -  Virtual IPs assigned to each of the 'cluster-nodes'
 # volname       -  volume to be exported using NFS-Ganesha. If not provided, volume
 #                   export will be skipped
+#
+#
+#                  **** NFS-GANESHA SETUP --- COMPLETE EXAMPLE
+# [hosts]
+# server1
+# server2
+#
+# [backend-setup]
+# devices=/dev/vdb
+# vgs=vg1
+# pools=pool1
+# lvs=lv1
+# mountpoints=/mnt/brick
+#
+# [volume]
+# action=create
+# volname=ganesha
+# transport=tcp
+# replica_count=2
+# force=yes
+#
+# [clients]
+# action=mount
+# volname=
+# hosts=rhs-5
+# fstype=glusterfs
+# client_mount_points=/mnt/glusterfs
+#
+# [nfs-ganesha]
+# action=create-cluster
+# ha-name=ganesha-ha-360
+# cluster-nodes=server1,server2
+# vip=10.70.44.121,10.70.44.122
+# volname=ganesha
+#
+# In the above example a complete end-to-end Ganesha setup is done.
+#
 #
 # To destroy an HA cluster
 #

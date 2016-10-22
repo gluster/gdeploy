@@ -11,5 +11,5 @@
            state=mounted
     when: item.fstype == 'fuse'
 
-    with_items: client_mounts
+    with_items: "{{ client_mounts }}"
 

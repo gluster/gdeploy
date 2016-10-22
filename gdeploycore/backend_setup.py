@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*- #
 #
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
@@ -15,7 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+# USA.
 #
 #
 #    yaml_writer.py
@@ -54,7 +54,6 @@ class BackendSetup(Helpers):
         self.remove_from_sections('backend-setup')
 
     def write_sections(self):
-        Global.logger.info("Reading configuration for backend setup")
         self.filename =  Global.group_file
         backend_setup, hosts = self.check_backend_setup_format()
         default = self.config_get_options('default', False)
@@ -74,6 +73,8 @@ class BackendSetup(Helpers):
 
     def call_selinux(self):
         selinux = self.config_get_options('selinux', False)
+        Global.logger.info("Setting up SeLinux labels running playbook %s"\
+                           %SELINUX_YML)
         if selinux:
             if selinux[0].lower() == 'yes':
                 self.run_playbook(SELINUX_YML)
@@ -81,6 +82,7 @@ class BackendSetup(Helpers):
 
     def new_backend_setup(self, hosts):
         hosts = filter(None, hosts)
+        Global.logger.info("Setting up backend on hosts.")
         if hosts:
             Global.var_file = None
             hosts = self.pattern_stripping(hosts)
@@ -170,11 +172,14 @@ class BackendSetup(Helpers):
             self.ssd = self.correct_brick_format(ssd)[0]
             self.section_dict['disk'] = self.ssd
             self.bricks.append(self.ssd)
+            Global.logger.info("Setting up SSD bricks")
         if not self.bricks:
             return
         self.bricks = self.correct_brick_format(self.bricks)
         self.device_count = len(self.bricks)
         self.section_dict['bricks'] = self.bricks
+        Global.logger.info("Create physical volumes %s - running playbook %s"\
+                           %(self.section_dict['bricks'], PVCREATE_YML))
         if self.bricks:
             self.run_playbook(PVCREATE_YML)
 
@@ -203,6 +208,8 @@ class BackendSetup(Helpers):
             data.append(vgnames)
         self.section_dict['vgnames'] = filter(None, data)
         self.vgs = self.section_dict['vgs']
+        Global.logger.info("Creating volume group %s running %s"\
+                           %(self.vgs, VGCREATE_YML))
         if self.vgs:
             self.run_playbook(VGCREATE_YML)
 
@@ -223,6 +230,7 @@ class BackendSetup(Helpers):
         if not self.lvs:
             self.lvs = self.set_default('lvs')
             if not self.lvs or not self.pools:
+                Global.logger.warning("lvs or pools not found.")
                 return
         data = []
         if len(self.pools) != len(self.lvs):
@@ -240,14 +248,18 @@ class BackendSetup(Helpers):
             data.append(pools)
         self.section_dict['lvpools'] = filter(None, data)
         if self.section_dict['lvpools']:
+            Global.logger.info("Creating thin pool %s running %s"\
+                               %(self.section_dict['lvpools'], GLUSTER_LV_YML))
             self.run_playbook(GLUSTER_LV_YML)
 
     def write_lv_names(self):
         self.data = []
         self.lvs = self.section_data_gen('lvs', 'Logical Volume')
         if not self.lvs and not hasattr(self, 'ssd'):
+            Global.logger.info("lvs not found.")
             return
         if not self.vgs:
+            Global.logger.info("vgs not found.")
             return
         if self.lvs:
             if len(self.vgs) != len(self.lvs):
@@ -261,11 +273,16 @@ class BackendSetup(Helpers):
                                                'force', False) or 'no'
         #If SSD present for caching
         if hasattr(self, 'ssd'):
+            Global.logger.info("SSD information found, setting up "
+                               "SSD for caching.")
             datalv = self.section_data_gen('datalv', 'Data LV')
             if not datalv:
-                print "\nError: Data lv('datalv' options) not specified for "\
-                        "cache setup"
+                msg = "\nError: Data lv('datalv' options) not specified for "\
+                      "cache setup"
+                print msg
+                Global.logger.error(msg)
                 self.cleanup_and_quit()
+            Global.logger.info("vgextend - running %s"%VGEXTEND_YML)
             self.run_playbook(VGEXTEND_YML)
             self.section_dict['datalv'] = datalv[0]
             cachemeta = self.get_options(
@@ -279,8 +296,10 @@ class BackendSetup(Helpers):
         if not self.data:
             return
         self.section_dict['lvs'] = self.data
+        Global.logger.info("Creating logical volumes, running %s"%LVCREATE_YML)
         self.run_playbook(LVCREATE_YML)
         if hasattr(self, 'ssd'):
+            Global.logger.info("Running lvconvert - %s"%LVCONVERT_YML)
             self.run_playbook(LVCONVERT_YML)
 
 
@@ -295,6 +314,7 @@ class BackendSetup(Helpers):
         lvs['size'] = size
         lvs['vg'] = vg
         self.data.append(lvs)
+        Global.logger.info("Creating LV with data %s"%lvs)
         return lvs
 
 
@@ -305,8 +325,26 @@ class BackendSetup(Helpers):
                                       zip(self.vgs, self.lvs)]
         if lvols:
             self.section_dict['lvols'] = lvols
-            self.section_dict['opts'] = "-f -K -i size=512 -d sw=10,su=128k -n size=8192"
+            # If RAID data is provided use it to set the stripe_width and
+            # stripe_unit_size from the config.
+            disktype = self.config_get_options('disktype', False)
+            if disktype:
+                sw = self.config_get_options('diskcount', True)
+                su = self.config_get_options('stripesize', False)
+                if not su:
+                    # No stripe size given assuming 256
+                    su = 256
+                self.section_dict['opts'] = "-f -K -i size=512 -d sw=%s,su=%sk\
+ -n size=8192"%(sw[0],su[0])
+            else:
+                self.section_dict['opts'] = "-f -K -i size=512 -n size=8192"
+
             self.section_dict['fstype'] = "xfs"
+            Global.logger.info("Creating %s filesystem on %s with options %s"\
+                               %(self.section_dict['fstype'],
+                                 self.section_dict['lvols'],
+                                 self.section_dict['opts']))
+            Global.logger.info("Running playbook - %s"%FSCREATE_YML)
             self.run_playbook(FSCREATE_YML)
 
     def write_mount_options(self):
@@ -326,6 +364,9 @@ class BackendSetup(Helpers):
             data.append(mntpath)
         self.section_dict['mntpath'] = filter(None, data)
         if self.section_dict['mntpath']:
+            Global.logger.info("Mounting on %s, running %s"\
+                               %(self.section_dict['mntpath'],
+                                 MOUNT_YML))
             self.run_playbook(MOUNT_YML)
 
     def write_brick_dirs(self):
@@ -351,8 +392,8 @@ class BackendSetup(Helpers):
                     for mntpath in self.mountpoints:
                         if mntpath.endswith('/'):
                             mntpath = mntpath[:-1]
-                        brick_dirs.append(self.get_file_dir_path(mntpath,
-                                                         os.path.basename(mntpath)))
+                        brick_dirs.append(self.get_file_dir_path\
+                                          (mntpath, os.path.basename(mntpath)))
             brick_list = brick_dirs
         else:
             if hasattr(self, 'mountpoints'):

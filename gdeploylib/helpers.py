@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
@@ -15,7 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+# USA.
 #
 #    helpers.py
 #    ---------
@@ -63,10 +63,16 @@ class Helpers(Global, YamlWriter):
         with open(filename, 'r') as f:
             return yaml.load(f)
 
-    def cleanup_and_quit(self):
-        if os.path.isdir(Global.base_dir):
+    def cleanup_and_quit(self, ret=0):
+        if os.path.isdir(Global.base_dir) and not Global.keep:
             shutil.rmtree(Global.base_dir)
-        sys.exit(0)
+            Global.logger.info("Deleting playbook data %s"%Global.base_dir)
+        else:
+            print "\nYou can view the generated configuration files "\
+                "inside %s" % Global.base_dir
+            Global.logger.info("Configuration saved inside %s" %Global.base_dir)
+        Global.logger.info("Terminating gdeploy...")
+        sys.exit(ret)
 
     def mk_dir(self, direc):
         if os.path.isdir(direc):
@@ -359,7 +365,13 @@ class Helpers(Global, YamlWriter):
                 playbooks_file]
         command = filter(None, command)
         try:
-            subprocess.call(command, shell=False)
+            retcode = subprocess.call(command, shell=False)
+            # Exit gdeploy in case of errors and user has explicitly set
+            # not to ignore errors
+            if retcode != 0 and Global.ignore_errors != 'yes':
+                self.cleanup_and_quit(1)
+            elif retcode != 0 and Global.ignore_errors == 'yes':
+                print "Ignoring errors..."
         except (OSError, subprocess.CalledProcessError) as e:
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()
@@ -396,6 +408,7 @@ class Helpers(Global, YamlWriter):
         Some calculations are made as to enhance
         performance
         '''
+        Global.logger.info("Performing GlusterFS specific performance tuning.")
         disktype = self.config_get_options('disktype', False)
         if disktype:
             perf = dict(disktype=disktype[0].lower())
@@ -409,8 +422,10 @@ class Helpers(Global, YamlWriter):
                 perf['diskcount'] = int(diskcount[0])
                 stripe_size = self.config_get_options('stripesize', False)
                 if not stripe_size and perf['disktype'] == 'raid6':
-                    print "Error: 'stripesize' not provided for " \
-                    "disktype %s" % perf['disktype']
+                    msg = "Error: 'stripesize' not provided for disktype %s"\
+                          % perf['disktype']
+                    print msg
+                    Global.logger.error(msg)
                     self.cleanup_and_quit()
                 if stripe_size:
                     perf['stripesize'] = int(stripe_size[0])
@@ -445,8 +460,18 @@ class Helpers(Global, YamlWriter):
             Global.inventory)
         try:
             if not Global.master:
-                Global.master = [list(set(Global.current_hosts) - set(
-                    Global.brick_hosts))[0]]
+                # We set the `master' variable in group_vars/all file here.
+                # If brick_hosts are present use one of them as master.
+                # Else use one from Global.current_hosts.
+                #
+                # Previous solution: [list(set(Global.current_hosts) - set(
+                # Global.brick_hosts))[0]] fails when length of
+                # Global.current_hosts was equal to Global.brick_hosts
+                # Or less than Global.brick_hosts
+                if Global.brick_hosts:
+                    Global.master = Global.brick_hosts[0]
+                else:
+                    Global.master = Global.current_hosts[0]
         except:
             pass
         try:
@@ -546,3 +571,17 @@ class Helpers(Global, YamlWriter):
                 "I need in the conf " \
                 "file. Please populate the conf file and retry!"
             self.cleanup_and_quit()
+
+    def split_string(self, string, sep):
+        """Split a string separated by sep
+
+        Return a list of tokens."""
+        pattern = r'((?:[^'+sep+'\\\\]+'+sep+'\\\\.)*)(['+sep+'])?'
+        regex = re.compile(pattern)
+        result = []
+
+        for match in regex.finditer(string):
+            result.append(match.group(1))
+            if (not match.group(2)):
+                break
+        return result

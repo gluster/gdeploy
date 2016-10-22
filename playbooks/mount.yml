@@ -6,10 +6,9 @@
   tasks:
   - name: Create the backend disks, skips if present
     file: path={{ item.path }} state=directory
-    with_items: mntpath
+    with_items: "{{ mntpath }}"
 
   - name: Mount the volumes
     mount: name={{ item.path }} src={{ item.device }} fstype=xfs
            opts="inode64,noatime,nodiratime" state=mounted
-
-    with_items: mntpath
+    with_items: "{{ mntpath }}"

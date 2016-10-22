@@ -20,6 +20,15 @@
             "required": "false",
             "name": "update",
             "default": "yes"
+          },
+          {
+            "required": "false",
+            "name": "metadata-clean",
+            "default": "no"
+          },
+          {
+            "required": "false",
+            "name": "ignore-yum-errors"
           }
         ]
       },

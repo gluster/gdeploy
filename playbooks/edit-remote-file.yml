@@ -8,4 +8,4 @@
     replace: dest="{{ dest }}"
              regexp='^{{ item.replace }}.*$'
              replace="{{ item.line }}"
-    with_items: file_paths
+    with_items: "{{ file_paths }}"

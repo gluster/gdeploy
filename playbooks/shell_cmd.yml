@@ -6,4 +6,4 @@
   tasks:
   - name: Run a command in the shell
     shell: "{{ item }}"
-    with_items: command
+    with_items: "{{ command }}"

@@ -5,7 +5,7 @@
 
 gdeploy user guide
 ==================
-gdeploy is an `Ansible <www.ansible.com>`_ based deployment tool.
+gdeploy is an `Ansible <https://www.ansible.com>`_ based deployment tool.
 Initially gdeploy was written to install GlusterFS clusters, eventually it grew
 out to do lot of other things. On a given set of hosts, gdeploy can create
 physical volumes, volume groups, and logical volumes, install packages,
@@ -22,13 +22,14 @@ Contents
 """"""""
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    installation
    howitworks
    usage
    debugging
    conf
+   features
    maintainer
    developer
    design

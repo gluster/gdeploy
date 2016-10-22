@@ -1,0 +1,34 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Define service port
+    lineinfile: dest=/etc/sysconfig/nfs regexp='^#STATD_PORT=.*' line='STATD_PORT=662'
+
+# The above hack is way too ugly. But no other choice on Ansible 1.9
+
+# Some of our channels provide only ansible1.9 and backrefs in lineinfile
+# fails. Currently hardcoding to 662
+# replace the above lineinfile with the below backrefs, once all channels are
+# updated with ansible 2.0
+    # lineinfile: dest=/etc/sysconfig/nfs regexp='^#(STATD_PORT=.*)' line='\1' backrefs=yes
+
+# We do not need the below services for now. Enable them in future if needed.
+# Ensure to set gather_facts to `yes' if the below code block is enabled.
+
+  # - name: Restart statd service (RHEL 6 only)
+  #   service: name=nfslock state=restarted
+  #   when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+  #   ignore_errors: yes
+
+  # - name: Restart nfs-config service
+  #   service: name=nfs-config state=restarted
+  #   when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+  #   ignore_errors: yes
+
+  # - name: Restart rpc-statd service
+  #   service: name=rpc-statd state=restarted
+  #   when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+  #   ignore_errors: yes

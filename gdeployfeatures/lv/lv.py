@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
@@ -9,6 +8,7 @@ helpers = Helpers()
 
 def lv_create(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_lv_errors')
     if not section_dict.get('vgname'):
         vg_section = Global.sections.get('vg')
         if not vg_section or not vg_section['vgname']:
@@ -28,16 +28,19 @@ def lv_create(section_dict):
     return section_dict, yml
 
 def lv_convert(section_dict):
-    return section_dict, defaults.YML_NAME
+    Global.ignore_errors = section_dict.get('ignore_lv_errors')
+    return section_dict, defaults.LVCONVERT_YML
 
 def lv_setup_cache(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_lv_errors')
     section_dict['ssd'] = helpers.correct_brick_format(
             helpers.listify(section_dict['ssd']))[0]
     helpers.perf_spec_data_write()
     return section_dict, defaults.SETUP_CACHE_YML
 
 def lv_change(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_lv_errors')
     return section_dict, defaults.LVCHANGE_YML
 
 def get_lv_vg_names(name, section_dict):
@@ -93,6 +96,7 @@ def thin_lv_data(section_dict):
 
 def get_mount_data(section_dict, devices, vgnames):
     fstype = helpers.listify(section_dict.get('mkfs'))
+    Global.ignore_errors = section_dict.get('ignore_mount_errors')
     if not fstype:
         fstype = 'xfs'
     else:
@@ -108,7 +112,25 @@ def get_mount_data(section_dict, devices, vgnames):
     if section_dict.get('mkfs-opts'):
         section_dict['opts'] = section_dict['mkfs-opts']
     elif fstype == 'xfs':
-        section_dict['opts'] = "-f -K -i size=512 -d sw=10,su=128k -n size=8192"
+        # If RAID data is provided use it to set the stripe_width and
+        # stripe_unit_size from the config.
+        disktype = helpers.config_get_options('disktype', False)
+        if disktype:
+            sw = helpers.config_get_options('diskcount', True)
+            su = helpers.config_get_options('stripesize', False)
+            if not su:
+                # No stripe size given assuming 256
+                su = 256
+            section_dict['opts'] = "-f -K -i size=512 -d sw=%s,su=%sk\
+ -n size=8192"%(sw[0],su[0])
+        else:
+            section_dict['opts'] = "-f -K -i size=512 -n size=8192"
+
+    Global.logger.info("Creating %s filesystem on %s with options %s"\
+                       %(section_dict['fstype'],
+                         section_dict['lvols'],
+                         section_dict['opts']))
+
 
     mountpoint = helpers.listify(section_dict.get('mount'))
     if not mountpoint:

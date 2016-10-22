@@ -15,18 +15,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-#
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+# USA.
+
 
 import argparse
-import sys
 import os
-import time
 import shutil
+import subprocess
+import sys
+import time
 from collections import OrderedDict
 from gdeploylib import *
 from gdeploycore import call_core_functions
-
+from platform import dist
 
 helpers = Helpers()
 
@@ -41,7 +43,7 @@ def parse_arguments(args=None):
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument('--version',
                         action='version',
-                        version='%(prog)s 2.0')
+                        version='%(prog)s 2.0.1')
     parser.add_argument('-c', dest='config_file',
                         help="Configuration file",
                         type=argparse.FileType('rt'))
@@ -73,6 +75,45 @@ def parse_arguments(args=None):
             return None
     return args
 
+def check_ansible_installation():
+    # On RHEL6 machines complain if ansible is not installed. We do not handle
+    # dependencies in spec file, since ansible is not shipped with RHEL6.
+    if Global.trace:
+        Global.logger.info("Checking for ansible installation.")
+    dist_type = dist()
+    op_system = dist_type[0]
+    if op_system != 'redhat':
+        return
+    major_vers = dist_type[1].split('.')[0]
+
+    # gdeploy currently is supported only on RHEL6 or above
+    if int(major_vers) < 6:
+        msg = "Error: gdeploy is supported only on RHEL6 or above"
+        print msg
+        Global.logger.error(msg)
+        helpers.cleanup_and_quit()
+
+    if major_vers == '6':
+        pkg = subprocess.Popen(["rpm", "-qa", "ansible"],
+                               stdout=subprocess.PIPE).communicate()[0]
+        msg =  "Please install Ansible(version >= 2.2) to use gdeploy."
+        if pkg == '':           # Ansible not installed
+            print "Error: " + msg
+            Global.logger.error(msg)
+            helpers.cleanup_and_quit()
+        else:                   # Extraxt ansible version
+            if Global.trace:
+                Global.logger.info("Found package: %s"%pkg)
+            ansible_version = pkg.split('-')[1]
+            major_version = int(ansible_version[0])
+            minor_version = int(ansible_version[2])
+            if major_version < 2 or (major_version == 2 and minor_version < 2):
+                print "Error: " + msg
+                Global.logger.error(msg)
+                helpers.cleanup_and_quit()
+    return
+
+
 @logfunction
 def init_global_values(args):
     global helpers
@@ -81,6 +122,8 @@ def init_global_values(args):
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
     Global.trace = args.trace
+    if Global.trace:
+        Global.logger.info("global variables successfully initialised.")
     for sec in  Global.config._sections:
         sections = helpers.parse_patterns(sec)
         for each in sections:
@@ -88,16 +131,6 @@ def init_global_values(args):
                 dict(Global.config._sections[sec])))
     Global.sections = OrderedDict(sections_list)
 
-
-@logfunction
-def check_ansible_installation():
-    ret = os.system('ansible --version 1>/dev/null 2>/dev/null')
-    if ret:
-        msg =  "gdeploy requires Ansible to run. \nPlease install " \
-                "Ansible(version >= 1.9.2) to continue."
-        print "Error: " + msg
-        Global.logger.error(msg)
-        return
 
 @logfunction
 def create_files_and_dirs():
@@ -108,21 +141,14 @@ def create_files_and_dirs():
     hosts, creating a group var file anyway.
     '''
     helpers.mk_dir(Global.group_vars_dir)
+    if Global.trace:
+        Global.logger.info("group_vars directory successfully created locally.")
     helpers.touch_file(Global.group_file)
+    if Global.trace:
+        Global.logger.info("group_file directory successfully created locally.")
     helpers.mk_dir(Global.host_vars_dir)
-
-@logfunction
-def gdeploy_cleanup():
-    '''
-    Remove created temp directory if not explicitly asked to keep
-    '''
-    if not Global.keep:
-        shutil.rmtree(Global.base_dir)
-    else:
-        print "\nYou can view the generated configuration files "\
-            "inside %s" % Global.base_dir
-        Global.logger.info("Configuration saved inside %s" %Global.base_dir)
-    Global.logger.info("Terminating gdeploy...")
+    if Global.trace:
+        Global.logger.info("host_vars directory successfully created locally.")
 
 @logfunction
 def create_playbooks_in_local():
@@ -135,6 +161,9 @@ def create_playbooks_in_local():
     playbooks_env_var = os.getenv('GDEPLOY_TEMPLATES')
     # Is environment variable GDEPLOY_TEMPLATES set
     if playbooks_env_var:
+        if Global.trace:
+            Global.logger.info("Environment variable GDEPLOY_TEMPLATES is set as: %s."\
+                              % playbooks_env_var)
         playbooks_dir = helpers.get_file_dir_path(playbooks_env_var,
                 'playbooks')
     # Or assumes the templates are present as a part of ansible installation
@@ -147,20 +176,42 @@ def create_playbooks_in_local():
              % (playbooks_path_pkg)
         print "\nError: " + msg
         Global.logger.error(msg.strip('\n\t\r'))
+        if Global.trace:
+            Global.logger.info("Either the path to playbooks is incorrect or env variable"\
+                               " GDEPLOY_TEMPLATES is not set properly.")
         helpers.cleanup_and_quit()
+        if Global.trace:
+            Global.logger.info("Cleaning up the process and quitting.")
     helpers.copy_files(playbooks_dir)
+    if Global.trace:
+        Global.logger.info("Adding the playbooks to the playbooks source directory.")
 
 def main(arg):
+    Global.logger.info("**** gdeploy run started with options %s ****"%arg)
+    Global.logger.info("For complete CLI log, set log_path in "\
+                       "/etc/ansible/ansible.cfg")
     args = parse_arguments(arg)
     if args:
-        check_ansible_installation()
+        if Global.trace:
+            Global.logger.info("arguments parsed successfully.")
         init_global_values(args)
+        check_ansible_installation()
         create_files_and_dirs()
         helpers.get_hostnames()
+        if Global.trace:
+            Global.logger.info("Retrieved hostnames successfully.")
         create_playbooks_in_local()
         call_core_functions()
+        if Global.trace:
+            Global.logger.info("Calling core functions for backend setup.")
         call_features()
-        gdeploy_cleanup()
+        if Global.trace:
+            Global.logger.info("Retrieving hostnames and the feature directory.")
+        helpers.cleanup_and_quit(0)
+        if Global.trace:
+            Global.logger.info("Run was successful, cleaning up and quitting.")
+    else:
+        Global.logger.info("Error while parsing the config file.")
 
 if __name__ == '__main__':
     '''
