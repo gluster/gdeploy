@@ -8,21 +8,29 @@ import re
 def ctdb_start(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['state'] = 'started'
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.SERVICE_MGMT)
     return section_dict, defaults.SERVICE_MGMT
 
 def ctdb_stop(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['state'] = 'stopped'
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.SERVICE_MGMT)
     return section_dict, defaults.SERVICE_MGMT
 
 def ctdb_enable(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['enabled'] = 'yes'
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.CHKCONFIG)
     return section_dict, defaults.CHKCONFIG
 
 def ctdb_disable(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['enabled'] = 'no'
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.CHKCONFIG)
     return section_dict, defaults.CHKCONFIG
 
 def ctdb_setup(section_dict):
@@ -60,5 +68,7 @@ def ctdb_setup(section_dict):
     yaml_list = [defaults.CTDB_SETUP, defaults.VOLSTOP_YML,
                  defaults.VOLUMESTART_YML, enable_yml, start_yml,
                  defaults.SMB_FOR_CTDB]
-
+    if Global.trace:
+        for ymll in yaml_list:
+            Global.logger.info("Executing %s."%)
     return section_dict, yaml_list
