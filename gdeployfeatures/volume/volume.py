@@ -71,9 +71,9 @@ def volume_create(section_dict):
         helpers.write_to_inventory('ssl_hosts', section_dict['ssl_hosts'])
         # Enable SSL on the volume
         yamls.append(defaults.ENABLE_SSL)
+        if Global.trace:
+            Global.logger.info("Executing %s."% defaults.ENABLE_SSL)
     return section_dict, yamls
-    if Global.trace:
-        Global.logger.info("Executing %s."% defaults.ENABLE_SSL)
 
 def get_smb_data(section_dict):
     smb = section_dict.get('smb')
