@@ -2,7 +2,7 @@
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
 """
-from gdeploylib import defaults, Helpers
+from gdeploylib import defaults, Helpers, Global
 
 helpers = Helpers()
 
@@ -11,6 +11,8 @@ def pv_create(section_dict):
     section_dict['bricks'] = helpers.correct_brick_format(
             helpers.listify(section_dict['devices']))
     helpers.perf_spec_data_write()
+    if Global.trace:
+        Global.logger.info("Executing %s."% defaults.PVCREATE_YML)
     return section_dict, defaults.PVCREATE_YML
 
 def pv_resize(section_dict):
@@ -29,10 +31,14 @@ def pv_resize(section_dict):
             pvshrink['size'] = size
             data.append(pvshrink)
         section_dict['pvshrink'] = data
+        if Global.trace:
+            Global.logger.info("Resizing disk:%s with size:%s."%(disk,size))
     elif expand == 'yes':
         section_dict['pvexpand'] = 'true'
         section_dict['bricks'] = devices
 
+    if Global.trace:
+        Global.logger.info("Executing %s."% defaults.PVRESIZE_YML)
     return section_dict, defaults.PVRESIZE_YML
 
 
