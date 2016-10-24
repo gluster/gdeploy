@@ -9,22 +9,34 @@ helpers = Helpers()
 def vg_create(section_dict):
     global helpers
     pvnames = get_pv_names(section_dict)
+    if Global.trace:
+        Global.logger.info("Extracted pv names: %s"%pvnames)
     vgnames = helpers.listify(section_dict['vgname'])
+    if Global.trace:
+        Global.logger.info("Extracted vg names: %s"%vgnames)
     Global.ignore_errors = section_dict.get('ignore_vg_errors')
     section_dict = set_default_values(section_dict, pvnames, vgnames)
     helpers.perf_spec_data_write()
+    if Global.trace:
+        Global.logger.info("Executing %s"%defaults.VGCREATE_YML)
     return section_dict, defaults.VGCREATE_YML
 
 def vg_extend(section_dict):
     global helpers
     pvnames = get_pv_names(section_dict)
+    if Global.trace:
+        Global.logger.info("Extracted pv names: %s"%pvnames)
     vgnames = helpers.listify(section_dict['vgname'])
+    if Global.trace:
+        Global.logger.info("Extracted vg names: %s"%vgnames)
     Global.ignore_errors = section_dict.get('ignore_vg_errors')
     if len(vgnames) != 1:
         print "Error: We can only extend one vg at a time"
         helpers.cleanup_and_quit()
     section_dict['vg'] = vgnames[0]
     section_dict['disk'] = pvnames
+    if Global.trace:
+        Global.logger.info("Executing %s"%defaults.VGCREATE_YML)
     return section_dict, defaults.VGEXTEND_YML
 
 def set_default_values(section_dict, pvnames, vgnames):
