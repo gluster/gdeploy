@@ -4,6 +4,7 @@ The function should be named as follows <feature name>_<action_name>
 """
 from gdeploylib import defaults
 from gdeploylib import Helpers
+from gdeploylib import Global
 
 helpers = Helpers()
 
@@ -24,6 +25,8 @@ def update_file_copy(section_dict):
         files_list['dest'] = de
         data.append(files_list)
     section_dict['file_paths'] = data
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.MOVE_FILE)
     return section_dict, defaults.MOVE_FILE
 
 def update_file_edit(section_dict):
@@ -40,8 +43,12 @@ def update_file_edit(section_dict):
         files_list['replace'] = re
         data.append(files_list)
     section_dict['file_paths'] = data
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.EDIT_FILE)    
     return section_dict, defaults.EDIT_FILE
 
 def update_file_add(section_dict):
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.ADD_TO_FILE)
     return section_dict, defaults.ADD_TO_FILE
 
