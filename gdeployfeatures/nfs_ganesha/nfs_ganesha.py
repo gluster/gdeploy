@@ -9,6 +9,8 @@ helpers = Helpers()
 def nfs_ganesha_create_cluster(section_dict):
     global helpers
     cluster_nodes = get_cluster_nodes(section_dict)
+    if Global.trace:
+        Global.logger.info("Retrieved cluster nodes.")
     section_dict['ha_name'] = section_dict.pop('ha-name')
     if not len(cluster_nodes) == len(section_dict.get('vip')):
             print "\nError: Provide virtual IPs for all the hosts in "\
@@ -22,6 +24,9 @@ def nfs_ganesha_create_cluster(section_dict):
              defaults.GANESHA_CONF_CREATE, defaults.DEFINE_SERVICE_PORTS,
              defaults.ENABLE_GANESHA, defaults.GANESHA_VOL_EXPORT]
     section_dict = get_base_dir(section_dict)
+    if Global.trace:
+        for ymll in ymls:
+            Global.logger.info("Executing %s."%ymll)
     return section_dict, ymls
 
 def nfs_ganesha_destroy_cluster(section_dict):
@@ -29,6 +34,8 @@ def nfs_ganesha_destroy_cluster(section_dict):
     section_dict = get_base_dir(section_dict)
     helpers.write_to_inventory('cluster_nodes',
             section_dict.get('cluster-nodes'))
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.GANESHA_DISABLE)
     return section_dict, defaults.GANESHA_DISABLE
 
 def nfs_ganesha_add_node(section_dict):
@@ -42,22 +49,32 @@ def nfs_ganesha_add_node(section_dict):
         data.append(nodes_list)
     section_dict['nodes_list'] = data
     section_dict = get_base_dir(section_dict)
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.GANESHA_BOOTSTRAP)
+        Global.logger.info("Executing %s."%defaults.GANESHA_ADD_NODE)
     return section_dict, [defaults.GANESHA_BOOTSTRAP,
                                 defaults.GANESHA_ADD_NODE]
 
 def nfs_ganesha_delete_node(section_dict):
     section_dict = get_base_dir(section_dict)
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.GANESHA_DELETE_NODE)
     return section_dict, defaults.GANESHA_DELETE_NODE
 
 def nfs_ganesha_export_volume(section_dict):
     section_dict['value'] = "on"
     section_dict = get_base_dir(section_dict)
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.GANESHA_VOL_CONFS)
+        Global.logger.info("Executing %s."%defaults.GANESHA_VOL_EXPORT)
     return section_dict, [defaults.GANESHA_VOL_CONFS,
             defaults.GANESHA_VOL_EXPORT ]
 
 def nfs_ganesha_unexport_volume(section_dict):
     section_dict['value'] = "off"
     section_dict = get_base_dir(section_dict)
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.GANESHA_VOL_EXPORT)
     return section_dict, defaults.GANESHA_VOL_EXPORT
 
 def nfs_ganesha_refresh_config(section_dict):
@@ -84,6 +101,8 @@ def nfs_ganesha_refresh_config(section_dict):
         section_dict['config-block'].insert(0, '%s {'%block_name)
         section_dict['config-block'].append('}\n')
 
+     if Global.trace:
+        Global.logger.info("Executing %s."%defaults.GANESHA_REFRESH_CONFIG)
     return section_dict, defaults.GANESHA_REFRESH_CONFIG
 
 def get_cluster_nodes(section_dict):
