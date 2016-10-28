@@ -1,5 +1,5 @@
 Unexporting a volume and destroying an NFS-Ganesha HA Cluster
-============================================================
+=============================================================
 
 Here, we'll see how we can unexport a volume and destroy a high availability cluster.
 
