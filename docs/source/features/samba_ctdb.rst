@@ -21,7 +21,7 @@ Enable Samba on an existing volume
 ----------------------------------
 
      If a GlusterFS volume is already present, then user has to mention the
-     action as `smb-setup' in the volume section. It is necessary to mention all
+     action as 'smb-setup' in the volume section. It is necessary to mention all
      the hosts that are in the cluster, as gdeploy updates the glusterd
      configuration files on each of the hosts.
 
@@ -79,7 +79,7 @@ gdeploy configuration files for CTDB setup can be written to setup CTDB while
 creating volumes, or to setup CTDB on existing volumes.
 
 gdeploy allows users to setup CTDB using different ip addresses than mentioned
-in `hosts' section. For example if a user has internal ip addresses on which to
+in 'hosts' section. For example if a user has internal ip addresses on which to
 he decides to setup CTDB cluster, those ip addresses have to be set in
 ctdb_nodes variable.
 
