@@ -101,7 +101,7 @@ Example 1: Wipe signature from the device and create physical volumes::
   devices=vdb,vdc,vdd
   wipefs=yes
 
-Note: By default wipefs is set to `no'.
+Note: By default wipefs is set to 'no'.
 
 Example 3: Expand an already created pv::
 
@@ -119,15 +119,15 @@ Example 4: Shrink an already created pv::
 
 VG
 ---
-VG module currently supports two actions `create' and `extend'.
+VG module currently supports two actions 'create' and 'extend'.
 
-The `create' action supports four variables:
+The 'create' action supports four variables:
 
 1. pvname - The pv to be used.
 2. vgname - Name of the vg, if variable is ommitted default name GLUSTER_vg will
    be used.
 3. one-to-one - If set to yes, one-to-one mapping will be done between pv and vg.
-4. ignore_vg_errors - If set to `no', gdeploy exits if an error is encountered.
+4. ignore_vg_errors - If set to 'no', gdeploy exits if an error is encountered.
 
 Example1: Create a vg named images_vg with two PVs::
 
@@ -146,13 +146,13 @@ in case of any errors::
   one-to-one=yes
   ignore_vg_errors=no
 
-The `extend' action is used to extend volume groups. The following variables are
+The 'extend' action is used to extend volume groups. The following variables are
 supported if action=extend:
 
 1. pvname - The pv to be used, for more than one pv, comma separate them.
 2. vgname - Name of the vg, if variable is ommitted default name GLUSTER_vg will
    be used.
-3. ignore_vg_errors - If set to `no', gdeploy exits if an error is encountered.
+3. ignore_vg_errors - If set to 'no', gdeploy exits if an error is encountered.
 
 Example1: Extend an existing vg with the given disk::
 
@@ -218,9 +218,9 @@ If the action is setup-cache, the below options are supported:
   6. cache_lv - Name of the cache data lv.
   7. cache_lvsize - Size of the cache data.
   8. force - Force
-  9. cachemode - Provides provision to setup cache while creating lv. Allowed
-     values writeback, writethrough. Default is writethrough.
+  9. cachemode - Provides provision to setup cache while creating lv. Allowed values writeback, writethrough. Default is writethrough.
   9. ignore_lv_errors - If set to no, gdeploy exits if errors are encountered.
+
 
 If the action is convert, the below options are supported:
 
