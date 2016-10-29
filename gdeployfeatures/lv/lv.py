@@ -12,10 +12,16 @@ def lv_create(section_dict):
     if not section_dict.get('vgname'):
         vg_section = Global.sections.get('vg')
         if not vg_section or not vg_section['vgname']:
+            if Global.trace:
+                Global.logger.info("Value for option %s not found." % 'vgname')
             data_not_found('vgname')
         section_dict['vgname'] = vg_section['vgname']
+        if Global.trace:
+            Global.logger.info("Retrieved vgname: %s."% vg_section['vgname'])
 
     lvtype = section_dict.get('lvtype')
+    if Global.trace:
+        Global.logger.info("Retrieved lv type: %s."% lvtype)
     if lvtype == 'thinlv':
         section_dict, yml = thin_lv_data(section_dict)
     elif lvtype == 'thick':
@@ -24,11 +30,17 @@ def lv_create(section_dict):
          section_dict, yml = get_lv_vg_names('poolname', section_dict)
     else:
         print "Error: Unknown lvtype"
+        if Global.trace:
+            Global.logger.info("Retrieved lv type unknown.")
         helpers.cleanup_and_quit()
+    if Global.trace:
+        Global.logger.info("Executing %s."% yml)
     return section_dict, yml
 
 def lv_convert(section_dict):
     Global.ignore_errors = section_dict.get('ignore_lv_errors')
+    if Global.trace:
+        Global.logger.info("Executing %s."% defaults.LVCONVERT_YML)
     return section_dict, defaults.LVCONVERT_YML
 
 def lv_setup_cache(section_dict):
@@ -37,10 +49,14 @@ def lv_setup_cache(section_dict):
     section_dict['ssd'] = helpers.correct_brick_format(
             helpers.listify(section_dict['ssd']))[0]
     helpers.perf_spec_data_write()
+    if Global.trace:
+        Global.logger.info("Executing %s."% defaults.SETUP_CACHE_YML)
     return section_dict, defaults.SETUP_CACHE_YML
 
 def lv_change(section_dict):
     Global.ignore_errors = section_dict.get('ignore_lv_errors')
+    if Global.trace:
+        Global.logger.info("Executing %s."% defaults.LVCHANGE_YML)
     return section_dict, defaults.LVCHANGE_YML
 
 def get_lv_vg_names(name, section_dict):
@@ -65,6 +81,9 @@ def get_lv_vg_names(name, section_dict):
         section_dict, ymls = get_mount_data(section_dict, lvname, vgname)
     section_dict['lvnamelist'] = data
     ymls.insert(0, defaults.LVCREATE_YML)
+    if Global.trace:
+        for ymll in ymls:
+            Global.logger.info("Executing %s."% ymll)
     return section_dict, ymls
 
 def thin_lv_data(section_dict):
@@ -91,6 +110,9 @@ def thin_lv_data(section_dict):
     section_dict['lvnamelist'] = data
     section_dict, ymls = get_mount_data(section_dict, lvname, vgname)
     ymls.insert(0, defaults.THINLVCREATE_YML)
+    if Global.trace:
+        for ymll in ymls:
+            Global.logger.info("Executing %s."% ymll)
     return section_dict, ymls
 
 
@@ -121,8 +143,8 @@ def get_mount_data(section_dict, devices, vgnames):
             if not su:
                 # No stripe size given assuming 256
                 su = 256
-            section_dict['opts'] = "-f -K -i size=512 -d sw=%s,su=%sk\
- -n size=8192"%(sw[0],su[0])
+            section_dict['opts'] = "-f -K -i size=512 -d sw=%s,su=%sk"\
+                                   "-n size=8192"%(sw[0],su[0])
         else:
             section_dict['opts'] = "-f -K -i size=512 -n size=8192"
 
@@ -130,7 +152,11 @@ def get_mount_data(section_dict, devices, vgnames):
                        %(section_dict['fstype'],
                          section_dict['lvols'],
                          section_dict['opts']))
-
+    if Global.trace:
+        Global.logger.info("Creating %s filesystem on %s with options %s"\
+                   %(section_dict['fstype'],
+                     section_dict['lvols'],
+                     section_dict['opts']))
 
     mountpoint = helpers.listify(section_dict.get('mount'))
     if not mountpoint:
@@ -158,6 +184,9 @@ def get_mount_data(section_dict, devices, vgnames):
     if selinux:
         if selinux[0].lower() == 'yes':
             ymls.append(defaults.SELINUX_YML)
+    if Global.trace:
+        for ymll in ymls:
+            Global.logger.info("Executing %s."% ymll)
     return section_dict, ymls
 
 
