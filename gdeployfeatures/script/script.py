@@ -23,11 +23,16 @@ def script_execute(section_dict):
     else:
         length_match = True
     if not length_match:
-        print "\nError: Mismatch in the number of arguments " \
-                "and the number of shell scripts."
+        msg = "\nError: Mismatch in the number of arguments " \
+              "and the number of shell scripts."
+        print msg
+        if Global.trace:
+            Global.logger.info(msg)
         return section_dict, None
     data = []
     for sh, args in zip(section_dict['file'], section_dict['args']):
         data.append(sh + ' ' + args)
     section_dict['script'] = data
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.RUN_SCRIPT)
     return section_dict, defaults.RUN_SCRIPT
