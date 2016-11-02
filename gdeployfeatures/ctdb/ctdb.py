@@ -70,5 +70,5 @@ def ctdb_setup(section_dict):
                  defaults.SMB_FOR_CTDB]
     if Global.trace:
         for ymll in yaml_list:
-            Global.logger.info("Executing %s."%)
+            Global.logger.info("Executing %s."%ymll)
     return section_dict, yaml_list
