@@ -1,7 +1,7 @@
 .. _rst_gdeployssl:
 
-SSL
-^^^
+Enable SSL on a volume
+^^^^^^^^^^^^^^^^^^^^^^
 
 *New in gdeploy 2.0.1*
 
