@@ -31,3 +31,5 @@ This document explains the available features and their tunable variables.
 10. :ref:`rst_sambactdb`
 
 11. :ref:`rst_nfsganesha`
+
+12. :ref:`rst_gdeployssl`
