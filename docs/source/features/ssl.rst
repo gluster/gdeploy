@@ -15,33 +15,33 @@ available in `Admin Guide.
 
 1. Create a volume and enable SSL on it::
 
-   [hosts]
-   10.70.37.147
-   10.70.37.47
+     [hosts]
+     10.70.37.147
+     10.70.37.47
 
-   [backend-setup]
-   devices=/dev/vdb
-   vgs=vg1
-   pools=pool1
-   lvs=lv1
-   mountpoints=/mnt/brick
+     [backend-setup]
+     devices=/dev/vdb
+     vgs=vg1
+     pools=pool1
+     lvs=lv1
+     mountpoints=/mnt/brick
 
-   [volume]
-   action=create
-   volname=foo
-   transport=tcp
-   replica_count=2
-   force=yes
-   enable_ssl=yes
-   ssl_clients=10.70.37.107,10.70.37.173
-   brick_dirs=/data/1
+     [volume]
+     action=create
+     volname=foo
+     transport=tcp
+     replica_count=2
+     force=yes
+     enable_ssl=yes
+     ssl_clients=10.70.37.107,10.70.37.173
+     brick_dirs=/data/1
 
-   [clients]
-   action=mount
-   hosts=10.70.37.173,10.70.37.107
-   volname=foo
-   fstype=glusterfs
-   client_mount_points=/mnt/data
+     [clients]
+     action=mount
+     hosts=10.70.37.173,10.70.37.107
+     volname=foo
+     fstype=glusterfs
+     client_mount_points=/mnt/data
 
 In the above example, a volume named foo is created and SSL is enabled on
 it. gdeploy creates self signed certficates.
