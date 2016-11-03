@@ -101,7 +101,7 @@ def nfs_ganesha_refresh_config(section_dict):
         section_dict['config-block'].insert(0, '%s {'%block_name)
         section_dict['config-block'].append('}\n')
 
-     if Global.trace:
+    if Global.trace:
         Global.logger.info("Executing %s."%defaults.GANESHA_REFRESH_CONFIG)
     return section_dict, defaults.GANESHA_REFRESH_CONFIG
 
