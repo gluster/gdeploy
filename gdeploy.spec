@@ -1,28 +1,29 @@
-%define name gdeploy
-%define version 2.0.1
-%define release 2
-%define gdeploymod ansible/modules/extras/system/glusterfs
-%define gdeploytemp /usr/share/ansible/gdeploy
-%define gdeploydoc /usr/share/doc/gdeploy
-%define gdeploysrc http://download.gluster.org/pub/gluster/gdeploy/LATEST
+%global gdeploymod ansible/modules/extras/system/glusterfs
+%global gdeploytemp /usr/share/ansible/gdeploy
+%global gdeploydoc /usr/share/doc/gdeploy
+%global _rpmfilename noarch/%{name}-%{version}-%{release}%{?dist}.rpm
 
-Name:           %{name}
-Version:        %{version}
-Release:        %{?release}
+Name:           gdeploy
+Version:        2.0.1
+Release:        3
 Summary:        Tool to deploy and manage GlusterFS cluster
 
-Group:          Applications/System
 License:        GPLv3
-URL:            http://www.redhat.com/storage
-Source0:        %{gdeploysrc}/%{name}-%{version}-%{release}.tar.gz
+URL:            https://github.com/gluster/gdeploy
+Source0:        %{url}/archive/v%{version}-%{release}.tar.gz#/%{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Requires:       ansible >= 1.9 python >= 2.6 python-ecdsa >= 0.11
-Requires:       python-markupsafe >= 0.23 python-crypto >= 2.6.1 lvm2 >= 2
-Requires:       PyYAML >= 3.11 python-jinja2 >= 2.7.3 python-paramiko >= 1.15.2
+Requires:       ansible >= 2.1
+Requires:       python2
+Requires:       python2-ecdsa
+Requires:       python-markupsafe
+Requires:       python2-crypto
+Requires:       lvm2
+Requires:       PyYAML
+Requires:       python2-jinja2
+Requires:       python2-paramiko
 
-
-BuildRequires:  python-setuptools
+BuildRequires:  python2-setuptools
+BuildRequires:  python2-devel
 
 %description
 gdeploy is an Ansible based deployment tool. Initially gdeploy was written to
@@ -34,19 +35,18 @@ commands, create GlusterFS volumes and lot more.
 See http://gdeploy.readthedocs.io/en/latest/ for more details
 
 %prep
-%setup -q -n %{name}-%{version}-%{release}
+%autosetup -n %{name}-%{version}-%{release}
 
 %build
-python setup.py build
+%{__python2} setup.py build
 
 %install
 # Install the binary and python libraries
-rm -rf %{buildroot}
-python setup.py install -O1 --root=%{buildroot} --install-scripts %{_bindir}
+%{__python2} setup.py install -O1 --root=%{buildroot} --install-scripts %{_bindir}
 
-mkdir -p %{buildroot}/%{python_sitelib}/%{gdeploymod}
+mkdir -p %{buildroot}/%{python2_sitelib}/%{gdeploymod}
 install -m 755 modules/* \
-    %{buildroot}/%{python_sitelib}/%{gdeploymod}
+    %{buildroot}/%{python2_sitelib}/%{gdeploymod}
 
 # Install the playbooks into /usr/share/ansible/gdeploy/playbooks
 mkdir -p %{buildroot}/%{gdeploytemp}
@@ -66,30 +66,34 @@ install -m 755 extras/usecases/replace-node/gluster-replace-node \
 # Documentation
 mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
        %{buildroot}/%{_mandir}/man5/
-cp -r docs/* README.md examples %{buildroot}/%{gdeploydoc}
+cp -r docs/* examples %{buildroot}/%{gdeploydoc}
 cp man/gdeploy.1* %{buildroot}/%{_mandir}/man1/
 cp man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
-%clean
-rm -rf %{buildroot}
-
 %files
 %{_bindir}/gdeploy
-%{python_sitelib}/gdeploylib/
-%{python_sitelib}/gdeploycore/
-%{python_sitelib}/gdeployfeatures/
-%{python_sitelib}/%{gdeploymod}
+%{python2_sitelib}/*
 %{gdeploytemp}
-%{python_sitelib}/gdeploy-%{version}-*.egg-info/
 /usr/local/bin/gluster-replace-node
 
 %doc README.md
-%docdir %{gdeploydoc}
+%doc %{gdeploydoc}/*
 %{_mandir}/man1/gdeploy*
 %{_mandir}/man5/gdeploy*
-%{gdeploydoc}
 
 %changelog
+* Mon Nov 7 2016 Sachidananda Urs <sac@redhat.com> 2.0.1-3
+- Fix spec file to conform to Fedora standards
+
+* Wed Nov 2 2016 Sachidananda Urs <sac@redhat.com> 2.0.1-2
+- Fixes bugs: 1390872, 1390871, 1387174
+
+* Thu Sep 29 2016 Sachidananda Urs <sac@redhat.com> 2.0.1-1
+- Removed ansible dependency from RHEL6
+
+* Tue Aug 23 2016 Sachidananda Urs <sac@redhat.com> 2.0.1
+- Add support for configuring NFS Ganesha, Samba, and CTDB
+
 * Fri Jul 15 2016 Sachidananda Urs <sac@redhat.com> dev1
 - NFS Ganesha related bug fixes.
 
