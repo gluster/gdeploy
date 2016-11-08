@@ -1,9 +1,12 @@
-#!/usr/bin/env bash -eu
+#!/usr/bin/env bash
 #
 # stop and disable multipathd (the daemon) *and* blacklist all device names like 
 # /dev/sda so they do not appear in the output of multipath (the CLI)
 #
-#
+
+# shell exit with error (errexit) if any command returns exit != 0 or any variable
+# is undefined (nounset)
+set -ue
 
 warn(){
 echo <<\EOF >&2
