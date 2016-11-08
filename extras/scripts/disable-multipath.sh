@@ -27,15 +27,18 @@ test -d /etc/vdsm && WARN="true"
 # warn if true
 [[ ${WARN:=false} == "true" ]] && warn
 
+# flush maps; script will exit with error if map in use
 multipath -F
+# stop and prevent auto-start of the daemon
 systemctl stop multipathd
 systemctl disable multipathd
 
-# insert blacklist unless exists
-grep "inserted by $0" /etc/multipath.conf >/dev/null && \
+# insert wildcard blacklist for all device names unless exists
+BASENAME=$(basename $0)
+grep "inserted by $BASENAME" /etc/multipath.conf >/dev/null && \
   exit 0
 cat <<EOF>> /etc/multipath.conf
-# inserted by $0
+# inserted by $BASENAME
 blacklist {
         devnode "*"
 }
