@@ -120,7 +120,7 @@ def get_mount_data(section_dict, devices, vgnames):
             su = helpers.config_get_options('stripesize', False)
             if not su:
                 # No stripe size given assuming 256
-                su = 256
+                su = [256]
             section_dict['opts'] = "-f -K -i size=512 -d sw=%s,su=%sk\
  -n size=8192"%(sw[0],su[0])
         else:
