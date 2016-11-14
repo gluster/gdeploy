@@ -9,8 +9,8 @@
 set -ue
 
 warn(){
-echo <<\EOF >&2
- this script will prevent listing iscsi devices when multipath CLI is called
+cat <<\EOF >&2
+This script will prevent listing iscsi devices when multipath CLI is called
 without parameters, and so no LUNs will be discovered by applications like VDSM
 (oVirt, RHV) which shell-out to call `/usr/sbin/multipath` after target login
 EOF
