@@ -21,5 +21,5 @@ def  get_yml_lists(section_dict):
     yml_list = [v for k,v in ymls.iteritems() if section_dict[k]]
     if Global.trace:
     	for ymll in yml_list:
-    		Global.logger.info("Executing %s"%ymll)
+    		Global.logger.info("Executing %s."%ymll)
     return section_dict, yml_list
