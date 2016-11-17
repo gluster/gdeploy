@@ -273,9 +273,9 @@ def volume_smb_setup(section_dict):
     for key, value in SMB_DEFAULTS.iteritems():
         if section_dict[key]:
             options += key + ' = ' + str(section_dict[key]) + '\n'
-    section_dict['key'] = ['stat-prefetch', 'server.allow-insecure',
-            'storage.batch-fsync-delay-usec']
-    section_dict['value'] = ['off', 'on', 0]
+    section_dict['key'] = ['server.allow-insecure',
+                           'storage.batch-fsync-delay-usec']
+    section_dict['value'] = ['on', 0]
     section_dict, yml = volume_set(section_dict)
     section_dict['service'] = 'glusterd'
     section_dict['state'] = 'started'
