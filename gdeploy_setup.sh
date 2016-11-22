@@ -3,6 +3,8 @@
 test `id -u` -ne 0  && echo "Only root can run setup." && exit 1
 PLUGIN_DIR=/usr/lib/python2.7/site-packages/ansible/plugins/callback/
 
+PLUGIN_DIR=/usr/lib/python2.7/site-packages/ansible/plugins/callback/
+
 update_init_file ()
 {
     INIT_FILE="$1"
