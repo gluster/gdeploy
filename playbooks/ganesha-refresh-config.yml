@@ -3,7 +3,7 @@
   remote_user: root
   gather_facts: no
   vars:
-    ganesha_export_conf: exports/export.ganesha.conf
+    ganesha_export_conf: exports/export.{{ volname }}.conf
 
   tasks:
 
