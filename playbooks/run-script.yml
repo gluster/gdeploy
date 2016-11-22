@@ -8,7 +8,5 @@
     script: "{{ item }}"
     register: result
     failed_when: result.rc != 0
-
     with_items: "{{ script }}"
 
-  - debug: msg="{{ result.msg }}"

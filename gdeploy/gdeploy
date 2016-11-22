@@ -32,14 +32,13 @@ from platform import dist
 
 helpers = Helpers()
 
-@logfunction
 def parse_arguments(args=None):
     '''
     This method uses argparser to parse the command line inputs
     to the gdeploy script
     '''
     usage = 'gdeploy [-h] [-v] [-vv] [-c CONFIG_FILE] ' \
-        '[-k]'
+        '[-k] [-l | --legacy] [-d DISPLAY | --display DISPLAY]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument('--version',
                         action='version',
@@ -58,6 +57,12 @@ def parse_arguments(args=None):
                         help="verbose mode")
     parser.add_argument('--addfeature', dest='feature_name',
                         help="Add new feature to gdeploy")
+    parser.add_argument("-l", "--legacy", action="store_true",
+                        dest='legacy',
+                        help="Print output in legacy format")
+    parser.add_argument("-d", "--display", dest='display', default='gdeploy',
+                        help="Display output in the given format "
+                        "(default: gdeploy)")
     try:
         args = parser.parse_args(args=args)
     except IOError as msg:
@@ -113,8 +118,6 @@ def check_ansible_installation():
                 helpers.cleanup_and_quit()
     return
 
-
-@logfunction
 def init_global_values(args):
     global helpers
     sections_list = []
@@ -122,6 +125,8 @@ def init_global_values(args):
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
     Global.trace = args.trace
+    Global.legacy = args.legacy
+    Global.display = args.display
     if Global.trace:
         Global.logger.info("global variables successfully initialised.")
     for sec in  Global.config._sections:
@@ -131,8 +136,6 @@ def init_global_values(args):
                 dict(Global.config._sections[sec])))
     Global.sections = OrderedDict(sections_list)
 
-
-@logfunction
 def create_files_and_dirs():
     global helpers
     '''
@@ -150,7 +153,6 @@ def create_files_and_dirs():
     if Global.trace:
         Global.logger.info("host_vars directory successfully created locally.")
 
-@logfunction
 def create_playbooks_in_local():
     '''
     Templates directory in this codebase's repo will be moved to
@@ -192,8 +194,6 @@ def main(arg):
                        "/etc/ansible/ansible.cfg")
     args = parse_arguments(arg)
     if args:
-        if Global.trace:
-            Global.logger.info("arguments parsed successfully.")
         init_global_values(args)
         check_ansible_installation()
         create_files_and_dirs()
@@ -214,15 +214,5 @@ def main(arg):
         Global.logger.info("Error while parsing the config file.")
 
 if __name__ == '__main__':
-    '''
-    This script just reads in the command line arguments and gets the
-    config file.
-
-    Here gdeploy starts!
-    Drum roll!
-    '''
-    '''
-    and it initialises a global var to keep track of the logs
-    '''
     log_event()
     main(sys.argv[1:])
