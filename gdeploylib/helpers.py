@@ -41,6 +41,15 @@ from global_vars import Global
 from yaml_writer import YamlWriter
 from defaults import feature_list
 
+# Imports needed to call the ansible api
+from collections import namedtuple
+from ansible.parsing.dataloader import DataLoader
+from ansible.vars import VariableManager
+from ansible.inventory import Inventory
+from ansible.playbook.play import Play
+from ansible.executor.task_queue_manager import TaskQueueManager
+from ansible.errors import AnsibleError
+
 class Helpers(Global, YamlWriter):
 
     '''
@@ -356,10 +365,62 @@ class Helpers(Global, YamlWriter):
             self.filename = Global.group_file
             self.create_var_files(section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
-        self.exec_ansible_cmd(yml)
+        self.exec_ansible(yml)
 
 
-    def exec_ansible_cmd(self, playbooks_file):
+    def exec_ansible(self, playbooks_file):
+        if Global.legacy:
+            self.exec_ansible_legacy(playbooks_file)
+        else:
+            self.exec_ansible_api(playbooks_file)
+
+    def exec_ansible_api(self, playbooks_file):
+        variable_manager = VariableManager()
+        loader = DataLoader()
+
+        ds = loader.load_from_file(playbooks_file)
+        Options = namedtuple('Options', ['connection','module_path', 'forks',
+                                         'remote_user', 'private_key_file',
+                                         'ssh_common_args', 'ssh_extra_args',
+                                         'sftp_extra_args', 'scp_extra_args',
+                                         'become', 'become_method',
+                                         'become_user', 'verbosity',
+                                         'check'])
+        options = Options(connection='ssh', module_path=None, forks=100,
+                          remote_user='root', private_key_file='id_rsa',
+                          ssh_common_args=None, ssh_extra_args=None,
+                          sftp_extra_args=None, scp_extra_args=None,
+                          become=None, become_method=None, become_user=None,
+                          verbosity=None, check=False)
+
+        # create inventory and pass to var manager
+        inventory = Inventory(loader=loader, variable_manager=variable_manager,
+                              host_list=Global.inventory)
+        variable_manager.set_inventory(inventory)
+
+        # Currently we are limiting to one playbook at a time.
+        play_source = ds[0]
+        play = Play().load(play_source, variable_manager=variable_manager, loader=loader)
+
+        # actually run it
+        tqm = None
+        try:
+            tqm = TaskQueueManager(
+                inventory=inventory,
+                variable_manager=variable_manager,
+                loader=loader,
+                options=options,
+                passwords=None,
+                stdout_callback=Global.display
+            )
+            result = tqm.run(play)
+        except AnsibleError, e:
+            print "%s"%e
+        finally:
+            if tqm is not None:
+                tqm.cleanup()
+
+    def exec_ansible_legacy(self, playbooks_file):
         executable = 'ansible-playbook'
         command = [executable, '-i', Global.inventory, Global.verbose,
                 playbooks_file]
@@ -375,6 +436,7 @@ class Helpers(Global, YamlWriter):
         except (OSError, subprocess.CalledProcessError) as e:
             print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             sys.exit()
+
 
     def listify(self, var):
         if not var:
