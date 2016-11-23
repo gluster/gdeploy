@@ -73,16 +73,15 @@ class BackendSetup(Helpers):
 
     def call_selinux(self):
         selinux = self.config_get_options('selinux', False)
-        Global.logger.info("Setting up SeLinux labels running playbook %s"\
-                           %SELINUX_YML)
         if selinux:
             if selinux[0].lower() == 'yes':
                 self.run_playbook(SELINUX_YML)
-
+                Global.logger.info("Setting up SeLinux labels, executing "
+                                   "playbook %s"%SELINUX_YML)
 
     def new_backend_setup(self, hosts):
         hosts = filter(None, hosts)
-        Global.logger.info("Setting up backend on hosts.")
+        Global.logger.info("Setting up backend on hosts...")
         if hosts:
             Global.var_file = None
             hosts = self.pattern_stripping(hosts)
@@ -172,7 +171,7 @@ class BackendSetup(Helpers):
             self.ssd = self.correct_brick_format(ssd)[0]
             self.section_dict['disk'] = self.ssd
             self.bricks.append(self.ssd)
-            Global.logger.info("Setting up SSD bricks")
+            Global.logger.info("Setting up SSD bricks %s"%self.ssd)
         if not self.bricks:
             return
         self.bricks = self.correct_brick_format(self.bricks)
@@ -377,9 +376,11 @@ class BackendSetup(Helpers):
         brick_dirs = self.section_data_gen('brick_dirs', 'Brick directories')
         if not brick_dirs:
             if force.lower() == 'no':
-                print "Error: Mount points cannot be brick directories.\n" \
+                msg = "Error: Mount points cannot be brick directories.\n" \
                         "Provide 'brick_dirs' option/section or use force=yes"\
                         " in your configuration file. Exiting!"
+                print msg
+                Global.logger.error(msg)
                 return
             else:
                 if not hasattr(self, 'mountpoints') or not self.mountpoints:
@@ -404,6 +405,7 @@ class BackendSetup(Helpers):
                             "the mountpoints available.\nEither give %d " \
                             "brick_dirs or provide a common one or leave this "\
                             "empty." % (len(self.mountpoints))
+                        Global.logger.error(msg)
                         return
                 brick_dir = self.sub_directory_check(brick_dirs)
                 brick_list = []
@@ -418,11 +420,13 @@ class BackendSetup(Helpers):
                                 "directory inside %s under the 'brick_dirs' " \
                                 "option or provide option 'force=yes' under 'volume' " \
                                 "section." % mountpoint
+                            Global.logger.error(msg)
                             return
                         else:
                             print "\nWarning: Using mountpoint itself as the brick in one or " \
                                     "more hosts since force" \
                                 " is specified, although not recommended.\n"
+                            Global.logger.warning(msg)
             else:
                 brick_list = brick_dirs
 

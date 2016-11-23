@@ -27,23 +27,17 @@ from backend_reset import BackendReset
 yaml_write = YamlWriter()
 conf_parse = Helpers()
 
-
-@logfunction
 def call_core_functions():
-    log_methods_in_class(BackendSetup)
+    BackendSetup()
     tune_profile()
-    log_methods_in_class(BackendReset)
+    BackendReset()
 
-def log_methods_in_class(classname):
-    obj = logclass(classname)
-    obj()
-
-@logfunction
 def tune_profile():
     global conf_parse
     profile = conf_parse.config_get_options('tune-profile', False)
     profile = None if not profile else profile[0]
     if not profile:
+        Global.logger.info("No tuning profiles specified, ignoring")
         return
     yaml_write.create_yaml_dict('profile', profile, False)
     Global.logger.info("Running tuneadm to apply profile %s"%profile)
