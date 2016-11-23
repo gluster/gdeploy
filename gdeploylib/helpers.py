@@ -104,6 +104,8 @@ class Helpers(Global, YamlWriter):
             except IOError as e:
                 print "\nError: File copying failed(%s)" % e
                 self.cleanup_and_quit()
+        Global.logger.info("Copied files from %s to %s"%
+                           (source_dir, Global.base_dir))
 
     def get_file_dir_path(self, basedir, newdir):
         return os.path.join(os.path.realpath(basedir), newdir)
@@ -470,7 +472,6 @@ class Helpers(Global, YamlWriter):
         Some calculations are made as to enhance
         performance
         '''
-        Global.logger.info("Performing GlusterFS specific performance tuning.")
         disktype = self.config_get_options('disktype', False)
         if disktype:
             perf = dict(disktype=disktype[0].lower())
