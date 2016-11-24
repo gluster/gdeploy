@@ -76,8 +76,7 @@ class BackendSetup(Helpers):
         if selinux:
             if selinux[0].lower() == 'yes':
                 self.run_playbook(SELINUX_YML)
-                Global.logger.info("Setting up SeLinux labels, executing "
-                                   "playbook %s"%SELINUX_YML)
+                Global.logger.info("Setting up SELinux labels")
 
     def new_backend_setup(self, hosts):
         hosts = filter(None, hosts)
@@ -177,8 +176,8 @@ class BackendSetup(Helpers):
         self.bricks = self.correct_brick_format(self.bricks)
         self.device_count = len(self.bricks)
         self.section_dict['bricks'] = self.bricks
-        Global.logger.info("Create physical volumes %s - running playbook %s"\
-                           %(self.section_dict['bricks'], PVCREATE_YML))
+        Global.logger.info("Create physical volumes %s"%
+                           self.section_dict['bricks'])
         if self.bricks:
             self.run_playbook(PVCREATE_YML)
 
@@ -207,9 +206,8 @@ class BackendSetup(Helpers):
             data.append(vgnames)
         self.section_dict['vgnames'] = filter(None, data)
         self.vgs = self.section_dict['vgs']
-        Global.logger.info("Creating volume group %s running %s"\
-                           %(self.vgs, VGCREATE_YML))
         if self.vgs:
+            Global.logger.info("Creating volume group %s"%self.vgs)
             self.run_playbook(VGCREATE_YML)
 
     def write_thinp_names(self):
@@ -247,8 +245,8 @@ class BackendSetup(Helpers):
             data.append(pools)
         self.section_dict['lvpools'] = filter(None, data)
         if self.section_dict['lvpools']:
-            Global.logger.info("Creating thin pool %s running %s"\
-                               %(self.section_dict['lvpools'], GLUSTER_LV_YML))
+            Global.logger.info("Creating thin pool %s"%
+                               self.section_dict['lvpools'])
             self.run_playbook(GLUSTER_LV_YML)
 
     def write_lv_names(self):
@@ -281,7 +279,7 @@ class BackendSetup(Helpers):
                 print msg
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
-            Global.logger.info("vgextend - running %s"%VGEXTEND_YML)
+            Global.logger.info("Adding ssd, running vgextend")
             self.run_playbook(VGEXTEND_YML)
             self.section_dict['datalv'] = datalv[0]
             cachemeta = self.get_options(
@@ -295,10 +293,11 @@ class BackendSetup(Helpers):
         if not self.data:
             return
         self.section_dict['lvs'] = self.data
-        Global.logger.info("Creating logical volumes, running %s"%LVCREATE_YML)
+        Global.logger.info("Creating logical volumes %s"%
+                           self.section_dict['lvs'])
         self.run_playbook(LVCREATE_YML)
         if hasattr(self, 'ssd'):
-            Global.logger.info("Running lvconvert - %s"%LVCONVERT_YML)
+            Global.logger.info("lvconvert: convert lv to cachepool")
             self.run_playbook(LVCONVERT_YML)
 
 
@@ -343,7 +342,6 @@ class BackendSetup(Helpers):
                                %(self.section_dict['fstype'],
                                  self.section_dict['lvols'],
                                  self.section_dict['opts']))
-            Global.logger.info("Running playbook - %s"%FSCREATE_YML)
             self.run_playbook(FSCREATE_YML)
 
     def write_mount_options(self):

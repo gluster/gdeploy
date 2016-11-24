@@ -367,6 +367,7 @@ class Helpers(Global, YamlWriter):
             self.filename = Global.group_file
             self.create_var_files(section_dict)
         yml = self.get_file_dir_path(Global.base_dir, yaml_file)
+        Global.logger.info("Invoking playbook  %s", yml)
         self.exec_ansible(yml)
 
 
@@ -400,9 +401,10 @@ class Helpers(Global, YamlWriter):
                               host_list=Global.inventory)
         variable_manager.set_inventory(inventory)
 
-        # Currently we are limiting to one playbook at a time.
+        # Currently we are limiting to one playbook
         play_source = ds[0]
-        play = Play().load(play_source, variable_manager=variable_manager, loader=loader)
+        play = Play().load(play_source, variable_manager=variable_manager,
+                           loader=loader)
 
         # actually run it
         tqm = None
@@ -416,6 +418,7 @@ class Helpers(Global, YamlWriter):
                 stdout_callback=Global.display
             )
             result = tqm.run(play)
+            # TODO: Do something with the result
         except AnsibleError, e:
             print "%s"%e
         finally:
