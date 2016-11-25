@@ -361,9 +361,7 @@ class BackendSetup(Helpers):
             data.append(mntpath)
         self.section_dict['mntpath'] = filter(None, data)
         if self.section_dict['mntpath']:
-            Global.logger.info("Mounting on %s, running %s"\
-                               %(self.section_dict['mntpath'],
-                                 MOUNT_YML))
+            Global.logger.info("Mounting on %s"%self.section_dict['mntpath'])
             self.run_playbook(MOUNT_YML)
 
     def write_brick_dirs(self):
