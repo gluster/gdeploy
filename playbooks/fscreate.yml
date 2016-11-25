@@ -4,7 +4,7 @@
   gather_facts: no
 
   tasks:
-  - name: Create a xfs filesystem
+  - name: Create an xfs filesystem
     filesystem: fstype="{{ fstype }}" dev={{ item }}
                 opts="{{ opts }}"
     with_items: "{{ lvols }}"
