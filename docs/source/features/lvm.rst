@@ -8,7 +8,7 @@ gdeploy allows to setup backend for GlusterFS in two ways.
   a. Using the modules: *pv*, *vg*, and *lv*
   b. Using the *backend-setup* module.
 
-The *backend-setup* module setups up a thin-pool by default and applies default
+The *backend-setup* module sets up a thin-pool by default and applies default
 performance recommendations. However, if the user has a different use case which
 demands more than one LV, and a combination of thin and thick pools then
 *backend-setup* is of no help. The user can use PV, VG, and LV modules to
