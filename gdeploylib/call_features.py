@@ -47,9 +47,8 @@ def get_feature_dir(section):
     section_name = helpers.get_section_pattern(section)
 
     if not section_name:
-        msg = "Feature `%s' not implemented, ignoring..."%section
-        Global.logger.warning(msg)
-        print "Warning: " + msg
+        # We do not log this, since many features like disktype, raid do not
+        # have their own section directories under gdeployfeature
         return
 
     try:
@@ -194,5 +193,3 @@ def validate_the_user_data(section_dict, reqd_vals):
                 if not section_dict.get(each):
                     section_dict[each] = None
     return section_dict
-
-

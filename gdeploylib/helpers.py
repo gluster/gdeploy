@@ -77,7 +77,7 @@ class Helpers(Global, YamlWriter):
             shutil.rmtree(Global.base_dir)
             Global.logger.info("Deleting playbook data %s"%Global.base_dir)
         else:
-            print "\nYou can view the generated configuration files "\
+            print "You can view the generated configuration files "\
                 "inside %s" % Global.base_dir
             Global.logger.info("Configuration saved inside %s" %Global.base_dir)
         Global.logger.info("Terminating gdeploy...")
@@ -102,7 +102,9 @@ class Helpers(Global, YamlWriter):
             try:
                 shutil.copy(each, Global.base_dir)
             except IOError as e:
-                print "\nError: File copying failed(%s)" % e
+                msg = "Error: File copying failed(%s)" % e
+                print msg
+                Global.logger.error(msg)
                 self.cleanup_and_quit()
         Global.logger.info("Copied files from %s to %s"%
                            (source_dir, Global.base_dir))
@@ -185,7 +187,7 @@ class Helpers(Global, YamlWriter):
             else:
                 msg =  "Looks like you missed to give configurations " \
                     "for one or many host(s). Exiting!"
-                print "\nError: " + msg
+                print "Error: " + msg
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
             return True
@@ -203,8 +205,10 @@ class Helpers(Global, YamlWriter):
                 try:
                     options = Global.sections[self.current_host].get(section)
                 except:
-                    print "\nError: Couldn't fin value for %s option for "\
-                    "host %s" %(section, self.current_host)
+                    msg = "Error: Couldn't find value for %s option for "\
+                          "host %s" %(section, self.current_host)
+                    print msg
+                    Global.logger.error(msg)
                 return self.split_comma_separated_options(options)
         return self.section_dict.get(section)
 
@@ -232,8 +236,10 @@ class Helpers(Global, YamlWriter):
             return None
         brk_group = re.search("(.*):(.*)", brick)
         if not brk_group:
-            print "\nError: Brick names should be in the format " \
-                    "<hostname>:<brickname>. Exiting!"
+            msg = "Error: Brick names should be in the format " \
+                  "<hostname>:<brickname>. Exiting!"
+            print msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
         if brk_group.group(1) not in Global.brick_hosts:
             Global.brick_hosts.append(brk_group.group(1))
@@ -290,7 +296,7 @@ class Helpers(Global, YamlWriter):
             names = [pat_group.group(1) + name + pat_group.group(3) for name in pattern_string]
         else:
             msg = "Unknown pattern."
-            print "\nError: " + msg
+            print "Error: " + msg
             Global.logger.error(msg)
         return filter(None, names)
 
@@ -347,8 +353,11 @@ class Helpers(Global, YamlWriter):
         if not section:
             return False
         if len(section) > 1:
-            print "Error: Oops! gdeploy is a bit confused with the " \
-            "section name %s. Please check your configuration file." % section
+            msg = "Error: Oops! gdeploy is a bit confused with the " \
+                  "section name %s. Please check your configuration file."\
+                  %section
+            Global.logger.error(msg)
+            print msg
             self.cleanup_and_quit()
         return section[0]
 
@@ -406,7 +415,6 @@ class Helpers(Global, YamlWriter):
         play = Play().load(play_source, variable_manager=variable_manager,
                            loader=loader)
 
-        # actually run it
         tqm = None
         try:
             tqm = TaskQueueManager(
@@ -418,7 +426,19 @@ class Helpers(Global, YamlWriter):
                 stdout_callback=Global.display
             )
             result = tqm.run(play)
-            # TODO: Do something with the result
+            # Exit gdeploy in case of errors and user has explicitly set
+            # not to ignore errors
+            if result != 0 and Global.ignore_errors != 'yes':
+                msg = "Error while executing playbook %s, exiting"\
+                      %playbooks_file
+                print msg
+                Global.logger.error(msg)
+                self.cleanup_and_quit(1)
+            elif result != 0 and Global.ignore_errors == 'yes':
+                msg = "Error while executing playbook %s, ignoring errors..."\
+                      %playbooks_file
+                Global.logger.error(msg)
+                print msg
         except AnsibleError, e:
             print "%s"%e
         finally:
@@ -439,7 +459,9 @@ class Helpers(Global, YamlWriter):
             elif retcode != 0 and Global.ignore_errors == 'yes':
                 print "Ignoring errors..."
         except (OSError, subprocess.CalledProcessError) as e:
-            print "Error: Command %s failed. (Reason: %s)" % (cmd, e)
+            msg = "Error: Command %s failed. (Reason: %s)" % (cmd, e)
+            Global.logger.error(msg)
+            print msg
             sys.exit()
 
 
@@ -478,10 +500,12 @@ class Helpers(Global, YamlWriter):
         disktype = self.config_get_options('disktype', False)
         if disktype:
             perf = dict(disktype=disktype[0].lower())
-            if perf['disktype'] not in ['raid10', 'raid6', 'jbod']:
-                msg = "Unsupported disk type!"
-                print "\nError: " + msg
-                Global.logger.error(msg)
+            # Supported disk types
+            sdisks = ['raid10', 'raid6', 'jbod']
+            if perf['disktype'] not in sdisks:
+                msg = "Unsupported disk type!\nOnly %s are supported"%sdisks
+                print "Error: " + msg
+                Global.logger.error(msg.replace("\n", " "))
                 self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
                 diskcount = self.config_get_options('diskcount', True)
@@ -543,8 +567,10 @@ class Helpers(Global, YamlWriter):
         try:
             hostname = Global.master or Global.current_hosts[0]
         except:
-            print "\nWarning: Insufficient host names or IPs. Running  " \
-            "in the localhost"
+            msg = "Warning: Insufficient host names or IPs. Running  " \
+                  "in the localhost"
+            print msg
+            Global.logger.warn(msg)
             hostname = "127.0.0.1"
         self.write_config('master', hostname, Global.inventory)
 
@@ -568,10 +594,12 @@ class Helpers(Global, YamlWriter):
             config_parse.read(config_file)
             return config_parse
         except:
-            print "Sorry! Looks like the format of configuration " \
-                "file %s is not something we could read! \nTry removing " \
-                "whitespaces or unwanted characters in the configuration " \
-                "file." % config_file
+            msg = "Sorry! Looks like the format of configuration " \
+                  "file %s is not something we could read! \nTry removing " \
+                  "whitespaces or unwanted characters in the configuration " \
+                  "file." % config_file
+            print msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
 
     def write_to_inventory(self, section, options):
@@ -593,7 +621,9 @@ class Helpers(Global, YamlWriter):
             with open(filename, 'ab') as f:
                 config.write(f)
         except:
-            print "Error: Failed to create file %s. Exiting!" % filename
+            msg = "Error: Failed to create file %s. Exiting!" % filename
+            print msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
 
     def config_section_map(
@@ -605,7 +635,9 @@ class Helpers(Global, YamlWriter):
             return Global.config.get(section, option)
         except:
             if required:
-                print "Error: Option %s not found! Exiting!" % option
+                msg = "Error: Option %s not found! Exiting!" % option
+                Global.logger.error(msg)
+                print msg
                 self.cleanup_and_quit()
             return []
 
@@ -614,8 +646,10 @@ class Helpers(Global, YamlWriter):
             return config_parse.items(section)
         except:
             if required:
-                print "Error: Section %s not found in the " \
-                    "configuration file" % section
+                msg = "Error: Section %s not found in the " \
+                      "configuration file" % section
+                Global.logger.error(msg)
+                print msg
                 self.cleanup_and_quit()
             return []
 
@@ -624,8 +658,10 @@ class Helpers(Global, YamlWriter):
             return Global.config.options(section)
         except ConfigParser.NoSectionError as e:
             if required:
-                print "Error: Section %s not found in the " \
-                    "configuration file" % section
+                msg = "Error: Section %s not found in the " \
+                      "configuration file" % section
+                Global.logger.error(msg)
+                print msg
                 self.cleanup_and_quit()
             return []
 
@@ -633,9 +669,11 @@ class Helpers(Global, YamlWriter):
         try:
             return config_parse.sections()
         except:
-            print "Error: Looks like you haven't provided any options " \
-                "I need in the conf " \
-                "file. Please populate the conf file and retry!"
+            msg = "Error: Looks like you haven't provided any options " \
+                  "needed in the conf " \
+                  "file. Please populate the conf file and retry!"
+            Global.logger.error(msg)
+            print msg
             self.cleanup_and_quit()
 
     def split_string(self, string, sep):
