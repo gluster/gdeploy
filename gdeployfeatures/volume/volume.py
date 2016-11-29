@@ -121,8 +121,10 @@ def get_common_brick_dirs(section_dict):
             f_brick_list.extend(brick_list)
             section_dict['brick_dirs'] = helpers.unique(brick_name)
         else:
-            print "\nError: 'brick_dirs' not provided for all the "\
-            "hosts."
+            msg = "Error: 'brick_dirs' not provided for all the "\
+                  "hosts."
+            print msg
+            Global.logger.error(msg)
             helpers.cleanup_and_quit()
 
     section_dict['mountpoints'] = helpers.unique(f_brick_list)

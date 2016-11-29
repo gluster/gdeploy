@@ -33,7 +33,7 @@ try:
     import yaml
 except ImportError:
     msg = "Package PyYAML not found."
-    print "\nError: " + msg
+    print "Error: " + msg
     Global.logger.error(msg)
     sys.exit(0)
 import os
@@ -274,7 +274,7 @@ class BackendSetup(Helpers):
                                "SSD for caching.")
             datalv = self.section_data_gen('datalv', 'Data LV')
             if not datalv:
-                msg = "\nError: Data lv('datalv' options) not specified for "\
+                msg = "Error: Data lv('datalv' options) not specified for "\
                       "cache setup"
                 print msg
                 Global.logger.error(msg)
@@ -376,7 +376,7 @@ class BackendSetup(Helpers):
                         "Provide 'brick_dirs' option/section or use force=yes"\
                         " in your configuration file. Exiting!"
                 print msg
-                Global.logger.error(msg)
+                Global.logger.error(msg.replace("\n", " "))
                 return
             else:
                 if not hasattr(self, 'mountpoints') or not self.mountpoints:
@@ -416,10 +416,10 @@ class BackendSetup(Helpers):
                                 "directory inside %s under the 'brick_dirs' " \
                                 "option or provide option 'force=yes' under 'volume' " \
                                 "section." % mountpoint
-                            Global.logger.error(msg)
+                            Global.logger.error(msg.replace("\n", " "))
                             return
                         else:
-                            print "\nWarning: Using mountpoint itself as the brick in one or " \
+                            print "Warning: Using mountpoint itself as the brick in one or " \
                                     "more hosts since force" \
                                 " is specified, although not recommended.\n"
                             Global.logger.warning(msg)
@@ -436,7 +436,6 @@ class BackendSetup(Helpers):
             self.create_var_files(self.section_dict)
         return
 
-
     def sub_directory_check(self, brick_dir):
         if len(brick_dir) == 1:
             brick_dir = brick_dir * len(self.mountpoints)
@@ -448,12 +447,10 @@ class BackendSetup(Helpers):
                         "relative paths for all the %s mountpoints "\
                         "are given separately. "\
                         "Exiting!" %(mnt, len(self.mountpoints))
-                    print "\nError: " + msg
-                    Global.logger.error(msg)
+                    print "Error: " + msg
+                    Global.logger.error(msg.replace("\n", " "))
                     self.cleanup_and_quit()
         return brick_dir
-
-
 
     def insufficient_param_count(self, section, count):
         msg = "Please provide %s names for %s devices " \

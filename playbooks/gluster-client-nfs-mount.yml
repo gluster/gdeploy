@@ -65,5 +65,4 @@
            opts="{{ opts }}"
            state=mounted
     when: item.fstype == 'nfs'
-
     with_items: "{{ client_mounts }}"
