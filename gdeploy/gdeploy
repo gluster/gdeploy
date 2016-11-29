@@ -179,7 +179,7 @@ def create_playbooks_in_local():
             "Gdeploy looks inside the directory %s or \n" \
             "wants the environment varible GDEPLOY_TEMPLATES set."\
              % (playbooks_path_pkg)
-        print "\nError: " + msg
+        print "Error: " + msg
         Global.logger.error(msg.strip('\n\t\r'))
         if Global.trace:
             Global.logger.info("Cleaning up the process and quitting.")

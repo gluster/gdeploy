@@ -17,12 +17,17 @@ def clients_mount(section_dict):
             section_dict['volname'])
     clients, mntpts = get_client_hosts(section_dict)
     fstype = helpers.listify(section_dict['fstype'])
+    Global.logger.info("Running mount on clients %s"%clients)
+    Global.logger.info("Mounting volume %s on %s, fstype %s"%(
+        section_dict['volname'], mntpts, fstype))
     if len(fstype) != len(clients):
         if len(fstype) == 1:
             fstype *= len(mntpts)
         else:
-            print "\nError: Provide equal number of fstype and "\
-            "clients."
+            msg = "Error: Provide equal number of fstype and "\
+                  "clients."
+            print msg
+            Global.logger.error(msg)
             return False, False
     for mnt, fs, host in zip(mntpts, fstype, clients):
         section_dict = {'glusterfs': fuse_mount,
@@ -35,7 +40,7 @@ def clients_mount(section_dict):
     section_dict['clients'] = clients
     helpers.write_to_inventory('clients', clients)
     return section_dict, [defaults.MNTCREATE_YML, defaults.FUSEMNT_YML,
-            defaults.NFSMNT_YML, defaults.CIFSMNT_YML]
+                          defaults.NFSMNT_YML, defaults.CIFSMNT_YML]
 
 
 def nfs_mount(mnt, host, section_dict):
@@ -44,6 +49,8 @@ def nfs_mount(mnt, host, section_dict):
     if type(options) is not list:
         options = [options]
     section_dict['opts'] = ",".join(options)
+    Global.logger.info("Initiating NFS mount with options %s"%
+                       section_dict['opts'])
     client_mounts[host].append({'mountpoint': mnt, 'fstype': 'nfs'})
     return section_dict
 
@@ -51,19 +58,25 @@ def nfs_mount(mnt, host, section_dict):
 def fuse_mount(mnt, host, section_dict):
     global client_mounts, helpers
     client_mounts[host].append({'mountpoint': mnt, 'fstype': 'fuse'})
+    Global.logger.info("Initiating GlusterFS/Fuse mount")
     return section_dict
 
 def cifs_mount(mnt, host, section_dict):
+    Global.logger.info("Initiating CIFS mount")
     try:
         samba_username = section_dict['smb_username']
         samba_password = section_dict['smb_password']
     except KeyError, k:
-        print "%s is a required field"%k
+        msg = "%s is a required field"%k
+        print msg
+        Global.logger.error(msg)
         samba_username = samba_password = False
 
     if not samba_username or not samba_password:
-        print "Error: Provide smb_username and smb_password " \
-                "for CIFS mount"
+        msg = "Error: Provide smb_username and smb_password " \
+              "for CIFS mount"
+        print msg
+        Global.logger.error(msg)
         return False
     global client_mounts, helpers
     client_mounts[host].append({'mountpoint': mnt, 'fstype': 'cifs'})
@@ -89,7 +102,6 @@ def clients_unmount(section_dict):
     del section_dict['hosts']
     return section_dict, defaults.VOLUMOUNT_YML
 
-
 def get_client_hosts(section_dict):
     global helpers
     clients = helpers.listify(section_dict['hosts'])
@@ -104,7 +116,9 @@ def get_client_hosts(section_dict):
         elif len(clients) == 1:
             clients *= len(mntpts)
         else:
-            print "\nError: Provide equal number of client hosts and "\
-            "client_mount_points."
+            msg = "Error: Provide equal number of client hosts and "\
+                  "client_mount_points."
+            print msg
+            Global.logger.error(msg)
             self.cleanup_and_quit()
     return clients, mntpts
