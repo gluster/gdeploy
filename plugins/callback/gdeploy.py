@@ -42,12 +42,10 @@ class CallbackModule(CallbackBase):
         self._process_results(result, 'FAILED', C.COLOR_ERROR)
 
     def v2_runner_on_ok(self, result):
-        self._clean_results(result._result, result._task.action)
         if 'changed' in result._result and result._result['changed']:
             self._process_results(result, 'SUCCESS', C.COLOR_CHANGED)
         else:
             self._process_results(result, 'SUCCESS', C.COLOR_OK)
-        self._handle_warnings(result._result)
 
     def v2_runner_on_skipped(self, result):
         self._process_results(result, 'SKIPPED', C.COLOR_SKIP)
@@ -56,6 +54,11 @@ class CallbackModule(CallbackBase):
         self._process_results(result, 'UNREACHABLE', C.COLOR_UNREACHABLE)
 
     def _process_results(self, result, status, color):
+        # One of the result items could be the status of ansible facts.
+        # We ignore them for now
+        if result._result.has_key('ansible_facts'):
+            return
+
         results = result._result['results']
         for res in results:
             if status == 'UNREACHABLE' or status == 'FAILED':
@@ -77,7 +80,6 @@ class CallbackModule(CallbackBase):
                 self._display.display("[%s] %s (%s): %s"%(
                     result._host.get_name(), result._task.get_name(),
                     res['item'], status), color=color)
-
 
     def _get_field(self, result, field):
         """Porcesses the result and returns the requested field"""
