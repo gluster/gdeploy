@@ -45,10 +45,9 @@ def log_event():
     '''
     This method helps in logging the messages
     '''
-    log_dir = os.path.expanduser('~/.gdeploy/logs/')
     rotate_log_file(Global.log_file)
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
+    if not os.path.exists(Global.log_dir):
+        os.makedirs(Global.log_dir)
     logger = logging.getLogger("gdeploy")
     logger.setLevel(logging.INFO)
 

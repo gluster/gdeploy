@@ -32,14 +32,13 @@ from platform import dist
 
 helpers = Helpers()
 
-@logfunction
 def parse_arguments(args=None):
     '''
     This method uses argparser to parse the command line inputs
     to the gdeploy script
     '''
     usage = 'gdeploy [-h] [-v] [-vv] [-c CONFIG_FILE] ' \
-        '[-k]'
+        '[-k] [-l | --legacy] [-d DISPLAY | --display DISPLAY]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument('--version',
                         action='version',
@@ -58,6 +57,12 @@ def parse_arguments(args=None):
                         help="verbose mode")
     parser.add_argument('--addfeature', dest='feature_name',
                         help="Add new feature to gdeploy")
+    parser.add_argument("-l", "--legacy", action="store_true",
+                        dest='legacy',
+                        help="Print output in legacy format")
+    parser.add_argument("-d", "--display", dest='display', default='gdeploy',
+                        help="Display output in the given format "
+                        "(default: gdeploy)")
     try:
         args = parser.parse_args(args=args)
     except IOError as msg:
@@ -78,8 +83,7 @@ def parse_arguments(args=None):
 def check_ansible_installation():
     # On RHEL6 machines complain if ansible is not installed. We do not handle
     # dependencies in spec file, since ansible is not shipped with RHEL6.
-    if Global.trace:
-        Global.logger.info("Checking for ansible installation.")
+
     dist_type = dist()
     op_system = dist_type[0]
     if op_system != 'redhat':
@@ -113,8 +117,6 @@ def check_ansible_installation():
                 helpers.cleanup_and_quit()
     return
 
-
-@logfunction
 def init_global_values(args):
     global helpers
     sections_list = []
@@ -122,35 +124,35 @@ def init_global_values(args):
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
     Global.trace = args.trace
-    if Global.trace:
-        Global.logger.info("global variables successfully initialised.")
+    Global.legacy = args.legacy
+    Global.display = args.display
+
     for sec in  Global.config._sections:
         sections = helpers.parse_patterns(sec)
         for each in sections:
             sections_list.append((each,
                 dict(Global.config._sections[sec])))
     Global.sections = OrderedDict(sections_list)
+    if Global.trace:
+        Global.logger.info("Initialised global variables.")
 
-
-@logfunction
 def create_files_and_dirs():
     global helpers
     '''
-    Create required directories for all the configuration files
-    to go in. Since the client data for gluster confs are common for all the
-    hosts, creating a group var file anyway.
+    Create required directories for all the configuration data to go in.
     '''
     helpers.mk_dir(Global.group_vars_dir)
     if Global.trace:
-        Global.logger.info("group_vars directory successfully created locally.")
+        Global.logger.info("Created group_vars directory: %s"%
+                           Global.group_vars_dir)
     helpers.touch_file(Global.group_file)
     if Global.trace:
-        Global.logger.info("group_file directory successfully created locally.")
+        Global.logger.info("Created group file: %s"%Global.group_file)
     helpers.mk_dir(Global.host_vars_dir)
     if Global.trace:
-        Global.logger.info("host_vars directory successfully created locally.")
+        Global.logger.info("Created host_vars directory: %s"%
+                           Global.host_vars_dir)
 
-@logfunction
 def create_playbooks_in_local():
     '''
     Templates directory in this codebase's repo will be moved to
@@ -162,29 +164,27 @@ def create_playbooks_in_local():
     # Is environment variable GDEPLOY_TEMPLATES set
     if playbooks_env_var:
         if Global.trace:
-            Global.logger.info("Environment variable GDEPLOY_TEMPLATES is set as: %s."\
-                              % playbooks_env_var)
+            Global.logger.info("Environment variable GDEPLOY_TEMPLATES "
+                               "is set to: %s"% playbooks_env_var)
         playbooks_dir = helpers.get_file_dir_path(playbooks_env_var,
-                'playbooks')
+                                                  'playbooks')
     # Or assumes the templates are present as a part of ansible installation
     else:
         playbooks_dir = playbooks_path_pkg
+
+    Global.logger.info("Playbook directory for the run: %s"%playbooks_dir)
+
     if not os.path.isdir(playbooks_dir):
         msg = "Playbook files not found.\n\n" \
             "Gdeploy looks inside the directory %s or \n" \
             "wants the environment varible GDEPLOY_TEMPLATES set."\
              % (playbooks_path_pkg)
-        print "\nError: " + msg
+        print "Error: " + msg
         Global.logger.error(msg.strip('\n\t\r'))
         if Global.trace:
-            Global.logger.info("Either the path to playbooks is incorrect or env variable"\
-                               " GDEPLOY_TEMPLATES is not set properly.")
-        helpers.cleanup_and_quit()
-        if Global.trace:
             Global.logger.info("Cleaning up the process and quitting.")
+        helpers.cleanup_and_quit()
     helpers.copy_files(playbooks_dir)
-    if Global.trace:
-        Global.logger.info("Adding the playbooks to the playbooks source directory.")
 
 def main(arg):
     Global.logger.info("**** gdeploy run started with options %s ****"%arg)
@@ -192,18 +192,15 @@ def main(arg):
                        "/etc/ansible/ansible.cfg")
     args = parse_arguments(arg)
     if args:
-        if Global.trace:
-            Global.logger.info("arguments parsed successfully.")
         init_global_values(args)
         check_ansible_installation()
         create_files_and_dirs()
         helpers.get_hostnames()
-        if Global.trace:
-            Global.logger.info("Retrieved hostnames successfully.")
+        # Log the hosts here, helper.get_hostnames is called from
+        # multiple functions
+        Global.logger.info("gdeploy hosts: %s"%Global.hosts)
         create_playbooks_in_local()
         call_core_functions()
-        if Global.trace:
-            Global.logger.info("Calling core functions for backend setup.")
         call_features()
         if Global.trace:
             Global.logger.info("Retrieving hostnames and the feature directory.")
@@ -214,15 +211,5 @@ def main(arg):
         Global.logger.info("Error while parsing the config file.")
 
 if __name__ == '__main__':
-    '''
-    This script just reads in the command line arguments and gets the
-    config file.
-
-    Here gdeploy starts!
-    Drum roll!
-    '''
-    '''
-    and it initialises a global var to keep track of the logs
-    '''
     log_event()
     main(sys.argv[1:])

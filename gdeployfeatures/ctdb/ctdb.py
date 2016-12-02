@@ -8,32 +8,29 @@ import re
 def ctdb_start(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['state'] = 'started'
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.SERVICE_MGMT)
+    Global.logger.info("Starting CTDB service")
     return section_dict, defaults.SERVICE_MGMT
 
 def ctdb_stop(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['state'] = 'stopped'
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.SERVICE_MGMT)
+    Global.logger.info("Stopping CTDB service")
     return section_dict, defaults.SERVICE_MGMT
 
 def ctdb_enable(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['enabled'] = 'yes'
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.CHKCONFIG)
+    Global.logger.info("Enabling CTDB service")
     return section_dict, defaults.CHKCONFIG
 
 def ctdb_disable(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['enabled'] = 'no'
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.CHKCONFIG)
+    Global.logger.info("Disabling CTDB service")
     return section_dict, defaults.CHKCONFIG
 
 def ctdb_setup(section_dict):
+    Global.logger.info("Initiating CTDB setup")
     section_dict['nodes'] = '\n'.join(sorted(set(Global.hosts)))
     paddress = section_dict.get('public_address')
     ctdbnodes = section_dict.get('ctdb_nodes')
@@ -41,6 +38,7 @@ def ctdb_setup(section_dict):
     if paddress:
         if not isinstance(paddress, list):
             paddress= [paddress]
+        Global.logger.info("Using %s as physical addresses"%paddress)
         paddress_list = map(lambda x: x.split(' '), paddress)
         paddress_list = filter(None, paddress_list)
         addresses, interfaces = [], []
@@ -62,13 +60,11 @@ def ctdb_setup(section_dict):
         if not isinstance(ctdbnodes, list):
             ctdbnodes = [ctdbnodes]
         section_dict['ctdbnodes'] = "\n".join(ctdbnodes)
+        Global.logger.info("Using %s as CTDB nodes"%ctdbnodes)
     section_dict, enable_yml = ctdb_enable(section_dict)
     section_dict, start_yml = ctdb_start(section_dict)
 
     yaml_list = [defaults.CTDB_SETUP, defaults.VOLSTOP_YML,
                  defaults.VOLUMESTART_YML, enable_yml, start_yml,
                  defaults.SMB_FOR_CTDB]
-    if Global.trace:
-        for ymll in yaml_list:
-            Global.logger.info("Executing %s."%ymll)
     return section_dict, yaml_list
