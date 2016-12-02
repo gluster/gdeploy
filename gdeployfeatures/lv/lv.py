@@ -16,6 +16,7 @@ def lv_create(section_dict):
         section_dict['vgname'] = vg_section['vgname']
 
     lvtype = section_dict.get('lvtype')
+    Global.logger.info("Create %s logical volume"%lvtype)
     if lvtype == 'thinlv':
         section_dict, yml = thin_lv_data(section_dict)
     elif lvtype == 'thick':
@@ -23,12 +24,15 @@ def lv_create(section_dict):
     elif lvtype == 'thinpool':
          section_dict, yml = get_lv_vg_names('poolname', section_dict)
     else:
-        print "Error: Unknown lvtype"
+        msg = "Unknown lvtype"
+        print "Error: %s"%msg
+        Global.logger.error(msg)
         helpers.cleanup_and_quit()
     return section_dict, yml
 
 def lv_convert(section_dict):
     Global.ignore_errors = section_dict.get('ignore_lv_errors')
+    Global.logger.info("Converting lv to cachepool/cachelv")
     return section_dict, defaults.LVCONVERT_YML
 
 def lv_setup_cache(section_dict):
@@ -37,10 +41,12 @@ def lv_setup_cache(section_dict):
     section_dict['ssd'] = helpers.correct_brick_format(
             helpers.listify(section_dict['ssd']))[0]
     helpers.perf_spec_data_write()
+    Global.logger.info("Setting up SSD for caching.")
     return section_dict, defaults.SETUP_CACHE_YML
 
 def lv_change(section_dict):
     Global.ignore_errors = section_dict.get('ignore_lv_errors')
+    Global.logger.info("Changing logical volume attributes")
     return section_dict, defaults.LVCHANGE_YML
 
 def get_lv_vg_names(name, section_dict):
@@ -74,8 +80,10 @@ def thin_lv_data(section_dict):
     poolname = helpers.listify(section_dict.get('poolname'))
     virtualsize = helpers.listify(section_dict.get('virtualsize').strip())
     if not (vgname and lvname and poolname and virtualsize):
-        print "Error: Provide vgname, lvname, poolname, virtualsize to create "\
-                "thin lv"
+        msg = "Error: Provide vgname, lvname, poolname, virtualsize to "\
+              "create thin lv"
+        print msg
+        Global.logger.error(msg)
         helpers.cleanup_and_quit()
     lvname, vgname = validate_the_numbers(lvname, vgname)
     lvname, virtualsize = validate_the_numbers(lvname, virtualsize)
@@ -90,9 +98,9 @@ def thin_lv_data(section_dict):
         data.append(lvpools)
     section_dict['lvnamelist'] = data
     section_dict, ymls = get_mount_data(section_dict, lvname, vgname)
+    Global.logger.info("Create thin logical volumes")
     ymls.insert(0, defaults.THINLVCREATE_YML)
     return section_dict, ymls
-
 
 def get_mount_data(section_dict, devices, vgnames):
     fstype = helpers.listify(section_dict.get('mkfs'))
@@ -134,8 +142,8 @@ def get_mount_data(section_dict, devices, vgnames):
 
     mountpoint = helpers.listify(section_dict.get('mount'))
     if not mountpoint:
-        path = ['/mnt/gluster' + str(i)  for i in range(1,
-            len(devices)+1)]
+        path = ['/mnt/gluster' + str(i)  for i in
+                range(1, len(devices)+1)]
     elif mountpoint[0].lower() == 'no':
         return section_dict, [defaults.FSCREATE_YML]
     else:
@@ -144,7 +152,9 @@ def get_mount_data(section_dict, devices, vgnames):
             if len(path) == 1:
                 path *= len(devices)
             else:
-                print "Error: Mountpoints number mismatch with lvnames"
+                msg = "Mountpoints number mismatch with lvnames"
+                print "Error: %s"%msg
+                Global.logger.error(msg)
                 helpers.cleanup_and_quit()
     data = []
     for mnt, dev in zip(path, lvols):
@@ -160,8 +170,6 @@ def get_mount_data(section_dict, devices, vgnames):
             ymls.append(defaults.SELINUX_YML)
     return section_dict, ymls
 
-
-
 def validate_the_numbers(validator, validatee):
     if len(validator) > 1 and len(validatee) == 1:
         validatee = validatee * len(validator)
@@ -171,12 +179,16 @@ def validate_the_numbers(validator, validatee):
             val.append(validator[0] + str(i))
         validator = val
     if len(validator) != len(validatee):
-        print "Error: Provide same number of LVnames and VG names " \
-                "or a common VG for all LVs mentioned."
+        msg = "Provide same number of LVnames and VG names " \
+              "or a common VG for all LVs mentioned."
+        print "Error: %s"%msg
+        Global.logger.error(msg)
         helpers.cleanup_and_quit()
     return validator, validatee
 
 def data_not_found(item):
     global helpers
-    print "Error: Value for option %s not found." % item
+    msg = "Value for option %s not found." % item
+    print "Error: %s"%msg
+    Global.logger.error(msg)
     helpers.cleanup_and_quit()
