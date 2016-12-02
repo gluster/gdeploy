@@ -59,7 +59,14 @@ class CallbackModule(CallbackBase):
         if result._result.has_key('ansible_facts'):
             return
 
-        results = result._result['results']
+        try:
+            results = result._result['results']
+        except KeyError:
+            # For certain tasks the result format is different we deal
+            # them in a separate function
+            self.handle_special_results(result, status, color)
+            return
+
         for res in results:
             if status == 'UNREACHABLE' or status == 'FAILED':
                 if res['failed']:
@@ -81,9 +88,14 @@ class CallbackModule(CallbackBase):
                     result._host.get_name(), result._task.get_name(),
                     res['item'], status), color=color)
 
+    def handle_special_results(self, result, status, color):
+        self._display.display("[%s] %s: %s"%(result._host.get_name(),
+                                             result._task.get_name(),
+                                             status),
+                              color=color)
+
     def _get_field(self, result, field):
         """Porcesses the result and returns the requested field"""
-
         if field == 'item':
             pass
         if field == 'msg':
