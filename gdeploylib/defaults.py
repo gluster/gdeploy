@@ -180,6 +180,8 @@ PUBKEY_SHARE = 'georep_common_public_key.yml'
 # NFS-GANESHA
 
 GANESHA_BOOTSTRAP = 'bootstrap-nfs-ganesha.yml'
+GANESHA_PKG_CHECK = 'check_package_installs_ganesha.yml'
+GANESHA_CONFIG_SERVICES = 'configure-services.yml'
 GANESHA_PUBKEY = 'generate-public-key.yml'
 COPY_SSH = 'copy-ssh-key.yml'
 SET_AUTH_PASS = 'set-pcs-auth-passwd.yml'

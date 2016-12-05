@@ -70,10 +70,16 @@ class CallbackModule(CallbackBase):
         for res in results:
             if status == 'UNREACHABLE' or status == 'FAILED':
                 if res['failed']:
+                    # When the shell module is used there is no msg key
+                    try:
+                        msg = res['msg']
+                    except KeyError:
+                        msg = res['stderr']
+
                     self._display.display("[%s] %s (%s):  %s\nError: %s"%
                                           (result._host.get_name(),
                                            result._task.get_name(),
-                                           res['item'], status, res['msg']),
+                                           res['item'], status, msg),
                                           color=color)
                 else:
                     status = 'SUCCESS'
