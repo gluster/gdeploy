@@ -12,6 +12,7 @@ def pv_create(section_dict):
             helpers.listify(section_dict['devices']))
     helpers.perf_spec_data_write()
     Global.ignore_errors = section_dict.get('ignore_pv_errors')
+    Global.logger.info("Creating pv on bricks %s"%section_dict['bricks'])
     return section_dict, defaults.PVCREATE_YML
 
 def pv_resize(section_dict):
@@ -21,7 +22,7 @@ def pv_resize(section_dict):
     expand = section_dict.get('expand')
     shrink = section_dict.get('shrink')
     Global.ignore_errors = section_dict.get('ignore_pv_errors')
-    if shrink != '0':
+    if shrink is not None:
         shrink  = helpers.listify(shrink)
         devices  = helpers.listify(devices)
         data = []
@@ -30,12 +31,19 @@ def pv_resize(section_dict):
             pvshrink['disk'] = disk
             pvshrink['size'] = size
             data.append(pvshrink)
+            Global.logger.info("Resizing disk:%s with size:%s"%(disk,size))
         section_dict['pvshrink'] = data
-        if Global.trace:
-            Global.logger.info("Resizing disk:%s with size:%s."%(disk,size))
+        return section_dict, defaults.PVSHRINK_YML
     elif expand == 'yes':
         section_dict['pvexpand'] = 'true'
         section_dict['bricks'] = devices
-    return section_dict, defaults.PVRESIZE_YML
+        Global.logger.info("Extending pv on disks %s"%devices)
+        return section_dict, defaults.PVEXTEND_YML
+    # If you have reached here no proper values provided
+    msg = "No valid value for resize, provide valid values for"\
+          " expand or shrink in config"
+    print "Error: %s"%msg
+    Global.logger.error(msg)
+    helpers.cleanup_and_quit()
 
 
