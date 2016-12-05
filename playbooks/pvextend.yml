@@ -1,0 +1,12 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  # Expand pv on all the disks, provided the partitions
+  # are enlarged using fdisk
+  - name: Expand Physical Volumes on all the nodes
+    pv: action=resize disks="{{ item }}"
+    with_items: "{{ bricks }}"
+    when: pvexpand is defined
