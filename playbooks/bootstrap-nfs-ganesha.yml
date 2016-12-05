@@ -1,4 +1,3 @@
 ---
 - include: check_package_installs_ganesha.yml
 - include: configure-services.yml
-
