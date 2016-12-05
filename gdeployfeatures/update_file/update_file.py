@@ -15,8 +15,10 @@ def update_file_copy(section_dict):
     if len(dest) == 1:
         dest *= len(src)
     if len(dest) != len(src):
-        print "\nError: Provide same number of 'src' and 'dest' or " \
-                "provide a common 'dest'"
+        msg = "Provide same number of 'src' and 'dest' or " \
+              "provide a common 'dest'"
+        print "Error: %s"%msg
+        Global.logger.error(msg)
         return None, None
     data = []
     for sr, de in zip(src, dest):
@@ -25,8 +27,7 @@ def update_file_copy(section_dict):
         files_list['dest'] = de
         data.append(files_list)
     section_dict['file_paths'] = data
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.MOVE_FILE)
+    Global.logger.info("Updating files %s by copying"%data)
     return section_dict, defaults.MOVE_FILE
 
 def update_file_edit(section_dict):
@@ -35,7 +36,9 @@ def update_file_edit(section_dict):
     replace = helpers.listify(section_dict['replace'])
     data = []
     if len(replace) != len(line):
-        print "\nError: Provide same number of 'replace' and 'line'"
+        msg = "Provide same number of 'replace' and 'line'"
+        print "Error: %s"%msg
+        Global.logger.error(msg)
         return
     for li, re in zip(line, replace):
         files_list = {}
@@ -43,12 +46,9 @@ def update_file_edit(section_dict):
         files_list['replace'] = re
         data.append(files_list)
     section_dict['file_paths'] = data
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.EDIT_FILE)    
+    Global.logger.info("Editing file %s with %s"%(section_dict['dest'], data))
     return section_dict, defaults.EDIT_FILE
 
 def update_file_add(section_dict):
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.ADD_TO_FILE)
+    Global.logger.info("Adding lines to file")
     return section_dict, defaults.ADD_TO_FILE
-
