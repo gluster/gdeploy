@@ -9,46 +9,42 @@ helpers = Helpers()
 def vg_create(section_dict):
     global helpers
     pvnames = get_pv_names(section_dict)
-    if Global.trace:
-        Global.logger.info("Extracted pv names: %s"%pvnames)
     vgnames = helpers.listify(section_dict['vgname'])
-    if Global.trace:
-        Global.logger.info("Extracted vg names: %s"%vgnames)
     Global.ignore_errors = section_dict.get('ignore_vg_errors')
     section_dict = set_default_values(section_dict, pvnames, vgnames)
     helpers.perf_spec_data_write()
-    if Global.trace:
-        Global.logger.info("Executing %s"%defaults.VGCREATE_YML)
+    Global.logger.info("Creating volume groups %s"%vgnames)
     return section_dict, defaults.VGCREATE_YML
 
 def vg_extend(section_dict):
     global helpers
     pvnames = get_pv_names(section_dict)
-    if Global.trace:
-        Global.logger.info("Extracted pv names: %s"%pvnames)
     vgnames = helpers.listify(section_dict['vgname'])
-    if Global.trace:
-        Global.logger.info("Extracted vg names: %s"%vgnames)
     Global.ignore_errors = section_dict.get('ignore_vg_errors')
     if len(vgnames) != 1:
-        print "Error: We can only extend one vg at a time"
+        msg = "We can only extend one vg at a time"
+        print "Error: %s"%msg
+        Global.logger.error(msg)
         helpers.cleanup_and_quit()
     section_dict['vg'] = vgnames[0]
     section_dict['disk'] = pvnames
-    if Global.trace:
-        Global.logger.info("Executing %s"%defaults.VGCREATE_YML)
+    Global.logger.info("Extending volume groups %s"%vgnames)
     return section_dict, defaults.VGEXTEND_YML
 
 def set_default_values(section_dict, pvnames, vgnames):
     global helpers
     if len(pvnames) != len(vgnames):
         if len(vgnames) > len(pvnames):
-            print "Error: Insufficient number of values for pvname"
+            msg = "Insufficient number of values for pvname"
+            print "Error: %s"%msg
+            Global.logger.error(msg)
             helpers.cleanup_and_quit()
         else:
             if len(vgnames) != 1:
-                print "Error: Provide 1 value for vgname or " \
-                        "one for each pvname"
+                msg = "Provide 1 value for vgname or " \
+                      "one for each pvname"
+                print "Error: %s"%msg
+                Global.logger.error(msg)
                 helpers.cleanup_and_quit()
             if section_dict['one-to-one'] == 'no':
                 vgnames *= len(pvnames)
@@ -75,10 +71,11 @@ def get_pv_names(section_dict):
     if not pvnames:
         pv_section = Global.sections.get('pv')
         if not pv_section or not pv_section['devices']:
-            print "Error: 'pvname' not specified to create " \
-                    "volume group."
+            msg = "'pvname' not specified to create " \
+                  "volume group."
+            print "Error: %s"%msg
+            Global.logger.error(msg)
             helpers.cleanup_and_quit()
         pvnames = pv_section['devices']
-    pvnames = helpers.correct_brick_format(
-            helpers.listify(pvnames))
+    pvnames = helpers.correct_brick_format(helpers.listify(pvnames))
     return pvnames
