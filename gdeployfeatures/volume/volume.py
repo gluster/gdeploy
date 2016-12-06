@@ -15,42 +15,31 @@ def volume_create(section_dict):
     Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
-    if Global.trace:
-        Global.logger.info("Splitting volume and hostnames")
     if not section_dict.get('brick_dirs'):
        section_dict = get_common_brick_dirs(section_dict)
-       if Global.trace:
-           Global.logger.info("Retrieving common brick directories among hosts.")
     else:
         section_dict = validate_brick_dirs(section_dict, 'brick_dirs')
-        if Global.trace:
-            Global.logger.info("Error in retrieving brick directories"\
-                               " Validating brick directories.")
+    Global.logger.info("Creating volume %s with bricks %s"%
+                       (section_dict['volname'], section_dict['brick_dirs']))
     section_dict['service'] = 'glusterd'
     section_dict['state'] = 'started'
     Global.current_hosts = helpers.unique(Global.current_hosts)
     section_dict['hosts'] = Global.current_hosts
     yamls = [defaults.SERVICE_MGMT, defaults.CREATEDIR_YML]
-    if Global.trace:
-        Global.logger.info("Executing yamls %s and %s."\
-                           % (defaults.SERVICE_MGMT, defaults.CREATEDIR_YML))
+    Global.logger.info("Calling peer probe from volume create")
     ret = call_peer_probe(section_dict)
     if ret:
         section_dict = ret
         yamls.append(defaults.PROBE_YML)
-        if Global.trace:
-            Global.logger.info("Executing %s."% defaults.PROBE_YML)
     yamls.append(defaults.VOLCREATE_YML)
-    if Global.trace:
-        Global.logger.info("Executing %s."% defaults.VOLCREATE_YML)
+    Global.logger.info("Setting volume options (if any)")
     section_dict, set_yml = volume_set(section_dict)
     if set_yml:
         yamls.append(set_yml)
+    Global.logger.info("Starting volume %s"%section_dict['volname'])
     section_dict, start_yml = volume_start(section_dict)
     yamls.append(start_yml)
     sdict, yml = get_smb_data(section_dict)
-    if Global.trace:
-        Global.logger.info("Checking if Samba is enabled on volume.")
     if sdict:
         yml = helpers.listify(yml)
         section_dict = sdict
@@ -70,9 +59,8 @@ def volume_create(section_dict):
         section_dict['ssl_base_dir'] = Global.base_dir
         helpers.write_to_inventory('ssl_hosts', section_dict['ssl_hosts'])
         # Enable SSL on the volume
+        Global.logger.info("Enabling ssl on the volume")
         yamls.append(defaults.ENABLE_SSL)
-        if Global.trace:
-            Global.logger.info("Executing %s."% defaults.ENABLE_SSL)
     return section_dict, yamls
 
 def get_smb_data(section_dict):
@@ -93,6 +81,7 @@ def call_peer_probe(section_dict):
         to_be_probed = helpers.unique(to_be_probed)
         section_dict['to_be_probed'] = to_be_probed
         return section_dict
+    Global.logger.info("Probing peers %s"%section_dict['to_be_probed'])
     return False
 
 def get_common_brick_dirs(section_dict):
@@ -156,8 +145,10 @@ def validate_brick_dirs(section_dict, section):
         bpat = re.match('(.*):(.*)', brick)
         if not bpat:
             if not Global.hosts:
-                print "Please provide the brick_dirs in the format " \
-                        "<hostname>:<brick_dir name>"
+                msg = "Please provide the brick_dirs in the format " \
+                      "<hostname>:<brick_dir name>"
+                print "Error: %s"%msg
+                Global.logger.error(msg)
                 helpers.cleanup_and_quit()
             brick_list.extend([host + ':' + brick for host in
                 Global.hosts])
@@ -183,9 +174,10 @@ def check_brick_name_format(brick_name):
     global helpers
     if False in [brick.startswith('/') for brick in
            helpers.unique(brick_name)]:
-        msg = "values to 'brick_dirs' should be absolute"\
+        msg = "Values to 'brick_dirs' should be absolute"\
                " path. Relative given. Exiting!"
-        print msg
+        print "Error: %s"%msg
+        Global.logger.error(msg)
         helpers.cleanup_and_quit()
     return
 
@@ -208,6 +200,7 @@ def volume_stop(section_dict):
     Global.ignore_errors = section_dict.get('ignore_volume_errors')
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
+    Global.logger.info("Stopping volume %s"%section_dict['volname'])
     return section_dict, defaults.VOLSTOP_YML
 
 def volume_add_brick(section_dict):
@@ -221,6 +214,8 @@ def volume_add_brick(section_dict):
     if ret:
         section_dict = ret
         yamls.append(defaults.PROBE_YML)
+    Global.logger.info("Adding bricks %s to volume %s"%
+                       (section_dict['bricks'], section_dict['volname']))
     yamls.append(defaults.ADDBRICK_YML)
     return section_dict, yamls
 
@@ -230,6 +225,8 @@ def volume_remove_brick(section_dict):
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     section_dict['old_bricks'] = section_dict.pop('bricks')
+    Global.logger.info("Removing bricks %s from volume %s"%
+                       (section_dict['bricks'], section_dict['volname']))
     return section_dict, defaults.REMOVEBRK_YML
 
 def volume_rebalance(section_dict):
@@ -239,7 +236,6 @@ def volume_rebalance(section_dict):
             section_dict['volname'])
     return section_dict, [defaults.VOLUMESTART_YML,
             defaults.REBALANCE_YML]
-
 
 def volume_set(section_dict):
     global helpers
@@ -281,6 +277,8 @@ def volume_smb_setup(section_dict):
     section_dict, yml = volume_set(section_dict)
     section_dict['service'] = 'glusterd'
     section_dict['state'] = 'started'
+    Global.logger.info("Setting up Samba on volume %s"%
+                       section_dict['volname'])
     return section_dict, [defaults.SERVICE_MGMT, yml, defaults.SMBREPLACE_YML,
                           defaults.SMBSRV_YML]
 
