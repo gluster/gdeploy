@@ -17,14 +17,15 @@
     pause: seconds=30
 
   - name: Check NFS Ganesha status
-    shell: /usr/libexec/ganesha/ganesha-ha.sh --status |
-           awk '!/Online|^$/ { gsub(/-cluster_ip-1|-trigger_ip-1/, "");
-           if ($1 != $2) { print $1, $2, "--  NFS Ganesha status is FAULTY";
-           status = "fail"; exit 0 }} END { if (status != "fail")
-           print "--  NFS Ganesha status is HEALTHY" }'
+    shell: /usr/libexec/ganesha/ganesha-ha.sh --status "{{ ha_base_dir}}" | \
+           grep 'Cluster HA Status'
     register: result
     ignore_errors: yes
 
   - name: Report NFS Ganesha status
-    debug: msg={{ result.stdout_lines[0] }} verbosity=0
+    debug: msg={{ result.stdout }} verbosity=0
+    when: result.stderr == ""
 
+  - name: Report NFS Ganesha status (If any errors)
+    debug: msg={{ result.stderr }} verbosity=0
+    when: result.stderr != ""
