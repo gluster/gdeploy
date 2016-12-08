@@ -11,8 +11,8 @@ update_init_file ()
     sed -i '/^export ANSIBLE_LIBRARY=/'d $INIT_FILE
     sed -i '/^export GDEPLOY_TEMPLATES=/'d $INIT_FILE
 
-    echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:'$DIR/modules/'" >>$INIT_FILE
-    echo "export GDEPLOY_TEMPLATES='$DIR'" >> $INIT_FILE
+    echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:$DIR/modules/" >>$INIT_FILE
+    echo "export GDEPLOY_TEMPLATES=$DIR" >> $INIT_FILE
 }
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
