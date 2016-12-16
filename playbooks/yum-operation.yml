@@ -21,6 +21,4 @@
   - name: Installs/Removes a package using yum
     yum: name="{{ name }}" state="{{ yum_state }}"
     when: name is defined and yum_state is defined
-    ignore_errors: "{{ ignore_yum_errors | default(True) }}"
-
 
