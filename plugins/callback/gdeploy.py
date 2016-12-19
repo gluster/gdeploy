@@ -20,12 +20,51 @@
 
 from ansible.plugins.callback import CallbackBase
 from ansible import constants as C
+import os
+import logging, datetime
+from os.path import dirname, expanduser
+
+
+class MyFormatter(logging.Formatter):
+
+    converter = datetime.datetime.fromtimestamp
+
+    def formatTime(self, record, datefmt=None):
+        ct = self.converter(record.created)
+        if datefmt:
+            s = ct.strftime(datefmt)
+        else:
+            t = ct.strftime("%Y-%m-%d %H:%M:%S")
+            s = "%s,%03d" % (t, record.msecs)
+        return s
 
 class CallbackModule(CallbackBase):
 
     CALLBACK_VERSION = 2.0
     CALLBACK_TYPE = 'stdout'
     CALLBACK_NAME = 'gdeploy'
+
+    try:
+        log_file = os.environ['GDEPLOY_LOGFILE']
+    except:
+        log_file = expanduser('~/.gdeploy/logs/gdeploy.log')
+
+    log_dir = dirname(log_file)
+    log_dir = expanduser('~/.gdeploy/logs') if log_dir == '' else log_dir
+
+    if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+    logger = logging.getLogger("gdeploy")
+    logger.setLevel(logging.INFO)
+    fh = logging.FileHandler(log_file)
+    formatter = MyFormatter('[%(asctime)s] %(levelname)s ' \
+                            '%(filename)s[%(lineno)s]: ' \
+                            '%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    fh.setFormatter(formatter)
+    # add handler to logger object
+    logger.addHandler(fh)
+
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
         if 'exception' in result._result:
@@ -81,6 +120,10 @@ class CallbackModule(CallbackBase):
                                            result._task.get_name(),
                                            res['item'], status, msg),
                                           color=color)
+                    self.logger.error("[%s] %s (%s):  %s Error: %s"%
+                                      (result._host.get_name(),
+                                       result._task.get_name(),
+                                       res['item'], status, msg))
                 else:
                     status = 'SUCCESS'
                     color = C.COLOR_OK
@@ -89,20 +132,31 @@ class CallbackModule(CallbackBase):
                                            result._task.get_name(),
                                            res['item'], status),
                                           color=color)
+                    self.logger.info("[%s] %s (%s):  %s"%
+                                     (result._host.get_name(),
+                                      result._task.get_name(),
+                                      res['item'], status))
             else:
                 self._display.display("[%s] %s (%s): %s"%(
                     result._host.get_name(), result._task.get_name(),
                     res['item'], status), color=color)
+                self.logger.info("[%s] %s (%s): %s"%(
+                    result._host.get_name(), result._task.get_name(),
+                    res['item'], status))
 
     def handle_special_results(self, result, status, color):
         self._display.display("[%s] %s: %s"%(result._host.get_name(),
                                              result._task.get_name(),
                                              status),
                               color=color)
+        if status == "FAILED":
+            self.logger.error("[%s] %s: %s"%(result._host.get_name(),
+                                             result._task.get_name(),
+                                             status))
+            self.logger.error("[%s] %s"%(result._host.get_name(),
+                                          result._result['msg']))
+        else:
+            self.logger.info("[%s] %s: %s"%(result._host.get_name(),
+                                            result._task.get_name(),
+                                            status))
 
-    def _get_field(self, result, field):
-        """Porcesses the result and returns the requested field"""
-        if field == 'item':
-            pass
-        if field == 'msg':
-            pass
