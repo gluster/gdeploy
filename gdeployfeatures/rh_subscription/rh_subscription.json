@@ -31,7 +31,7 @@
             },
             {
               "required": "false",
-              "name": "ignore-register-errors",
+              "name": "ignore_register_errors",
               "default": "yes"
             }
           ]
@@ -44,7 +44,7 @@
           },
           {
             "required": "false",
-            "name": "ignore-attach-pool-errors",
+            "name": "ignore_attach_pool_errors",
             "default": "yes"
           }
         ]
@@ -57,7 +57,7 @@
           },
           {
             "required": "false",
-            "name": "ignore-enable-errors",
+            "name": "ignore_enable_errors",
             "default": "yes"
           }
         ]
@@ -70,7 +70,7 @@
           },
           {
             "required": "false",
-            "name": "ignore-disable-errors",
+            "name": "ignore_disable_errors",
             "default": "yes"
           }
         ]
@@ -79,7 +79,7 @@
         "options": [
           {
             "required": "false",
-            "name": "ignore-unregister-errors",
+            "name": "ignore_unregister_errors",
             "default": "yes"
           }
         ]
