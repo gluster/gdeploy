@@ -8,9 +8,9 @@ Version:        2.0.1
 Release:        3
 Summary:        Tool to deploy and manage GlusterFS cluster
 
-License:        GPLv3
+License:        GPLv2
 URL:            https://github.com/gluster/gdeploy
-Source0:        %{url}/archive/v%{version}-%{release}.tar.gz#/%{name}-%{version}-%{release}.tar.gz
+Source0:        %{url}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
 BuildArch:      noarch
 Requires:       ansible >= 2.1
 Requires:       python2
@@ -35,7 +35,7 @@ commands, create GlusterFS volumes and lot more.
 See http://gdeploy.readthedocs.io/en/latest/ for more details
 
 %prep
-%autosetup -n %{name}-%{version}-%{release}
+%autosetup -n %{name}-%{version}
 
 %build
 %{__python2} setup.py build
@@ -58,10 +58,10 @@ cp -r extras/scripts %{buildroot}/%{gdeploytemp}
 # Install usecases
 cp -r extras/usecases %{buildroot}/%{gdeploytemp}
 
-# Install the script to /usr/local/bin
-mkdir -p %{buildroot}/usr/local/bin
+# Install the script to /usr/bin
+mkdir -p %{buildroot}/usr/bin
 install -m 755 extras/usecases/replace-node/gluster-replace-node \
-        %{buildroot}/usr/local/bin
+        %{buildroot}/usr/bin
 
 # Documentation
 mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
@@ -74,7 +74,7 @@ cp man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 %{_bindir}/gdeploy
 %{python2_sitelib}/*
 %{gdeploytemp}
-/usr/local/bin/gluster-replace-node
+/usr/bin/gluster-replace-node
 
 %doc README.md
 %doc %{gdeploydoc}/*
