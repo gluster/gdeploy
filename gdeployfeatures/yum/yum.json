@@ -28,7 +28,7 @@
           },
           {
             "required": "false",
-            "name": "ignore-yum-errors"
+            "name": "ignore_yum_errors"
           }
         ]
       },
