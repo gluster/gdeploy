@@ -60,7 +60,9 @@ def volume_create(section_dict):
         helpers.write_to_inventory('ssl_hosts', section_dict['ssl_hosts'])
         # Enable SSL on the volume
         Global.logger.info("Enabling ssl on the volume")
-        yamls.append(defaults.ENABLE_SSL)
+        yamls += [defaults.SSL_GEN_KEYS, defaults.SSL_VOL_SET,
+                  defaults.SSL_RESTART_SERVICES,
+                  defaults.SSL_VOL_START]
     return section_dict, yamls
 
 def get_smb_data(section_dict):
@@ -303,4 +305,6 @@ def volume_enable_ssl(section_dict):
     section_dict['ssl_base_dir'] = Global.base_dir
     helpers.write_to_inventory('ssl_hosts', section_dict['ssl_hosts'])
     # Enable SSL on the volume
-    return section_dict, [defaults.ENABLE_SSL]
+    return section_dict, [defaults.SSL_GEN_KEYS, defaults.SSL_VOL_SET,
+                          defaults.SSL_RESTART_SERVICES,
+                          defaults.SSL_VOL_START]
