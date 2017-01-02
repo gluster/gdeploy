@@ -208,3 +208,7 @@ OC_DELETE = 'oc-delete.yml'
 
 # SSL on volumes
 ENABLE_SSL = 'enable-ssl.yml'
+SSL_GEN_KEYS = 'ssl-gen-keys.yml'
+SSL_VOL_SET = 'ssl-vol-set.yml'
+SSL_RESTART_SERVICES = 'ssl-restart-services.yml'
+SSL_VOL_START = 'ssl-vol-start.yml'
