@@ -236,7 +236,7 @@ def volume_rebalance(section_dict):
     section_dict['volname'] = helpers.split_volume_and_hostname(
             section_dict['volname'])
     return section_dict, [defaults.VOLUMESTART_YML,
-            defaults.REBALANCE_YML]
+                          defaults.REBALANCE_YML]
 
 
 def volume_set(section_dict):
@@ -248,9 +248,18 @@ def volume_set(section_dict):
     values = section_dict.get('value')
     if not keys or not values:
         return section_dict, ''
+
     data = []
     key = helpers.listify(keys)
     value = helpers.listify(values)
+
+    # If values has a string and is colon or semicolon
+    # separated replace with comma
+    for idx, item in enumerate(value):
+        if type(item) == str and (item.__contains__(':')
+                                  or item.__contains__(';')):
+            value[idx] = item.replace(';', ',').replace(':', ',')
+
     for k,v in zip(key, value):
         names = {}
         names['key'] = k
