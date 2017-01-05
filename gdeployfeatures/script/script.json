@@ -10,6 +10,11 @@
           {
             "required": "false",
             "name": "args"
+          },
+          {
+            "required": "false",
+            "name": "ignore_script_errors",
+            "default": "yes"
           }
         ]
       }
