@@ -7,6 +7,7 @@ from gdeploylib import Helpers, Global
 
 def script_execute(section_dict):
     helpers = Helpers()
+    Global.ignore_errors = section_dict.get('ignore_script_errors')
     section_dict['file'] = helpers.listify(section_dict['file'])
     files_l = len(section_dict['file'])
     if not section_dict.get('args'):
