@@ -19,7 +19,8 @@
           },
           {
             "required": "false",
-            "name": "ignore_vg_errors"
+            "name": "ignore_vg_errors",
+            "default": "yes"
           }
         ]
       },
@@ -35,7 +36,8 @@
           },
           {
             "required": "false",
-            "name": "ignore_vg_errors"
+            "name": "ignore_vg_errors",
+            "default": "yes"
           }
         ]
       }
