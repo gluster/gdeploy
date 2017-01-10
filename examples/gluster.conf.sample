@@ -1566,7 +1566,7 @@ client_mount_points=/mnt/gluster{1,3}
 # variable=NAME=mytemplatepod
 #
 # In this case, gdeploy goes and look inside the
-# /usr/share/ansible/gdeploy/extras or ~/.gdeploy/templates directories
+# /usr/share/gdeploy/extras or ~/.gdeploy/templates directories
 # for a file with name mytemplate-template.json.
 #
 # In case the filetype is defined as json, gdeploy will look inside the

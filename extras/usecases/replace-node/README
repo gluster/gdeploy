@@ -13,7 +13,7 @@ Node NODE-2 will be replaced with configuration from NODE-1
 It is very important to give the node names right. Review before continuing.
 
 ENSURE TO EDIT THE FILE:
-/usr/share/ansible/gdeploy/usecases/replace-node/replace_node.conf.template
+/usr/share/gdeploy/usecases/replace-node/replace_node.conf.template
 And change the devices variable to point the right device.
 *******************************************************************************
 
@@ -29,7 +29,7 @@ Prerequisites:
 1. Password less ssh from node-1 to node-2
 2. Passwordless ssh from the laptop to node-1, node-2
 3. Edit the file:
-   /usr/share/ansible/gdeploy/usecases/replace-node/replace_node.conf.template
+   /usr/share/gdeploy/usecases/replace-node/replace_node.conf.template
    And replace the devices varible with the device on the node.
 
 Configuration generation and additional script generation and invocation is

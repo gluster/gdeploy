@@ -157,7 +157,7 @@ def create_playbooks_in_local():
     /var/tmp/playbooks
     '''
     global helpers
-    playbooks_path_pkg = '/usr/share/ansible/gdeploy/playbooks'
+    playbooks_path_pkg = '/usr/share/gdeploy/playbooks'
     playbooks_env_var = os.getenv('GDEPLOY_TEMPLATES')
     # Is environment variable GDEPLOY_TEMPLATES set
     if playbooks_env_var:

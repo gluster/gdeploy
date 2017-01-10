@@ -14,7 +14,7 @@ Example: Execute script disable-multipath.sh on all the remote nodes listed in *
 
   [script]
   action=execute
-  file=/usr/share/ansible/gdeploy/scripts/disable-multipath.sh
+  file=/usr/share/gdeploy/scripts/disable-multipath.sh
 
 Refer `hc.conf
 <https://github.com/gluster-deploy/gdeploy/blob/2.0/examples/hc.conf>`_ for a

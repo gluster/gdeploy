@@ -20,7 +20,7 @@ mountpoints=/mnt/brick
 #
 [script1:@@GOODNODE@@]
 action=execute
-file=/usr/share/ansible/gdeploy/usecases/replace-node/replace_prep.sh
+file=/usr/share/gdeploy/usecases/replace-node/replace_prep.sh
 args=@@GOODNODE@@ @@REPLACEMENTNODE@@ @@VOLUMENAME@@
 
 [shell1:@@REPLACEMENTNODE@@]
