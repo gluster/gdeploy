@@ -1,11 +1,9 @@
 %global gdeploymod ansible/modules/extras/system/glusterfs
-%global gdeploytemp /usr/share/ansible/gdeploy
-%global gdeploydoc /usr/share/doc/gdeploy
-%global _rpmfilename noarch/%{name}-%{version}-%{release}%{?dist}.rpm
+%global gdeploytemp %{_datadir}/gdeploy
 
 Name:           gdeploy
 Version:        2.0.1
-Release:        3
+Release:        4
 Summary:        Tool to deploy and manage GlusterFS cluster
 
 License:        GPLv2
@@ -30,12 +28,12 @@ gdeploy is an Ansible based deployment tool. Initially gdeploy was written to
 install GlusterFS clusters, eventually it grew out to do lot of other things. On
 a given set of hosts, gdeploy can create physical volumes, volume groups, and
 logical volumes, install packages, subscribe to RHN channels, run shell
-commands, create GlusterFS volumes and lot more.
+commands, create GlusterFS volumes and more.
 
 See http://gdeploy.readthedocs.io/en/latest/ for more details
 
 %prep
-%autosetup -n %{name}-%{version}
+%autosetup
 
 %build
 %{__python2} setup.py build
@@ -45,43 +43,46 @@ See http://gdeploy.readthedocs.io/en/latest/ for more details
 %{__python2} setup.py install -O1 --root=%{buildroot} --install-scripts %{_bindir}
 
 mkdir -p %{buildroot}/%{python2_sitelib}/%{gdeploymod}
-install -m 755 modules/* \
+install -p -m 755 modules/* \
     %{buildroot}/%{python2_sitelib}/%{gdeploymod}
 
-# Install the playbooks into /usr/share/ansible/gdeploy/playbooks
+# Install the playbooks into /usr/share/gdeploy/playbooks
 mkdir -p %{buildroot}/%{gdeploytemp}
-cp -r playbooks %{buildroot}/%{gdeploytemp}
+cp -rp playbooks %{buildroot}/%{gdeploytemp}
 
 # Install scripts
-cp -r extras/scripts %{buildroot}/%{gdeploytemp}
+cp -rp extras/scripts %{buildroot}/%{gdeploytemp}
 
 # Install usecases
-cp -r extras/usecases %{buildroot}/%{gdeploytemp}
+cp -rp extras/usecases %{buildroot}/%{gdeploytemp}
 
 # Install the script to /usr/bin
 mkdir -p %{buildroot}/usr/bin
-install -m 755 extras/usecases/replace-node/gluster-replace-node \
+install -p -m 755 extras/usecases/replace-node/gluster-replace-node \
         %{buildroot}/usr/bin
 
 # Documentation
-mkdir -p %{buildroot}/%{gdeploydoc} %{buildroot}/%{_mandir}/man1/ \
+mkdir -p %{buildroot}/%{_pkgdocdir} %{buildroot}/%{_mandir}/man1/ \
        %{buildroot}/%{_mandir}/man5/
-cp -r docs/* examples %{buildroot}/%{gdeploydoc}
-cp man/gdeploy.1* %{buildroot}/%{_mandir}/man1/
-cp man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
+cp -rp docs/* examples %{buildroot}/%{_pkgdocdir}
+cp -p man/gdeploy.1* %{buildroot}/%{_mandir}/man1/
+cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
 %files
 %{_bindir}/gdeploy
 %{python2_sitelib}/*
 %{gdeploytemp}
-/usr/bin/gluster-replace-node
+%{_bindir}/gluster-replace-node
 
 %doc README.md
-%doc %{gdeploydoc}/*
+%doc %{_pkgdocdir}/*
 %{_mandir}/man1/gdeploy*
 %{_mandir}/man5/gdeploy*
 
 %changelog
+* Tue Jan 10 2017 Sachidananda Urs <sac@redhat.com> 2.0.1-4
+- Fix spec to address comment#19 from bug: 1344276
+
 * Mon Nov 7 2016 Sachidananda Urs <sac@redhat.com> 2.0.1-3
 - Fix spec file to conform to Fedora standards
 

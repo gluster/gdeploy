@@ -10,7 +10,7 @@ GOODNODE=$1
 REPLACEMENTNODE=$2
 VOLUMENAME=$3
 
-TEMPLATE_PATH="/usr/share/ansible/gdeploy/usecases/replace-node"
+TEMPLATE_PATH="/usr/share/gdeploy/usecases/replace-node"
 TEMPLATE_FILE="$TEMPLATE_PATH/replace_node.conf.template"
 
 exit_replacement()
@@ -40,7 +40,7 @@ It is very important to give the node names right. Review before continuing.
 
 
 ENSURE TO EDIT THE FILE:
-/usr/share/ansible/gdeploy/usecases/replace-node/replace_node.conf.template
+/usr/share/gdeploy/usecases/replace-node/replace_node.conf.template
 And change the devices variable to point the right device.
 *******************************************************************************
 
