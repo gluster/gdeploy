@@ -6,6 +6,11 @@
           {
             "required": "true",
             "name": "command"
+          },
+          {
+            "required": "false",
+            "name": "ignore_shell_errors",
+            "default": "yes"
           }
         ]
       }

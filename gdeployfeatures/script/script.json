@@ -9,7 +9,8 @@
           },
           {
             "required": "false",
-            "name": "args"
+            "name": "ignore_script_errors",
+            "default": "yes"
           }
         ]
       }
