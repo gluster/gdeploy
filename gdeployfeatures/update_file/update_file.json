@@ -10,6 +10,11 @@
           {
             "required": "true",
             "name": "dest"
+          },
+          {
+            "required": "false",
+            "name": "ignore_update_file_errors",
+            "default": "yes"
           }
         ]
       },
@@ -26,6 +31,11 @@
           {
             "required": "true",
             "name": "line"
+          },
+          {
+            "required": "false",
+            "name": "ignore_update_file_errors",
+            "default": "yes"
           }
         ]
       },
@@ -38,6 +48,11 @@
           {
             "required": "true",
             "name": "line"
+          },
+          {
+            "required": "false",
+            "name": "ignore_update_file_errors",
+            "default": "yes"
           }
         ]
       }

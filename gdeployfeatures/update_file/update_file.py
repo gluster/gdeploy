@@ -12,6 +12,7 @@ def update_file_copy(section_dict):
     global helpers
     src = helpers.listify(section_dict['src'])
     dest = helpers.listify(section_dict['dest'])
+    Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     if len(dest) == 1:
         dest *= len(src)
     if len(dest) != len(src):
@@ -25,8 +26,6 @@ def update_file_copy(section_dict):
         files_list['dest'] = de
         data.append(files_list)
     section_dict['file_paths'] = data
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.MOVE_FILE)
     return section_dict, defaults.MOVE_FILE
 
 def update_file_edit(section_dict):
@@ -34,6 +33,7 @@ def update_file_edit(section_dict):
     line = helpers.listify(section_dict['line'])
     replace = helpers.listify(section_dict['replace'])
     data = []
+    Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     if len(replace) != len(line):
         print "\nError: Provide same number of 'replace' and 'line'"
         return
@@ -43,12 +43,9 @@ def update_file_edit(section_dict):
         files_list['replace'] = re
         data.append(files_list)
     section_dict['file_paths'] = data
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.EDIT_FILE)    
     return section_dict, defaults.EDIT_FILE
 
 def update_file_add(section_dict):
-    if Global.trace:
-        Global.logger.info("Executing %s."%defaults.ADD_TO_FILE)
+    Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     return section_dict, defaults.ADD_TO_FILE
 

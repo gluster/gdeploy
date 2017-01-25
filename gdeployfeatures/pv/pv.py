@@ -10,6 +10,7 @@ def pv_create(section_dict):
     global helpers
     section_dict['bricks'] = helpers.correct_brick_format(
             helpers.listify(section_dict['devices']))
+    Global.ignore_errors = section_dict.get('ignore_pv_errors')
     helpers.perf_spec_data_write()
     if Global.trace:
         Global.logger.info("Executing %s."% defaults.PVCREATE_YML)
@@ -21,6 +22,7 @@ def pv_resize(section_dict):
             helpers.listify(section_dict['devices']))
     expand = section_dict.get('expand')
     shrink = section_dict.get('shrink')
+    Global.ignore_errors = section_dict.get('ignore_pv_errors')
     if shrink != '0':
         shrink  = helpers.listify(shrink)
         devices  = helpers.listify(devices)
