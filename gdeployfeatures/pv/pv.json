@@ -11,6 +11,11 @@
             "required": "false",
             "name": "wipefs",
             "default": "no"
+          },
+          {
+            "required": "false",
+            "name": "ignore_pv_errors",
+            "default": "yes"
           }
         ]
       },
@@ -29,6 +34,11 @@
             "required": "false",
             "name": "shrink",
             "default": "0"
+          },
+          {
+            "required": "false",
+            "name": "ignore_pv_errors",
+            "default": "yes"
           }
         ]
       }
