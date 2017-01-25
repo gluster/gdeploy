@@ -11,6 +11,11 @@
             "required": "false",
             "name": "slice_setup",
             "default": "no"
+          },
+          {
+            "required": "false",
+            "name": "ignore_service_errors",
+            "default": "yes"
           }
         ]
       },
@@ -19,6 +24,11 @@
           {
             "required": "true",
             "name": "service"
+          },
+          {
+            "required": "false",
+            "name": "ignore_service_errors",
+            "default": "yes"
           }
         ]
       },
@@ -32,6 +42,11 @@
             "required": "false",
             "name": "slice_setup",
             "default": "no"
+          },
+          {
+            "required": "false",
+            "name": "ignore_service_errors",
+            "default": "yes"
           }
         ]
       },
@@ -40,6 +55,11 @@
           {
             "required": "true",
             "name": "service"
+          },
+          {
+            "required": "false",
+            "name": "ignore_service_errors",
+            "default": "yes"
           }
         ]
       },
@@ -48,6 +68,11 @@
           {
             "required": "true",
             "name": "service"
+          },
+          {
+            "required": "false",
+            "name": "ignore_service_errors",
+            "default": "yes"
           }
         ]
       },
@@ -56,6 +81,11 @@
           {
             "required": "true",
             "name": "service"
+          },
+          {
+            "required": "false",
+            "name": "ignore_service_errors",
+            "default": "yes"
           }
         ]
       }

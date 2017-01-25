@@ -11,6 +11,7 @@ def update_file_copy(section_dict):
     global helpers
     src = helpers.listify(section_dict['src'])
     dest = helpers.listify(section_dict['dest'])
+    Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     if len(dest) == 1:
         dest *= len(src)
     if len(dest) != len(src):
@@ -31,6 +32,7 @@ def update_file_edit(section_dict):
     line = helpers.listify(section_dict['line'])
     replace = helpers.listify(section_dict['replace'])
     data = []
+    Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     if len(replace) != len(line):
         print "\nError: Provide same number of 'replace' and 'line'"
         return
@@ -43,5 +45,6 @@ def update_file_edit(section_dict):
     return section_dict, defaults.EDIT_FILE
 
 def update_file_add(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     return section_dict, defaults.ADD_TO_FILE
 
