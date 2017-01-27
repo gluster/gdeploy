@@ -4,6 +4,7 @@ The function should be named as follows <feature name>_<action_name>
 """
 from gdeploylib import defaults
 from gdeploylib import Helpers
+from gdeploylib import Global
 
 helpers = Helpers()
 
