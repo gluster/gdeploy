@@ -63,7 +63,7 @@ class Helpers(Global, YamlWriter):
         with open(filename, 'r') as f:
             return yaml.load(f)
 
-    def cleanup_and_quit(self, ret=0):
+    def cleanup_and_quit(self, ret=1):
         if os.path.isdir(Global.base_dir) and not Global.keep:
             shutil.rmtree(Global.base_dir)
             Global.logger.info("Deleting playbook data %s"%Global.base_dir)
