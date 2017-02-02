@@ -150,20 +150,18 @@ class VgOps(object):
 
     def vg_presence_check(self, vg):
         rc, out, err = self.run_command('vgdisplay', ' ' + vg)
-        ret = 0
         if self.action == 'create' and not rc:
-            self.action = 'extend'
-            self.op = 'vgextend'
-            return
+            # volume group exists, exit!
+            self.module.exit_json(changed=False, rc=1,
+                                  msg="A volume group called %s already exists"
+                                  %vg)
         elif self.action == 'extend' and rc:
-            self.action = 'create'
-            self.op = 'vgcreate'
-            return
+            # volume group does not exist, exit!
+            self.module.exit_json(changed=False, rc=1,
+                                  msg="A volume group %s not found."%vg)
         elif self.action == 'remove' and rc:
-            self.module.exit_json(changed=changed, rc=1, msg="%s Volume Group Doesn't Exists!" % disk)
-        else:
-            ret = 1
-        return ret
+            self.module.exit_json(changed=False, rc=1,
+                                  msg="Volume group %s not found"%vg)
 
     def pv_presence_check(self, disk):
         if self.action not in ['create', 'extend']:
