@@ -83,7 +83,7 @@ def check_ansible_installation():
     dist_type = dist()
     op_system = dist_type[0]
     if op_system != 'redhat':
-        return
+        return "Error: gdeploy is supported on RHEL6 or above"
     major_vers = dist_type[1].split('.')[0]
 
     # gdeploy currently is supported only on RHEL6 or above
