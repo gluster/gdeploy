@@ -126,7 +126,7 @@ def get_host_vips(section_dict, cluster):
     if len(cluster) != len(VIPs):
         print "\nError: The number of cluster_nodes provided and VIP "\
                 "given doesn't match. Exiting!"
-        self.cleanup_and_quit()
+        helpers.cleanup_and_quit()
     vip_list = []
     for host, vip in zip(cluster, VIPs):
         key = 'VIP_' + host
