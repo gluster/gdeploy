@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # This script was initially written to solve the bug:
 # https://bugzilla.redhat.com/show_bug.cgi?id=1405447
@@ -59,7 +59,7 @@ EOF
 
     # Copy all the files to MASTER and compare
     match=0
-    if ifconfig | egrep -q $MASTERIP; then
+    if ip a l | egrep -q $MASTERIP; then
         # Give some time for the operation to finish on other nodes
         sleep 2
         for node in `echo $1 | tr ',' ' '`; do
