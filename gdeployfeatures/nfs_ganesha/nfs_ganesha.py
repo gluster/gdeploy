@@ -32,7 +32,8 @@ def nfs_ganesha_destroy_cluster(section_dict):
     return section_dict, defaults.GANESHA_DISABLE
 
 def nfs_ganesha_add_node(section_dict):
-    new_nodes = section_dict.get('nodes')
+    new_nodes = helpers.listify(section_dict.get('nodes'))
+    helpers.write_to_inventory('cluster_nodes', new_nodes)
     vips, vip_list = get_host_vips(section_dict, new_nodes)
     data = []
     for node, vip in zip(new_nodes, vips):
@@ -43,7 +44,7 @@ def nfs_ganesha_add_node(section_dict):
     section_dict['nodes_list'] = data
     section_dict = get_base_dir(section_dict)
     return section_dict, [defaults.GANESHA_BOOTSTRAP,
-                                defaults.GANESHA_ADD_NODE]
+                          defaults.GANESHA_ADD_NODE]
 
 def nfs_ganesha_delete_node(section_dict):
     section_dict = get_base_dir(section_dict)
@@ -103,7 +104,7 @@ def get_cluster_nodes(section_dict):
     return cluster_nodes
 
 def get_host_vips(section_dict, cluster):
-    VIPs = section_dict.get('vip')
+    VIPs = helpers.listify(section_dict.get('vip'))
     if len(cluster) != len(VIPs):
         print "\nError: The number of cluster_nodes provided and VIP "\
                 "given doesn't match. Exiting!"
