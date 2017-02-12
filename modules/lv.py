@@ -211,7 +211,7 @@ class LvOps(object):
 
     def create_thin_pool(self):
         lvcreate = {}
-        lvcreate['chunksize'] = self.get_thin_pool_chunk_sz()
+        lvcreate['chunksize'] = self.module.params['chunksize']
         lvcreate['poolmetadatasize'] = self.module.params[
                 'poolmetadatasize'] or ''
         poolname = self.validated_params('poolname')
@@ -265,43 +265,6 @@ class LvOps(object):
                    # }[self.lvtype]
         return options
 
-    def get_thin_pool_chunk_sz(self):
-        # As per perf recommendations
-        #
-        # For RAID-6 storage, the striping parameters should be chosen so that
-        # the full stripe size (stripe_unit size * number of data disks) is
-        # between 1 MiB and 2 MiB, preferably in the low end of the range. The
-        # thin pool chunk size should be chosen to match the RAID 6 full stripe
-        # size. Matching the chunk size to the full stripe size aligns thin pool
-        # allocations with RAID 6 stripes, which can lead to better
-        # performance. Limiting the chunk size to below 2 MiB helps reduce
-        # performance problems due to excessive copy-on-write when snapshots are
-        # used.
-        #
-        # For example, for RAID 6 with 12 disks (10 data disks), stripe unit
-        # size should be chosen as 128 KiB. This leads to a full stripe size of
-        # 1280 KiB (1.25 MiB). The thin pool should then be created with the
-        # chunk size of 1280 KiB.
-        #
-        # For RAID 10 storage, the preferred stripe unit size is 256 KiB. This
-        # can also serve as the thin pool chunk size. Note that RAID 10 is
-        # recommended when the workload has a large proportion of small file
-        # writes or random writes. In this case, a small thin pool chunk size is
-        # more appropriate, as it reduces copy-on-write overhead with
-        # snapshots.
-        #
-        # For JBOD, use a thin pool chunk size of 256 KiB.
-
-        disktype = self.module.params['disktype'] or 'jbod'
-        chunksize = ''
-        if disktype == 'raid6':
-            stripe_unit_size = self.validated_params('stripesize')
-            diskcount = self.validated_params('diskcount')
-            chunksize = str(int(stripe_unit_size) * int(diskcount)) + 'K'
-        else:
-            chunksize = self.module.params['chunksize'] or '256K'
-        return chunksize
-
     def parse_playbook_data(self, dictionary, cmd=''):
         for key, value in dictionary.iteritems():
             if value and str(value).strip(' '):
@@ -335,7 +298,7 @@ class LvOps(object):
             lvconvert['poolmetadata'] = self.get_vg_appended_name(poolmetadata)
             lvconvert['thinpool'] = self.get_vg_appended_name(self.module.params[
                                                                     'thinpool'])
-            lvconvert['chunksize'] = self.get_thin_pool_chunk_sz()
+            lvconvert['chunksize'] = self.module.params['chunksize']
             if lvconvert.get('poolmetadata'):
                 lvconvert['poolmetadataspare'] = self.module.params[
                         'poolmetadataspare']
