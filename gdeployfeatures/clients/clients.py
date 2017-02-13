@@ -22,7 +22,7 @@ def clients_mount(section_dict):
             fstype *= len(mntpts)
         else:
             print "\nError: Provide equal number of fstype and "\
-            "clients."
+                "clients."
             return False, False
     for mnt, fs, host in zip(mntpts, fstype, clients):
         section_dict = {'glusterfs': fuse_mount,
@@ -106,5 +106,5 @@ def get_client_hosts(section_dict):
         else:
             print "\nError: Provide equal number of client hosts and "\
             "client_mount_points."
-            self.cleanup_and_quit()
+            helpers.cleanup_and_quit()
     return clients, mntpts
