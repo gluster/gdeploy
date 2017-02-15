@@ -1,0 +1,10 @@
+---
+- hosts: cluster_nodes
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Pcs cluster authenticate the hacluster on new nodes
+    shell: pcs cluster auth -u hacluster -p hacluster {{ item }}
+    register: result
+    with_items: "{{ nodes }}"
