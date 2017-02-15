@@ -33,7 +33,10 @@ def nfs_ganesha_destroy_cluster(section_dict):
 
 def nfs_ganesha_add_node(section_dict):
     new_nodes = helpers.listify(section_dict.get('nodes'))
-    helpers.write_to_inventory('cluster_nodes', new_nodes)
+    cluster_nodes = section_dict.get('cluster_nodes')
+    helpers.write_to_inventory('new_nodes', new_nodes)
+    helpers.write_to_inventory('cluster_nodes', cluster_nodes)
+    helpers.write_to_inventory('master_node', [cluster_nodes[0]])
     vips, vip_list = get_host_vips(section_dict, new_nodes)
     data = []
     for node, vip in zip(new_nodes, vips):
@@ -42,9 +45,16 @@ def nfs_ganesha_add_node(section_dict):
         nodes_list['vip'] = vip
         data.append(nodes_list)
     section_dict['nodes_list'] = data
+    section_dict['cluster_nodes'] = cluster_nodes
+    section_dict['master_node'] = cluster_nodes[0]
     section_dict = get_base_dir(section_dict)
-    return section_dict, [defaults.GANESHA_BOOTSTRAP,
-                          defaults.GANESHA_ADD_NODE]
+    if Global.trace:
+        Global.logger.info("Executing %s."%defaults.GANESHA_BOOTSTRAP_NEW_NODES)
+        Global.logger.info("Executing %s."%defaults.GANESHA_ADD_NODE)
+    return section_dict, [ defaults.GANESHA_FETCH_KEYS_NEW_NODES,
+                           defaults.GANESHA_BOOTSTRAP_NEW_NODES,
+                           defaults.GANESHA_PCS_AUTH_NEW_NODES,
+                           defaults.GANESHA_ADD_NODE ]
 
 def nfs_ganesha_delete_node(section_dict):
     section_dict = get_base_dir(section_dict)

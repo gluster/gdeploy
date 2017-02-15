@@ -1,0 +1,13 @@
+---
+- hosts: master_node
+  remote_user: root
+  gather_facts: yes
+
+  tasks:
+  - name: Copy the public key to the local
+    fetch: src=/var/lib/glusterd/nfs/secret.pem.pub
+           dest="{{ base_dir }}"
+
+  - name: Copy the private key to the local
+    fetch: src=/var/lib/glusterd/nfs/secret.pem
+           dest="{{ base_dir }}"
