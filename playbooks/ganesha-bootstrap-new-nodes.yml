@@ -1,0 +1,117 @@
+---
+- hosts: new_nodes
+  remote_user: root
+  gather_facts: yes
+
+  tasks:
+  - name: Check if nfs-ganesha is installed
+    shell: rpm -q nfs-ganesha
+    register: rpm_check
+
+  - fail: msg="Skip if nfs-ganesha is installed"
+    when: rpm_check.rc != 0
+
+  - name: Check if corosync is installed
+    shell: rpm -q corosync
+    register: rpm_check
+
+  - fail: msg="Skip if corosync is installed"
+    when: rpm_check.rc != 0
+
+  - name: Check if pacemaker is installed
+    shell: rpm -q pacemaker
+    register: rpm_check
+
+  - fail: msg="Skip if pacemaker is installed"
+    when: rpm_check.rc != 0
+
+  - name: Check if libntirpc is installed
+    shell: rpm -q libntirpc
+    register: rpm_check
+
+  - fail: msg="Skip if libntirpc is installed"
+    when: rpm_check.rc != 0
+
+  - name: Check if pcs is installed
+    shell: rpm -q pcs
+    register: rpm_check
+
+  - fail: msg="Skip if pcs is installed"
+    when: rpm_check.rc != 0
+
+  - name: Stop kernel NFS
+    service: name=nfs state=stopped
+
+  - name: Stop network manager service
+    service: name=NetworkManager state=stopped
+    ignore_errors: yes
+
+  - name: Disable network manager service
+    service: name=NetworkManager enabled=no
+    ignore_errors: yes
+
+  - name: Start network service
+    service: name=network state=started
+
+  - name: Enable network service
+    service: name=network enabled=yes
+
+  - name: Start pcsd service
+    service: name=pcsd state=started
+
+  - name: Enable pcsd service
+    service: name=pcsd enabled=yes
+
+  - name: Enable pacemaker service
+    service: name=pacemaker enabled=yes
+
+  - name: Create a user hacluster on new nodes
+    user: name=hacluster
+
+  - name: Set the hacluster user the same password on new nodes
+    shell: echo hacluster | passwd --stdin hacluster
+
+  - name: Copy the public key to remote nodes
+    copy: src={{ item }}/var/lib/glusterd/nfs/secret.pem.pub
+          dest=/var/lib/glusterd/nfs/secret.pem.pub mode=600
+    with_items: "{{ master_node }}"
+
+  - name: Copy the private key to remote node
+    copy: src={{ item }}/var/lib/glusterd/nfs/secret.pem
+          dest=/var/lib/glusterd/nfs/secret.pem mode=0600
+    with_items: "{{ master_node }}"
+
+  - name: Deploy the pubkey ~/root/.ssh/authorized_keys on all nodes
+    shell: cat /var/lib/glusterd/nfs/secret.pem.pub >> ~/.ssh/authorized_keys
+
+  - name: Define service port
+    lineinfile: dest=/etc/sysconfig/nfs regexp='^#STATD_PORT=.*' line='STATD_PORT=662'
+
+  - name: Restart statd service (RHEL 6 only)
+    service: name=nfslock state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+    ignore_errors: yes
+
+  - name: Restart nfs-config service
+    service: name=nfs-config state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+    ignore_errors: yes
+
+  - name: Restart rpc-statd service
+    service: name=rpc-statd state=restarted
+    when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+    ignore_errors: yes
+
+  - name: Pcs cluster authenticate the hacluster on new nodes
+    shell: pcs cluster auth -u hacluster -p hacluster {{ item }}
+    register: result
+    with_items: "{{ nodes }}"
+
+  - name: Pcs cluster authenticate the hacluster on existing nodes
+    shell: pcs cluster auth -u hacluster -p hacluster {{ item }}
+    register: result
+    with_items: "{{ cluster_nodes }}"
+
+  - name: Pause for a few seconds after pcs auth
+    pause: seconds=3
+
