@@ -37,6 +37,10 @@
               "required": "true"
           },
           {
+             "name": "cluster_nodes",
+             "required": "true"
+          },
+          {
               "name": "vip",
               "required": "true"
           }

@@ -194,6 +194,9 @@ GANESHA_ADD_NODE = 'ganesha-cluster-add.yml'
 GANESHA_DELETE_NODE = 'ganesha-cluster-delete.yml'
 DEFINE_SERVICE_PORTS = 'define_service_ports.yml'
 GANESHA_REFRESH_CONFIG = 'ganesha-refresh-config.yml'
+GANESHA_BOOTSTRAP_NEW_NODES = 'ganesha-bootstrap-new-nodes.yml'
+GANESHA_PCS_AUTH_NEW_NODES = 'ganesha-pcs-auth-new-nodes.yml'
+GANESHA_FETCH_KEYS_NEW_NODES = 'ganesha-fetch-keys-new-nodes.yml'
 
 RUN_SCRIPT = 'run-script.yml'
 
