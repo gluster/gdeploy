@@ -83,7 +83,7 @@ def check_ansible_installation():
     dist_type = dist()
     op_system = dist_type[0]
     if op_system != 'redhat':
-        print "A non-Redhat Operating System is detected. No further checks will be executed"
+        print "A non-redhat Operating System is detected. No further checks will be executed"
         return
     major_vers = dist_type[1].split('.')[0]
 
