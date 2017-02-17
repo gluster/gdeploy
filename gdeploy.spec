@@ -10,15 +10,10 @@ License:        GPLv2
 URL:            https://github.com/gluster/gdeploy
 Source0:        %{url}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
 BuildArch:      noarch
+Requires:       PyYAML
 Requires:       ansible >= 2.2
 Requires:       python2
-Requires:       python2-ecdsa
-Requires:       python-markupsafe
-Requires:       python2-crypto
 Requires:       lvm2
-Requires:       PyYAML
-Requires:       python2-jinja2
-Requires:       python2-paramiko
 
 BuildRequires:  python2-setuptools
 BuildRequires:  python2-devel
