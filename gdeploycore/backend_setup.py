@@ -35,7 +35,7 @@ except ImportError:
     msg = "Package PyYAML not found."
     print "\nError: " + msg
     Global.logger.error(msg)
-    sys.exit(0)
+    sys.exit(1)
 import os
 
 
