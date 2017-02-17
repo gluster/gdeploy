@@ -2,14 +2,16 @@
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
 """
-from gdeploylib import defaults
+from gdeploylib import defaults, Global
 
 def firewalld_add(section_dict):
     section_dict['firewall_state'] = 'enabled'
+    Global.logger.info("Enabling firewalld service")
     return get_yml_lists(section_dict)
 
 def firewalld_delete(section_dict):
     section_dict['firewall_state'] = 'disabled'
+    Global.logger.info("Disabling firewalld service")
     return get_yml_lists(section_dict)
 
 

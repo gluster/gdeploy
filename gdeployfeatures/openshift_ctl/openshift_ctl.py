@@ -13,8 +13,10 @@ def openshift_ctl_create(section_dict):
     if not filepaths:
         resource = helpers.listify(section_dict.get('resourcename'))
         if not resource:
-            print "Error: Please provide the resourcename or filename "\
-                    "to complete create action"
+            msg = "Error: Please provide the resourcename or filename "\
+                  "to complete create action"
+            print msg
+            Global.logger.info(msg)
             helpers.cleanup_and_quit()
         filepaths = get_filename(resource, section_dict)
     data = []
@@ -58,9 +60,11 @@ def get_filename(resources, section_dict):
                 filename = each
                 break
         if not filename:
-            print "Error: Could not find %s file for %s"\
-                    " to complete create action" % (
-                            section_dict.get('filetype'), resource)
+            msg = "Could not find %s file for %s"\
+                  " to complete create action" % (
+                      section_dict.get('filetype'), resource)
+            print "Error: %s"%msg
+            Global.logger.error(msg)
             helpers.cleanup_and_quit()
         filelist.append(filename)
 
@@ -74,8 +78,6 @@ def get_templates(dirname):
             filenames.append(helpers.get_file_dir_path(dirname,
                 each))
     return filenames
-
-
 
 def openshift_ctl_delete(section_dict):
     global helpers

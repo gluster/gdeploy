@@ -45,18 +45,17 @@ def log_event():
     '''
     This method helps in logging the messages
     '''
-    log_dir = os.path.expanduser('~/.gdeploy/logs/')
     rotate_log_file(Global.log_file)
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
+    if not os.path.exists(Global.log_dir):
+        os.makedirs(Global.log_dir)
     logger = logging.getLogger("gdeploy")
     logger.setLevel(logging.INFO)
 
     # create the logging file handler
     fh = logging.FileHandler(Global.log_file)
 
-    formatter = MyFormatter('[%(asctime)s] -  %(levelname)s     -   ' \
-                            '%(filename)s[%(lineno)s]    : ' \
+    formatter = MyFormatter('[%(asctime)s] %(levelname)s ' \
+                            '%(filename)s[%(lineno)s]: ' \
                             '%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     fh.setFormatter(formatter)
 

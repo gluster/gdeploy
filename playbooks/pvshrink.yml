@@ -4,16 +4,8 @@
   gather_facts: no
 
   tasks:
-      #Expand pv on all the disks, provided the partitions
-      #are enlarged using fdisk
-  - name: Expand Physical Volumes on all the nodes
-    pv: action=resize disks="{{ item }}"
-    with_items: "{{ bricks }}"
-    when: pvexpand is defined
-
-
   # Shrink pv on all the disks to the specified size,
-  #Partitions will not be shrinked.
+  # Partitions will not be shrinked.
   - name: Shrink the Physical Volumes on all the nodes.
     pv: action=resize disks={{ item.disk }}
         options=" --setphysicalvolumesize {{ item.size }}"
