@@ -44,26 +44,34 @@ def get_feature_dir(section):
     global helpers, section_name
     Global.master = None
     Global.current_hosts = Global.hosts
-
-
     section_name = helpers.get_section_pattern(section)
+
     if not section_name:
+        # We do not log this, since many features like disktype, raid do not
+        # have their own section directories under gdeployfeature
         return
 
     try:
         section_dir = os.path.join(gdeployfeatures.__path__[0], section_name)
     except:
-        print "Error: Could not find the installation path for "\
-        "'gdeployfeatures' module. Please check the installation of gdeploy"
+        msg = "Error: Could not find the installation path for "\
+              "`gdeployfeatures' module. Please check gdeploy installation."
+        print msg
+        Global.logger.error(msg)
         helpers.cleanup_and_quit()
 
-
     if not os.path.isdir(section_dir):
+        msg = "Feature directory `%s' not found"%section_dir
+        Global.logger.error(msg)
+        print "Error: " + msg
         return
 
-    config_file = helpers.get_file_dir_path(section_dir, section_name + '.json')
+    config_file = helpers.get_file_dir_path(section_dir, section_name +
+                                            '.json')
     if not os.path.isfile(config_file):
-        print "Error: Setup file not found for feature '%s'" % section_name
+        msg = "Error: Setup file %s not found for feature `%s'"%(config_file, section)
+        Global.logger.error(msg)
+        print msg
         return
 
     section_dict = parse_the_user_config(section, section_dir)
@@ -114,13 +122,9 @@ def parse_the_user_config(section, section_dir):
         return section_dict
 
     reqd_vals = get_required_values(options)
-
     default_dict = get_default_values(options)
-
     section_dict = helpers.set_default_values(section_dict, default_dict)
-
     section_dict = validate_the_user_data(section_dict, reqd_vals)
-
 
     if not section_dict:
         return False
@@ -131,24 +135,27 @@ def parse_the_user_config(section, section_dir):
         helpers.cleanup_and_quit()
 
     helpers.get_hostnames()
-
     return section_dict
 
 def get_action_data(section, section_dir, section_dict):
     global helpers, section_name
     json_file = helpers.get_file_dir_path(section_dir, section_name + '.json')
+    Global.logger.info("Parsing json file: %s"%json_file)
     json_data = open(json_file)
     data = json.load(json_data)
+    if Global.trace:
+        Global.logger.info("Found json data: %s"%data)
     json_data.close()
     action_dict = data[section_name]["action"].get(section_dict.get("action"))
     if not action_dict:
-        print "\nWarning: We could not find the operations corresponding " \
-                "to the action specified for the section {0}. "\
-                "Skipping this section.".format(section_name)
+        msg = "Warning: We could not find the operations corresponding " \
+              "to the action specified for the section {0}. "\
+              "Skipping this section.".format(section_name)
+        print msg
+        Global.logger.warning(msg) # delete leading newline
         return False
     else:
         return action_dict
-
 
 def get_required_values(value_dict):
     reqd_vals = []
@@ -156,7 +163,6 @@ def get_required_values(value_dict):
         if hval["required"] == "true":
             reqd_vals.append(hval["name"])
     return reqd_vals
-
 
 def get_default_values(value_dict):
     def_vals = {}
@@ -169,19 +175,21 @@ def validate_the_user_data(section_dict, reqd_vals):
     for val in reqd_vals:
         if type(val) is not list:
             if not section_dict.get(val):
-                print "\nError: configuration file validation error. "\
-                        "\nRequired option %s not found." % val
+                msg = "Configuration file validation error. "
+                msg1 = "Required option %s not found."%val
+                Global.logger.error(msg.lstrip() + msg1.lstrip())
+                print "Error: " + msg + "\n" + msg1
                 return False
             continue
         else:
             check = [True for each in val if section_dict.get(each)]
             if True not in check:
-                print "\nError: configuration file validation error. "\
-                        "\nAny one of the options in %s required." % val
+                msg = "\nError: configuration file validation error. "\
+                      "\nAny one of the options in %s required." % val
+                Global.logger.error(msg.lstrip())
+                print msg
                 return False
             for each in val:
                 if not section_dict.get(each):
                     section_dict[each] = None
     return section_dict
-
-

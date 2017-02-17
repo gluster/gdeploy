@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 # USA.
 import os
+from os.path import expanduser, dirname
 import tempfile
 
 
@@ -31,7 +32,13 @@ class Global(object):
     var_file = None
     master = None
     brick_hosts = []
-    log_file = os.path.expanduser('~/.gdeploy/logs/gdeploy.log')
+    # Make logfile configurable
+    try:
+        log_file = os.environ['GDEPLOY_LOGFILE']
+    except:
+        log_file = expanduser('~/.gdeploy/logs/gdeploy.log')
+    log_dir = dirname(log_file)
+    log_dir = expanduser('~/.gdeploy/logs') if log_dir == '' else log_dir
     templates_dir = os.path.expanduser('~/.gdeploy/templates')
     extras = '/usr/share/gdeploy/extras/templates'
     hosts = []
