@@ -74,9 +74,12 @@ class BackendSetup(Helpers):
     def call_selinux(self):
         selinux = self.config_get_options('selinux', False)
         if selinux:
-            if selinux[0].lower() == 'yes':
-                self.run_playbook(SELINUX_YML)
-                Global.logger.info("Setting up SELinux labels")
+            if selinux[0].lower() == 'no':
+                Global.logger.info("SELinux set to `no'")
+                Global.logger.info("Skipping SELinux settings")
+                return
+        self.run_playbook(SELINUX_YML)
+        Global.logger.info("Setting up SELinux labels")
 
     def new_backend_setup(self, hosts):
         hosts = filter(None, hosts)
