@@ -88,6 +88,10 @@ def nfs_ganesha_refresh_config(section_dict):
     if add_lines:
         section_dict['add-config-lines'] = helpers.split_string(add_lines, '|')
 
+    update_lines = list_to_string(section_dict.get('update-config-lines'))
+    if update_lines:
+        section_dict['update-config-lines'] = helpers.split_string(update_lines, '|')
+
     block_name = section_dict.get('block-name')
     section_dict['block-name'] = block_name
 
