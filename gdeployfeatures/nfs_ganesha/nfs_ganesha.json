@@ -80,6 +80,10 @@
              "required": "false"
           },
           {
+            "name": "update-config-lines",
+            "required": "false"
+          },
+          {
               "name": "block-name",
               "required": "false",
               "default": "client"

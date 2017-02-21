@@ -23,6 +23,14 @@
     with_items: "{{ add_config_lines | default([]) }}"
     when: add_config_lines is defined
 
+  - name: Update lines to Ganesha export file
+    lineinfile:
+        dest="{{ ha_base_dir }}/{{ ganesha_export_conf }}"
+        regexp="{{ item.split('=')[0] }}"
+        line="{{ item }}"
+    with_items: "{{ update_config_lines | default([]) }}"
+    when: update_config_lines is defined
+
   # Use blockinfile when all the channles are updated with ansible 2.x
   # Using lineinfile for now.
   - name: Add a block to Ganesha export file
