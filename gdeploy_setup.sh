@@ -2,6 +2,8 @@
 
 test `id -u` -ne 0  && echo "Only root can run setup." && exit 1
 PLUGIN_DIR=/usr/lib/python2.7/site-packages/ansible/plugins/callback/
+DIR=$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)
+MODDIR="$DIR/modules"
 
 update_init_file ()
 {
@@ -11,11 +13,15 @@ update_init_file ()
     sed -i '/^export ANSIBLE_LIBRARY=/'d $INIT_FILE
     sed -i '/^export GDEPLOY_TEMPLATES=/'d $INIT_FILE
 
-    echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:$DIR/modules/" >>$INIT_FILE
+    if echo $ANSIBLE_LIBRARY | tr ':' '\n' | egrep "^${MODDIR}$"; then
+        # Already in PATH don't bother appending module path
+        echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY" >> $INIT_FILE
+    else
+        # Append module path to ANSIBLE_LIBRARY
+        echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:$MODDIR" >>$INIT_FILE
+    fi
     echo "export GDEPLOY_TEMPLATES=$DIR" >> $INIT_FILE
 }
-
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [ -n "`$SHELL -c 'echo $ZSH_VERSION'`" ]; then
     update_init_file "$HOME/.zshrc"
