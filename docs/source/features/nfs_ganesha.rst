@@ -184,9 +184,10 @@ Action refresh-config supports the following variables::
 
   1. add-config-lines
   2. del-config-lines
-  3. block-name
-  4. volname
-  5. ha-conf-dir
+  3. update-config-lines
+  4. block-name
+  5. volname
+  6. ha-conf-dir
 
 Example 1 - Add a client block and run-refresh config::
 
@@ -238,7 +239,18 @@ Example 3 - Delete a line and run refresh-config::
   del-config-lines=client
   volname=ganesha
 
-Example 4 - Run refresh-config on a volume::
+Example 4 - Update a line and run refresh-config::
+
+  [hosts]
+  dhcp37-102.lab.eng.blr.redhat.com
+  dhcp37-103.lab.eng.blr.redhat.com
+
+  [nfs-ganesha]
+  action=refresh-config
+  update-config-lines=access_type = "RW";|anonymous_gid = 72;
+  volname=ganesha
+
+Example 5 - Run refresh-config on a volume::
 
   [hosts]
   dhcp37-102.lab.eng.blr.redhat.com
