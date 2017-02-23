@@ -5,7 +5,7 @@ Peer
 
 *peer* module allows user to add/probe remote machines to a Trusted Storage Pool,
 detach/remove a remote machine from a Trusted Storage Pool.
-action variable can be any of *probe*, *detach*, or *ignore*.
+action variable can be any of *probe* and *detach*.
 
 When the *action* variable is set to *probe*, the remote machines listed in the
 hosts sections are added to the Trusted Storage Pool.
