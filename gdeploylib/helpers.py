@@ -501,7 +501,7 @@ class Helpers(Global, YamlWriter):
         if disktype:
             perf = dict(disktype=disktype[0].lower())
             # Supported disk types
-            sdisks = ['raid10', 'raid6', 'jbod']
+            sdisks = ['raid10', 'raid5', 'raid6', 'jbod']
             if perf['disktype'] not in sdisks:
                 msg = "Unsupported disk type!\nOnly %s are supported"%sdisks
                 print "Error: " + msg
@@ -530,6 +530,7 @@ class Helpers(Global, YamlWriter):
                     perf['stripesize'] = 256
                 perf['dalign'] = {
                     'raid6': perf['stripesize'] * perf['diskcount'],
+                    'raid5': perf['stripesize'] * perf['diskcount'],
                     'raid10': perf['stripesize'] * perf['diskcount']
                 }[perf['disktype']]
             else:
