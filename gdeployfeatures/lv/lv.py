@@ -232,7 +232,7 @@ def get_thin_pool_chunk_sz():
     diskcount = helpers.config_get_options('diskcount', False) or ''
     diskcount = get_first_index(diskcount)
 
-    if disktype == 'raid6':
+    if disktype.lower() == 'raid6' or disktype.lower() == 'raid5':
         # If user has ommited chunk size or stripe unit size, we leave it blank
         # and let the system determine proper default value.
         if stripe_unit_size.strip() == '' or diskcount.strip() == '':
