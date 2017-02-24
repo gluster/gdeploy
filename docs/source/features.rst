@@ -33,3 +33,5 @@ This document explains the available features and their tunable variables.
 11. :ref:`rst_nfsganesha`
 
 12. :ref:`rst_gdeployssl`
+
+13. :ref:`rst_gdeploypeer`
