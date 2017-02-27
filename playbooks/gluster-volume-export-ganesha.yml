@@ -9,3 +9,4 @@
                 volume="{{ volname }}"
                 key=ganesha.enable
                 value="{{ value }}"
+      when: volname is defined and volname
