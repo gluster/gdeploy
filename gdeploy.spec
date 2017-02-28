@@ -56,6 +56,11 @@ mkdir -p %{buildroot}/usr/bin
 install -p -m 755 extras/usecases/replace-node/gluster-replace-node \
         %{buildroot}/usr/bin
 
+# Install the gdeploy plugin
+mkdir -p %{buildroot}/%{python2_sitelib}/ansible/plugins/callback
+install -p -m 755 plugins/callback/gdeploy.py \
+        %{buildroot}/plugins/callback/
+
 # Documentation
 mkdir -p %{buildroot}/%{_pkgdocdir} %{buildroot}/%{_mandir}/man1/ \
        %{buildroot}/%{_mandir}/man5/
@@ -65,9 +70,10 @@ cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
 %files
 %{_bindir}/gdeploy
-%{python2_sitelib}/*
+%{python2_sitelib}/gdeploy*
 %{gdeploytemp}
 %{_bindir}/gluster-replace-node
+%{python2_sitelib}/ansible/plugins/callback/gdeploy.py
 
 %doc README.md
 %doc %{_pkgdocdir}/*
