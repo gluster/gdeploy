@@ -31,6 +31,9 @@ section_name = None
 def call_features():
     global helpers
     if not Global.sections:
+        msg = "No sections found in config file. Exiting!"
+        print "Error: " + msg
+        Global.logger.error(msg)
         return
     helpers.get_hostnames()
     map(get_feature_dir, Global.sections)
