@@ -140,6 +140,7 @@ UNREGISTER = 'redhat_unregister.yml'
 ADD_TO_FILE = 'add-remote-file.yml'
 EDIT_FILE = 'edit-remote-file.yml'
 MOVE_FILE = 'move-file-from-local-to-remote.yml'
+DELETE_LINE_FILE = 'delete-line-remote-file.yml'
 
 
 # FIREWALLD
