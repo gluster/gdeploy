@@ -55,3 +55,16 @@ def update_file_add(section_dict):
     Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     Global.logger.info("Adding lines to file")
     return section_dict, defaults.ADD_TO_FILE
+
+def update_file_delete_line(section_dict):
+    global helpers
+    line = helpers.listify(section_dict['line'])
+    data = []
+    Global.ignore_errors = section_dict.get('ignore_update_file_errors')
+    for li in line:
+        files_list = {}
+        files_list['line'] = li
+        data.append(files_list)
+    section_dict['file_paths'] = data
+    Global.logger.info("Deleting line %s in file %s"%(data, section_dict['dest']))
+    return section_dict, defaults.DELETE_LINE_FILE

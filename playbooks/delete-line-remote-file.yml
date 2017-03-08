@@ -1,0 +1,12 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Deleting lines in remote file
+    lineinfile: dest={{ dest }}
+                line={{ item }}
+                state=absent
+                regexp='{{ item }}.*'
+    with_items: "{{ line }}"

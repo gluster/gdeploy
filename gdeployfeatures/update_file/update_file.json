@@ -55,6 +55,23 @@
             "default": "yes"
           }
         ]
+      },
+      "delete-line": {
+        "options": [
+          {
+            "required": "true",
+            "name": "dest"
+          },
+          {
+            "required": "true",
+            "name": "line"
+          },
+          {
+            "required": "false",
+            "name": "ignore_update_file_errors",
+            "default": "yes"
+          }
+        ]
       }
     }
   }
