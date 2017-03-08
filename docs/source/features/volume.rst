@@ -14,11 +14,11 @@ hosts and bricks. Volume section supports the following variables:
    brick_dirs variable can take values in ip:brick_dir format or just brick_dir
    format. For example:
 
-   brick_dir=10.0.0.1:/mnt/data1/1,10.0.0.2:/mnt/data2/2
+   brick_dirs=10.0.0.1:/mnt/data1/1,10.0.0.2:/mnt/data2/2
 
    Or
 
-   brick_dir=/mnt/data1/1,/mnt/data2/2
+   brick_dirs=/mnt/data1/1,/mnt/data2/2
 4. transport - The transport type. Possible values are tcp,tcp,rdma,rdma
 5. replica_count - The replication count for replica volumes.
 6. force - If set to yes, force is used while creating volumes.
