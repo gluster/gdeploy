@@ -34,9 +34,10 @@ description:
 options:
     action:
         required: True
-        choices: [create, delete, start, stop, add-brick, remove-brick, rebalance]
+        choices: [create, delete, start, stop, add-brick, remove-brick, replace-brick,
+                  rebalance]
                      This can be create, delete, start, stop,
-                     add-brick or remove-brick.
+                     add-brick, remove-brick, or replace-brick.
     volume:
         required: True
         description: Specifies the name of the Gluster volume to be created.
@@ -242,6 +243,9 @@ class Volume(object):
         option_str = ''
         if self.action in ['delete', 'remove-brick']:
             self.force = ''
+        if self.action == 'replace-brick':
+            self.force = 'commit force'
+            option_str = self.get_brick_list()
         volume = self._validated_params('volume')
         if self.action == 'rebalance':
             option_str = self.rebalance_volume()
@@ -249,7 +253,7 @@ class Volume(object):
             self.get_host_names()
             option_str = self.get_volume_configs()
             option_str += self.get_brick_list_of_all_hosts()
-        if re.search(r'(.*)brick$', self.action):
+        if self.action in ['add-brick', 'remove-brick']:
             option_str = self.brick_ops()
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)

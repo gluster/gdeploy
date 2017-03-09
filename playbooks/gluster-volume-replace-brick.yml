@@ -1,0 +1,12 @@
+---
+- hosts: master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Replace a brick in volume
+    volume:  action=replace-brick
+             volume="{{ volname }}"
+             bricks="{{ bricks }}"
+
+
