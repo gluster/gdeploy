@@ -1,0 +1,9 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Deleting the remote file
+    file: dest={{ dest }}
+          state=absent
