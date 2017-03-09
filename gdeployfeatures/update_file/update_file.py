@@ -63,3 +63,11 @@ def update_file_delete_line(section_dict):
     Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     Global.logger.info("Deleting line %s in file %s"%(line, section_dict['dest']))
     return section_dict, defaults.DELETE_LINE_FILE
+
+def update_file_delete_file(section_dict):
+    global helpers
+    dest = helpers.listify(section_dict['dest'].split('|'))
+    print dest
+    Global.ignore_errors = section_dict.get('ignore_update_file_errors')
+    Global.logger.info("Deleting file %s"%(section_dict['dest']))
+    return section_dict, defaults.DELETE_FILE
