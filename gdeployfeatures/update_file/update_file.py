@@ -9,7 +9,6 @@ from gdeploylib import Global
 helpers = Helpers()
 
 def update_file_copy(section_dict):
-    global helpers
     src = helpers.listify(section_dict['src'])
     dest = helpers.listify(section_dict['dest'])
     Global.ignore_errors = section_dict.get('ignore_update_file_errors')
@@ -32,7 +31,6 @@ def update_file_copy(section_dict):
     return section_dict, defaults.MOVE_FILE
 
 def update_file_edit(section_dict):
-    global helpers
     line = helpers.listify(section_dict['line'])
     replace = helpers.listify(section_dict['replace'])
     data = []
@@ -57,7 +55,6 @@ def update_file_add(section_dict):
     return section_dict, defaults.ADD_TO_FILE
 
 def update_file_delete_line(section_dict):
-    global helpers
     line = []
     line = helpers.listify(section_dict['line'].split('|'))
     Global.ignore_errors = section_dict.get('ignore_update_file_errors')
@@ -65,9 +62,7 @@ def update_file_delete_line(section_dict):
     return section_dict, defaults.DELETE_LINE_FILE
 
 def update_file_delete_file(section_dict):
-    global helpers
     dest = helpers.listify(section_dict['dest'].split('|'))
-    print dest
     Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     Global.logger.info("Deleting file %s"%(section_dict['dest']))
     return section_dict, defaults.DELETE_FILE
