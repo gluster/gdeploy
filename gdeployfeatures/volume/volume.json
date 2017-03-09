@@ -299,6 +299,23 @@
             "name": "ssl_clients"
           }
         ]
+      },
+      "replace-brick": {
+        "options": [
+          {
+            "required": "true",
+            "name": "volname"
+          },
+          {
+            "required": "true",
+            "name": "bricks"
+          },
+          {
+            "required": "false",
+            "name": "ignore_volume_errors",
+            "default": "yes"
+          }
+        ]
       }
     }
   }

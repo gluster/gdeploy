@@ -215,3 +215,6 @@ SSL_GEN_KEYS = 'ssl-gen-keys.yml'
 SSL_VOL_SET = 'ssl-vol-set.yml'
 SSL_RESTART_SERVICES = 'ssl-restart-services.yml'
 SSL_VOL_START = 'ssl-vol-start.yml'
+
+# Replace brick
+REPLACE_BRICK = 'gluster-volume-replace-brick.yml'

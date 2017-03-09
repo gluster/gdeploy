@@ -317,3 +317,9 @@ def volume_enable_ssl(section_dict):
     return section_dict, [defaults.SSL_GEN_KEYS, defaults.SSL_VOL_SET,
                           defaults.SSL_RESTART_SERVICES,
                           defaults.SSL_VOL_START]
+
+def volume_replace_brick(section_dict):
+    """Replace a brick in GlusterFS volume."""
+    Global.logger.info("Replacing bricks %s"%section_dict['bricks'])
+    Global.ignore_errors = section_dict.get('ignore_volume_errors')
+    return section_dict, defaults.REPLACE_BRICK
