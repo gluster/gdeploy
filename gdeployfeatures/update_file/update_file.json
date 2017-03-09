@@ -72,6 +72,19 @@
             "default": "yes"
           }
         ]
+      },
+      "delete-file": {
+        "options": [
+          {
+            "required": "true",
+            "name": "dest"
+          },
+          {
+            "required": "false",
+            "name": "ignore_update_file_errors",
+            "default": "yes"
+          }
+        ]
       }
     }
   }
