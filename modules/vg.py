@@ -40,12 +40,7 @@ options:
         description: Extra options that needs to be passed while creating the
                      Volume Groups can be given here. Check the man page of
                      vgcreate for more info.
-    vg_pattern:
-        required: true for create action
-        description: The pattern to be followed while naming the volume
-                     groups which are to be created. Pattern followed by
-                     the ordinance of the volume group created will be
-                     the name of that particulat volume group.
+
     vg_name:
         required: true for remove action
         description: Names of the Volume Groups that are to be removed
@@ -78,7 +73,6 @@ EXAMPLES = '''
 #physical extension size 128k
     - vg: action=create disks='["/dev/sdb", "/dev/sdc"]'
           options="--physicalextentsize 128k"
-          vg_pattern="RHS_vg"
 #Remove Volume Groups RHS_vg1, RHS_vg2 and RHS_vg3
     - pv: action=remove
           vg_name='["RHS_vg1", "RHS_vg2", "RHS_vg3"]'
