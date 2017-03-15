@@ -41,7 +41,7 @@ options:
                      Volume Groups can be given here. Check the man page of
                      vgcreate for more info.
 
-    vg_name:
+    vgname:
         required: true for remove action
         description: Names of the Volume Groups that are to be removed
 
@@ -75,7 +75,7 @@ EXAMPLES = '''
           options="--physicalextentsize 128k"
 #Remove Volume Groups RHS_vg1, RHS_vg2 and RHS_vg3
     - pv: action=remove
-          vg_name='["RHS_vg1", "RHS_vg2", "RHS_vg3"]'
+          vgname='["RHS_vg1", "RHS_vg2", "RHS_vg3"]'
 
 '''
 
