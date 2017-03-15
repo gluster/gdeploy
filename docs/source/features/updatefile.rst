@@ -3,8 +3,9 @@
 Updating a file
 ^^^^^^^^^^^^^^^
 
-*update-file* module allows user to copy a file, edit a line in a file, or add
-new lines to a file. action variable can be any of *copy*, *edit*, or *add*.
+*update-file* module allows user to copy a file, edit a line in a file, add new
+lines to a file, delete a line in a file, or delete an entire file.
+action variable can be any of *copy*, *edit*, *add*, *delete-line* or *delete-file*.
 
 When the *action* variable is set to *copy*, the following variables are
 supported.
@@ -24,7 +25,22 @@ When the *action* variable is set to *add*, the following variables are
 supported.
 
 1. dest - File on the remote machine to which a line has to be added.
-2. line - Line which has to be added to the file. Line will be added towards the end of the file.
+2. line - Line which has to be added to the file. Line will be added towards
+          the end of the file.
+
+When the *action* variable is set to *delete-line*, the following variables are
+supported.
+
+1. dest - File on the remote machine whose line is to be deleted.
+2. line - Line which is to be deleted in the file.
+
+When the *action* variable is set to *delete-file*, the following variables are
+supported.
+
+1. dest - File on the remote machine that is to be deleted.
+
+
+For Example::
 
 Example 1: Copy a file to a remote machine ::
 
@@ -49,3 +65,16 @@ Example 3: Add a line to the end of a file ::
   action=add
   dest=/etc/ntp.conf
   line=server clock.redhat.com iburst
+
+Example 4: Delete a line in a file ::
+
+  [update-file]
+  action=delete-line
+  dest=/etc/tmp.conf
+  line=volname|size
+
+Example 5: Delete a file on remote machine ::
+
+  [update-file]
+  action=delete-file
+  dest=/tmp/test.conf
