@@ -34,7 +34,7 @@ If the action is *register* the following variables are supported:
    product certificates in /etc/pki/product/
 4. pool - Name of the pool to be attached
 5. repos - Repos to subscribe to
-6. disable-repos - Repo names to disable. Leaving black will disable all the
+6. disable-repos - Repo names to disable. Leaving blank will disable all the
    repos
 7. ignore_register_errors: If set to no, gdeploy will exit if system
    registration fails.
