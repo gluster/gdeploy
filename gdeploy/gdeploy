@@ -38,7 +38,7 @@ def parse_arguments(args=None):
     to the gdeploy script
     '''
     usage = 'gdeploy [-h] [-v] [-vv] [-c CONFIG_FILE] ' \
-        '[-k] [-l | --legacy] [-d DISPLAY | --display DISPLAY]'
+        '[-k] [-n | --new] [-d DISPLAY | --display DISPLAY]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument('--version',
                         action='version',
@@ -57,9 +57,9 @@ def parse_arguments(args=None):
                         help="verbose mode")
     parser.add_argument('--addfeature', dest='feature_name',
                         help="Add new feature to gdeploy")
-    parser.add_argument("-l", "--legacy", action="store_true",
-                        dest='legacy',
-                        help="Print output in legacy format")
+    parser.add_argument("-n", "--new", action="store_true",
+                        dest='new',
+                        help="Print output in new format")
     parser.add_argument("-d", "--display", dest='display', default='gdeploy',
                         help="Display output in the given format "
                         "(default: gdeploy)")
@@ -125,7 +125,7 @@ def init_global_values(args):
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
     Global.trace = args.trace
-    Global.legacy = args.legacy
+    Global.new = args.new
     Global.display = args.display
 
     for sec in  Global.config._sections:
@@ -188,6 +188,7 @@ def create_playbooks_in_local():
     helpers.copy_files(playbooks_dir)
 
 def main(arg):
+    Global.logger.info("\n\n")
     Global.logger.info("**** gdeploy run started with options %s ****"%arg)
     Global.logger.info("For complete CLI log, set log_path in "\
                        "/etc/ansible/ansible.cfg")

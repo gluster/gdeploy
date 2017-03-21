@@ -381,10 +381,10 @@ class Helpers(Global, YamlWriter):
 
 
     def exec_ansible(self, playbooks_file):
-        if Global.legacy:
-            self.exec_ansible_legacy(playbooks_file)
-        else:
+        if Global.new:
             self.exec_ansible_api(playbooks_file)
+        else:
+            self.exec_ansible_legacy(playbooks_file)
 
     def exec_ansible_api(self, playbooks_file):
         variable_manager = VariableManager()
