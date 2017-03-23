@@ -253,12 +253,11 @@ def volume_set(section_dict):
     key = helpers.listify(keys)
     value = helpers.listify(values)
 
-    # If values has a string and is colon or semicolon
-    # separated replace with comma
+    # If values has a string and is semicolon separated, replace with
+    # comma
     for idx, item in enumerate(value):
-        if type(item) == str and (item.__contains__(':')
-                                  or item.__contains__(';')):
-            value[idx] = item.replace(';', ',').replace(':', ',')
+        if type(item) == str and item.__contains__(';'):
+            value[idx] = item.replace(';', ',')
 
     for k,v in zip(key, value):
         names = {}
