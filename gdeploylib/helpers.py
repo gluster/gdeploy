@@ -282,7 +282,8 @@ class Helpers(Global, YamlWriter):
             return [pattern]
         if ',' in pat_group.group(2):
             pat_string = pat_group.group(2).split(',')
-            names = [pat_group.group(1) + name + pat_group.group(3) for name in pat_string]
+            names = [pat_group.group(1) + name + pat_group.group(3)
+                     for name in pat_string]
 
         elif '..' in pat_group.group(2):
             pat_string = pat_group.group(2).split('..')
@@ -292,8 +293,10 @@ class Helpers(Global, YamlWriter):
                 range_func = range
             except:
                 range_func = self.char_range
-            pattern_string = [str(val) for val in range_func(pat_string[0], pat_string[1])]
-            names = [pat_group.group(1) + name + pat_group.group(3) for name in pattern_string]
+            pattern_string = [str(val) for val in range_func(pat_string[0],
+                                                             pat_string[1])]
+            names = [pat_group.group(1) + name + pat_group.group(3)
+                     for name in pattern_string]
         else:
             msg = "Unknown pattern."
             print "Error: " + msg

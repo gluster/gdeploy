@@ -45,7 +45,6 @@ class BackendSetup(Helpers):
         self.section_dict = dict()
         self.previous = True
         self.write_sections()
-        Global.hosts = sorted(set(Global.hosts))
         self.remove_from_sections('default')
         self.remove_from_sections('force')
         self.remove_from_sections('gluster')
@@ -109,7 +108,6 @@ class BackendSetup(Helpers):
             Global.var_file = 'group_vars'
             self.call_selinux()
         Global.hosts.extend(hosts)
-        Global.hosts = sorted(set(Global.hosts))
 
     def old_backend_setup(self):
         if not self.get_var_file_type():
