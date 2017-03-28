@@ -29,6 +29,7 @@ from collections import OrderedDict
 from gdeploylib import *
 from gdeploycore import call_core_functions
 from platform import dist
+from pkg_resources import get_distribution
 
 helpers = Helpers()
 
