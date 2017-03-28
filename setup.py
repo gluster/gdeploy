@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="gdeploy",
-    version="master",
+    version="2.0.2",
     author="Nandaja Varma",
     author_email="nandaja.varma@gmail.com",
     packages=[  'gdeploylib', 'gdeploycore', 'gdeployfeatures',
