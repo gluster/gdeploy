@@ -29,6 +29,7 @@ from collections import OrderedDict
 from gdeploylib import *
 from gdeploycore import call_core_functions
 from platform import dist
+from pkg_resources import get_distribution
 
 helpers = Helpers()
 
@@ -42,7 +43,8 @@ def parse_arguments(args=None):
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument('--version',
                         action='version',
-                        version='%(prog)s master')
+                        version='%(prog)s ' +
+                        get_distribution('gdeploy').version)
     parser.add_argument('-c', dest='config_file',
                         help="Configuration file",
                         type=argparse.FileType('rt'))
