@@ -22,6 +22,10 @@
     with_items: "{{ smb_mountpoint | default([]) }}"
     when: item is defined
 
+  - name: Create Samba User if not present
+    user: name="{{ smb_username }}"
+    when: smb_username is defined
+
   - name: Provide permissions using setfacl
     command: setfacl -m user:"{{ smb_username }}":rwx "{{smb_mountpoint}}"
     when: smb_username is defined and smb_mountpoint is defined
