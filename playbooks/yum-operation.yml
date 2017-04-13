@@ -10,13 +10,13 @@
     when: repolist is defined and repolist|length > 0
     with_items: "{{ repolist | default('') }}"
 
-  - name: Yum update
-    yum: name=* state=latest
-    when: update is defined and update == 'yes'
-
   - name: Clean up the metadata
     shell: /usr/bin/yum clean all
     when: meatadata_clean is defined and meatadata_clean == 'yes'
+
+  - name: Yum update
+    yum: name=* state=latest
+    when: update is defined and update == 'yes'
 
   - name: Installs/Removes a package using yum
     yum: name="{{ name }}" state="{{ yum_state }}"

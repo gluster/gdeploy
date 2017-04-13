@@ -43,12 +43,21 @@ from defaults import feature_list
 
 # Imports needed to call the ansible api
 from collections import namedtuple
-from ansible.parsing.dataloader import DataLoader
-from ansible.vars import VariableManager
-from ansible.inventory import Inventory
-from ansible.playbook.play import Play
-from ansible.executor.task_queue_manager import TaskQueueManager
-from ansible.errors import AnsibleError
+
+# On RHEL6 we do not add ansible as a dependency, gdeploy gets
+# installed whether ansible is installed or not, in such cases don't
+# traceback but throw a decent error message. We do not exit in Except
+# block, so as to allow harmless options like --version to work.
+try:
+    from ansible.parsing.dataloader import DataLoader
+    from ansible.vars import VariableManager
+    from ansible.inventory import Inventory
+    from ansible.playbook.play import Play
+    from ansible.executor.task_queue_manager import TaskQueueManager
+    from ansible.errors import AnsibleError
+except ImportError:
+    print "Error: Ansible(>= 2.2) is not installed."
+    print "Some of the features might not work if not installed.\n"
 
 class Helpers(Global, YamlWriter):
 
