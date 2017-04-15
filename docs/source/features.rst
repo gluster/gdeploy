@@ -30,14 +30,16 @@ This document explains the available features and their tunable variables.
 
 10. :ref:`rst_gdeployshell`
 
-11. :ref:`rst_gdeployssl`
+11. :ref:`rst_gdeploysnapshot`
 
-12. :ref:`rst_subscriptionmanagement`
+12. :ref:`rst_gdeployssl`
 
-13. :ref:`rst_gdeploysystemd`
+13. :ref:`rst_subscriptionmanagement`
 
-14. :ref:`rst_gdeployupdatefile`
+14. :ref:`rst_gdeploysystemd`
 
-15. :ref:`rst_glusterfsvolume`
+15. :ref:`rst_gdeployupdatefile`
 
-16. :ref:`rst_gdeployyum`
+16. :ref:`rst_glusterfsvolume`
+
+17. :ref:`rst_gdeployyum`
