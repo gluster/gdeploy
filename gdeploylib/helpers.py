@@ -536,8 +536,6 @@ class Helpers(Global, YamlWriter):
                         warn = "Warning: We recommend a stripe unit size of 256KB " \
                             "for RAID 10"
                         Global.logger.warning(warn)
-                        if warn not in Global.warnings:
-                            Global.warnings.append(warn)
                 else:
                     perf['stripesize'] = 256
                 perf['dalign'] = {
