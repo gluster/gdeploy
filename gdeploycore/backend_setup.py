@@ -151,6 +151,11 @@ class BackendSetup(Helpers):
         self.section_dict = self.format_values(self.section_dict)
 
     def call_gen_methods(self):
+        try:
+            if self.section_dict['chunksize'].strip() == '':
+                self.section_dict['chunksize'] = self.get_thin_pool_chunk_sz()
+        except KeyError:
+            self.section_dict['chunksize'] = self.get_thin_pool_chunk_sz()
         self.perf_spec_data_write()
         self.write_brick_names()
         self.write_vg_names()

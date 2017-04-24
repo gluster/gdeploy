@@ -700,3 +700,62 @@ class Helpers(Global, YamlWriter):
             if (not match.group(2)):
                 break
         return result
+
+    def get_thin_pool_chunk_sz(self):
+        # As per perf recommendations
+        #
+        # For RAID-6 storage, the striping parameters should be chosen so that
+        # the full stripe size (stripe_unit size * number of data disks) is
+        # between 1 MiB and 2 MiB, preferably in the low end of the range. The
+        # thin pool chunk size should be chosen to match the RAID 6 full stripe
+        # size. Matching the chunk size to the full stripe size aligns thin
+        # pool allocations with RAID 6 stripes, which can lead to better
+        # performance. Limiting the chunk size to below 2 MiB helps reduce
+        # performance problems due to excessive copy-on-write when snapshots
+        # are used.
+        #
+        # For example, for RAID 6 with 12 disks (10 data disks), stripe unit
+        # size should be chosen as 128 KiB. This leads to a full stripe size of
+        # 1280 KiB (1.25 MiB). The thin pool should then be created with the
+        # chunk size of 1280 KiB.
+        #
+        # For RAID 10 storage, the preferred stripe unit size is 256 KiB. This
+        # can also serve as the thin pool chunk size. Note that RAID 10 is
+        # recommended when the workload has a large proportion of small file
+        # writes or random writes. In this case, a small thin pool chunk size
+        # is more appropriate, as it reduces copy-on-write overhead with
+        # snapshots.
+        #
+        # For JBOD, use a thin pool chunk size of 256 KiB.
+
+        disktype = self.config_get_options('disktype', False) or 'jbod'
+        disktype = self.get_first_index(disktype)
+        stripe_unit_size = self.config_get_options('stripesize', False) or ''
+        stripe_unit_size = self.get_first_index(stripe_unit_size)
+        diskcount = self.config_get_options('diskcount', False) or ''
+        diskcount = self.get_first_index(diskcount)
+
+        if disktype == 'raid6':
+            # If user has ommited chunk size or stripe unit size, we leave
+            # it blank and let the system determine proper default value.
+            if stripe_unit_size.strip() == '' or diskcount.strip() == '':
+                return ''
+            try:
+                chunksize = str(int(stripe_unit_size) * int(diskcount)) + 'K'
+            except ValueError:
+                print "Only integer value is supported for stripesize or \
+                diskcount!"
+                print "Found %s and %s"%(stripe_unit_size, diskcount)
+                self.cleanup_and_quit()
+        else:
+            # As per performance recommendations for RAID 10 storage, the
+            # preferred thin pool chunk size is 256K, to override user is
+            # expected to set the chunksize variable in config.
+            chunksize = '256K'
+        return chunksize
+
+    def get_first_index(self, list_item):
+        if type(list_item) == list:
+            return list_item[0]
+        else:
+            return list_item
