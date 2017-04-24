@@ -24,6 +24,7 @@
         vgname={{ item.vg }} disktype="{{disktype}}"
         diskcount="{{ diskcount }}"
         stripesize="{{stripesize}}"
+        chunksize="{{ chunksize | default('') }}"
         snapshot_reserve="{{ snapshot_reserve }}"
     with_items: "{{ lvpools }}"
     ignore_errors: yes
@@ -32,6 +33,7 @@
     lv: action=create poolname={{ item.pool }} lvtype="thinlv"
         compute=rhs disktype="{{ disktype }}"
         vgname={{ item.vg }} lvname={{ item.lv }}
+        chunksize="{{ chunksize | default('') }}"
         snapshot_reserve="{{ snapshot_reserve }}"
     with_items: "{{ lvpools }}"
     ignore_errors: yes
