@@ -20,7 +20,7 @@
 
   - name: Disable all rhsm repos
     command: subscription-manager repos --disable=*
-    when: disable_repos == "yes"
+    when: disable_repos is defined and disable_repos == "yes"
 
   - name: Enable necessary rhsm repos
     command: subscription-manager repos --enable {{ item }}

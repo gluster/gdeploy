@@ -9,7 +9,7 @@
   - name: Clean up filesystem signature
     command: wipefs -a {{ item }}
     with_items: "{{ bricks | default([]) }}"
-    when: wipefs == 'yes' and item is defined
+    when: wipefs is defined and wipefs == 'yes' and item is defined
     ignore_errors: yes
 
   # Create pv on all the disks
