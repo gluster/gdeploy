@@ -523,7 +523,7 @@ class Helpers(Global, YamlWriter):
                 diskcount = self.config_get_options('diskcount', True)
                 perf['diskcount'] = int(diskcount[0])
                 stripe_size = self.config_get_options('stripesize', False)
-                if not stripe_size and perf['disktype'] == 'raid6':
+                if not stripe_size and perf['disktype'] in ['raid5', 'raid6']:
                     msg = "Error: 'stripesize' not provided for disktype %s"\
                           % perf['disktype']
                     print msg
@@ -735,8 +735,8 @@ class Helpers(Global, YamlWriter):
         diskcount = self.config_get_options('diskcount', False) or ''
         diskcount = self.get_first_index(diskcount)
 
-        if disktype == 'raid6':
-            # If user has ommited chunk size or stripe unit size, we leave
+        if disktype in ['raid5', 'raid6']:
+            # If user has omitted chunk size or stripe unit size, we leave
             # it blank and let the system determine proper default value.
             if stripe_unit_size.strip() == '' or diskcount.strip() == '':
                 return ''
