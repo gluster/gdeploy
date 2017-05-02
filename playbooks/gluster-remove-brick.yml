@@ -10,3 +10,4 @@
              bricks="{{ old_bricks }}"
              replica_count="{{ replica_count }}"
              state="{{ state }}"
+             replica="{{ replica }}"
