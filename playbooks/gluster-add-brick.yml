@@ -10,3 +10,4 @@
              bricks="{{ mountpoints }}"
              replica_count="{{ replica_count }}"
              force="{{ force }}"
+             replica="{{ replica | default(' ') }}"
