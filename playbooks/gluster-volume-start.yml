@@ -8,4 +8,3 @@
     volume:  action=start volume="{{ volname }}"
              force="{{ force | default(False) }}"
     register: result
-    ignore_errors: yes
