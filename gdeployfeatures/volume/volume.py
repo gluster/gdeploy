@@ -228,7 +228,7 @@ def volume_remove_brick(section_dict):
             section_dict['volname'])
     section_dict['old_bricks'] = section_dict.pop('bricks')
     Global.logger.info("Removing bricks %s from volume %s"%
-                       (section_dict['bricks'], section_dict['volname']))
+                       (section_dict['old_bricks'], section_dict['volname']))
     return section_dict, defaults.REMOVEBRK_YML
 
 def volume_rebalance(section_dict):
