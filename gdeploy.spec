@@ -1,4 +1,4 @@
-%global gdeploymod ansible/modules/extras/system/glusterfs
+%global gdeploymod ansible/modules/gdeploy
 %global gdeploytemp %{_datadir}/gdeploy
 
 Name:           gdeploy
