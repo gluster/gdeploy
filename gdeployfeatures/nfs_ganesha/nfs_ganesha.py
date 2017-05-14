@@ -23,8 +23,13 @@ def nfs_ganesha_create_cluster(section_dict):
              defaults.GANESHA_PUBKEY, defaults.COPY_SSH,
              defaults.SHARED_MOUNT, defaults.SET_AUTH_PASS,
              defaults.PCS_AUTH, defaults.GANESHA_CONF_CREATE,
-             defaults.DEFINE_SERVICE_PORTS, defaults.ENABLE_GANESHA,
-             defaults.GANESHA_VOL_EXPORT]
+             defaults.DEFINE_SERVICE_PORTS, defaults.ENABLE_GANESHA ]
+    # Export a volume if mentioned in section, earlier we had the logic in
+    # playbook to skip export if volname was not mentioned. However, if volume
+    # create section is present, playbook gets volname from earlier section.
+    # Look for volname in this section and skip playbook entirely.
+    if section_dict.has_key('volname'):
+        ymls += [ defaults.GANESHA_VOL_EXPORT ]
     section_dict = get_base_dir(section_dict)
     return section_dict, ymls
 
