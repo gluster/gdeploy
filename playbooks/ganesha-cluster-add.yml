@@ -5,7 +5,7 @@
 
   tasks:
   - name: Adds a node to the cluster
-    script: /usr/libexec/ganesha/ganesha-ha.sh --add "{{ ha_base_dir }}" {{ item.host }} {{ item.vip }}
+    shell: /usr/libexec/ganesha/ganesha-ha.sh --add "{{ ha_base_dir }}" {{ item.host }} {{ item.vip }}
     with_items: "{{ nodes_list }}"
     register: result
 
