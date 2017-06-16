@@ -29,9 +29,6 @@ test -d /etc/vdsm && WARN="true"
 
 # flush maps; script will exit with error if map in use
 multipath -F
-# stop and prevent auto-start of the daemon
-systemctl stop multipathd
-systemctl disable multipathd
 
 # insert wildcard blacklist for all device names unless exists
 BASENAME=$(basename $0)
@@ -43,4 +40,3 @@ blacklist {
         devnode "*"
 }
 EOF
-
