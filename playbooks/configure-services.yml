@@ -29,3 +29,6 @@
 
   - name: Enable pacemaker service
     service: name=pacemaker enabled=yes
+
+  - name: GlusterFS Share Storage service
+    service: name=glusterfssharedstorage enabled=yes
