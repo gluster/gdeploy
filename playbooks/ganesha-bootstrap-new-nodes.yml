@@ -115,5 +115,8 @@
   - name: Pause for a few seconds after pcs auth
     pause: seconds=3
 
-  - name: GlusterFS Share Storage service
+  - name: Enable GlusterFS Share Storage service
     service: name=glusterfssharedstorage enabled=yes
+
+  - name: Enable nfs-ganesha service
+    service: name=nfs-ganesha enabled=yes

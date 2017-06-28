@@ -32,3 +32,6 @@
 
   - name: GlusterFS Share Storage service
     service: name=glusterfssharedstorage enabled=yes
+
+  - name: Enable nfs-ganesha service
+    service: name=nfs-ganesha enabled=yes
