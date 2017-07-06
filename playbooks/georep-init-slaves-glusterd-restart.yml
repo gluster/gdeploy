@@ -1,0 +1,9 @@
+---
+- hosts: georep_slaves
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Restart glusterd on slave nodes
+    service: name=glusterd state=restarted
+    when: georepuser != "root"

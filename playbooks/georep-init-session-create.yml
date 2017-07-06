@@ -4,14 +4,9 @@
   gather_facts: no
 
   tasks:
-  - name: Generate a common pem pub file
-    shell: "gluster system:: execute gsec_create"
-
-
   - name: Create the geo-rep session
-    georep: action=create
+    geo_rep: action=create
             mastervol="{{ mastervolname }}"
             slavevol="{{ slavevol }}"
             force="{{ force }}"
-            secure="{{ secure }}"
-
+            georepuser="{{ georepuser }}"

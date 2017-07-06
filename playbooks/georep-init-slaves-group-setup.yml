@@ -1,0 +1,15 @@
+---
+- hosts: georep_slaves
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Create a new group
+    group: name="{{ groupname }}" state=present
+
+  - name: Create a new user
+    user: name="{{ georepuser }}" group="{{ groupname }}"  generate_ssh_key=yes
+    when: georepuser != "root"
+
+  - name: Create the mountbroker-root directory
+    file: path=/var/gluster-mountbroker state=directory mode=0711

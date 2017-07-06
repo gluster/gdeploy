@@ -1,0 +1,13 @@
+---
+- hosts: georep_master
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Generate a common pem pub file
+    shell: "gluster system:: execute gsec_create"
+
+  - name: Copy the generated public key to local
+    fetch: src=/var/lib/glusterd/geo-replication/common_secret.pem.pub
+           dest={{ base_dir }}/{{ mastervolname }}_{{ slavevolname }}_common_secret.pem.pub
+           flat=yes
