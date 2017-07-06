@@ -5,7 +5,8 @@
 
   tasks:
   - name: Pause the geo-rep session
-    georep: action=pause
+    geo_rep: action=pause
             mastervol="{{ mastervolname }}"
             slavevol="{{ slavevol }}"
+            georepuser="{{ georepuser }}"
             force="{{ force }}"
