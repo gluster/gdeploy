@@ -13,5 +13,5 @@
     when: georepuser != "root"
 
   - name: Add volume and user to mountbroker service
-    shell: "gluster-mountbroker add {{ slavevol }} {{ georepuser }}"
+    shell: "gluster-mountbroker add {{ slavevolname }} {{ georepuser }}"
     when: georepuser != "root"
