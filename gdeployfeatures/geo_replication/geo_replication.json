@@ -71,6 +71,11 @@
           },
           {
             "required": "false",
+            "name": "georepuser",
+            "default": "root"
+          },
+          {
+            "required": "false",
             "name": "force",
             "default": "no"
           }
@@ -107,6 +112,11 @@
           {
             "required": "true",
             "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "georepuser",
+            "default": "root"
           },
           {
             "required": "false",

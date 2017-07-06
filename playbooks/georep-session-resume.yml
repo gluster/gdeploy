@@ -5,7 +5,8 @@
 
   tasks:
   - name: Resume the geo-rep session
-    georep: action=resume
+    geo_rep: action=resume
             mastervol="{{ mastervolname }}"
             slavevol="{{ slavevol }}"
+            georepuser="{{ georepuser }}"
             force="{{ force }}"
