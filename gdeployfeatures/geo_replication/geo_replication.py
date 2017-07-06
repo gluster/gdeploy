@@ -101,4 +101,7 @@ def populate_inventory(section_dict):
     global helpers
     helpers.write_to_inventory('georep_master', [section_dict['master'][0]])
     helpers.write_to_inventory('georep_slave', [section_dict['slave'][0]])
-    helpers.write_to_inventory('georep_slaves', section_dict['slavenodes'])
+    try:
+        helpers.write_to_inventory('georep_slaves', section_dict['slavenodes'])
+    except KeyError:
+        pass

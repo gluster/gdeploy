@@ -8,5 +8,6 @@
     geo_rep: action=start
             mastervol="{{ mastervolname }}"
             slavevol="{{ slavevol }}"
-            force="{{ force }}"
             georepuser="{{ georepuser }}"
+            force="{{ force }}"
+
