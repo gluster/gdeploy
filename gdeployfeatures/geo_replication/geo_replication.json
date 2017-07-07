@@ -160,9 +160,11 @@
           {
             "required": "true",
             "name": ["gluster-log-file", "gluster-log-level", "log-file",
-            "log-level", "ssh-command", "rsync-command", "use-tarssh",
-            "volume-id", "timeout", "sync-jobs", "ignore-deletes",
-            "config", "op", "checkpoint"]
+                     "log-level", "changelog-log-level", "ssh-command",
+                     "rsync-command", "use-tarssh", "volume-id", "timeout",
+                     "sync-jobs", "ignore-deletes", "checkpoint", "sync-acls",
+                     "sync-xattrs", "log-rsync-performance", "rsync-options",
+                     "use-meta-volume", "meta-volume-mnt"]
           }
         ]
       },

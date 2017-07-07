@@ -75,10 +75,12 @@ class GeoRep(object):
     def config_georep(self):
         if self.action != 'config':
             return ''
-        options = [ 'gluster_log_file', 'gluster_log_level',
-                'log_file', 'log_level', 'ssh_command', 'rsync_command',
-                'use_tarssh', 'volume_id', 'timeout', 'sync_jobs',
-                'ignore_deletes', 'checkpoint']
+        options = ['gluster_log_file', 'gluster_log_level', 'log_file',
+                   'log_level', 'changelog_log_level', 'ssh_command',
+                   'rsync_command', 'use_tarssh', 'volume_id', 'timeout',
+                   'sync_jobs', 'ignore_deletes', 'checkpoint', 'sync_acls',
+                   'sync_xattrs', 'log_rsync_performance', 'rsync_options',
+                   'use_meta_volume', 'meta_volume_mnt']
         configs = []
         for opt in options:
            value = self._validated_params(opt)
@@ -143,6 +145,7 @@ if __name__ == '__main__':
             gluster_log_level=dict(),
             log_file=dict(),
             log_level=dict(),
+            changelog_log_level=dict(),
             ssh_command=dict(),
             rsync_command=dict(),
             use_tarssh=dict(),
@@ -151,8 +154,12 @@ if __name__ == '__main__':
             sync_jobs=dict(),
             ignore_deletes=dict(),
             checkpoint=dict(),
-            config=dict(),
-            op=dict()
+            sync_acls=dict(),
+            sync_xattrs=dict(),
+            log_rsync_performance=dict(),
+            rsync_options=dict(),
+            use_meta_volume=dict(),
+            meta_volume_mnt=dict()
         ),
     )
 
