@@ -137,6 +137,11 @@
           },
           {
             "required": "false",
+            "name": "georepuser",
+            "default": "root"
+          },
+          {
+            "required": "false",
             "name": "force",
             "default": "no"
           }
