@@ -18,8 +18,6 @@ def geo_replication_create(section_dict):
                      defaults.GEOREP_SETUP_GLUSTERD_RESTART,
                      defaults.GEOREP_SETUP_SLAVE_PEM,
                      defaults.GEOREP_SETUP_SESSION_CREATE ]
-    if section_dict['start'] == 'yes':
-        georep_setup += [ defaults.GEOREP_START ]
     # If configure options are set, configure geo-replication while
     # creating
     supported_configs = ["gluster_log_file", "gluster_log_level", "log_file",
@@ -31,6 +29,8 @@ def geo_replication_create(section_dict):
     create_vars = section_dict.keys()
     if set(supported_configs) & set(create_vars):
         georep_setup += [ defaults.GEOREP_CONFIG ]
+    if section_dict['start'] == 'yes':
+        georep_setup += [ defaults.GEOREP_START ]
     return section_dict, georep_setup
 
 def geo_replication_start(section_dict):
