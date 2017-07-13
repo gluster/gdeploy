@@ -70,23 +70,22 @@ def geo_replication_config(section_dict):
     return section_dict, defaults.GEOREP_CONFIG
 
 def geo_replication_failover(section_dict):
+    # If the master volume goes offline, you can promote a slave volume to be
+    # the master, and start using that volume for data access.
     section_dict = parse_georep_data(section_dict)
-    (section_dict['master'], section_dict['slave']) = (section_dict['slave'],
-                                                       section_dict['master'])
-    (section_dict['mastervolname'], section_dict['slavevolname']) = (
-        section_dict['slavevolname'], section_dict['mastervolname'])
-    populate_inventory(section_dict)
     section_dict['volname'] = section_dict['slavevolname']
-    section_dict['key'] = ['geo-replication.indexing', 'changelog']
-    section_dict['value'] = 'on'
-    section_dict['config'] = 'special-sync-mode'
-    section_dict['op'] = 'recover'
-    section_dict['checkpoint'] = 'now'
-    Global.master = section_dict['slave']
+    Global.master = section_dict['slave'] # Slave is new master
+    keys = ['geo-replication.indexing', 'changelog']
+    values = ['on', 'on']
+    vol_opts = []
+    for k, v in zip(keys, values):
+        data = {}
+        data['key'] = k
+        data['value'] = v
+        vol_opts.append(data)
+    section_dict['set'] = vol_opts
     Global.logger.info("Configuring georep failover")
-    return section_dict, [defaults.VOLUMESET_YML,
-                          defaults.GEOREP_CREATE, defaults.GEOREP_CONFIG,
-                          defaults.GEOREP_START]
+    return section_dict, defaults.VOLUMESET_YML
 
 def geo_replication_failback(section_dict):
     section_dict = parse_georep_data(section_dict)
@@ -100,12 +99,13 @@ def geo_replication_failback(section_dict):
 
 def parse_georep_data(section_dict):
     global helpers
-    section_dict['mastervolname'] = helpers.split_volume_and_hostname(
-        section_dict['mastervol'])
-    section_dict['master'] = Global.master
-    section_dict['slavevolname'] = helpers.split_volume_and_hostname(
-        section_dict['slavevol'])
-    section_dict['slave'] = Global.master
+    if section_dict.has_key('mastervol'):
+        section_dict['mastervolname'] = helpers.split_volume_and_hostname(
+            section_dict['mastervol'])
+    if section_dict.has_key('slavevol'):
+        section_dict['slavevolname'] = helpers.split_volume_and_hostname(
+            section_dict['slavevol'])
+    section_dict['master'] = section_dict['slave'] = Global.master
     return section_dict
 
 def populate_inventory(section_dict):
