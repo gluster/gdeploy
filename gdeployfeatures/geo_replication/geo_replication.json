@@ -172,11 +172,12 @@
         "options": [
           {
             "required": "true",
-            "name": "mastervol"
+            "name": "slavevol"
           },
           {
-            "required": "true",
-            "name": "slavevol"
+            "required": "false",
+            "name": "georepuser",
+            "default": "root"
           }
         ]
       },
