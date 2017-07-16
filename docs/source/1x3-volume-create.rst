@@ -1,4 +1,4 @@
-Using gdpeloy to create a 1x3 Gluster Volume
+Using gdeploy to create a 1x3 Gluster Volume
 --------------------------------------------
 To create 1*3 gluster volume we would need three bricks which may or may not
 be on the same machine. It is recommended that these three bricks reside on
@@ -28,7 +28,7 @@ Create the following configuration file::
     action=create
     volname=volume1
     replica=yes
-    replica_count=6
+    replica_count=3
     force=yes
 
 
@@ -49,7 +49,7 @@ Invoke gdeploy and run the file using::
 
 **Step 3:**
 
-To check whether a gluster volume has been created by running the below command::
+Check whether a gluster volume has been created by running the below command::
 
    $gluster vol info
 
@@ -62,7 +62,7 @@ path you have mentioned under "client_mount" using the following command::
 
    $ sudo touch f1 f2 f3
 
-This command will create three files under the directory /home/poo/client_mount
+This command will create three files under the directory /mnt/client_mount
 
 You can also check whether the files have been created and replicated thrice inside the directory ``/mnt/data1/1`` on the remote nodes by running the command::
 
