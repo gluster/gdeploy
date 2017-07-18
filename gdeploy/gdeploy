@@ -38,8 +38,8 @@ def parse_arguments(args=None):
     This method uses argparser to parse the command line inputs
     to the gdeploy script
     '''
-    usage = 'gdeploy [-h] [-v] [-vv] [-c CONFIG_FILE] ' \
-        '[-k] [-n | --new] [-d DISPLAY | --display DISPLAY]'
+    usage = 'gdeploy [-h] [-v] [-vv] [-k] [-n | --new]' \
+        '[-d DISPLAY | --display DISPLAY] -c CONFIG_FILE'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument('--version',
                         action='version',
