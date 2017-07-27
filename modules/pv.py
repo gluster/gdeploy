@@ -17,16 +17,16 @@ along with Ansible. If not, see <http://www.gnu.org/licenses/>.
 """
 ANSIBLE_METADATA = {
     'metadata_version': '0.1',
-    'supported_by': 'redhat',
+    'supported_by': 'community',
     'status': ['preview']
 }
 DOCUMENTATION = '''
 ---
 authors: Nandaja Varma, Ashmitha Ambastha
 module: pv
-short_description: Create, remove, resize and change a Physical Volume.
+short_description: Create, remove, resize, and change a Physical Volume.
 description:
-    - Creates, removes,resizes and changes a Physical Volume.
+    - Creates, removes, resizes, and changes a Physical Volume.
 
 options:
     action:
@@ -44,18 +44,18 @@ options:
         description: Specifies to what size the physical volume is to be
                      shrunken
     force:
-        required: true
+        required: false
         description: Force  the  creation  without  any confirmation.
     uuid:
-        required: true
+        required: false
         description: Specify the uuid for the device.  Without this option,
                      pvcreate generates a random uuid.
     zero:
-        required: true
+        required: false
         description: Whether or not the first 4 sectors of the device should
                      be wiped.
     metadatasize:
-        required: true
+        required: false
         description: The approximate amount of space to be set aside for
                      each metadata area.
     dataalignment:
@@ -88,7 +88,6 @@ class PvOps(object):
     def __init__(self, module):
         self.module = module
         self.action = self.validated_params('action')
-        # self.options = self.module.params['options'] or ''
 
     def validated_params(self, opt):
         value = self.module.params[opt]
@@ -117,7 +116,7 @@ class PvOps(object):
             self.module.exit_json(rc=0, changed=0,msg="%s Physical Volume"
                                    "Doesn't Exists!" % disk)
         else:
-            ret=1
+            ret = 1
         return ret
 
     def pv_action(self):
@@ -139,7 +138,7 @@ class PvOps(object):
             args += "-u " + uuid
         zero = self.module.params('zero')
         if zero and self.action == 'create':
-            args += "-z"
+            args += "-Z"
         metadatasize = self.module.params('metadatasize')
         if metadatasize and self.action == 'create':
             args += "--metadatasize " + metadatasize
@@ -160,13 +159,12 @@ if __name__ == '__main__':
         argument_spec=dict(
             action=dict(choices=["create", "remove", "resize", "change"], required=True),
             disk=dict(),
-            # options=dict(type='str'),
             force=dict(type='str'),
-            uuid=dict(typ='str'),
-            zero=dict(typ='str'),
+            uuid=dict(type='str'),
+            zero=dict(type='str'),
             metadatasize=dict(type='str'),
-            metadataignore=dict(typ='str'),
-            setphysicalvolumesize=dict(typ='str'),
+            metadataignore=dict(type='str'),
+            setphysicalvolumesize=dict(type='str'),
             size=dict(),
         ),
     )
