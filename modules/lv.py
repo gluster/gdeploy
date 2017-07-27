@@ -219,7 +219,12 @@ class LvOps(object):
         lvcreate['thinpool'] = self.get_vg_appended_name(poolname)
         lvcreate['size'] = self.module.params['size'] or ''
         cmd = self.parse_playbook_data(lvcreate)
-        opts = ' -Wn %s' %cmd
+        if not lvcreate['size']:
+            extent = self.module.params.get('extent') or '100%FREE'
+            extcmd = ' -l %s'%extent
+            opts = ' -Wn %s %s' %(extcmd, cmd)
+        else:
+            opts = ' -Wn %s' %cmd
         return opts
 
     def create_thin_lv(self):

@@ -5,13 +5,13 @@
 
   tasks:
   - name: Stop the geo-rep session
-    georep: action=stop
+    geo_rep: action=stop
             mastervol="{{ slavevolname }}"
             slavevol="{{ mastervol }}"
             force="{{ force }}"
 
   - name: Delete the geo-rep session
-    georep: action=delete
+    geo_rep: action=delete
             mastervol="{{ slavevolname }}"
             slavevol="{{ mastervol }}"
 
