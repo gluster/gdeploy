@@ -121,14 +121,13 @@ class PvOps(object):
         return ret
 
     def pv_action(self):
-        self.disks = self.validated_params('disks')
+        self.disks = self.module.params['disk']
         if not self.disks:
-            self.module.exit_json(msg="Nothing to do")
+            self.disks = self.module.params['disks']
+            self.module.exit_json(msg='disks paramater is deprecated, please consider using disk', rc=0, changed=True)
         return self.get_volume_command(self.disks)
 
-
     def get_volume_command(self, disk):
-        self.module.exit_json("Warning! Disks is deprecated. Use disk")
         op = 'pv' + self.action
         args = " %s %s" % (self.options, disk)
         force = self.module.params('force')
@@ -159,6 +158,7 @@ if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
             action=dict(choices=["create", "remove", "resize", "change"], required=True),
+            disks=dict(),
             disk=dict(),
             force=dict(type='str'),
             uuid=dict(type='str'),
