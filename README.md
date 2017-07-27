@@ -1,7 +1,7 @@
                 gdeploy release 2.0
 
 These are gdeploy 2.0 release notes. Lists the features and changes introduced
-in 2.0
+in 2.0.
 
 What is gdeploy?
 
@@ -34,5 +34,5 @@ What is new in 2.0?
        [module:host], for e.g: [backend-setup:10.0.0.10] ...
      - Multiple invocation of modules. For eg: [shell1], [shell2] for multiple
        shell invocations.
-   - Bug fixes
+   - Bug fixes.
 
