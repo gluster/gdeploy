@@ -18,7 +18,6 @@
         force="y"
         uuid="7px2Wj-ki7V-aSF6-79jh-ORum-lEd8-w66h5d"
         zero="n"
-          # options="--dataalignment {{ dalign }}k"
 
     with_items: "{{ bricks }}"
     register: result
