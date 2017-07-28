@@ -46,5 +46,3 @@ def pv_resize(section_dict):
     print "Error: %s"%msg
     Global.logger.error(msg)
     helpers.cleanup_and_quit()
-
-

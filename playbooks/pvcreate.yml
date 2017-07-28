@@ -15,7 +15,11 @@
   # Create pv on all the disks
   - name: Create Physical Volume
     pv: action=create disks={{ item }}
-        options="--dataalignment {{ dalign }}k"
+        force="y"
+        uuid="450d7098-737f-11e7-8cf7-a6006ad3dba0"
+        zero="n"
+        metadatasize="10"
+        dataalignment="1280"
     with_items: "{{ bricks }}"
     register: result
     failed_when: "result.rc != 0 and 'Physical Volume Exists' not in result.msg"
