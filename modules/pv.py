@@ -65,17 +65,19 @@ options:
 '''
 
 EXAMPLES = '''
-#Create Physical Volumes /dev/sdb and /dev/sdc with
-#dataalignment 1280k
-    - pv: action=create disks='["/dev/sdb", "/dev/sdc"]'
-          options="--dataalignment 1280k"
-          force=['y']
+#Create Physical Volumes /dev/sdb with dataalignment 1280k
+    - pv: action=create disks='["/dev/sdb"]'
+          force='y'
           uuid=[88x2Wj-ki7V-aSF6-79jh-ORum-lEd8-w66h5d]
-          zero=['y']
+          zero='y'
+      with_items:
+         - disk1
 
 #Remove Physical Volumes /dev/sdb and /dev/sdc
-    - pv: action=remove disks='["/dev/sdb", "/dev/sdc"]'
-          force=['y']
+    - pv: action=remove disks='["/dev/sdb"]'
+          force='y'
+      with_items:
+         - disk1
 
 '''
 
@@ -121,36 +123,51 @@ class PvOps(object):
         return ret
 
     def pv_action(self):
-        self.disks = self.module.params['disk']
-        if not self.disks:
-            self.disks = self.module.params['disks']
-            self.module.exit_json(msg='disks paramater is deprecated, please consider using disk', rc=0, changed=True)
-        return self.get_volume_command(self.disks)
+        self.disk = self.module.params['disk']
+        if not self.disk:
+            self.disk = self.module.params['disks']
+            print('disks paramater is deprecated, please consider using disk')
+        return self.get_volume_command(self.disk)
 
     def get_volume_command(self, disk):
-        op = 'pv' + self.action
-        args = " %s %s" % (self.options, disk)
-        force = self.module.params('force')
-        if force == 'y' and self.action in ['create', 'remove']:
-            args += "-f"
-        uuid = self.module.params('uuid')
-        if uuid and self.action in ['create','pvchange']:
-            args += "-u " + uuid
-        zero = self.module.params('zero')
-        if zero and self.action == 'create':
-            args += "-Z"
-        metadatasize = self.module.params('metadatasize')
-        if metadatasize and self.action == 'create':
-            args += "--metadatasize " + metadatasize
-        metadataignore = self.module.params('metadataignore')
-        if metadataignore == 'y' and self.action in ['change']:
-            args += "--metadataignore"
-        allocatable = self.module.params('allocatable')
-        if allocatable and self.action == 'change':
-            args += "--allocatable" + allocatable
-        setphysicalvolumesize = self.module.params('setphysicalvolumesize')
-        if setphysicalvolumesize and self.action == 'resize':
-            args += "--setphysicalvolumesize" + setphysicalvolumesize
+        args = ' ' + str(disk)
+
+        if  self.action== 'create':
+            force = self.module.params['force']
+            if force == 'y':
+                args += " -f"
+            uuid = self.module.params['uuid']
+            if uuid and self.action in ['create','pvchange']:
+                args += " -u " + uuid
+                args += " --norestorefile"
+            zero = self.module.params['zero']
+            if zero:
+                args += " -Z y "
+            metadatasize = self.module.params['metadatasize']
+            if metadatasize:
+                args += " --metadatasize " + metadatasize
+            dataalignment = self.module.params['dataalignment']
+            if dataalignment:
+                args += " --dataalignment " + dataalignment
+        if self.action=='remove':
+            force = self.module.params['force']
+            if force == 'y':
+                args += " -f"
+        if self.action=='change':
+            uuid = self.module.params['uuid']
+            if uuid and self.action in ['create','pvchange']:
+                args += " -u " + uuid
+                args += " --norestorefile"
+            metadataignore = self.module.params['metadataignore']
+            if metadataignore == 'y':
+                args += " --metadataignore"
+            allocatable = self.module.params['allocatable']
+            if allocatable:
+                args += " --allocatable" + allocatable
+        if self.action=='resize':
+            setphysicalvolumesize = self.module.params['setphysicalvolumesize']
+            if setphysicalvolumesize:
+                args += " --setphysicalvolumesize" + setphysicalvolumesize
         return args
 
 
@@ -166,12 +183,14 @@ if __name__ == '__main__':
             metadatasize=dict(type='str'),
             metadataignore=dict(type='str'),
             setphysicalvolumesize=dict(type='str'),
+            allocatable=dict(type='str'),
+            dataalignment=dict(type='str'),
             size=dict(),
         ),
     )
 
     pvops = PvOps(module)
     cmd = pvops.pv_action()
-    pvops.pv_presence_check(pvops.disks)
+    pvops.pv_presence_check(pvops.disk)
     rc, out, err = pvops.run_command('pv' + pvops.action, cmd)
     pvops.get_output(rc, out, err)
