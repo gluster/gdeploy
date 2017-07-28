@@ -29,6 +29,7 @@ yaml_writer = YamlWriter()
 section_name = None
 
 def call_features():
+    import pdb; pdb.set_trace()
     global helpers
     if not Global.sections:
         msg = "No sections found in config file. Exiting!"

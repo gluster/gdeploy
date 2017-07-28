@@ -6,3 +6,4 @@
   tasks:
   - name: Remove Physical Volumes (if any)
     pv: action=remove disks="{{ bricks }}"
+        options="-f"
