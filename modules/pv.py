@@ -15,14 +15,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Ansible. If not, see <http://www.gnu.org/licenses/>.
 """
-
+ANSIBLE_METADATA = {
+    'metadata_version': '0.1',
+    'supported_by': 'community',
+    'status': ['preview']
+}
 DOCUMENTATION = '''
 ---
+authors: Nandaja Varma, Ashmitha Ambastha
 module: pv
-short_description: Create or remove a Physical Volume.
+short_description: Create, remove, resize, and change a Physical Volume.
 description:
-    - Creates or removes n-number of Physical Volumes on n-number
-      of remote hosts
+    - Creates, removes, resizes, and changes a Physical Volume.
 
 options:
     action:
@@ -33,36 +37,50 @@ options:
     disks:
         required: true
         description: Disks from which the Physical Volumes are to be created,
-                     or Physical Volumes that are to be removed needs to be
+                     removed, resized and changed needs to be
                      specified here.
-    options:
-        required: false
-        description: Extra options that needs to be passed while creating the
-                     Physical Volumes can be given here. Check the man page of
-                     pvcreate for more info.
     size:
-        required: true if action is resize and opertion is shrink
+        required: true
         description: Specifies to what size the physical volume is to be
                      shrunken
+    force:
+        required: false
+        description: Force  the  creation  without  any confirmation.
+    uuid:
+        required: false
+        description: Specify the uuid for the device.  Without this option,
+                     pvcreate generates a random uuid.
+    zero:
+        required: false
+        description: Whether or not the first 4 sectors of the device should
+                     be wiped.
+    metadatasize:
+        required: false
+        description: The approximate amount of space to be set aside for
+                     each metadata area.
+    dataalignment:
+        required: true
+        description: Align the start of the data to a multiple of this number.
 
-authors: Anusha Rao, Nandaja Varma
 '''
 
 EXAMPLES = '''
-#Create Physical Volumes /dev/sdb and /dev/sdc with
-#dataalignment 1280k
-    - pv: action=create disks="{{ item }}"
-          options="--dataalignment 1280k"
+#Create Physical Volumes /dev/sdb with dataalignment 1280k
+    - pv: action=create disks='["/dev/sdb"]'
+          force='y'
+          uuid=[88x2Wj-ki7V-aSF6-79jh-ORum-lEd8-w66h5d]
+          zero='y'
       with_items:
          - disk1
-         - disk2
 
-#Remove Physical Volumes /dev/sdb and /dev/sdc
-    - pv: action=remove disks="{{ item }}"
+#Remove Physical Volumes /dev/sdb
+    - pv: action=remove disks='["/dev/sdb"]'
+          force='y'
       with_items:
          - disk1
-         - disk2
+
 '''
+
 from ansible.module_utils.basic import *
 import json
 from ast import literal_eval
@@ -73,7 +91,6 @@ class PvOps(object):
     def __init__(self, module):
         self.module = module
         self.action = self.validated_params('action')
-        self.options = self.module.params['options'] or ''
 
     def validated_params(self, opt):
         value = self.module.params[opt]
@@ -96,24 +113,62 @@ class PvOps(object):
         rc, out, err = self.run_command('pvdisplay', ' ' + disk)
         ret = 0
         if self.action == 'create' and not rc:
-            self.module.exit_json(rc=0, changed= 0, msg="%s Physical Volume Exists!" % disk)
+            self.module.exit_json(rc=0, changed= 0, msg="%s Physical Volume"
+                                   " Exists!" % disk)
         elif self.action == 'remove' and rc:
-            self.module.exit_json(rc=0, changed=0,msg="%s Physical Volume Doesn't Exists!" % disk)
+            self.module.exit_json(rc=0, changed=0,msg="%s Physical Volume"
+                                   "Doesn't Exists!" % disk)
         else:
             ret = 1
         return ret
 
     def pv_action(self):
-        self.disks = self.validated_params('disks')
-        if not self.disks:
-            self.module.exit_json(msg="Nothing to do")
-        return self.get_volume_command(self.disks)
+        self.disk = self.module.params['disk']
+        if not self.disk:
+            self.disk = self.module.params['disks']
+            print('disks paramater is deprecated, please consider using disk')
+        return self.get_volume_command(self.disk)
 
     def get_volume_command(self, disk):
-        op = 'pv' + self.action
-        args = " %s %s" % (self.options, disk)
-        return args
+        args = ' ' + str(disk)
 
+        if  self.action == 'create':
+            force = self.module.params['force']
+            if force == 'y':
+                args += " -f"
+            uuid = self.module.params['uuid']
+            if uuid:
+                args += " -u " + uuid
+                args += " --norestorefile"
+            zero = self.module.params['zero']
+            if zero:
+                args += " -Z y "
+            metadatasize = self.module.params['metadatasize']
+            if metadatasize:
+                args += " --metadatasize " + metadatasize
+            dataalignment = self.module.params['dataalignment']
+            if dataalignment:
+                args += " --dataalignment " + dataalignment
+        elif self.action == 'remove':
+            force = self.module.params['force']
+            if force == 'y':
+                args += " -f"
+        elif self.action =='change':
+            uuid = self.module.params['uuid']
+            if uuid:
+                args += " -u " + uuid
+                args += " --norestorefile"
+            metadataignore = self.module.params['metadataignore']
+            if metadataignore == 'y':
+                args += " --metadataignore"
+            allocatable = self.module.params['allocatable']
+            if allocatable:
+                args += " --allocatable" + allocatable
+        elif self.action =='resize':
+            setphysicalvolumesize = self.module.params['setphysicalvolumesize']
+            if setphysicalvolumesize:
+                args += " --setphysicalvolumesize" + setphysicalvolumesize
+        return args
 
 
 if __name__ == '__main__':
@@ -121,13 +176,21 @@ if __name__ == '__main__':
         argument_spec=dict(
             action=dict(choices=["create", "remove", "resize", "change"], required=True),
             disks=dict(),
-            options=dict(type='str'),
+            disk=dict(),
+            force=dict(type='str'),
+            uuid=dict(type='str'),
+            zero=dict(type='str'),
+            metadatasize=dict(type='str'),
+            metadataignore=dict(type='str'),
+            setphysicalvolumesize=dict(type='str'),
+            allocatable=dict(type='str'),
+            dataalignment=dict(type='str'),
             size=dict(),
         ),
     )
 
     pvops = PvOps(module)
     cmd = pvops.pv_action()
-    pvops.pv_presence_check(pvops.disks)
+    pvops.pv_presence_check(pvops.disk)
     rc, out, err = pvops.run_command('pv' + pvops.action, cmd)
     pvops.get_output(rc, out, err)
