@@ -1,0 +1,9 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+    - name: Create a physical volume
+      pv: action=resize disks=/dev/vdb
+          setphysicalvolumesize=10

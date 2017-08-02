@@ -1,0 +1,9 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+    - name: Removing a physical volume
+      pv: action=remove disks=/dev/vdb
+          force=y
