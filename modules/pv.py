@@ -65,16 +65,16 @@ options:
 '''
 
 EXAMPLES = '''
-#Create Physical Volumes /dev/sdb with dataalignment 1280k
-    - pv: action=create disks='["/dev/sdb"]'
+#Create Physical Volumes /dev/vdb with dataalignment 1280k
+    - pv: action=create disk=<disk name> for eg, /dev/vdb
           force='y'
-          uuid=[88x2Wj-ki7V-aSF6-79jh-ORum-lEd8-w66h5d]
+          uuid=<uuid>
           zero='y'
       with_items:
          - disk1
 
-#Remove Physical Volumes /dev/sdb
-    - pv: action=remove disks='["/dev/sdb"]'
+#Remove Physical Volumes /dev/vdb
+    - pv: action=remove disk=<disk name>
           force='y'
       with_items:
          - disk1
@@ -126,7 +126,7 @@ class PvOps(object):
         self.disk = self.module.params['disk']
         if not self.disk:
             self.disk = self.module.params['disks']
-            print('disks paramater is deprecated, please consider using disk')
+            print('disks paramater is deprecated, please use disk')
         return self.get_volume_command(self.disk)
 
     def get_volume_command(self, disk):
@@ -167,7 +167,7 @@ class PvOps(object):
         elif self.action =='resize':
             setphysicalvolumesize = self.module.params['setphysicalvolumesize']
             if setphysicalvolumesize:
-                args += " --setphysicalvolumesize" + setphysicalvolumesize
+                args += " --setphysicalvolumesize " + setphysicalvolumesize
         return args
 
 
