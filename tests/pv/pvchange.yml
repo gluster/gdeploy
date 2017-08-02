@@ -1,0 +1,10 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+    - name: Create a physical volume
+      pv: action=change disks=/dev/vdb
+          uuid=92aa09-de76-8011-e7b5-a5be-2e44-b06b34
+          metadataignore=y
