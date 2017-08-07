@@ -35,5 +35,4 @@ Example of variable values that can be passed
     force=y
     uuid=<uuid>
     dataalignment=1280
-    zero=n
-    metadatasize=10
+  
