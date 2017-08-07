@@ -21,7 +21,7 @@ Example Playbook to call the role
 Example of variable values that can be passed
 ---------------------------------------------
       action=resize
-      disks=/dev/vdb1
+      disk=<disk>
       setphysicalvolumesize=1G
 
 License
