@@ -22,11 +22,6 @@ Role Variables
     Align the start of the data to a multiple of this number.
 
 
-<!-- Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles. -->
-
 Example Playbook to call the role
 ---------------------------------
     - hosts: servers
@@ -36,10 +31,10 @@ Example Playbook to call the role
 Example of variable values that can be passed
 ---------------------------------------------
     action=create
-    disks=/dev/vdb1
+    disks=<disk>
     force=y
-    uuid=92aa09de-7680-11e7-b5a5-be2e44b06b34
-    dataalignment=1280
+    uuid=<uuid>
+    dataalignment=1280 
     zero=n
     metadatasize=10
 
