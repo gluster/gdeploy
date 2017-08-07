@@ -7,7 +7,7 @@
       dataalignment={{dataalignment}}
       zero={{zero}}
       metadatasize={{metadatasize}}
-  # with_items: "{{ bricks }}"
+  
   register: result
   failed_when: "result.rc != 0 and 'Physical Volume Exists' not in result.msg"
 
