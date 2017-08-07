@@ -12,11 +12,6 @@ Role Variables
     setphysicalvolumesize (--setphysicalvolumesize)
     Overrides the automatically-detected size of the PV.  Use with care, or prior to reducing the physical size of the device.
 
-<!-- Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles. -->
-
 Example Playbook to call the role
 ---------------------------------
     - hosts: servers
