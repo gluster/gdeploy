@@ -1,0 +1,6 @@
+---
+- name: Shrink the Physical Volumes on all the nodes.
+  pv: action=resize disk=/dev/vdb1
+      setphysicalvolumesize=1G
+
+# tasks file for pvshrink
