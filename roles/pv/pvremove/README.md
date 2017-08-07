@@ -20,7 +20,7 @@ Example Playbook to call the role
 Example of variable values that can be passed
 ---------------------------------------------
              action= remove
-             disks=/dev/vdb1
+             disk=<disk>
              force=y
 
 License
