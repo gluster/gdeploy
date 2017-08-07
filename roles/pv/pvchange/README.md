@@ -26,9 +26,9 @@ Example Playbook to call the role
 Example of variable values that can be passed
 ---------------------------------------------
     action=change
-    disks=/dev/vdb1
+    disk=<disk>
     force=y
-    uuid=92aa09de-7680-11e7-b5a5-be2e44b06b34
+    uuid=<uuid>
     metadataignore=y
 
 
