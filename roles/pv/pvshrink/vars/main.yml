@@ -1,0 +1,5 @@
+---
+# vars file for pvshrink
+action: resize
+disk: dev/vdb1
+setphysicalvolumesize: 1G

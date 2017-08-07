@@ -1,0 +1,14 @@
+---
+# Create pv on all the disks
+- name: Create Physical Volume
+  pv: action={{action}} disk={{disk}}
+      force={{force}}
+      uuid={{uuid}}
+      dataalignment={{dataalignment}}
+      zero={{zero}}
+      metadatasize={{metadatasize}}
+  # with_items: "{{ bricks }}"
+  register: result
+  failed_when: "result.rc != 0 and 'Physical Volume Exists' not in result.msg"
+
+# tasks file for pvcreate

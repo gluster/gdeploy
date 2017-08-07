@@ -1,0 +1,7 @@
+---
+- name: Expand Physical Volumes on all the nodes
+  pv: action=resize disks=/dev/vdb1
+      setphysicalvolumesize=3G
+  # with_items: "{{ bricks }}"
+  # when: pvexpand is defined
+# tasks file for pvextend

@@ -1,0 +1,5 @@
+---
+# vars file for pvextend
+action: resize
+disks: /dev/vdb1
+setphysicalvolumesize: 3G
