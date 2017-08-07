@@ -1,0 +1,6 @@
+---
+- name: Remove Physical Volumes (if any)
+  pv: action=remove disk=/dev/vdb1
+      force=y
+
+# tasks file for pvremove

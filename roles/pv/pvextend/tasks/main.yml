@@ -1,0 +1,6 @@
+---
+- name: Expand Physical Volumes on all the nodes
+  pv: action=resize disks=/dev/vdb1
+      setphysicalvolumesize=3G
+      
+# tasks file for pvextend
