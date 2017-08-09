@@ -1,0 +1,17 @@
+---
+- hosts: georep_slave
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Copy the pem key to client
+    copy: src={{ base_dir }}/{{ mastervolname }}_{{ slavevolname }}_common_secret.pem.pub
+          dest=/var/lib/glusterd/geo-replication/{{ mastervolname }}_{{ slavevolname }}_common_secret.pem.pub mode=0600
+
+  - name: Setup mountbroker
+    shell: "gluster-mountbroker setup /var/gluster-mountbroker {{ groupname }}"
+    when: georepuser != "root"
+
+  - name: Add volume and user to mountbroker service
+    shell: "gluster-mountbroker add {{ slavevolname }} {{ georepuser }}"
+    when: georepuser != "root"

@@ -49,15 +49,21 @@ class GeoRep(object):
         else:
             force = self._validated_params('force')
             force = 'force' if force == 'yes' else ' '
-        self.action = 'create' if self.action == 'secure-session' else self.action
-        options = 'push-pem' if self.action == 'create' else self.config_georep()
+        options = 'no-verify' if self.action == 'create' \
+            else self.config_georep()
         if type(options) is list:
             for opt in options:
-                rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
-                        mastervol, slavevol, self.action, opt, force)
+                rc, output, err = self.call_gluster_cmd('volume',
+                                                        'geo-replication',
+                                                        mastervol, slavevol,
+                                                        self.action, opt,
+                                                        force)
         else:
-            rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
-                    mastervol, slavevol, self.action, options, force)
+            rc, output, err = self.call_gluster_cmd('volume',
+                                                    'geo-replication',
+                                                    mastervol, slavevol,
+                                                    self.action, options,
+                                                    force)
         self._get_output(rc, output, err)
         if self.action in ['stop', 'delete'] and self.user == 'root':
             self.user = 'geoaccount'
@@ -69,10 +75,12 @@ class GeoRep(object):
     def config_georep(self):
         if self.action != 'config':
             return ''
-        options = [ 'gluster_log_file', 'gluster_log_level',
-                'log_file', 'log_level', 'ssh_command', 'rsync_command',
-                'use_tarssh', 'volume_id', 'timeout', 'sync_jobs',
-                'ignore_deletes', 'checkpoint']
+        options = ['gluster_log_file', 'gluster_log_level', 'log_file',
+                   'log_level', 'changelog_log_level', 'ssh_command',
+                   'rsync_command', 'use_tarssh', 'volume_id', 'timeout',
+                   'sync_jobs', 'ignore_deletes', 'checkpoint', 'sync_acls',
+                   'sync_xattrs', 'log_rsync_performance', 'rsync_options',
+                   'use_meta_volume', 'meta_volume_mnt']
         configs = []
         for opt in options:
            value = self._validated_params(opt)
@@ -98,10 +106,8 @@ class GeoRep(object):
         if val_group.group(1) in peers_in_cluster:
             self.module.fail_json(msg="slave volume is in the trusted " \
                     "storage pool of master")
-        if self.module.params['secure'] =='yes':
-            self.user = 'geoaccount'
-        else:
-            self.user = 'root'
+        self.user = 'root' if self.module.params['georepuser'] is None \
+            else self.module.params['georepuser']
         return self.user + '@' + val_group.group(1) + '::' + val_group.group(2)
 
     def call_gluster_cmd(self, *args, **kwargs):
@@ -134,10 +140,12 @@ if __name__ == '__main__':
             mastervol=dict(),
             slavevol=dict(),
             force=dict(),
+            georepuser=dict(),
             gluster_log_file=dict(),
             gluster_log_level=dict(),
             log_file=dict(),
             log_level=dict(),
+            changelog_log_level=dict(),
             ssh_command=dict(),
             rsync_command=dict(),
             use_tarssh=dict(),
@@ -146,9 +154,12 @@ if __name__ == '__main__':
             sync_jobs=dict(),
             ignore_deletes=dict(),
             checkpoint=dict(),
-            secure=dict(),
-            config=dict(),
-            op=dict()
+            sync_acls=dict(),
+            sync_xattrs=dict(),
+            log_rsync_performance=dict(),
+            rsync_options=dict(),
+            use_meta_volume=dict(),
+            meta_volume_mnt=dict()
         ),
     )
 
