@@ -2,8 +2,8 @@
 %global gdeploytemp %{_datadir}/gdeploy
 
 Name:           gdeploy
-Version:        2.0.1
-Release:        4
+Version:        2.0.2
+Release:        13
 Summary:        Tool to deploy and manage GlusterFS cluster
 
 License:        GPLv2
@@ -11,7 +11,7 @@ URL:            https://github.com/gluster/gdeploy
 Source0:        %{url}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
 BuildArch:      noarch
 Requires:       PyYAML
-Requires:       ansible >= 2.2
+Requires:       ansible > 2.3
 Requires:       python2
 Requires:       lvm2
 
@@ -30,12 +30,18 @@ See http://gdeploy.readthedocs.io/en/latest/ for more details
 %prep
 %autosetup
 
+# We are sticking to python2 till we clean up the code
+# * Change print statements
+# * Change xrange function usage
+# * Change the except syntax
+# ...
+
 %build
-%{__python2} setup.py build
+%py2_build
 
 %install
 # Install the binary and python libraries
-%{__python2} setup.py install -O1 --root=%{buildroot} --install-scripts %{_bindir}
+%py2_install
 
 mkdir -p %{buildroot}/%{python2_sitelib}/%{gdeploymod}
 install -p -m 755 modules/* \
@@ -72,15 +78,20 @@ cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 %{_bindir}/gdeploy
 %{python2_sitelib}/gdeploy*
 %{gdeploytemp}
+%{python2_sitelib}/%{gdeploymod}
 %{_bindir}/gluster-replace-node
 %{python2_sitelib}/ansible/plugins/callback/gdeploy.py*
 
-%doc README.md
+%doc README.md TODO
 %doc %{_pkgdocdir}/*
 %{_mandir}/man1/gdeploy*
 %{_mandir}/man5/gdeploy*
+%license LICENSE
 
 %changelog
+* Wed Aug 9 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-13
+- Fix spec to address comment#28 from bug: 1344276
+
 * Tue Jan 10 2017 Sachidananda Urs <sac@redhat.com> 2.0.1-4
 - Fix spec to address comment#19 from bug: 1344276
 
