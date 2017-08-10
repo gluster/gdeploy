@@ -1,0 +1,9 @@
+---
+# vars file for vgextend
+action: extend
+disk: /dev/vdb2
+vgname: vg1
+zero: y
+dataalignment: 1280
+metadatasize: 2
+metadataignore: y
