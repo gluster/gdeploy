@@ -1,0 +1,10 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+    - name: Converting a volume group
+      vg: action=convert
+          vgname=vg1
+          metadatatype=2

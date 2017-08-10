@@ -1,0 +1,10 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+    - name: Reducing a volume group
+      vg: action=reduce
+          vgname=vg1
+          disk=/dev/vdb2

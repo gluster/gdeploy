@@ -1,0 +1,16 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+    - name: Extending a volume group
+      vg: action=extend
+          vgname=vg1
+          disk=/dev/vdb2
+          zero=y
+          dataalignment=1280
+          metadatasize=2
+          metadataignore=y
+          dataalignmentoffset=2
+          dataalignment=1280
