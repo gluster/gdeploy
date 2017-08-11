@@ -95,6 +95,7 @@ cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
 %package doc
 Summary: gdeploy documentation
+BuildRequires:  python2-sphinx
 
 %description doc
 gdeploy is an Ansible based deployment tool, used to deploy and configure
