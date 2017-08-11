@@ -2,8 +2,8 @@
 %global gdeploytemp %{_datadir}/gdeploy
 
 Name:           gdeploy
-Version:        2.0.1
-Release:        4
+Version:        2.0.2
+Release:        13
 Summary:        Tool to deploy and manage GlusterFS cluster
 
 License:        GPLv2+ and GPLv3+
@@ -11,7 +11,7 @@ URL:            https://github.com/gluster/gdeploy
 Source0:        %{url}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
 BuildArch:      noarch
 Requires:       PyYAML
-Requires:       ansible >= 2.2
+Requires:       ansible > 2.3
 Requires:       python2
 Requires:       lvm2
 
