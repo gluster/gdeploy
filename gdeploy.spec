@@ -6,7 +6,7 @@ Version:        2.0.1
 Release:        4
 Summary:        Tool to deploy and manage GlusterFS cluster
 
-License:        GPLv2
+License:        GPLv2+ and GPLv3+
 URL:            https://github.com/gluster/gdeploy
 Source0:        %{url}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
 BuildArch:      noarch
@@ -31,7 +31,10 @@ See http://gdeploy.readthedocs.io/en/latest/ for more details
 %autosetup
 
 %build
-%{__python2} setup.py build
+%py2_build
+pushd docs
+make html
+popd
 
 %install
 # Install the binary and python libraries
@@ -62,9 +65,12 @@ install -p -m 755 plugins/callback/gdeploy.py \
         %{buildroot}/%{python2_sitelib}/ansible/plugins/callback/
 
 # Documentation
-mkdir -p %{buildroot}/%{_pkgdocdir} %{buildroot}/%{_mandir}/man1/ \
+mkdir -p %{buildroot}/%{_pkgdocdir}
+cp -rp docs/build/html examples %{buildroot}/%{_pkgdocdir}
+
+# Man pages
+mkdir -p %{buildroot}/%{_mandir}/man1/ \
        %{buildroot}/%{_mandir}/man5/
-cp -rp docs/* examples %{buildroot}/%{_pkgdocdir}
 cp -p man/gdeploy.1* %{buildroot}/%{_mandir}/man1/
 cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
@@ -75,12 +81,67 @@ cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 %{_bindir}/gluster-replace-node
 %{python2_sitelib}/ansible/plugins/callback/gdeploy.py*
 
-%doc README.md
-%doc %{_pkgdocdir}/*
+%doc README.md TODO
+%license LICENSE
 %{_mandir}/man1/gdeploy*
 %{_mandir}/man5/gdeploy*
 
+%package doc
+Summary: gdeploy documentation
+
+%description doc
+gdeploy is an Ansible based deployment tool, used to deploy and configure
+GlusteFS.
+
+gdeploy-doc package provides the documentation for writing gdeploy
+configuration files to deploy and configure GlusterFS.
+
+%files doc
+%doc %{_pkgdocdir}
+
 %changelog
+* Wed Aug 9 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-13
+- Fix spec to address comment#28 from bug: 1344276
+
+* Tue Jun 27 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-12
+- Do not throw `volume start failed' error if volume is already started
+- Add service `glusterfssharedstorage' to NFS Ganesha pre-requisites
+- Add service `nfs-ganesha' to NFS Ganesha pre-requisites
+
+* Thu Jun 22 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-11
+- Updated extras/scripts to enable multipath
+
+* Thu May 18 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-10
+- Use shell module instead of script while executing a script
+
+* Tue May 16 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-9
+- Print the status of add-node command
+
+* Mon May 15 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-8
+- Do not export a volume unless specified in [nfs-ganesha] section
+
+* Thu May 11 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-7
+- Move the modues to ansible/modules from ansible/modules/extras
+
+* Fri May 5 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-6
+- Fixes a traceback caused for accessing non-existent key
+
+* Fri May 5 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-5
+- Fixes bugs: 1447271 1446509 1446092 1444829
+
+* Tue Apr 25 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-4
+- Add cachesize variable to [backend-setup] section
+
+* Thu Apr 13 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-3
+- Fix a traceback in RHEL6, catch exception and print message
+
+* Thu Mar 30 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-2
+- Fixed an issue where playbooks were installed wrongly
+
+* Wed Mar 22 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-1
+- Fixes NFS Ganesha delete node issue
+- Add support for RAID5
+
 * Tue Jan 10 2017 Sachidananda Urs <sac@redhat.com> 2.0.1-4
 - Fix spec to address comment#19 from bug: 1344276
 
