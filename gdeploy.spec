@@ -30,6 +30,12 @@ See http://gdeploy.readthedocs.io/en/latest/ for more details
 %prep
 %autosetup
 
+# We are sticking to python2 till we clean up the code
+# * Change print statements
+# * Change xrange function usage
+# * Change the except syntax
+# ...
+
 %build
 %py2_build
 pushd docs
@@ -38,7 +44,7 @@ popd
 
 %install
 # Install the binary and python libraries
-%{__python2} setup.py install -O1 --root=%{buildroot} --install-scripts %{_bindir}
+%py2_install
 
 mkdir -p %{buildroot}/%{python2_sitelib}/%{gdeploymod}
 install -p -m 755 modules/* \
@@ -78,6 +84,7 @@ cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 %{_bindir}/gdeploy
 %{python2_sitelib}/gdeploy*
 %{gdeploytemp}
+%{python2_sitelib}/%{gdeploymod}
 %{_bindir}/gluster-replace-node
 %{python2_sitelib}/ansible/plugins/callback/gdeploy.py*
 
