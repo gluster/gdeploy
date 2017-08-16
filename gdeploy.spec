@@ -67,7 +67,7 @@ install -p -m 755 extras/usecases/replace-node/gluster-replace-node \
 
 # Install the gdeploy plugin
 mkdir -p %{buildroot}/%{python2_sitelib}/ansible/plugins/callback
-install -p -m 755 plugins/callback/gdeploy.py \
+install -p -m 644 plugins/callback/gdeploy.py \
         %{buildroot}/%{python2_sitelib}/ansible/plugins/callback/
 
 # Documentation
@@ -108,6 +108,10 @@ configuration files to deploy and configure GlusterFS.
 %doc %{_pkgdocdir}
 
 %changelog
+* Wed Aug 16 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-14
+- Change the license to GPLv3+
+- Fix the source tar ball naming
+
 * Wed Aug 9 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-13
 - Fix spec to address comment#28 from bug: 1344276
 
