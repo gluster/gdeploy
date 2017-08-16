@@ -70,7 +70,7 @@ options:
     value:
         required: True if action is set
         description: Specifies the value to be set for the option
-                     specified bt key.
+                     specified by key.
 
     transport:
         required: False
@@ -99,7 +99,7 @@ options:
     disperse:
         required: False
         choices: [yes, no]
-        descirption: Specifies if the volume is to be disperse or not
+        description: Specifies if the volume is to be disperse or not
 
     disperse_count:
         required: False
@@ -109,8 +109,8 @@ options:
 
     redundancy_count:
         required: False
-        description: Specifies the number of redundancy bricks. If
-        if not specified and the volume if of type disperse,
+        description: Specifies the number of redundancy bricks.
+        If not specified and the volume is of type disperse,
         it's default value is computed so that it generates an
         optimal configuration.
 
