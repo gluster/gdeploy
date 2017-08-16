@@ -3,7 +3,7 @@
 
 Name:           gdeploy
 Version:        2.0.2
-Release:        13
+Release:        14
 Summary:        Tool to deploy and manage GlusterFS cluster
 
 License:        GPLv3+
