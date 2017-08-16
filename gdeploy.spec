@@ -8,7 +8,7 @@ Summary:        Tool to deploy and manage GlusterFS cluster
 
 License:        GPLv2+ and GPLv3+
 URL:            https://github.com/gluster/gdeploy
-Source0:        %{url}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
+Source0:        %{url}/archive/v%{version}-%{release}.tar.gz#/%{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
 Requires:       PyYAML
 Requires:       ansible > 2.3
@@ -28,7 +28,7 @@ commands, create GlusterFS volumes and more.
 See http://gdeploy.readthedocs.io/en/latest/ for more details
 
 %prep
-%autosetup
+%setup -q -n %{name}-%{version}-%{release}
 
 # We are sticking to python2 till we clean up the code
 # * Change print statements
