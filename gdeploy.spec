@@ -6,7 +6,7 @@ Version:        2.0.2
 Release:        13
 Summary:        Tool to deploy and manage GlusterFS cluster
 
-License:        GPLv2+ and GPLv3+
+License:        GPLv3+
 URL:            https://github.com/gluster/gdeploy
 Source0:        %{url}/archive/v%{version}-%{release}.tar.gz#/%{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
