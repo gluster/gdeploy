@@ -29,7 +29,7 @@ description:
       detach/remove a remote machine from a Trusted Storage Pool
 version_added: "2.2.1.0"
 
-author: 
+author: Nandaja Varma, Vipul Siddharth
 
 options:
     action:
