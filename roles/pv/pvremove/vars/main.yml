@@ -1,0 +1,5 @@
+---
+# vars file for pvremove
+action: remove
+disk: dev/vdb1
+force: y

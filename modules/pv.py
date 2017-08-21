@@ -155,15 +155,15 @@ class PvOps(object):
                 args += " -f"
         elif self.action =='change':
             uuid = self.module.params['uuid']
-            if uuid:
-                args += " -u " + uuid
-                args += " --norestorefile"
+            if uuid == 'y':
+                args += " -u "
+                # args += " --norestorefile"
             metadataignore = self.module.params['metadataignore']
             if metadataignore == 'y':
-                args += " --metadataignore"
+                args += " --metadataignore y "
             allocatable = self.module.params['allocatable']
-            if allocatable:
-                args += " --allocatable" + allocatable
+            if allocatable == 'n':
+                args += " -x " + allocatable
         elif self.action =='resize':
             setphysicalvolumesize = self.module.params['setphysicalvolumesize']
             if setphysicalvolumesize:

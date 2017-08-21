@@ -1,0 +1,7 @@
+---
+- name: Changing Physical Volumes on all the nodes
+  pv: action=change disk={{disk}}
+      metadataignore={{metadataignore}}
+      uuid={{uuid}}
+      allocatable={{allocatable}}
+# tasks file for pvchange
