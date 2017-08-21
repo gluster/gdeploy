@@ -34,14 +34,17 @@ author: Nandaja Varma, Vipul Siddharth
 options:
     action:
         description: When the action variable is set to probe,
-        the remote machines listed in the hosts sections are added to the Trusted Storage Pool.
+        the remote machines listed in the hosts sections are added to 
+        the Trusted Storage Pool.
         When the action variable is set to detach, 
-        the remote machines listed in the hosts sections are removed from the Trusted Storage Pool. 
+        the remote machines listed in the hosts sections are removed 
+        from the Trusted Storage Pool. 
         required: true
         choices: [add/probe, remove/detach]
         
     master:
-        description: current node so that it can be removed from hosts' list (if available)
+        description: 
+        current node so that it can be removed from hosts' list (if available)
 
     hosts:
         description: {{ ip }} that is to be probed.
