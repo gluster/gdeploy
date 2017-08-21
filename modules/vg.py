@@ -73,11 +73,16 @@ options:
 
 EXAMPLES = '''
 #Create Volume Groups on PVS /dev/vdb1
-    - vg: action=create disk='["/dev/vdb"]'
+    - vg: action=create disk={{item}}
+      with_items: 
+      -vgname1
+      -vgname2
 
 #Remove Volume Groups RHS_vg1, RHS_vg2 and RHS_vg3
     - pv: action=remove
-          vgname='["RHS_vg1", "RHS_vg2", "RHS_vg3"]'
+      with_items: 
+      -vgname1
+      -vgname2
 '''
 
 from ansible.module_utils.basic import *
