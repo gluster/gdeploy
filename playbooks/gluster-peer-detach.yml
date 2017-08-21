@@ -3,11 +3,5 @@
   remote_user: root
   gather_facts: no
 
-  tasks:
-  - name: Detach hosts form a Trusted Storage Pool
-    peer: action=detach
-          hosts="{{ hosts }}"
-          master="{{master}}"
-          force="{{ force }}"
-    register: result
-    failed_when: "result.rc != 0 and 'not part of cluster' not in result.msg"
+  roles:
+    - role: ../roles/peer_detach

@@ -1,0 +1,10 @@
+---
+# tasks file for peer_probe  
+  - name: Creates a Trusted Storage Pool
+    gluster_peer: action=probe
+          hosts="{{ to_be_probed }}"
+          master="{{master}}"
+
+  - name: Pause for a few seconds
+    pause: seconds=5
+

@@ -1,0 +1,9 @@
+---
+# tasks file for peer_detach
+  - name: Detach hosts form a Trusted Storage Pool
+    gluster_peer: action=detach
+          hosts="{{ hosts }}"
+          master="{{master}}"
+          force="{{ force }}"
+    register: result
+    failed_when: "result.rc != 0 and 'not part of cluster' not in result.msg"

@@ -18,6 +18,40 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 # USA.
 
+DOCUMENTATION = '''
+---
+module: peer_probe
+
+short_description: add/remove servers to the trusted server pool.
+
+description:
+    - peer module allows user to add/probe remote machines to a Trusted Storage Pool,
+      detach/remove a remote machine from a Trusted Storage Pool
+version_added: "2.2.1.0"
+
+author: 
+
+options:
+    action:
+        description: When the action variable is set to probe,
+        the remote machines listed in the hosts sections are added to the Trusted Storage Pool.
+        When the action variable is set to detach, 
+        the remote machines listed in the hosts sections are removed from the Trusted Storage Pool. 
+        required: true
+        choices: [add/probe, remove/detach]
+        
+    master:
+        description: current node so that it can be removed from hosts' list (if available)
+
+    hosts:
+        description: {{ ip }} that is to be probed.
+        required: true
+
+    force:
+        description: forces peer detach, ignores all warnings and errors.
+
+'''
+
 import sys
 import re
 from collections import OrderedDict
