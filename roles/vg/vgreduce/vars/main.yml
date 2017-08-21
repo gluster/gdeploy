@@ -1,0 +1,5 @@
+---
+# vars file for vgreduce
+action: reduce
+vgname: vg1
+disk: /dev/vdb2

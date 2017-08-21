@@ -1,0 +1,9 @@
+---
+# vars file for vgcreate
+action: create
+vgname: vg1
+disk: /dev/vdb1
+zero: y
+dataalignment: 1280
+maxlogicalvolumes: 2
+maxphysicalvolumes: 2

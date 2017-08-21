@@ -1,0 +1,7 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  roles:
+  - roles/vg/vgremove

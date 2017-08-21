@@ -1,0 +1,6 @@
+---
+# tasks file for vgremove
+- name: Removing a volume group
+  vg: action={{action}}
+      force={{force}}
+      vgname={{vgname}}

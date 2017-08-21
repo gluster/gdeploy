@@ -1,0 +1,6 @@
+---
+# tasks file for vgconvert
+- name: Converting a volume group
+  vg: action={{action}}
+      vgname={{vgname}}
+      metadatatype={{metadatatype}}
