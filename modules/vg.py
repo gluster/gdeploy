@@ -108,7 +108,7 @@ class VgOps(object):
         return self.get_volume_command(self.disk)
 
     def get_volume_command(self, disk):
-        args = ' ' + str()
+        args = " "
         if not self.vgname:
             self.module.exit_json(rc=1, msg="Nothing to be done")
         elif self.action == 'create':
