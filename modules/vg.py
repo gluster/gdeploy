@@ -79,10 +79,11 @@ EXAMPLES = '''
       -vgname2
 
 #Remove Volume Groups RHS_vg1, RHS_vg2 and RHS_vg3
-    - pv: action=remove
+    - vg: action=remove
       with_items: 
       -vgname1
       -vgname2
+      -vgname3
 '''
 
 from ansible.module_utils.basic import *
