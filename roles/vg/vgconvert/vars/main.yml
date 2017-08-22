@@ -1,0 +1,5 @@
+---
+# vars file for vgconvert
+action: convert
+vgname: vg1
+metadatatype: 1
