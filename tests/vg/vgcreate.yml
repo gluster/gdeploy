@@ -1,0 +1,16 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+    - name: Create a volume group
+      vg: action=create
+          vgname=vg1
+          disk=/dev/vdb1
+          zero=y
+          dataalignment=1280
+          # maxlogicalvolumes=2
+          # maxphysicalvolumes=2
+          # physicalextentsize=10
+          # dataalignmentoffset=2
