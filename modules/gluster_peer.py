@@ -25,7 +25,8 @@ module: peer_probe
 short_description: add/remove servers to the trusted server pool.
 
 description:
-    - peer module allows user to add/probe remote machines to a Trusted Storage Pool,
+    - peer module allows user to add/probe remote machines to a Trusted 
+      Storage Pool,
       detach/remove a remote machine from a Trusted Storage Pool
 version_added: "2.2.1.0"
 
