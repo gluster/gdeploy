@@ -1,0 +1,17 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+      - name: Create LVs with specified size for the VGs
+        lv: action=create
+            lvtype=thick
+            lvname=lv1
+            chunksize=64Ki
+            vgname=vg1
+            pvname=/dev/vdb1
+            poolmetadatasize=1S
+            poolname=tp1
+            virtualsize=1s
+            extents=10%VG
