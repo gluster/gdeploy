@@ -21,7 +21,7 @@
     assemble: remote_src=False
               src={{ ssl_base_dir }}/ssl_keys/
               dest=/etc/ssl/glusterfs.ca
-              mode=0600
+              mode=0644
 
   - name: Create /var/lib/glusterd if not present
     file: path=/var/lib/glusterd state=directory
