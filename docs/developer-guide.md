@@ -17,7 +17,7 @@ We expect the developers to know the following:
 
 
 To add a new feature, start with developer setup of gdeploy. Please
-refer<a href="https://github.com/gluster/gdeploy/blob/master/doc/INSTALL.md">
+refer<a href="https://github.com/gluster/gdeploy/blob/master/docs/INSTALL.md">
 INSTALL.md</a> for installation instructions.
 
 Once you have gdeploy setup, get ready to make your feature gdeploy
