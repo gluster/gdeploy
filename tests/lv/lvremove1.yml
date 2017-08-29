@@ -8,3 +8,4 @@
     lv: action=remove
         vgname=vg1
         lvname=lvol1
+        # pvname=/dev/vdb1

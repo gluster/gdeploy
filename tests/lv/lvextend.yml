@@ -5,15 +5,14 @@
 
   tasks:
 
-  - name: Reducing the attributes of the logical volume
-    lv: action=reduce
-        force=y
+  - name: Extending the attributes of the logical volume
+    lv: action=extend
+        force=n
         vgname=vg1
         lvname=lv3
         nofsck=n
         resizefs=n
-        size=-54M
+        size=+54
         pvname=/dev/vdb2
         # extents=-1
-
   #

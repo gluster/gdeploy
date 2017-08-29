@@ -1,0 +1,10 @@
+---
+# vars file for lvreduce
+action: reduce
+force: y
+vgname: vg1
+lvname: lvol1
+nofsck: n
+resizefs: n
+size: -54M
+pvname: /dev/vdb2
