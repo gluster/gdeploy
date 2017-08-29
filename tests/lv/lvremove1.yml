@@ -1,0 +1,11 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Remove logical volumes
+    lv: action=remove
+        vgname=vg1
+        lvname=lvol1
+        # pvname=/dev/vdb1

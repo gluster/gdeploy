@@ -1,0 +1,6 @@
+---
+# tasks file for lvremove
+- name: Remove logical volumes
+  lv: action={{action}}
+      vgname={{vgname}}
+      lvname={{lvname}}

@@ -1,0 +1,14 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+      - name: Resize LVs with specified size for the VGs
+        lv: action=resize
+            lvname=lv1
+            vgname=vg1
+            force=y
+            extents=VG
+            size=+1M
+            stripe=n
