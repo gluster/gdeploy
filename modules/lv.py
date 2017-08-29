@@ -140,7 +140,6 @@ class LvOps(object):
 
     def lv_action(self):
         cmd = {'create': self.create,
-               'convert': self.convert,
                'change': self.change,
                'extend': self.extend,
                'resize': self.resize,
@@ -386,44 +385,6 @@ class LvOps(object):
                 cmd += ' --%s %s ' % (key, value)
         return cmd
 
-    def convert(self):
-        lvconvert = {}
-        args= " "
-        lvconvert['type'] = self.module.params['lvtype']
-        force = ''
-        lvname = ''
-        if  not self.module.params['force'] or self.module.params[
-                'force'].lower() != 'no':
-                force = ' -ff --yes'
-        if lvconvert.get('type'):
-            if lvconvert['type'].lower() == 'cache-pool':
-                poolmetadata = self.module.params['poolmetadata']
-                lvconvert['poolmetadata'] = self.get_vg_appended_name(poolmetadata)
-                lvconvert['cachemode'] = self.module.params[
-                        'cachemode'] or 'writethrough'
-
-            elif lvconvert['type'].lower() == 'cache':
-                cachepool = self.validated_params('cachepool')
-                lvconvert['cachepool'] = self.get_vg_appended_name(cachepool)
-            lv = self.validated_params('lvname')
-            lvname = self.get_vg_appended_name(lv)
-            self.lv_presence_check(lv)
-
-        else:
-            poolmetadata = self.module.params['poolmetadata']
-            lvconvert['poolmetadata'] = self.get_vg_appended_name(poolmetadata)
-            lvconvert['thinpool'] = self.get_vg_appended_name(self.module.params[
-                                                                    'thinpool'])
-            lvconvert['chunksize'] = self.module.params['chunksize']
-            if lvconvert.get('poolmetadata'):
-                lvconvert['poolmetadataspare'] = self.module.params[
-                        'poolmetadataspare']
-        options = self.module.params['options'] or ''
-        cmd = self.parse_playbook_data(lvconvert, force)
-        args += '%s/%s' % (self.vgname,self.lvname)
-        self.module.exit_json(rc = 0 ,msg =cmd + ' ' + options +args + ' ' + lvname)
-        return cmd + ' ' + options + args + ' ' + lvname
-
     def get_vg_appended_name(self, lv):
         if not lv or not lv.strip():
             return ''
@@ -450,14 +411,14 @@ class LvOps(object):
     def remove(self):
         lvname = self.validated_params('lvname')
         self.lv_presence_check(lvname)
-        opt = ' -f /dev/%s/%s' % (self.vgname, lvname)
+        opt = ' -ff /dev/%s/%s' % (self.vgname, lvname)
         return opt
 
 
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
-            action=dict(choices=["create", "convert", "change", "resize",
+            action=dict(choices=["create", "change", "resize",
                                 "reduce","remove",'rename','extend']),
             lvname=dict(type='str'),
             lv=dict(),
