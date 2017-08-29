@@ -1,0 +1,5 @@
+---
+# vars file for lvremove
+action: remove
+vgname: vg1
+lvname: lv1

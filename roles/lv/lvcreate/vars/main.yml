@@ -1,0 +1,12 @@
+---
+# vars file for lvcreate
+action: create
+lvtype: thinpool
+extents: 10%FREE
+lvname: lvol1
+vgname: vg1
+pvname: /dev/vdb1
+poolname: tp1
+virtualsize: 1s
+poolmetadatasize: 1k
+chunksize: 128K

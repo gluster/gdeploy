@@ -1,0 +1,11 @@
+---
+# tasks file for lvextend
+- name: Extending the attributes of the logical volume
+  lv: action={{action}}
+      force={{force}}
+      vgname={{vgname}}
+      lvname={{lvname}}
+      nofsck={{nofsck}}
+      resizefs={{resizefs}}
+      size={{size}}
+      pvname={{pvname}}

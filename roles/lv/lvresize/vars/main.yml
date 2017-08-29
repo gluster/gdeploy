@@ -1,0 +1,9 @@
+---
+# vars file for lvresize
+action: resize
+lvname: lvol1
+vgname: vg1
+force: y
+extents: VG
+size: +1M
+stripe: n

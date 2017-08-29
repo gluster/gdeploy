@@ -1,0 +1,13 @@
+---
+# tasks file for lvcreate
+- name: Create LVs with specified size for the VGs
+  lv: action={{action}}
+      lvtype="{{ lvtype }}"
+      lvname={{ lvname }}
+      vgname={{ vgname }}
+      extents={{ extents }}
+      chunksize="{{ chunksize }}"
+      poolmetadatasize="{{ poolmetadatasize }}"
+      poolname={{ poolname }}
+      pvname="{{ pvname }}"
+      virtualsize={{virtualsize}}
