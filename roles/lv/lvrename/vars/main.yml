@@ -2,5 +2,5 @@
 # vars file for lvrename
 action: rename
 vgname: vg1
-lvname: lv1
-new_name: lv2
+lvname: lvol1
+new_name: lv1
