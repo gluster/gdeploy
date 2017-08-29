@@ -135,15 +135,17 @@ class LvOps(object):
         self.action = self.validated_params('action')
         self.vgname = self.validated_params('vgname')
         self.lvname = self.validated_params('lvname')
+        if self.action not in ['rename', 'remove','resize','change']:
+            self.pvname = self.validated_params('pvname')
 
     def lv_action(self):
         cmd = {'create': self.create,
                'convert': self.convert,
                'change': self.change,
-            #    'extend': self.extend,
+               'extend': self.extend,
                'resize': self.resize,
                'reduce': self.reduce,
-            #    'rename': self.rename,
+               'rename': self.rename,
                'remove': self.remove
                }[self.action]()
         return cmd
@@ -266,6 +268,13 @@ class LvOps(object):
             ret = 1
         return ret
 
+    def rename(self):
+        args= " "
+        args += '%s/%s' % (self.vgname,self.lvname)
+        new_name= self.module.params['new_name']
+        args += " "+ str(new_name)
+        return args
+
     def resize(self):
         args= " "
         force= self.module.params['force']
@@ -293,16 +302,48 @@ class LvOps(object):
         force = self.module.params['force']
         if force == 'y':
             args += " -f "
-        extents = self.module.params['extents']
-        args += "-l " + extents + " "
+        sop = ''
+        try:
+            size = str(compute_func()) + 'K'
+        except:
+            size = self.module.params.get('size')
+        if not size:
+            extent = self.module.params.get('extent') or '100%FREE'
+            sop = ' -l %s' % extent
+        else:
+            sop = ' -L %s' % size
         nofsck = self.module.params['nofsck']
         if nofsck=='y':
             args += "-n "
         resizefs = self.module.params['resizefs']
         if resizefs=='y':
             args += "-r "
-        args += '%s/%s' % (self.vgname,self.lvname)
-        return args
+        args += '%s/%s %s' % (self.vgname,self.lvname,self.pvname)
+        return sop + args
+
+    def extend(self):
+        args= " "
+        force = self.module.params['force']
+        if force == 'y':
+            args += " -f "
+        sop = ''
+        try:
+            size = str(compute_func()) + 'K'
+        except:
+            size = self.module.params.get('size')
+        if not size:
+            extent = self.module.params.get('extent') or '100%FREE'
+            sop = ' -l %s' % extent
+        else:
+            sop = ' -L %s' % size
+        nofsck = self.module.params['nofsck']
+        if nofsck=='y':
+            args += "-n "
+        resizefs = self.module.params['resizefs']
+        if resizefs=='y':
+            args += "-r "
+        args += '/dev/%s/%s %s' % (self.vgname,self.lvname,self.pvname)
+        return sop + args
 
     def create(self):
         args = " "
@@ -347,6 +388,7 @@ class LvOps(object):
 
     def convert(self):
         lvconvert = {}
+        args= " "
         lvconvert['type'] = self.module.params['lvtype']
         force = ''
         lvname = ''
@@ -378,7 +420,9 @@ class LvOps(object):
                         'poolmetadataspare']
         options = self.module.params['options'] or ''
         cmd = self.parse_playbook_data(lvconvert, force)
-        return cmd + ' ' + options + ' ' + lvname
+        args += '%s/%s' % (self.vgname,self.lvname)
+        self.module.exit_json(rc = 0 ,msg =cmd + ' ' + options +args + ' ' + lvname)
+        return cmd + ' ' + options + args + ' ' + lvname
 
     def get_vg_appended_name(self, lv):
         if not lv or not lv.strip():
@@ -406,7 +450,7 @@ class LvOps(object):
     def remove(self):
         lvname = self.validated_params('lvname')
         self.lv_presence_check(lvname)
-        opt = ' -ff --yes %s/%s' % (self.vgname, lvname)
+        opt = ' -f /dev/%s/%s' % (self.vgname, lvname)
         return opt
 
 
@@ -414,7 +458,7 @@ if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
             action=dict(choices=["create", "convert", "change", "resize",
-                                "reduce","remove"]),
+                                "reduce","remove",'rename','extend']),
             lvname=dict(type='str'),
             lv=dict(),
             cachemode=dict(),
@@ -422,6 +466,7 @@ if __name__ == '__main__':
             lvtype=dict(),
             pvname=dict(type='str'),
             vgname=dict(type='str'),
+            new_name=dict(type='str'),
             thinpool=dict(),
             poolmetadata=dict(),
             poolmetadatasize=dict(),
@@ -432,6 +477,7 @@ if __name__ == '__main__':
             thin=dict(),
             options=dict(),
             compute=dict(),
+            cache=dict(),
             disktype=dict(),
             wipesignature=dict(),
             diskcount=dict(),
