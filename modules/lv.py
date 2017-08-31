@@ -218,6 +218,7 @@ class LvOps(object):
         self.lv_presence_check(poolname)
         lvcreate['thinpool'] = self.get_vg_appended_name(poolname)
         lvcreate['size'] = self.module.params['size'] or ''
+        lvcreate['extents'] = self.module.params['extent'] or ''
         cmd = self.parse_playbook_data(lvcreate)
         if not lvcreate['size']:
             extent = self.module.params.get('extent') or '100%FREE'
