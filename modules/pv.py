@@ -155,12 +155,12 @@ class PvOps(object):
                 args += " -f"
         elif self.action =='change':
             uuid = self.module.params['uuid']
-            if uuid == 'y':
-                args += " -u "
+            if uuid:
+                args += " -u " + uuid
                 # args += " --norestorefile"
             metadataignore = self.module.params['metadataignore']
             if metadataignore == 'y':
-                args += " --metadataignore y "
+                args += " --metadataignore " + metadataignore
             allocatable = self.module.params['allocatable']
             if allocatable == 'n':
                 args += " -x " + allocatable

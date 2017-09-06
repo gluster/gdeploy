@@ -74,13 +74,13 @@ options:
 EXAMPLES = '''
 #Create Volume Groups on PVS /dev/vdb1
     - vg: action=create disk={{item}}
-      with_items: 
+      with_items:
       -vgname1
       -vgname2
 
 #Remove Volume Groups RHS_vg1, RHS_vg2 and RHS_vg3
     - vg: action=remove
-      with_items: 
+      with_items:
       -vgname1
       -vgname2
       -vgname3
