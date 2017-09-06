@@ -1,12 +1,15 @@
 ---
 # tasks file for lvreduce
 - name: Reducing the attributes of the logical volume
-  lv: action={{action}}
-      force={{force}}
-      vgname={{vgname}}
-      lvname={{lvname}}
-      nofsck={{nofsck}}
-      resizefs={{resizefs}}
-      size={{size}}
-      pvname={{pvname}}
+  lv: action={{item.action}}
+      force={{item.force}}
+      vgname={{item.vgname}}
+      lvname={{item.lvname}}
+      nofsck={{item.nofsck}}
+      resizefs={{item.resizefs}}
+      size={{item.size}}
+      pvname={{item.pvname}}
       # extents=-1
+  with_items:
+  - "{{ lv1 }}"
+  - "{{ lv2 }}"

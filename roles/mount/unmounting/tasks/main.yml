@@ -1,0 +1,9 @@
+---
+# tasks file for unmounting
+- name: Unmount the volumes
+  gdeploy_mount:
+    path={{path}}
+    src={{src}}
+    fstype={{src}}
+    state={{state}}
+  # with_items: "{{ path }}"

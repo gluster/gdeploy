@@ -1,10 +1,20 @@
 ---
 # vars file for lvreduce
-action: reduce
-force: y
-vgname: vg1
-lvname: lvol1
-nofsck: n
-resizefs: n
-size: -54M
-pvname: /dev/vdb2
+lv1:
+  action: reduce
+  force: y
+  vgname: vg1
+  lvname: lvol1
+  nofsck: n
+  resizefs: n
+  size: -54M
+  pvname: /dev/vdb
+lv2:
+  action: reduce
+  force: y
+  vgname: vg1
+  lvname: lvol2
+  nofsck: n
+  resizefs: n
+  size: -54M
+  pvname: /dev/vdc

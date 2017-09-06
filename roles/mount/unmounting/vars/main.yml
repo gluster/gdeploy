@@ -1,0 +1,6 @@
+---
+# vars file for unmounting
+path: /bricks/brick1
+src: /dev/vg1/lvol1
+fstype: xfs
+state: absent

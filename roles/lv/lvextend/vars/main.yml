@@ -1,10 +1,20 @@
 ---
 # vars file for lvextend
-action: extend
-force: n
-vgname: vg1
-lvname: lvol1
-nofsck: n
-resizefs: n
-size: +54
-pvname: /dev/vdb2
+lv1:
+  action: extend
+  force: n
+  vgname: vg1
+  lvname: lvol1
+  nofsck: n
+  resizefs: n
+  size: +54
+  pvname: /dev/vdb
+lv2:
+  action: extend
+  force: n
+  vgname: vg1
+  lvname: lvol2
+  nofsck: n
+  resizefs: n
+  size: +54
+  pvname: /dev/vdc

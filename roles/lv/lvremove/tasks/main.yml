@@ -1,6 +1,11 @@
 ---
 # tasks file for lvremove
 - name: Remove logical volumes
-  lv: action={{action}}
-      vgname={{vgname}}
-      lvname={{lvname}}
+  lv: action={{item.action}}
+      vgname={{item.vgname}}
+      lvname={{item.lvname}}
+  with_items:
+  - "{{ lv1 }}"
+  - "{{ lv2 }}"
+  - "{{ tp1 }}"
+  - "{{ tp2 }}"

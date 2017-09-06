@@ -1,8 +1,10 @@
 ---
 # tasks file for lvrename
 - name: Rename the attributes of the logical volume
-  lv: action={{action}}
-      vgname={{vgname}}
-      lvname={{lvname}}
-      new_name={{new_name}}
-    
+  lv: action={{item.action}}
+      vgname={{item.vgname}}
+      lvname={{item.lvname}}
+      new_name={{item.new_name}}
+  with_items:
+  - "{{ lv1 }}"
+  - "{{ lv2 }}"

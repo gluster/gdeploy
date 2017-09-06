@@ -5,5 +5,5 @@
 
   tasks:
     - name: Removing a physical volume
-      pv: action=remove disks=/dev/vdb
+      pv: action=remove disks=/dev/vdb1
           force=y

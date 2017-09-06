@@ -1,0 +1,35 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Create the dir to mount the volume, skips if present
+    file:
+      path= {{item.path}}
+      state=directory
+    with_items:
+    - {"path": "/mnt/bricks/brick2"}
+# mkfs
+  - name: Create an xfs filesystem
+    filesystem:
+      fstype= {{item.fstype}}
+      dev= {{item.dev}}
+#mount
+  - name: Mount the volumes
+    gdeploy_mount:
+      path= {{item.path}}
+      src= {{item.src}}
+      fstype=xfs
+      state=mounted
+      opts= "inode64,noatime,nodiratime"
+#umount
+  - name: Unmount the volumes
+    gdeploy_mount:
+      path= {{item.path}}
+      src= {{item.src}}
+      fstype= xfs
+      state=absent
+    with_items:
+    - {"path": "/bricks/brick1","src":"/dev/vg1/lvol1", "dev": "/dev/vg1/lvol1", "fstype": "xfs"}
+    - {"path": "/bricks/brick2","src":"/dev/vg1/lvol2", "dev": "/dev/vg1/lvol2", "fstype": "xfs"}

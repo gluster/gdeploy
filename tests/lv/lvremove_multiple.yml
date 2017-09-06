@@ -1,0 +1,15 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Remove logical volumes
+    lv: action=remove
+        vgname={{item.vgname}}
+        lvname={{item.lvname}}
+    with_items:
+    - {"device_path": "/dev/vdb","lvname":"lvol1","vgname":"vg1"}
+    - {"device_path": "/dev/vdb","lvname":"tp1","vgname":"vg1"}
+    - {"device_path": "/dev/vdc","lvname":"lvol2","vgname":"vg1"}
+    - {"device_path": "/dev/vdc","lvname":"tp2","vgname":"vg1"}
