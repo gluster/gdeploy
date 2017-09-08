@@ -10,12 +10,13 @@
             size=10G
             lvname={{item.lvname}}
             vgname=vg1
+            thinpool=pool
             pvname={{item.device_path}}
             poolname={{item.poolname}}
             poolmetadatasize={{item.poolmetadatasize}}
             chunksize=64Ki
-            virtualsize=1K
-            # extents=10%FREE
+            virtualsize=9G
+            
         with_items:
         - {"device_path": "/dev/vdb", "lvname":"lvol1","poolname":"tp1", "poolmetadatasize":"128Ki"}
         - {"device_path": "/dev/vdc","lvname":"lvol2","poolname":"tp2","poolmetadatasize":"256Ki"}

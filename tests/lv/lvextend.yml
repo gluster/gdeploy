@@ -9,10 +9,10 @@
     lv: action=extend
         force=n
         vgname=vg1
-        lvname=lv3
+        lvname=lvol1
         nofsck=n
         resizefs=n
         size=+54
-        pvname=/dev/vdb2
+        pvname=/dev/vdb
         # extents=-1
   #
