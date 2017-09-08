@@ -358,9 +358,9 @@ class LvOps(object):
         thin = self.module.params['thin']
         if thin:
             args += "-T "
-        thinpool = self.module.params['thinpool']
-        if thinpool :
-            args += "--thinpool "
+        # thinpool = self.module.params['thinpool']
+        # if thinpool :
+        #     args += "--thinpool " + self.vgname + "/" + thinpool
         virtualsize = self.module.params['virtualsize']
         args += " -V " + virtualsize + " "
         wipesignature = self.module.params['wipesignature']
@@ -377,6 +377,7 @@ class LvOps(object):
                    # 'virtual': ' -V %sK -T /dev/%s/%s -n %s'
                    # % (pool_sz, self.vgname, poolname, lvname)
                    # }[self.lvtype]
+        # self.module.exit_json(rc=1,msg= "Debug output:\n" + options + " " + args)
         return options + " " + args
 
     def parse_playbook_data(self, dictionary, cmd=''):

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Ansible module to create or remove a Physical Volume.
-(c) 2015 Nandaja Varma <nvarma@redhat.com>, Anusha Rao <aroa@redhat.com>
+(c) 2015 Nandaja Varma <nvarma@redhat.com>, Ashmitha Ambastha <asambast@redhat.com>
 This file is part of Ansible
 Ansible is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
