@@ -6,4 +6,4 @@
   tasks:
     - name: Create a physical volume
       pv: action=resize disks=/dev/vdb
-          setphysicalvolumesize=10
+          setphysicalvolumesize=20G

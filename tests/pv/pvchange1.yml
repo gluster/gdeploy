@@ -5,6 +5,6 @@
 
   tasks:
     - name: Create a physical volume
-      pv: action=change disks=/dev/vdb
-          uuid=cd809386-76ab-11e7-b5a5-be2e44b06b34
+      pv: action=change disks=/dev/vdc
+          uuid=bd00667a-8d63-11e7-bb31-be2e44b06b34
           metadataignore=n

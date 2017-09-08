@@ -1,0 +1,19 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+
+  - name: Reducing the attributes of the logical volume
+    lv: action=reduce
+        force=y
+        vgname=vg1
+        lvname=lv3
+        nofsck=n
+        resizefs=n
+        size=-54M
+        pvname=/dev/vdb2
+        # extents=-1
+
+  #

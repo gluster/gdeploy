@@ -15,7 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Ansible. If not, see <http://www.gnu.org/licenses/>.
 """
-
+ANSIBLE_METADATA = {
+    'metadata_version': '0.1',
+    'supported_by': 'community',
+    'status': ['preview']
+}
 DOCUMENTATION = '''
 ---
 author: Nandaja Varma , Ashmitha Ambastha
@@ -74,13 +78,13 @@ options:
 EXAMPLES = '''
 #Create Volume Groups on PVS /dev/vdb1
     - vg: action=create disk={{item}}
-      with_items: 
+      with_items:
       -vgname1
       -vgname2
 
 #Remove Volume Groups RHS_vg1, RHS_vg2 and RHS_vg3
     - vg: action=remove
-      with_items: 
+      with_items:
       -vgname1
       -vgname2
       -vgname3
@@ -226,8 +230,8 @@ class VgOps(object):
             return 1
         rc, out, err = self.run_command('pvdisplay', ' ' + disk)
         if rc:
-            dalign = self.module.params['dalign'] or ''
-            opts = " --dataalignment %sk" % dalign if dalign else ''
+            dataalignment = self.module.params['dataalignment'] or ''
+            opts = " --dataalignment %sk" % dataalignment if dataalignment else ''
             rc, out, err = self.run_command('pvcreate', opts +
                     ' ' + disk)
             if rc:

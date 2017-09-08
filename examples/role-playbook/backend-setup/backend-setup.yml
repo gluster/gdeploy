@@ -1,0 +1,10 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  roles:
+  - roles/pv/pvcreate
+  - roles/vg/vgcreate
+  - roles/lv/lvcreate
+  - roles/mount/mounting

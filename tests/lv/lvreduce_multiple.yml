@@ -1,0 +1,20 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+
+  - name: Reducing the attributes of the logical volume
+    lv: action=reduce
+        force=y
+        vgname={{item.vgname}}
+        lvname={{item.lvname}}
+        nofsck=n
+        resizefs=n
+        size={{item.size}}
+        pvname={{item.pvname}}
+        # extents=-1
+    with_items:
+    - {"vgname":"vg1", "lvname": "lvol1","pvname":"/dev/vdb","size": "-54"}
+    - {"vgname":"vg1", "lvname": "lvol2","pvname":"/dev/vdc","size": "-20"}

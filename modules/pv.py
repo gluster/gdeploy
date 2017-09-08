@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Ansible module to create or remove a Physical Volume.
-(c) 2015 Nandaja Varma <nvarma@redhat.com>, Anusha Rao <aroa@redhat.com>
+(c) 2015 Nandaja Varma <nvarma@redhat.com>, Ashmitha Ambastha <asambast@redhat.com>
 This file is part of Ansible
 Ansible is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -155,12 +155,12 @@ class PvOps(object):
                 args += " -f"
         elif self.action =='change':
             uuid = self.module.params['uuid']
-            if uuid == 'y':
-                args += " -u "
+            if uuid:
+                args += " -u " + uuid
                 # args += " --norestorefile"
             metadataignore = self.module.params['metadataignore']
             if metadataignore == 'y':
-                args += " --metadataignore y "
+                args += " --metadataignore " + metadataignore
             allocatable = self.module.params['allocatable']
             if allocatable == 'n':
                 args += " -x " + allocatable

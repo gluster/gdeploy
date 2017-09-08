@@ -1,0 +1,17 @@
+---
+- hosts: servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+      - name: Resize LVs with specified size for the VGs
+        lv: action=resize
+            lvname={{item.lvname}}
+            vgname={{item.vgname}}
+            force=y
+            extents=VG
+            size={{item.size}}
+            stripe=n
+        with_items:
+        - {"lvname":"lvol1", "vgname":"vg1", "size": "+1"}
+        - {"lvname":"lvol2", "vgname":"vg1", "size": "-40"}

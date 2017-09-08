@@ -44,7 +44,6 @@ class Peer(object):
            Something like this can be used in the playbook:
            hosts="{% for host in groups[<group name>] %}
            {{ hostvars[host]['private_ip'] }},{% endfor %}"
-
         '''
         hosts = literal_eval(self._validated_params('hosts'))
         current_host = self._validated_params('master')
