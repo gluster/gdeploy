@@ -10,5 +10,4 @@
       size={{item.size}}
       pvname={{item.pvname}}
   with_items:
-  - "{{ lv1 }}"
-  - "{{ lv2 }}"
+  - "{{ lvextend_list}}"

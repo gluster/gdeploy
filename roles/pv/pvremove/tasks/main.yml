@@ -1,6 +1,8 @@
 ---
 - name: Remove Physical Volumes (if any)
-  pv: action=remove disk=/dev/vdb1
-      force=y
-
+  pv: action={{item.action}}
+      disk={{item.disk}}
+      force={{item.force}}
+  with_items:
+  - "{{ pvremove_list}}"
 # tasks file for pvremove

@@ -5,7 +5,4 @@
       vgname={{item.vgname}}
       lvname={{item.lvname}}
   with_items:
-  - "{{ lv1 }}"
-  - "{{ lv2 }}"
-  - "{{ tp1 }}"
-  - "{{ tp2 }}"
+  - "{{ lvremove_list }}"

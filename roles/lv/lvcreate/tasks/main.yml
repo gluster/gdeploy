@@ -12,5 +12,4 @@
       pvname="{{ item.pvname }}"
       virtualsize={{item.virtualsize}}
   with_items:
-  - "{{ lv1 }}"
-  - "{{ lv2 }}"
+  - "{{ lvcreate_list }}"

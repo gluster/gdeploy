@@ -8,5 +8,4 @@
       errorwhenfull={{item.errorwhenfull}}
       permission={{item.permission}}
   with_items:
-  - "{{ lv1 }}"
-  - "{{ lv2 }}"
+  - "{{ lvchange_list}}"

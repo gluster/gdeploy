@@ -9,5 +9,4 @@
       size={{item.size}}
       stripe={{item.stripe}}
   with_items:
-  - "{{ lv1 }}"
-  - "{{ lv2 }}"
+  - "{{ lvresize_list}}"

@@ -6,5 +6,4 @@
       lvname={{item.lvname}}
       new_name={{item.new_name}}
   with_items:
-  - "{{ lv1 }}"
-  - "{{ lv2 }}"
+  - "{{ lvrename_list}}"

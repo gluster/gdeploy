@@ -9,7 +9,5 @@
       resizefs={{item.resizefs}}
       size={{item.size}}
       pvname={{item.pvname}}
-      # extents=-1
   with_items:
-  - "{{ lv1 }}"
-  - "{{ lv2 }}"
+  - "{{ lvreduce_list }}"

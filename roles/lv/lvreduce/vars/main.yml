@@ -1,5 +1,8 @@
 ---
 # vars file for lvreduce
+lvreduce_list:
+- "{{ lv1 }}"
+- "{{ lv2 }}"
 lv1:
   action: reduce
   force: y
@@ -7,14 +10,14 @@ lv1:
   lvname: lvol1
   nofsck: n
   resizefs: n
-  size: -54M
+  size: -10G
   pvname: /dev/vdb
 lv2:
   action: reduce
   force: y
-  vgname: vg1
-  lvname: lvol2
+  vgname: vg2
+  lvname: lvol1
   nofsck: n
   resizefs: n
-  size: -54M
+  size: -10G
   pvname: /dev/vdc

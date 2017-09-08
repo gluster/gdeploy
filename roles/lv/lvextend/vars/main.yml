@@ -1,5 +1,8 @@
 ---
 # vars file for lvextend
+lvextend_list:
+- "{{ lv1 }}"
+- "{{ lv2 }}"
 lv1:
   action: extend
   force: n
@@ -7,14 +10,14 @@ lv1:
   lvname: lvol1
   nofsck: n
   resizefs: n
-  size: +54
+  size: +20G
   pvname: /dev/vdb
 lv2:
   action: extend
   force: n
-  vgname: vg1
-  lvname: lvol2
+  vgname: vg2
+  lvname: lvol1
   nofsck: n
   resizefs: n
-  size: +54
+  size: +20G
   pvname: /dev/vdc
