@@ -70,7 +70,7 @@ options:
     value:
         required: True if action is set
         description: Specifies the value to be set for the option
-                     specified bt key.
+                     specified by key.
 
     transport:
         required: False
@@ -120,7 +120,10 @@ options:
         choices: [start, stop, fix-layout] for rebalance
         description: Specifies the state of the volume if one or more
                      bricks are to be removed from the volume
-
+    profile_state:
+        required: False
+        choices: [start, stop]
+        description: Starts or stops profiling on a given gluster volume. 
 
 '''
 
@@ -137,6 +140,10 @@ EXAMPLES = '''
              replica_count=3
              arbiter_count=1
 
+# Starts Volume profiling
+  - volume: action=profile
+             volume="{{ volname }}"
+             profile_state="start"         
 '''
 
 import sys
@@ -155,7 +162,7 @@ class Volume(object):
     def get_playbook_params(self, opt):
         return self.module.params[opt]
 
-    def _validated_params(self, opt):
+    def _validated_params(self, opt):  
         value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
@@ -255,9 +262,16 @@ class Volume(object):
             option_str += self.get_brick_list_of_all_hosts()
         if self.action in ['add-brick', 'remove-brick']:
             option_str = self.brick_ops()
+        if self.action == 'profile':
+            option_str = self.profile_ops()
+            
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
+        
+    def profile_ops(self):
+        profile_state = self.module.params['profile_state']
+        return profile_state
 
     def rebalance_volume(self):
         state = self._validated_params('state')
@@ -311,7 +325,7 @@ if __name__ == '__main__':
             disperse=dict(),
             disperse_count=dict(),
             redundancy_count=dict(),
-
+            profile_state = dict(),
         ),
     )
 
