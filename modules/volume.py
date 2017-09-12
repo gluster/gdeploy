@@ -272,18 +272,14 @@ class Volume(object):
         if self.action in ['add-brick', 'remove-brick']:
             option_str = self.brick_ops()
         if self.action == 'profile':
-            option_str = self.profile_ops()
+            option_str = self._validated_params('profile_state')
         if self.action == 'set':
-            option_str = self.module.params['key'] + " " + self.module.params['value'] 
+            option_str = self._validated_params('key') + " " + self._validated_params('value') 
             
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
         
-    def profile_ops(self):
-        profile_state = self.module.params['profile_state']
-        return profile_state
-
     def rebalance_volume(self):
         state = self._validated_params('state')
         if state not in ['start', 'stop', 'fix-layout']:
