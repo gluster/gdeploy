@@ -1,0 +1,10 @@
+---
+
+- hosts: servers
+  tasks:
+    - name: Toggle volume options
+      volume: action=set
+               volume=gv0
+               key="performance.cache-size"
+               value="512MB"
+      run_once: true
