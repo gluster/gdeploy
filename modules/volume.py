@@ -120,10 +120,11 @@ options:
         choices: [start, stop, fix-layout] for rebalance
         description: Specifies the state of the volume if one or more
                      bricks are to be removed from the volume
+    
     profile_state:
         required: False
         choices: [start, stop]
-        description: Starts or stops profiling on a given gluster volume. 
+        description: Starts or stops profiling on a given gluster volume.         
 
 '''
 
@@ -143,7 +144,15 @@ EXAMPLES = '''
 # Starts Volume profiling
   - volume: action=profile
              volume="{{ volname }}"
-             profile_state="start"         
+             profile_state="start"   
+    run_once: true
+    
+# Sets Volume options
+  - volume: action=set
+             volume="{{ volname }}"
+             key="performance.cache-size"
+             value="256MB"
+    run_once: true
 '''
 
 import sys
@@ -264,6 +273,8 @@ class Volume(object):
             option_str = self.brick_ops()
         if self.action == 'profile':
             option_str = self.profile_ops()
+        if self.action == 'set':
+            option_str = self.module.params['key'] + " " + self.module.params['value'] 
             
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
