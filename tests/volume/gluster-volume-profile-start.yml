@@ -2,7 +2,7 @@
 
 - hosts: servers
   tasks:
-    - name: Toggle volume profile
+    - name: Starts volume profiling
       volume: action=profile
                volume=gv0
                profile_state="start"
