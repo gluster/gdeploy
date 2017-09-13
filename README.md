@@ -13,6 +13,8 @@ in 2.0.
   and mount it on one or more clients from an ansible installed machine. The
   framework reads a configuration file and applies on the hosts listed in the
   configuration file.
+  
+  You can find instructions [here](https://github.com/gluster/gdeploy/blob/master/docs/INSTALL.md).
 
 ## What is new in 2.0?
 
@@ -30,9 +32,16 @@ in 2.0.
    - yum module support.
    - firewalld module support.
    - Improvement to configuration file:
-     - Now the sections can be written like:
-       [module:host], for e.g: [backend-setup:10.0.0.10] ...
-     - Multiple invocation of modules. For eg: [shell1], [shell2] for multiple
-       shell invocations.
+     - Now the sections can be written like: [module:host]
+       > Example: [backend-setup:10.0.0.10] ...
+     - Multiple invocation of modules. 
+       > Example: [shell1], [shell2] for multiple shell invocations.
    - Bug fixes.
 
+## Get involved
+
+   - Read [developer guide](https://github.com/gluster/gdeploy/blob/master/docs/developer-guide.md)
+   - All code submissions are done through pull requests.
+
+## Licence
+GNU Click on the [link](https://github.com/gluster/gdeploy/blob/master/LICENSE) to see the full text.
