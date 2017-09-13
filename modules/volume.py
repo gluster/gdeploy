@@ -142,13 +142,13 @@ EXAMPLES = '''
              arbiter_count=1
 
 # Starts Volume profiling
-  - volume: action=profile
+  - gluster_volume: action=profile
              volume="{{ volname }}"
              profile_state="start"   
     run_once: true
     
 # Sets Volume options
-  - volume: action=set
+  - gluster_volume: action=set
              volume="{{ volname }}"
              key="performance.cache-size"
              value="256MB"
