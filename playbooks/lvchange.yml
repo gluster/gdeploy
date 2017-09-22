@@ -8,4 +8,5 @@
   - name: Change the attributes of the logical volume
     lv: action=change zero=n vgname="{{ vgname }}" lvname="{{ lvname }}"
         options="{{ options }}"
-
+    register: res
+    failed_when: res.rc != 0 and 'zero new blocks' not in res.msg
