@@ -20,6 +20,8 @@
 
   - name: Setup SSD for caching | Change the attributes of the logical volume
     lv: action=change zero=n vgname="{{ vgname }}" lvname="{{ poolname }}"
+    register: res
+    failed_when: res.rc != 0 and 'zero new blocks' not in res.msg
 
   - name: Setup SSD for caching | Create cache meta logical volume
     lv: action=create lvname="{{ cache_meta_lv }}" lvtype=thick

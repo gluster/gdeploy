@@ -41,4 +41,6 @@
   - name: Change the attributes of the logical volume
     lv: action=change zero=n vgname={{ item.vg }} lvname={{ item.pool }}
     with_items: "{{ lvpools }}"
-    ignore_errors: yes
+    register: res
+    failed_when: res.rc != 0 and 'zero new blocks' not in res.msg
+

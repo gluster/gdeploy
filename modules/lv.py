@@ -321,9 +321,8 @@ class LvOps(object):
     def change(self):
         poolname = self.validated_params('lvname')
         self.lv_presence_check(poolname)
-        poolname = self.get_vg_appended_name(poolname)
         zero = self.module.params['zero'] or 'n'
-        options = self.module.params['options']
+        options = self.module.params['options'] or ''
         options = ' -Z %s %s %s/%s' % (zero, options, self.vgname, poolname)
         return options
 
