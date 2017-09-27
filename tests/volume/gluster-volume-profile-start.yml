@@ -1,0 +1,10 @@
+---
+
+- hosts: servers
+  tasks:
+    - name: Starting volume profile
+      gluster_volume: action=profile
+               volume=gv0
+               profile_state="start"
+      run_once: true
+

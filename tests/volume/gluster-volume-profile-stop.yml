@@ -1,0 +1,10 @@
+---
+
+- hosts: servers
+  tasks:
+    - name: Stopping volume profile
+      gluster_volume: action=profile
+               volume=gv0
+               profile_state="stop"
+      run_once: true
+

@@ -70,7 +70,7 @@ options:
     value:
         required: True if action is set
         description: Specifies the value to be set for the option
-                     specified bt key.
+                     specified by key.
 
     transport:
         required: False
@@ -120,7 +120,11 @@ options:
         choices: [start, stop, fix-layout] for rebalance
         description: Specifies the state of the volume if one or more
                      bricks are to be removed from the volume
-
+    
+    profile_state:
+        required: False
+        choices: [start, stop]
+        description: Starts or stops profiling on a given gluster volume.         
 
 '''
 
@@ -137,6 +141,18 @@ EXAMPLES = '''
              replica_count=3
              arbiter_count=1
 
+# Starts Volume profiling
+  - gluster_volume: action=profile
+             volume="{{ volname }}"
+             profile_state="start"   
+    run_once: true
+    
+# Sets Volume options
+  - gluster_volume: action=set
+             volume="{{ volname }}"
+             key="performance.cache-size"
+             value="256MB"
+    run_once: true
 '''
 
 import sys
@@ -155,7 +171,7 @@ class Volume(object):
     def get_playbook_params(self, opt):
         return self.module.params[opt]
 
-    def _validated_params(self, opt):
+    def _validated_params(self, opt):  
         value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
@@ -255,10 +271,16 @@ class Volume(object):
             option_str += self.get_brick_list_of_all_hosts()
         if self.action in ['add-brick', 'remove-brick']:
             option_str = self.brick_ops()
+        if self.action == 'profile':
+            option_str = self._validated_params('profile_state')
+        if self.action == 'set':
+            option_str = self._validated_params('key') + " " 
+            option_str += self._validated_params('value') 
+            
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
-
+        
     def rebalance_volume(self):
         state = self._validated_params('state')
         if state not in ['start', 'stop', 'fix-layout']:
@@ -311,7 +333,7 @@ if __name__ == '__main__':
             disperse=dict(),
             disperse_count=dict(),
             redundancy_count=dict(),
-
+            profile_state = dict(),
         ),
     )
 
