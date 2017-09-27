@@ -16,31 +16,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 # USA.
-#
-#
-#    yaml_writer.py
-#    -------------
-#    YamlWriter is a helper class used by VarFileGenerator to write
-#    all the necessary sections and options into the yaml file
-#    as per specified in the configuration file
-#
 
 from gdeploylib import *
 from gdeploylib.defaults import *
 import sys
 import re
-try:
-    import yaml
-except ImportError:
-    msg = "Package PyYAML not found."
-    print "Error: " + msg
-    Global.logger.error(msg)
-    sys.exit(1)
 import os
 
-
 class BackendSetup(Helpers):
-
     def __init__(self):
         self.section_dict = dict()
         self.previous = True
