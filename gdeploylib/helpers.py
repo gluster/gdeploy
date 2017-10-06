@@ -328,14 +328,12 @@ class Helpers(Global, YamlWriter):
     def check_backend_setup_format(self):
         section_regexp = '^backend-setup(:)*(.*)'
         hosts = []
-        backend_setup = False
         for section in Global.sections:
             val = re.search(section_regexp, section)
             if val:
-                backend_setup = True
                 if val.group(2):
                     hosts.append(val.group(2))
-        return backend_setup, hosts
+        return hosts
 
 
     def not_subdir(self, path, directory):

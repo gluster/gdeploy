@@ -37,7 +37,7 @@ class BackendSetup(Helpers):
 
     def write_sections(self):
         self.filename =  Global.group_file
-        backend_setup, hosts = self.check_backend_setup_format()
+        hosts = self.check_backend_setup_format()
         default = self.config_get_options('default', False)
         gluster = self.config_get_options('gluster', False)
         if default:
@@ -48,10 +48,7 @@ class BackendSetup(Helpers):
             self.default = False
         else:
             self.gluster = True
-        if not backend_setup:
-            self.old_backend_setup()
-        else:
-            self.new_backend_setup(hosts)
+        self.backend_setup(hosts)
 
     def call_selinux(self):
         selinux = self.config_get_options('selinux', False)
@@ -63,7 +60,7 @@ class BackendSetup(Helpers):
         self.run_playbook(SELINUX_YML)
         Global.logger.info("Setting up SELinux labels")
 
-    def new_backend_setup(self, hosts):
+    def backend_setup(self, hosts):
         hosts = filter(None, hosts)
         Global.logger.info("Setting up backend on hosts...")
         if hosts:
@@ -91,34 +88,6 @@ class BackendSetup(Helpers):
             Global.var_file = 'group_vars'
             self.call_selinux()
         Global.hosts.extend(hosts)
-
-    def old_backend_setup(self):
-        if not self.get_var_file_type():
-            return
-        else:
-            if Global.var_file == 'host_vars':
-                for host in Global.hosts:
-                    self.current_host = host
-                    Global.current_hosts = [host]
-                    devices = self.config_section_map(host,
-                                              'devices', False)
-                    self.filename = self.get_file_dir_path(Global.host_vars_dir, host)
-                    self.touch_file(self.filename)
-                    self.bricks = self.split_comma_separated_options(devices)
-                    self.call_gen_methods()
-                    self.call_selinux()
-            else:
-                Global.current_hosts = Global.hosts
-                self.filename =  Global.group_file
-                self.call_gen_methods()
-                self.create_var_files(self.section_dict)
-                self.remove_section(Global.inventory, Global.group)
-                self.call_selinux()
-            # msg = "This configuration format will be deprecated  "\
-            # "in the next release.\nPlease refer the setup guide "\
-            # "for the new configuration format."
-            # print "Warning: " + msg
-            # Global.logger.warning(msg=msg)
 
     def parse_section(self, hostname):
         try:
