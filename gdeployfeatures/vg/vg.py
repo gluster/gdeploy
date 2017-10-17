@@ -46,11 +46,6 @@ def set_default_values(section_dict, pvnames, vgnames):
                 print "Error: %s"%msg
                 Global.logger.error(msg)
                 helpers.cleanup_and_quit()
-            if section_dict['one-to-one'] == 'yes':
-                vgs = []
-                for i in range(1, len(pvnames) + 1):
-                    vgs.append(vgnames[0] + str(i))
-                vgnames = vgs
     return dictify_pv_vg_names(section_dict, pvnames, vgnames)
 
 def dictify_pv_vg_names(section_dict, pvnames, vgnames):
