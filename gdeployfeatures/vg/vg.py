@@ -46,22 +46,23 @@ def set_default_values(section_dict, pvnames, vgnames):
                 print "Error: %s"%msg
                 Global.logger.error(msg)
                 helpers.cleanup_and_quit()
-            if section_dict['one-to-one'] == 'no':
-                vgnames *= len(pvnames)
-            else:
-                vgs = []
-                for i in range(1, len(pvnames) + 1):
-                    vgs.append(vgnames[0] + str(i))
-                vgnames = vgs
     return dictify_pv_vg_names(section_dict, pvnames, vgnames)
 
 def dictify_pv_vg_names(section_dict, pvnames, vgnames):
     data = []
-    for pv, vg in zip(pvnames, vgnames):
-        vglist = {}
-        vglist['brick'] = pv
-        vglist['vg'] = vg
+    vglist = {}
+    vglist['brick'] = ' '
+    if len(vgnames) == 1 and len(pvnames) > 1:
+        for p in pvnames:
+            vglist['brick'] += p+' '
+        vglist['vg'] = vgnames[0]
         data.append(vglist)
+    else:
+        for pv, vg in zip(pvnames, vgnames):
+            vglist = {}
+            vglist['brick'] = pv
+            vglist['vg'] = vg
+            data.append(vglist)
     section_dict['vgnames'] = data
     return section_dict
 
