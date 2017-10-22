@@ -175,22 +175,22 @@ EXAMPLES = '''
     run_once: true
 
 # Enable bitrot daemon
-  - gluster_volume: action=bitrot
+  - glusterfs_volume: action=bitrot
              volume="{{ volname }}"
              bitrot_daemon="enable"
 
 # Sets bitrot scrub frequency to daily
-  - gluster_volume: action=bitrot
+  - glusterfs_volume: action=bitrot
              volume="{{ volname }}"
              scrub_frequency="daily"
              
 # Sets bitrot scrub throttle rate to aggressive
-  - gluster_volume: action=bitrot
+  - glusterfs_volume: action=bitrot
              volume="{{ volname }}"
              scrub_throttle="aggressive"
              
 # Sets bitrot scrub to pause
-  - gluster_volume: action=bitrot
+  - glusterfs_volume: action=bitrot
              volume="{{ volname }}"
              scrub="pause"
 
