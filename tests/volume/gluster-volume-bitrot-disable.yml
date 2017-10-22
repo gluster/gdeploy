@@ -3,7 +3,7 @@
 - hosts: servers
   tasks:
           - name: Disabling bitrot daemon
-            gluster_volume: action=bitrot
+            glusterfs_volume: action=bitrot
                     volume="gv0"
                     bitrot_daemon="disable"
             run_once: true
