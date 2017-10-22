@@ -3,7 +3,7 @@
 - hosts: servers
   tasks:
           - name: Pausing bitrot scrubbing
-            gluster_volume: action=bitrot
+            glusterfs_volume: action=bitrot
                     volume="gv0"
                     scrub="pause"
             run_once: true
