@@ -139,7 +139,7 @@ options:
     scrub_frequency:
         required: False
         choices: [daily, weekly, biweekly, monthly]
-        description: Sets volume bitrot scrub-throttle rate.
+        description: Sets volume bitrot scrub-frequency.
         
     bitrot_daemon:
         required: False
