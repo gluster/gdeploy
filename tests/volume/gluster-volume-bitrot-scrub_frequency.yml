@@ -3,7 +3,7 @@
 - hosts: servers
   tasks:
           - name: Setting bitrot scrub_throttle frequency
-            gluster_volume: action=bitrot
+            glusterfs_volume: action=bitrot
                     volume="gv0"
                     scrub_frequency="weekly"
             run_once: true
