@@ -126,8 +126,7 @@ The 'create' action supports four variables:
 1. pvname - The pv to be used.
 2. vgname - Name of the vg, if variable is ommitted default name GLUSTER_vg will
    be used.
-3. one-to-one - If set to yes, one-to-one mapping will be done between pv and vg.
-4. ignore_vg_errors - If set to 'no', gdeploy exits if an error is encountered.
+3. ignore_vg_errors - If set to 'no', gdeploy exits if an error is encountered.
 
 Example1: Create a vg named images_vg with two PVs::
 
@@ -143,7 +142,6 @@ in case of any errors::
   action=create
   vgname=rhgs_vg
   pvname=sdb,sdc
-  one-to-one=yes
   ignore_vg_errors=no
 
 The 'extend' action is used to extend volume groups. The following variables are
