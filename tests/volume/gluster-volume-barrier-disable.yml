@@ -1,0 +1,9 @@
+---
+
+- hosts: servers
+  tasks:
+          - name: Enabling volume barrier
+            volume: action=barrier
+                    volume="gv0"
+                    barrier_state="disable"
+            run_once: true

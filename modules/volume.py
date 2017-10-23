@@ -35,7 +35,7 @@ options:
     action:
         required: True
         choices: [create, delete, start, stop, add-brick, remove-brick, replace-brick,
-                  rebalance]
+                  rebalance, barrier]
                      This can be create, delete, start, stop,
                      add-brick, remove-brick, or replace-brick.
     volume:
@@ -124,8 +124,12 @@ options:
     profile_state:
         required: False
         choices: [start, stop]
-        description: Starts or stops profiling on a given gluster volume.         
-
+        description: Starts or stops profiling on a given gluster volume. 
+    
+    barrier:
+        required: False
+        choices: [enable, disable]
+        description: Enables or disables volume barrier. 
 '''
 
 EXAMPLES = '''
@@ -152,6 +156,12 @@ EXAMPLES = '''
              volume="{{ volname }}"
              key="performance.cache-size"
              value="256MB"
+    run_once: true
+    
+# Enable volume barrier
+  - glusterfs_volume: action=barrier
+             volume="{{ volname }}"
+             barrier_state="enable"
     run_once: true
 '''
 
@@ -276,6 +286,8 @@ class Volume(object):
         if self.action == 'set':
             option_str = self._validated_params('key') + " " 
             option_str += self._validated_params('value') 
+        if self.action == 'barrier':
+            option_str = self._validated_params('barrier_state')
             
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
@@ -333,8 +345,10 @@ if __name__ == '__main__':
             disperse=dict(),
             disperse_count=dict(),
             redundancy_count=dict(),
-            profile_state = dict(),
+            profile_state=dict(),
+            barrier_state=dict(),
         ),
     )
 
     Volume(module)
+    
