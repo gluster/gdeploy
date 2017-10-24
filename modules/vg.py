@@ -55,7 +55,7 @@ options:
         on the number of datadisks and the stripe unit size in the
         configuration.
 
-    stripe_size:
+    stripesize:
         required: true if disktype is provided
         description: Specifies the stripe unit size of each disk
         in the architecture
