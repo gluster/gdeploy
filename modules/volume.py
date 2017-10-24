@@ -35,7 +35,8 @@ options:
     action:
         required: True
         choices: [create, delete, start, stop, add-brick, remove-brick, replace-brick,
-                  rebalance, profile_state, bitrot, set]
+                  rebalance, profile_state, bitrot, set,barrier]
+
                      This can be create, delete, start, stop,
                      add-brick, remove-brick, or replace-brick.
     volume:
@@ -126,6 +127,11 @@ options:
         choices: [start, stop]
         description: Starts or stops profiling on a given gluster volume
         
+    barrier:
+        required: False
+        choices: [enable, disable]
+        description: Enables or disables volume barrier.
+        
     scrub:
         required: False
         choices: [pause, resume]
@@ -173,7 +179,13 @@ EXAMPLES = '''
              key="performance.cache-size"
              value="256MB"
     run_once: true
-
+    
+# Enable volume barrier
+  - glusterfs_volume: action=barrier
+             volume="{{ volname }}"
+             barrier_state="enable"
+    run_once: true
+    
 # Enable bitrot daemon
   - glusterfs_volume: action=bitrot
              volume="{{ volname }}"
@@ -317,6 +329,8 @@ class Volume(object):
         if self.action == 'set':
             option_str = self._validated_params('key') + " " 
             option_str += self._validated_params('value')
+        if self.action == 'barrier':
+            option_str = self._validated_params('barrier_state')
         if self.action == 'bitrot':          
             if self.module.params['scrub']:
                 option_str = 'scrub ' + self._validated_params('scrub')
@@ -328,7 +342,7 @@ class Volume(object):
                 option_str += self._validated_params('scrub_frequency')
             elif self.module.params['bitrot_daemon']:
                 option_str = self._validated_params('bitrot_daemon')
-                
+                              
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
@@ -386,11 +400,14 @@ if __name__ == '__main__':
             disperse_count=dict(),
             redundancy_count=dict(),
             profile_state=dict(),
+            barrier_state=dict(),
             scrub=dict(),
             scrub_frequency=dict(),
             scrub_throttle=dict(),
             bitrot_daemon=dict(),
+          
         ),
     )
 
     Volume(module)
+    
