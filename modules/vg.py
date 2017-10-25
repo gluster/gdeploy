@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with Ansible. If not, see <http://www.gnu.org/licenses/>.
 """
 
+from ansible.module_utils.basic import AnsibleModule
+
 DOCUMENTATION = '''
 ---
 module: vg
@@ -58,12 +60,14 @@ options:
     stripesize:
         required: true if disktype is provided
         description: Specifies the stripe unit size of each disk
-        in the architecture
+        in the architecture.
+        type: integer (units = k)
 
     diskcount:
         required: true if disktype is provided
         description: Specifies the number of data disks in the
         configuration.
+        type: integer
 
 author: Anusha Rao, Nandaja Varma
 '''
@@ -78,11 +82,6 @@ EXAMPLES = '''
           vgname='["RHS_vg1", "RHS_vg2", "RHS_vg3"]'
 
 '''
-
-from ansible.module_utils.basic import *
-from ast import literal_eval
-import sys
-import os
 
 
 class VgOps(object):
@@ -148,14 +147,14 @@ class VgOps(object):
             # volume group exists, exit!
             self.module.exit_json(changed=False, rc=1,
                                   msg="A volume group called %s already exists"
-                                  %vg)
+                                  % vg)
         elif self.action == 'extend' and rc:
             # volume group does not exist, exit!
             self.module.exit_json(changed=False, rc=1,
-                                  msg="A volume group %s not found."%vg)
+                                  msg="A volume group %s not found." % vg)
         elif self.action == 'remove' and rc:
             self.module.exit_json(changed=False, rc=1,
-                                  msg="Volume group %s not found"%vg)
+                                  msg="Volume group %s not found" % vg)
 
     def pv_presence_check(self, disk):
         if self.action not in ['create', 'extend']:
@@ -165,7 +164,7 @@ class VgOps(object):
             dalign = self.module.params['dalign'] or ''
             opts = " --dataalignment %sk" % dalign if dalign else ''
             rc, out, err = self.run_command('pvcreate', opts +
-                    ' ' + disk)
+                                            ' ' + disk)
             if rc:
                 self.module.fail_json(msg="Could not create PV", rc=rc)
         return 1
@@ -178,6 +177,7 @@ class VgOps(object):
         cmd = self.module.get_bin_path(op, True) + opts
         return self.module.run_command(cmd)
 
+
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
@@ -185,9 +185,9 @@ if __name__ == '__main__':
             vgname=dict(type='str'),
             disks=dict(),
             options=dict(type='str'),
-            diskcount=dict(),
-            disktype=dict(),
-            stripesize=dict(),
+            diskcount=dict(type='int'),
+            disktype=dict(choices=["raid6", "raid10", "jbod"]),
+            stripesize=dict(type='int'),
             dalign=dict()
         ),
     )
