@@ -42,6 +42,7 @@ in 2.0.
 
    - Read [developer guide](https://github.com/gluster/gdeploy/blob/master/docs/developer-guide.md)
    - All code submissions are done through pull requests.
+   - irc: #gdeploy (Freenode)
 
 ## Licence
 GNU Click on the [link](https://github.com/gluster/gdeploy/blob/master/LICENSE) to see the full text.
