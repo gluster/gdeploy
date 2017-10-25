@@ -20,42 +20,42 @@
 # ALL features
 
 feature_list = ['snapshot', 'quota', 'yum', 'geo_replication', 'ctdb',
-'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
-'update_file', 'script', 'volume', 'peer', 'clients', 'pv', 'vg', 'lv',
-'openshift_ctl']
+                'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
+                'update_file', 'script', 'volume', 'peer', 'clients', 'pv', 'vg', 'lv',
+                'openshift_ctl']
 # All the defaults values used in gdeploy
 
 
-VOLUME_CREATE_DEFAULTS =  {
-                            'transport': 'tcp',
-                            'replica': 'no',
-                            'disperse': 'no',
-                            'replica_count': 0,
-                            'arbiter_count': 0,
-                            'disperse_count': 0,
-                            'redundancy_count': 0
-                          }
+VOLUME_CREATE_DEFAULTS = {
+    'transport': 'tcp',
+    'replica': 'no',
+    'disperse': 'no',
+    'replica_count': 0,
+    'arbiter_count': 0,
+    'disperse_count': 0,
+    'redundancy_count': 0
+}
 
 
-REPLICA_DEFAULTS        = {
-                            'replica': 'no',
-                            'replica_count': 0
-                          }
+REPLICA_DEFAULTS = {
+    'replica': 'no',
+    'replica_count': 0
+}
 
-BRESET_DEFAULTS         = {
-                            'pvs': None,
-                            'vgs': None,
-                            'lvs': None,
-                            'mountpoints': None,
-                            'unmount': "no"
-                          }
+BRESET_DEFAULTS = {
+    'pvs': None,
+    'vgs': None,
+    'lvs': None,
+    'mountpoints': None,
+    'unmount': "no"
+}
 
-BSETUP_DEFAULTS         = {
-                            'vgs': 'GLUSTER_vg',
-                            'pools': 'GLUSTER_pool',
-                            'lvs': 'GLUSTER_lv',
-                            'mountpoints': '/gluster/brick'
-                          }
+BSETUP_DEFAULTS = {
+    'vgs': 'GLUSTER_vg',
+    'pools': 'GLUSTER_pool',
+    'lvs': 'GLUSTER_lv',
+    'mountpoints': '/gluster/brick'
+}
 
 # The Playbook files
 SELINUX_YML = 'set-selinux-labels.yml'
@@ -105,10 +105,9 @@ FUSEMNT_YML = 'gluster-client-fuse-mount.yml'
 VOLUMOUNT_YML = 'client_volume_umount.yml'
 
 
-
 # FEATURE YMLs
 
-#SNAPSHOT
+# SNAPSHOT
 SNAPSHOT_CREATE = 'gluster-snapshot-create.yml'
 SNAPSHOT_DELETE = 'gluster-snapshot-delete.yml'
 SNAPSHOT_CLONE = 'gluster-snapshot-clone.yml'
@@ -117,7 +116,7 @@ SNAPSHOT_ACTIVATE = 'gluster-snapshot-activate.yml'
 SNAPSHOT_DEACTIVATE = 'gluster-snapshot-deactivate.yml'
 SNAPSHOT_CONFIG = 'gluster-snapshot-config.yml'
 
-#QUOTA
+# QUOTA
 QUOTA_ENABLE = 'gluster-quota-enable.yml'
 QUOTA_DISABLE = 'gluster-quota-disable.yml'
 QUOTA_LIMIT_USAGE = 'gluster-quota-limit-size.yml'

@@ -7,11 +7,13 @@ The function should be named as follows <feature name>_<action_name>
 """
 helpers = Helpers()
 
+
 def quota_enable(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
     Global.logger.info("Enabling quota on volume")
     return section_dict, defaults.QUOTA_ENABLE
+
 
 def quota_disable(section_dict):
     global helpers
@@ -19,22 +21,26 @@ def quota_disable(section_dict):
     Global.logger.info("Disabling quota on volume")
     return section_dict, defaults.QUOTA_DISABLE
 
+
 def quota_remove(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
     Global.logger.info("Removing quota on volume")
     return section_dict, defaults.QUOTA_REMOVE
 
+
 def quota_remove_objects(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
     return section_dict, defaults.QUOTA_REMOVE
+
 
 def quota_default_soft_limit(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
     Global.logger.info("Setting quota soft limit on volume")
     return section_dict, defaults.QUOTA_DSL
+
 
 def quota_limit_usage(section_dict):
     global helpers
@@ -43,16 +49,19 @@ def quota_limit_usage(section_dict):
     Global.logger.info("Setting quota size on volume")
     return section_dict, defaults.QUOTA_LIMIT_USAGE
 
+
 def quota_limit_objects(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
     section_dict = write_associated_data(section_dict, 'number')
     return section_dict, defaults.QUOTA_LIMIT_OBJECTS
 
+
 def quota_alert_time(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
     return section_dict, defaults.QUOTA_OPS
+
 
 def quota_soft_timeout(section_dict):
     global helpers
@@ -60,11 +69,13 @@ def quota_soft_timeout(section_dict):
     Global.logger.info("Setting quota soft timeout on volume")
     return section_dict, defaults.QUOTA_OPS
 
+
 def quota_hard_timeout(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
     Global.logger.info("Setting quota hard timeout on volume")
     return section_dict, defaults.QUOTA_OPS
+
 
 def write_associated_data(section_dict, lmt):
     global helpers
@@ -82,4 +93,3 @@ def write_associated_data(section_dict, lmt):
         data.append(values)
     section_dict['limits'] = data
     return section_dict
-

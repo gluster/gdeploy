@@ -4,6 +4,7 @@ The function should be named as follows <feature name>_<action_name>
 """
 from gdeploylib import defaults, Global
 
+
 def peer_probe(section_dict):
     if not check_for_host_names():
         return False, False
@@ -11,8 +12,9 @@ def peer_probe(section_dict):
     to_be_probed = Global.hosts + Global.brick_hosts
     to_be_probed = sorted(set(to_be_probed))
     section_dict['to_be_probed'] = to_be_probed
-    Global.logger.info("Peer probing hosts %s"%to_be_probed)
+    Global.logger.info("Peer probing hosts %s" % to_be_probed)
     return section_dict, defaults.PROBE_YML
+
 
 def peer_detach(section_dict):
     Global.ignore_errors = section_dict.get('ignore_peer_errors')
@@ -20,11 +22,13 @@ def peer_detach(section_dict):
     if not check_for_host_names():
         return False, False
     p = list(set(Global.hosts))
-    Global.logger.info("Detaching peers %s"%p)
+    Global.logger.info("Detaching peers %s" % p)
     return section_dict, defaults.DETACH_YML
+
 
 def peer_ignore(section_dict):
     return section_dict, ''
+
 
 def check_for_host_names():
     if not Global.hosts:

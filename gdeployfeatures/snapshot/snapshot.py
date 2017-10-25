@@ -23,10 +23,12 @@ from gdeploylib import defaults
 
 helpers = Helpers()
 
+
 def snapshot_create(section_dict):
     global helpers
     section_dict = helpers.volname_formatter(section_dict)
     return section_dict, defaults.SNAPSHOT_CREATE
+
 
 def snapshot_delete(section_dict):
     global helpers
@@ -37,15 +39,18 @@ def snapshot_delete(section_dict):
 def snapshot_clone(section_dict):
     return section_dict, defaults.SNAPSHOT_CLONE
 
+
 def snapshot_restore(section_dict):
     return section_dict, defaults.SNAPSHOT_RESTORE
+
 
 def snapshot_activate(section_dict):
     return section_dict, defaults.SNAPSHOT_ACTIVATE
 
+
 def snapshot_deactivate(section_dict):
     return section_dict, defaults.SNAPSHOT_DEACTIVATE
 
+
 def snapshot_config(section_dict):
     return section_dict, defaults.SNAPSHOT_CONFIG
-

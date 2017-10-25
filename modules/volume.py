@@ -145,11 +145,13 @@ from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
+
 class Volume(object):
     def __init__(self, module):
         self.module = module
         self.action = self._validated_params('action')
-        self.force = 'force' if self.module.params.get('force') == 'yes' else ''
+        self.force = 'force' if self.module.params.get(
+            'force') == 'yes' else ''
         self.gluster_volume_ops()
 
     def get_playbook_params(self, opt):
@@ -159,7 +161,7 @@ class Volume(object):
         value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
-            self.module.fail_json(rc=3,msg=msg)
+            self.module.fail_json(rc=3, msg=msg)
         return value
 
     def get_host_names(self, required=False):
@@ -196,14 +198,14 @@ class Volume(object):
         order as that of the hosts.
         '''
         if not self.hosts:
-            self.module.fail_json(rc=15,msg="Provide the bricks in hostname:brickpath " \
-            " format or provide 'hosts' and 'bricks' should be of a format " \
-                    " 'brick1, brick2; bricka, brickb' where brick1, brick2 " \
-                    " belongs to host1 and brick1,brickb belongs to host2")
+            self.module.fail_json(rc=15, msg="Provide the bricks in hostname:brickpath "
+                                  " format or provide 'hosts' and 'bricks' should be of a format "
+                                  " 'brick1, brick2; bricka, brickb' where brick1, brick2 "
+                                  " belongs to host1 and brick1,brickb belongs to host2")
         self.bricks = filter(None, [brick.strip() for brick in
-                                        bricks.split(';')])
+                                    bricks.split(';')])
         return ' '.join(brick_path for brick_path in
-                self.append_host_name())
+                        self.append_host_name())
 
     def get_volume_configs(self):
         options = ' '
@@ -228,7 +230,7 @@ class Volume(object):
 
     def get_brick_list(self):
         return ' '.join(re.sub('[\[\]\']', '', brick.strip()) for brick in
-                self._validated_params('bricks').split(',') if brick)
+                        self._validated_params('bricks').split(',') if brick)
 
     def brick_ops(self):
         options = ' '
@@ -256,14 +258,14 @@ class Volume(object):
         if self.action in ['add-brick', 'remove-brick']:
             option_str = self.brick_ops()
         rc, output, err = self.call_gluster_cmd('volume', self.action,
-                                               volume, option_str, self.force)
+                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
 
     def rebalance_volume(self):
         state = self._validated_params('state')
         if state not in ['start', 'stop', 'fix-layout']:
-            self.module.fail_json(rc=20,msg="Invalid state for rebalance action. \n" \
-                    "Available options are: start, stop, fix-layout.")
+            self.module.fail_json(rc=20, msg="Invalid state for rebalance action. \n"
+                                  "Available options are: start, stop, fix-layout.")
         if state != 'start':
             self.force = ''
         if state == 'fix-layout':
@@ -273,12 +275,12 @@ class Volume(object):
 
     def create_params_dict(self, param_list):
         return OrderedDict((param, self.get_playbook_params(param))
-                for param in param_list)
+                           for param in param_list)
 
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
         key_value_pair = ' '.join(' %s %s ' % (key, value)
-                for key, value in kwargs)
+                                  for key, value in kwargs)
         return self._run_command('gluster', ' ' + params + ' ' + key_value_pair)
 
     def _get_output(self, rc, output, err):
@@ -291,6 +293,7 @@ class Volume(object):
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         return self.module.run_command(cmd)
+
 
 if __name__ == '__main__':
     module = AnsibleModule(

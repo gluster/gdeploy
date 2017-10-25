@@ -24,6 +24,7 @@ from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
+
 class VolumeSet(object):
     def __init__(self, module):
         self.module = module
@@ -44,13 +45,13 @@ class VolumeSet(object):
         force = self.module.params['force'] or ''
         option_str = ' %s %s ' % (key, value)
         rc, output, err = self.call_gluster_cmd('volume', self.action,
-                                               volume, option_str, force)
+                                                volume, option_str, force)
         self._get_output(rc, output, err)
 
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
         key_value_pair = ' '.join(' %s %s ' % (key, value)
-                for key, value in kwargs)
+                                  for key, value in kwargs)
         return self._run_command('gluster', ' ' + params + ' ' + key_value_pair)
 
     def _get_output(self, rc, output, err):
@@ -63,6 +64,7 @@ class VolumeSet(object):
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         return self.module.run_command(cmd)
+
 
 if __name__ == '__main__':
     module = AnsibleModule(

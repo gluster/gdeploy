@@ -148,8 +148,8 @@ class LvOps(object):
             self.module.fail_json(rc=rc, msg=err)
 
     def metadata_compute(self):
-        #This is an RHS specific computation method for performance
-        #improvements. User can choose not to use it by providing
+        # This is an RHS specific computation method for performance
+        # improvements. User can choose not to use it by providing
         # metadatasize and poolsize in the playbook.
         metadatasize = 0
         global error
@@ -158,7 +158,7 @@ class LvOps(object):
         rc, vg_size, err = self.run_command('vgs', option)
         if not rc:
             vg_size = list(set(filter(
-                                None, vg_size.split(' '))))[0]
+                None, vg_size.split(' '))))[0]
             vg_size = floor(float(vg_size.strip(' m\t\r\n')) - 4)
             KB_PER_GB = 1048576
             if vg_size > 1000000:
@@ -170,7 +170,6 @@ class LvOps(object):
             self.vg_size = vg_size
             return metadatasize
         self.module.fail_json(msg=err, rc=rc)
-
 
     def poolsize_compute(self):
         metadatasize = self.metadata_compute()
@@ -206,14 +205,14 @@ class LvOps(object):
         else:
             sop = ' -L %s' % size
         pvname = self.module.params.get('pvname') or ''
-        opts = ' -Wn %s -n %s %s %s' %(sop, lvname, self.vgname, pvname)
+        opts = ' -Wn %s -n %s %s %s' % (sop, lvname, self.vgname, pvname)
         return opts
 
     def create_thin_pool(self):
         lvcreate = {}
         lvcreate['chunksize'] = self.module.params['chunksize']
         lvcreate['poolmetadatasize'] = self.module.params[
-                'poolmetadatasize'] or ''
+            'poolmetadatasize'] or ''
         poolname = self.validated_params('poolname')
         self.lv_presence_check(poolname)
         lvcreate['thinpool'] = self.get_vg_appended_name(poolname)
@@ -221,16 +220,16 @@ class LvOps(object):
         cmd = self.parse_playbook_data(lvcreate)
         if not lvcreate['size']:
             extent = self.module.params.get('extent') or '100%FREE'
-            extcmd = ' -l %s'%extent
-            opts = ' -Wn %s %s' %(extcmd, cmd)
+            extcmd = ' -l %s' % extent
+            opts = ' -Wn %s %s' % (extcmd, cmd)
         else:
-            opts = ' -Wn %s' %cmd
+            opts = ' -Wn %s' % cmd
         return opts
 
     def create_thin_lv(self):
         lvcreate = {}
         lvcreate['virtualsize'] = self.module.params[
-                'virtualsize'] or (str(self.poolsize_compute()) + 'K')
+            'virtualsize'] or (str(self.poolsize_compute()) + 'K')
         lvname = self.validated_params('lvname')
         self.lv_presence_check(lvname)
         lvcreate['name'] = lvname
@@ -241,19 +240,20 @@ class LvOps(object):
     def vg_presence_check(self, vg):
         rc, out, err = self.run_command('vgdisplay', ' ' + vg)
         if rc:
-            self.module.fail_json(rc=rc, msg="%s Volume Group Doesn't Exists!" % vg)
+            self.module.fail_json(
+                rc=rc, msg="%s Volume Group Doesn't Exists!" % vg)
         return rc
 
     def lv_presence_check(self, lvname):
         rc, out, err = self.run_command('lvdisplay', ' ' + self.vgname +
-                '/' + lvname)
+                                        '/' + lvname)
         ret = 0
         if self.action == 'create' and not rc:
             self.module.exit_json(changed=0, msg="%s Logical Volume Exists!"
-                    % lvname)
+                                  % lvname)
         elif self.action in ['convert', 'change', 'remove'] and rc:
-            self.module.exit_json(changed=0, msg="%s Logical Volume Doesn't "\
-                    "Exists!" % lvname)
+            self.module.exit_json(changed=0, msg="%s Logical Volume Doesn't "
+                                  "Exists!" % lvname)
         else:
             ret = 1
         return ret
@@ -265,9 +265,9 @@ class LvOps(object):
                    'thinpool':  self.create_thin_pool,
                    'thinlv': self.create_thin_lv
                    }[self.lvtype]()
-                   # 'virtual': ' -V %sK -T /dev/%s/%s -n %s'
-                   # % (pool_sz, self.vgname, poolname, lvname)
-                   # }[self.lvtype]
+        # 'virtual': ' -V %sK -T /dev/%s/%s -n %s'
+        # % (pool_sz, self.vgname, poolname, lvname)
+        # }[self.lvtype]
         return options
 
     def parse_playbook_data(self, dictionary, cmd=''):
@@ -281,15 +281,16 @@ class LvOps(object):
         lvconvert['type'] = self.module.params['lvtype']
         force = ''
         lvname = ''
-        if  not self.module.params['force'] or self.module.params[
+        if not self.module.params['force'] or self.module.params[
                 'force'].lower() != 'no':
-                force = ' -ff --yes'
+            force = ' -ff --yes'
         if lvconvert.get('type'):
             if lvconvert['type'].lower() == 'cache-pool':
                 poolmetadata = self.module.params['poolmetadata']
-                lvconvert['poolmetadata'] = self.get_vg_appended_name(poolmetadata)
+                lvconvert['poolmetadata'] = self.get_vg_appended_name(
+                    poolmetadata)
                 lvconvert['cachemode'] = self.module.params[
-                        'cachemode'] or 'writethrough'
+                    'cachemode'] or 'writethrough'
 
             elif lvconvert['type'].lower() == 'cache':
                 cachepool = self.validated_params('cachepool')
@@ -302,11 +303,11 @@ class LvOps(object):
             poolmetadata = self.module.params['poolmetadata']
             lvconvert['poolmetadata'] = self.get_vg_appended_name(poolmetadata)
             lvconvert['thinpool'] = self.get_vg_appended_name(self.module.params[
-                                                                    'thinpool'])
+                'thinpool'])
             lvconvert['chunksize'] = self.module.params['chunksize']
             if lvconvert.get('poolmetadata'):
                 lvconvert['poolmetadataspare'] = self.module.params[
-                        'poolmetadataspare']
+                    'poolmetadataspare']
         options = self.module.params['options'] or ''
         cmd = self.parse_playbook_data(lvconvert, force)
         return cmd + ' ' + options + ' ' + lvname
@@ -368,4 +369,3 @@ if __name__ == '__main__':
     cmd = lvops.lv_action()
     rc, out, err = lvops.run_command('lv' + lvops.action, ' ' + cmd)
     lvops.get_output(rc, out, err)
-

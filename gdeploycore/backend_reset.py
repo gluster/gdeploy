@@ -52,11 +52,10 @@ class BackendReset(Helpers):
                 self.touch_file(self.host_file)
                 ret = self.parse_section(':' + host)
 
-
     def parse_section(self, hostname):
         try:
             self.section_dict = Global.sections['backend-reset' +
-                    hostname]
+                                                hostname]
             del self.section_dict['__name__']
         except KeyError:
             return
@@ -64,9 +63,9 @@ class BackendReset(Helpers):
         try:
             self.filename = self.host_file
         except:
-            self.filename =  Global.group_file
+            self.filename = Global.group_file
             Global.current_hosts = Global.hosts
-        Global.logger.info("Resetting disks on %s"%Global.hosts)
+        Global.logger.info("Resetting disks on %s" % Global.hosts)
         self.run_playbook(BRESET_YML)
         return True
 

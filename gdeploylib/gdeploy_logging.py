@@ -6,22 +6,24 @@ import time
 import inspect
 from global_vars import Global
 
+
 def logger(f, name=None):
     '''
     This is a decorator function to log method calls
     '''
     try:
-       if logger.fhwr:
-          pass
+        if logger.fhwr:
+            pass
     except:
-       logger.fhwr = open(Global.log_file,"a")
+        logger.fhwr = open(Global.log_file, "a")
     if name is None:
         name = f.func_name
+
     def wrapped(*args, **kwargs):
         now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         func = inspect.currentframe().f_back.f_code
-        logger.fhwr.write(now +' - ' + func.co_filename + ':'
-            + str(func.co_firstlineno) + ' - TRACE ' +name+" "+str(f))
+        logger.fhwr.write(now + ' - ' + func.co_filename + ':'
+                          + str(func.co_firstlineno) + ' - TRACE ' + name + " " + str(f))
         result = f(*args, **kwargs)
         return result
     wrapped.__doc__ = f.__doc__
@@ -41,6 +43,7 @@ class MyFormatter(logging.Formatter):
             s = "%s,%03d" % (t, record.msecs)
         return s
 
+
 def log_event():
     '''
     This method helps in logging the messages
@@ -54,8 +57,8 @@ def log_event():
     # create the logging file handler
     fh = logging.FileHandler(Global.log_file)
 
-    formatter = MyFormatter('[%(asctime)s] %(levelname)s ' \
-                            '%(filename)s[%(lineno)s]: ' \
+    formatter = MyFormatter('[%(asctime)s] %(levelname)s '
+                            '%(filename)s[%(lineno)s]: '
                             '%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     fh.setFormatter(formatter)
 
@@ -68,15 +71,16 @@ def log_event():
 def rotate_log_file(log):
     if not os.path.exists(log):
         return
-    created= creation_date(log)
+    created = creation_date(log)
     now = datetime.datetime.now().date()
     days = (created - now).days
-    #If the log file is more than a month old, we rotate it.
+    # If the log file is more than a month old, we rotate it.
     if days > 30:
         try:
             os.remove(log)
         except:
             pass
+
 
 def creation_date(filename):
     t = os.path.getctime(filename)

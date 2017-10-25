@@ -24,6 +24,7 @@ from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
+
 class GeoRep(object):
     def __init__(self, module):
         self.module = module
@@ -68,8 +69,9 @@ class GeoRep(object):
         if self.action in ['stop', 'delete'] and self.user == 'root':
             self.user = 'geoaccount'
             rc, output, err = self.call_gluster_cmd('volume', 'geo-replication',
-                    mastervol, slavevol.replace('root', 'geoaccount'),
-                    self.action, options, force)
+                                                    mastervol, slavevol.replace(
+                                                        'root', 'geoaccount'),
+                                                    self.action, options, force)
             self._get_output(rc, output, err)
 
     def config_georep(self):
@@ -83,11 +85,11 @@ class GeoRep(object):
                    'use_meta_volume', 'meta_volume_mnt']
         configs = []
         for opt in options:
-           value = self._validated_params(opt)
-           if value:
-               if value == 'reset':
-                   configs.append("'!" + opt.replace('_', '-') + "'")
-               configs.append(opt.replace('_', '-') + ' ' + value)
+            value = self._validated_params(opt)
+            if value:
+                if value == 'reset':
+                    configs.append("'!" + opt.replace('_', '-') + "'")
+                configs.append(opt.replace('_', '-') + ' ' + value)
         if configs:
             return configs
         value = self._validated_params('config')
@@ -96,16 +98,16 @@ class GeoRep(object):
 
     def check_pool_exclusiveness(self, mastervol, slavevol):
         rc, output, err = self.module.run_command(
-                "gluster pool list")
+            "gluster pool list")
         peers_in_cluster = [line.split('\t')[1].strip() for
-                line in filter(None, output.split('\n')[1:])]
+                            line in filter(None, output.split('\n')[1:])]
         val_group = re.search("(.*):(.*)", slavevol)
         if not val_group:
-            self.module.fail_json(msg="Slave volume in Unknown format. "\
-                    "Correct format: <hostname>:<volume name>")
+            self.module.fail_json(msg="Slave volume in Unknown format. "
+                                  "Correct format: <hostname>:<volume name>")
         if val_group.group(1) in peers_in_cluster:
-            self.module.fail_json(msg="slave volume is in the trusted " \
-                    "storage pool of master")
+            self.module.fail_json(msg="slave volume is in the trusted "
+                                  "storage pool of master")
         self.user = 'root' if self.module.params['georepuser'] is None \
             else self.module.params['georepuser']
         return self.user + '@' + val_group.group(1) + '::' + val_group.group(2)
@@ -113,12 +115,12 @@ class GeoRep(object):
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
         key_value_pair = ' '.join(' %s %s ' % (key, value)
-                for key, value in kwargs)
+                                  for key, value in kwargs)
         return self._run_command('gluster', ' ' + params + ' ' + key_value_pair)
 
     def _get_output(self, rc, output, err):
-        carryon = True if self.action in  ['stop',
-                'delete', 'resume'] else False
+        carryon = True if self.action in ['stop',
+                                          'delete', 'resume'] else False
         changed = 0 if (carryon and rc) else 1
         if self.action in ['stop', 'delete'] and (
                 self.user == 'root' and changed == 0):
@@ -132,11 +134,12 @@ class GeoRep(object):
         cmd = self.module.get_bin_path(op, True) + opts
         return self.module.run_command(cmd)
 
+
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
             action=dict(required=True, choices=['create', 'start',
-                'stop', 'delete', 'pause', 'resume', 'config']),
+                                                'stop', 'delete', 'pause', 'resume', 'config']),
             mastervol=dict(),
             slavevol=dict(),
             force=dict(),

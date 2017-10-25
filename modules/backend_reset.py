@@ -26,6 +26,7 @@ import json
 from ast import literal_eval
 import pdb
 
+
 class BackendReset(object):
 
     def __init__(self, module):
@@ -50,7 +51,7 @@ class BackendReset(object):
             out = '\n'.join(errors)
             if messages:
                 out += 'Succeeded operations are:\n' + '\n'.join(messages)
-            self.module.fail_json(msg=out,rc=1)
+            self.module.fail_json(msg=out, rc=1)
 
     def validated_params(self, opt):
         value = self.module.params[opt]
@@ -60,7 +61,7 @@ class BackendReset(object):
         return value
 
     def run_command(self, op, options):
-        cmd = self.module.get_bin_path(op, True)  +  ' ' + options
+        cmd = self.module.get_bin_path(op, True) + ' ' + options
         return self.module.run_command(cmd)
 
     def remove_pvs(self):
@@ -111,8 +112,7 @@ class BackendReset(object):
                 option = " --noheading -o vg_name %s" % pv
                 rc, vgs, err = self.run_command('pvs', option)
                 self.vgs.extend(filter(None, [vg.strip() for
-                    vg in vgs.split(' ')]))
-
+                                              vg in vgs.split(' ')]))
 
     def get_lvs(self):
         if self.lvs:

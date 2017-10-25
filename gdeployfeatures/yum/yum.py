@@ -8,6 +8,7 @@ from os.path import realpath, basename
 
 helpers = Helpers()
 
+
 def yum_install(section_dict):
     global helpers
     repo = section_dict.get('repos')
@@ -24,14 +25,16 @@ def yum_install(section_dict):
             data.append(repolist)
         section_dict['repolist'] = data
     section_dict['yum_state'] = 'present'
-    Global.logger.info("Installing packages %s"%section_dict['packages'])
+    Global.logger.info("Installing packages %s" % section_dict['packages'])
     return get_common_data(section_dict)
+
 
 def yum_remove(section_dict):
     section_dict['yum_state'] = 'absent'
     Global.ignore_errors = section_dict.get('ignore_yum_errors')
-    Global.logger.info("Removing packages %s"%section_dict['packages'])
+    Global.logger.info("Removing packages %s" % section_dict['packages'])
     return get_common_data(section_dict)
+
 
 def get_common_data(section_dict):
     packages = section_dict.pop('packages')

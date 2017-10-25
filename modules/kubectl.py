@@ -18,7 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
-import json, os
+import json
+import os
+
 
 class Kubectl:
 
@@ -26,23 +28,21 @@ class Kubectl:
         self.module = module
         self.action = self._validated_params('action')
 
-
     def run(self):
         action_func = {
-                        'create': self.oc_create,
-                        'get': self.oc_get,
-                        'delete': self.oc_delete,
-                        'exec': self.oc_exec,
-                        'stop': self.oc_stop,
-                        'run': self.oc_run
-                      }.get(self.action)
+            'create': self.oc_create,
+            'get': self.oc_get,
+            'delete': self.oc_delete,
+            'exec': self.oc_exec,
+            'stop': self.oc_stop,
+            'run': self.oc_run
+        }.get(self.action)
 
         try:
             return action_func()
         except:
             msg = "No method found for given action"
             self.get_output(rc=3, out=msg, err=msg)
-
 
     def oc_create(self):
         filename = self.module.params['filename']
@@ -55,7 +55,7 @@ class Kubectl:
                 v = ' '
             template = os.path.basename(filename).split('-')[0]
             return "cat {0} | oc create -f -; oc process {1} {2} | oc "\
-                                "create -f -".format(filename,template,  v)
+                "create -f -".format(filename, template,  v)
         if filename:
             return "cat %s | oc %s -f -" % (filename, self.action)
 
@@ -63,7 +63,7 @@ class Kubectl:
         name = self._validated_params('name')
         image = self._validated_params('image')
         return "oc %s %s --image=%s" % (self.action,
-                name, image)
+                                        name, image)
 
     def oc_exec(self):
         pod = self._validated_params('pod')
@@ -71,9 +71,9 @@ class Kubectl:
         c_opts = '-c %s' % container if container else ''
         command = self._validated_params('command')
         if ',' in command:
-            command = command.replace(',',';')
-        return "oc %s %s %s %s" %(self.action, pod, c_opts,
-                command)
+            command = command.replace(',', ';')
+        return "oc %s %s %s %s" % (self.action, pod, c_opts,
+                                   command)
 
     def oc_delete(self):
         filename = self.module.params['filename']
@@ -86,7 +86,6 @@ class Kubectl:
         name = self.module.params['name']
         name = ' '.join(name.split(',')) if name else '--all'
         return "oc %s %s %s" % (self.action, ropts, name)
-
 
     def oc_stop(self):
         filename = self.module.params['filename']
@@ -102,8 +101,6 @@ class Kubectl:
         name = self.module.params['name']
         name = ' '.join(name.split(',')) if name else '--all'
         return "oc %s %s %s" % (self.action, ropts, name)
-
-
 
     def oc_get(self):
         res_type = self.module.params['type']
@@ -134,33 +131,32 @@ class Kubectl:
         else:
             self.module.exit_json(changed=1, msg=json.dumps(out))
 
+
 def main():
     module = AnsibleModule(
-            argument_spec = dict(
-                action          = dict(required=True, choices=["create",
-                                    "stop", "run", "exec", "get", "delete"]),
-                name            = dict(required=False),
-                type            = dict(required=False),
-                filetype        = dict(required=False),
-                filename        = dict(required=False),
-                label           = dict(required=False),
-                uid             = dict(required=False),
-                container       = dict(required=False),
-                command         = dict(required=False),
-                pod             = dict(required=False),
-                output          = dict(required=False),
-                image           = dict(required=False),
-                variable        = dict(required=False),
-                ),
-            supports_check_mode = True
-            )
-
+        argument_spec=dict(
+            action=dict(required=True, choices=["create",
+                                                "stop", "run", "exec", "get", "delete"]),
+            name=dict(required=False),
+            type=dict(required=False),
+            filetype=dict(required=False),
+            filename=dict(required=False),
+            label=dict(required=False),
+            uid=dict(required=False),
+            container=dict(required=False),
+            command=dict(required=False),
+            pod=dict(required=False),
+            output=dict(required=False),
+            image=dict(required=False),
+            variable=dict(required=False),
+        ),
+        supports_check_mode=True
+    )
 
     kube = Kubectl(module)
     cmd = kube.run()
     rc, out, err = module.run_command(cmd, use_unsafe_shell=True)
     kube.get_output(rc, out, err)
-
 
 
 from ansible.module_utils.basic import *

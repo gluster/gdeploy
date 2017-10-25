@@ -5,19 +5,19 @@ setup(
     version="master",
     author="Nandaja Varma",
     author_email="nandaja.varma@gmail.com",
-    packages=[  'gdeploylib', 'gdeploycore', 'gdeployfeatures',
-                'gdeployfeatures/firewalld', 'gdeployfeatures/quota',
-                'gdeployfeatures/rh_subscription',
-                'gdeployfeatures/snapshot', 'gdeployfeatures/yum',
-                'gdeployfeatures/update_file', 'gdeployfeatures/ctdb',
-                'gdeployfeatures/geo_replication',
-                'gdeployfeatures/service', 'gdeployfeatures/shell',
-                'gdeployfeatures/nfs_ganesha', 'gdeployfeatures/script',
-                'gdeployfeatures/volume', 'gdeployfeatures/clients',
-                'gdeployfeatures/peer', 'gdeployfeatures/pv',
-                'gdeployfeatures/vg',  'gdeployfeatures/lv',
-                'gdeployfeatures/openshift_ctl',
-             ],
+    packages=['gdeploylib', 'gdeploycore', 'gdeployfeatures',
+              'gdeployfeatures/firewalld', 'gdeployfeatures/quota',
+              'gdeployfeatures/rh_subscription',
+              'gdeployfeatures/snapshot', 'gdeployfeatures/yum',
+              'gdeployfeatures/update_file', 'gdeployfeatures/ctdb',
+              'gdeployfeatures/geo_replication',
+              'gdeployfeatures/service', 'gdeployfeatures/shell',
+              'gdeployfeatures/nfs_ganesha', 'gdeployfeatures/script',
+              'gdeployfeatures/volume', 'gdeployfeatures/clients',
+              'gdeployfeatures/peer', 'gdeployfeatures/pv',
+              'gdeployfeatures/vg',  'gdeployfeatures/lv',
+              'gdeployfeatures/openshift_ctl',
+              ],
     scripts=[
         'gdeploy/gdeploy'
     ],
@@ -25,7 +25,7 @@ setup(
     url="https://github.com/gluster/gdeploy",
 
     license="LICENSE",
-    description="Tool to automatically setup and deploy " \
+    description="Tool to automatically setup and deploy "
     "gluster using ansible",
 
     long_description=open("README.md").read(),

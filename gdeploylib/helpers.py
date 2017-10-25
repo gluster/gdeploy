@@ -59,6 +59,7 @@ except ImportError:
     print "Error: Ansible(>= 2.2) is not installed."
     print "Some of the features might not work if not installed.\n"
 
+
 class Helpers(Global, YamlWriter):
 
     '''
@@ -84,11 +85,12 @@ class Helpers(Global, YamlWriter):
     def cleanup_and_quit(self, ret=1):
         if os.path.isdir(Global.base_dir) and not Global.keep:
             shutil.rmtree(Global.base_dir)
-            Global.logger.info("Deleting playbook data %s"%Global.base_dir)
+            Global.logger.info("Deleting playbook data %s" % Global.base_dir)
         else:
             print "You can view the generated configuration files "\
                 "inside %s" % Global.base_dir
-            Global.logger.info("Configuration saved inside %s" %Global.base_dir)
+            Global.logger.info("Configuration saved inside %s" %
+                               Global.base_dir)
         Global.logger.info("Terminating gdeploy...")
         sys.exit(ret)
 
@@ -115,7 +117,7 @@ class Helpers(Global, YamlWriter):
                 print msg
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
-        Global.logger.info("Copied files from %s to %s"%
+        Global.logger.info("Copied files from %s to %s" %
                            (source_dir, Global.base_dir))
 
     def get_file_dir_path(self, basedir, newdir):
@@ -151,7 +153,7 @@ class Helpers(Global, YamlWriter):
         if not section_dict.get(param):
             if reqd:
                 print "Error: %s not provided in the config. " \
-                        "Cannot continue!" % param
+                    "Cannot continue!" % param
                 self.cleanup_and_quit()
             return False
 
@@ -162,7 +164,7 @@ class Helpers(Global, YamlWriter):
                 return filter(None, options.split(','))
             else:
                 result = []
-                for i in range(1,3):
+                for i in range(1, 3):
                     if i == 2:
                         result[-1] += '{' + pat_group.group(2) + '}'
                     else:
@@ -194,7 +196,7 @@ class Helpers(Global, YamlWriter):
             if set(Global.hosts).issubset(set(Global.sections)):
                 Global.var_file = 'host_vars'
             else:
-                msg =  "Looks like you missed to give configurations " \
+                msg = "Looks like you missed to give configurations " \
                     "for one or many host(s). Exiting!"
                 print "Error: " + msg
                 Global.logger.error(msg)
@@ -215,7 +217,7 @@ class Helpers(Global, YamlWriter):
                     options = Global.sections[self.current_host].get(section)
                 except:
                     msg = "Error: Couldn't find value for %s option for "\
-                          "host %s" %(section, self.current_host)
+                          "host %s" % (section, self.current_host)
                     print msg
                     Global.logger.error(msg)
                 return self.split_comma_separated_options(options)
@@ -239,7 +241,6 @@ class Helpers(Global, YamlWriter):
                 return val_group.group(2)
         return val
 
-
     def split_brickname_and_hostname(self, brick):
         if not brick:
             return None
@@ -254,7 +255,6 @@ class Helpers(Global, YamlWriter):
             Global.brick_hosts.append(brk_group.group(1))
         return brk_group.group(2)
 
-
     def format_brick_names(self, bricks):
         ultimate_brickname, Global.brick_hosts = [], []
         brick_list, whole_bricks = [], []
@@ -267,7 +267,6 @@ class Helpers(Global, YamlWriter):
             for brk, hst in itertools.product(whole_bricks, Global.brick_hosts):
                 ultimate_brickname.append(hst + ":" + brk)
         return ultimate_brickname
-
 
     def pattern_stripping(self, values):
         value_list = []
@@ -312,18 +311,16 @@ class Helpers(Global, YamlWriter):
             Global.logger.error(msg)
         return filter(None, names)
 
-
     def char_range(self, c1, c2):
         """Generates the characters from `c1` to `c2`, inclusive."""
-        for c in xrange(ord(c1), ord(c2)+1):
+        for c in xrange(ord(c1), ord(c2) + 1):
             yield chr(c)
 
     def unique(self, mylist):
         uniquelist = []
         [uniquelist.append(item) for item in mylist if item not in
-                uniquelist]
+         uniquelist]
         return uniquelist
-
 
     def check_backend_setup_format(self):
         section_regexp = '^backend-setup(:)*(.*)'
@@ -335,15 +332,13 @@ class Helpers(Global, YamlWriter):
                     hosts.append(val.group(2))
         return hosts
 
-
     def not_subdir(self, path, directory):
         if path.endswith('/'):
             path = path[:-1]
         base_dir = os.path.abspath(directory)
-        is_subdir =  base_dir.startswith(path +
-                '/') and base_dir != path
+        is_subdir = base_dir.startswith(path +
+                                        '/') and base_dir != path
         return not is_subdir
-
 
     def get_section_dict(self, section_dict, pattern):
         d = []
@@ -365,7 +360,7 @@ class Helpers(Global, YamlWriter):
         if len(section) > 1:
             msg = "Error: Oops! gdeploy is a bit confused with the " \
                   "section name %s. Please check your configuration file."\
-                  %section
+                  % section
             Global.logger.error(msg)
             print msg
             self.cleanup_and_quit()
@@ -389,7 +384,6 @@ class Helpers(Global, YamlWriter):
         Global.logger.info("Invoking playbook  %s", yml)
         self.exec_ansible(yml)
 
-
     def exec_ansible(self, playbooks_file):
         if Global.new:
             self.exec_ansible_api(playbooks_file)
@@ -401,7 +395,7 @@ class Helpers(Global, YamlWriter):
         loader = DataLoader()
 
         ds = loader.load_from_file(playbooks_file)
-        Options = namedtuple('Options', ['connection','module_path', 'forks',
+        Options = namedtuple('Options', ['connection', 'module_path', 'forks',
                                          'remote_user', 'private_key_file',
                                          'ssh_common_args', 'ssh_extra_args',
                                          'sftp_extra_args', 'scp_extra_args',
@@ -440,17 +434,17 @@ class Helpers(Global, YamlWriter):
             # not to ignore errors
             if result != 0 and Global.ignore_errors != 'yes':
                 msg = "Error while executing playbook %s, exiting"\
-                      %playbooks_file
+                      % playbooks_file
                 print msg
                 Global.logger.error(msg)
                 self.cleanup_and_quit(1)
             elif result != 0 and Global.ignore_errors == 'yes':
                 msg = "Error while executing playbook %s, ignoring errors..."\
-                      %playbooks_file
+                      % playbooks_file
                 Global.logger.error(msg)
                 print msg
         except AnsibleError, e:
-            print "%s"%e
+            print "%s" % e
         finally:
             if tqm is not None:
                 tqm.cleanup()
@@ -458,7 +452,7 @@ class Helpers(Global, YamlWriter):
     def exec_ansible_legacy(self, playbooks_file):
         executable = 'ansible-playbook'
         command = [executable, '-i', Global.inventory, Global.verbose,
-                playbooks_file]
+                   playbooks_file]
         command = filter(None, command)
         try:
             retcode = subprocess.call(command, shell=False)
@@ -473,7 +467,6 @@ class Helpers(Global, YamlWriter):
             Global.logger.error(msg)
             print msg
             sys.exit()
-
 
     def listify(self, var):
         if not var:
@@ -513,7 +506,7 @@ class Helpers(Global, YamlWriter):
             # Supported disk types
             sdisks = ['raid10', 'raid5', 'raid6', 'jbod']
             if perf['disktype'] not in sdisks:
-                msg = "Unsupported disk type!\nOnly %s are supported"%sdisks
+                msg = "Unsupported disk type!\nOnly %s are supported" % sdisks
                 print "Error: " + msg
                 Global.logger.error(msg.replace("\n", " "))
                 self.cleanup_and_quit()
@@ -625,7 +618,7 @@ class Helpers(Global, YamlWriter):
         else:
             for k, v in options.iteritems():
                 v = ','.join(self.pattern_stripping(v))
-                config.set(section, k , v)
+                config.set(section, k, v)
         try:
             with open(filename, 'ab') as f:
                 config.write(f)
@@ -689,7 +682,7 @@ class Helpers(Global, YamlWriter):
         """Split a string separated by sep
 
         Return a list of tokens."""
-        pattern = r'((?:[^'+sep+'\\\\]+'+sep+'\\\\.)*)(['+sep+'])?'
+        pattern = r'((?:[^' + sep + '\\\\]+' + sep + '\\\\.)*)([' + sep + '])?'
         regex = re.compile(pattern)
         result = []
 
@@ -743,7 +736,7 @@ class Helpers(Global, YamlWriter):
             except ValueError:
                 print "Only integer value is supported for stripesize or \
                 diskcount!"
-                print "Found %s and %s"%(stripe_unit_size, diskcount)
+                print "Found %s and %s" % (stripe_unit_size, diskcount)
                 self.cleanup_and_quit()
         else:
             # As per performance recommendations for RAID 10 storage, the
