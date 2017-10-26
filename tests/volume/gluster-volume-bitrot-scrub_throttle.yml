@@ -1,0 +1,9 @@
+---
+
+- hosts: servers
+  tasks:
+          - name: Setting bitrot scrub_throttle rate
+            glusterfs_volume: action=bitrot
+                    volume="gv0"
+                    scrub_throttle="lazy"
+            run_once: true
