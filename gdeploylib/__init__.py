@@ -7,4 +7,3 @@ from yaml_writer import YamlWriter
 from call_features import call_features
 from add_feature import add_feature
 import defaults
-

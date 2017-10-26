@@ -23,11 +23,13 @@ from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
+
 class Snapshot(object):
     def __init__(self, module):
         self.module = module
         self.action = self._validated_params('action')
-        self.force = 'force' if self.module.params.get('force') == 'yes' else ''
+        self.force = 'force' if self.module.params.get(
+            'force') == 'yes' else ''
         if self.action == 'config':
             self.snapshot_config()
         self.gluster_snapshot_ops()
@@ -44,36 +46,36 @@ class Snapshot(object):
 
     def create_params_dict(self, param_list):
         return OrderedDict((param, self.get_playbook_params(param))
-                for param in param_list)
+                           for param in param_list)
 
     def gluster_snapshot_ops(self):
         option_str = ' '
-        direct_value_params = { 'create':  ['snapname', 'volume',
-                                            'options'],
-                                'clone': ['snapname', 'clonename'],
-                                'restore': ['snapname'],
-                                'delete': ['snapname'],
-                                'activate': ['snapname'],
-                                'deactivate': ['snapname']
-                              }[self.action]
+        direct_value_params = {'create':  ['snapname', 'volume',
+                                           'options'],
+                               'clone': ['snapname', 'clonename'],
+                               'restore': ['snapname'],
+                               'delete': ['snapname'],
+                               'activate': ['snapname'],
+                               'deactivate': ['snapname']
+                               }[self.action]
         direct_param_dict = self.create_params_dict(direct_value_params)
         for params in direct_value_params:
             if direct_param_dict[params]:
                 option_str += ' %s ' % direct_param_dict[params]
 
         try:
-            keyword_needed_params = { 'create': ['description'],
-                                      'delete': ['volume']
-                                    }[self.action]
+            keyword_needed_params = {'create': ['description'],
+                                     'delete': ['volume']
+                                     }[self.action]
             keyword_param_dict = self.create_params_dict(keyword_needed_params)
             for params in keyword_needed_params:
                 if keyword_param_dict[params]:
                     if params == 'description':
                         option_str += "%s '%s' " % (params,
-                                keyword_param_dict[params])
+                                                    keyword_param_dict[params])
                     else:
                         option_str += '%s %s ' % (params.replace('_', '-'),
-                                keyword_param_dict[params])
+                                                  keyword_param_dict[params])
         except:
             pass
 
@@ -81,7 +83,7 @@ class Snapshot(object):
             self.force = ''
 
         rc, output, err = self.call_gluster_cmd('snapshot', self.action,
-                                                    option_str, self.force)
+                                                option_str, self.force)
         self._get_output(rc, output, err)
 
     def snapshot_config(self):
@@ -103,17 +105,15 @@ class Snapshot(object):
                                                     option, self.force)
         self._get_output(rc, output, err)
 
-
-
     def call_gluster_cmd(self, *args, **kwargs):
         params = ' '.join(opt for opt in args)
         key_value_pair = ' '.join(' %s %s ' % (key, value)
-                for key, value in kwargs)
+                                  for key, value in kwargs)
         return self._run_command('gluster', ' ' + params + ' ' + key_value_pair)
 
     def _get_output(self, rc, output, err):
-        carryon = True if self.action in  ['stop',
-                'delete', 'deactivate'] else False
+        carryon = True if self.action in ['stop',
+                                          'delete', 'deactivate'] else False
         changed = 0 if (carryon and rc) else 1
         if not rc or carryon:
             self.module.exit_json(stdout=output, changed=changed)
@@ -123,6 +123,7 @@ class Snapshot(object):
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         return self.module.run_command(cmd)
+
 
 if __name__ == '__main__':
     module = AnsibleModule(

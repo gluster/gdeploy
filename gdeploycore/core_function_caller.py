@@ -17,7 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 # USA.
 
-import re, sys, os
+import re
+import sys
+import os
 from gdeploylib import *
 from gdeploylib.defaults import *
 from backend_setup import BackendSetup
@@ -27,10 +29,12 @@ from backend_reset import BackendReset
 yaml_write = YamlWriter()
 conf_parse = Helpers()
 
+
 def call_core_functions():
     BackendSetup()
     tune_profile()
     BackendReset()
+
 
 def tune_profile():
     global conf_parse
@@ -40,7 +44,7 @@ def tune_profile():
         Global.logger.info("No tuning profiles specified, ignoring")
         return
     yaml_write.create_yaml_dict('profile', profile, False)
-    Global.logger.info("Running tuneadm to apply profile %s"%profile)
-    Global.logger.info("Executing playbook %s"%TUNE_YML)
+    Global.logger.info("Running tuneadm to apply profile %s" % profile)
+    Global.logger.info("Executing playbook %s" % TUNE_YML)
     conf_parse.run_playbook(TUNE_YML)
     conf_parse.remove_from_sections('tune-profile')

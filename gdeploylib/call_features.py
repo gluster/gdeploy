@@ -18,7 +18,8 @@
 # USA.
 #
 
-import os, json
+import os
+import json
 from helpers import Helpers
 from yaml_writer import YamlWriter
 from global_vars import Global
@@ -27,6 +28,7 @@ import gdeployfeatures
 helpers = Helpers()
 yaml_writer = YamlWriter()
 section_name = None
+
 
 def call_features():
     global helpers
@@ -37,6 +39,7 @@ def call_features():
         return
     helpers.get_hostnames()
     map(get_feature_dir, Global.sections)
+
 
 def get_feature_dir(section):
     '''
@@ -64,7 +67,7 @@ def get_feature_dir(section):
         helpers.cleanup_and_quit()
 
     if not os.path.isdir(section_dir):
-        msg = "Feature directory `%s' not found"%section_dir
+        msg = "Feature directory `%s' not found" % section_dir
         Global.logger.error(msg)
         print "Error: " + msg
         return
@@ -72,7 +75,8 @@ def get_feature_dir(section):
     config_file = helpers.get_file_dir_path(section_dir, section_name +
                                             '.json')
     if not os.path.isfile(config_file):
-        msg = "Error: Setup file %s not found for feature `%s'"%(config_file, section)
+        msg = "Error: Setup file %s not found for feature `%s'" % (
+            config_file, section)
         Global.logger.error(msg)
         print msg
         return
@@ -87,8 +91,8 @@ def get_feature_dir(section):
         feature_call = getattr(feature_mod, section_name + '_' + section_dict[
             'action'].replace('-', '_'))
     except:
-        print "Error: No method found for action %s" %(section_name +
-                '_' + section_dict['action'])
+        print "Error: No method found for action %s" % (section_name +
+                                                        '_' + section_dict['action'])
         helpers.cleanup_and_quit()
 
     section_dict, yml = feature_call(section_dict)
@@ -99,13 +103,13 @@ def get_feature_dir(section):
     for key in section_dict.keys():
         section_dict[key.replace('-', '_')] = section_dict.pop(key)
 
-
     if (section_dict and yml):
         if type(yml) is list:
             for each in yml:
                 helpers.run_playbook(each, section_dict)
         else:
             helpers.run_playbook(yml, section_dict)
+
 
 def parse_the_user_config(section, section_dir):
     '''
@@ -140,14 +144,15 @@ def parse_the_user_config(section, section_dir):
     helpers.get_hostnames()
     return section_dict
 
+
 def get_action_data(section, section_dir, section_dict):
     global helpers, section_name
     json_file = helpers.get_file_dir_path(section_dir, section_name + '.json')
-    Global.logger.info("Parsing json file: %s"%json_file)
+    Global.logger.info("Parsing json file: %s" % json_file)
     json_data = open(json_file)
     data = json.load(json_data)
     if Global.trace:
-        Global.logger.info("Found json data: %s"%data)
+        Global.logger.info("Found json data: %s" % data)
     json_data.close()
     action_dict = data[section_name]["action"].get(section_dict.get("action"))
     if not action_dict:
@@ -155,10 +160,11 @@ def get_action_data(section, section_dir, section_dict):
               "to the action specified for the section {0}. "\
               "Skipping this section.".format(section_name)
         print msg
-        Global.logger.warning(msg) # delete leading newline
+        Global.logger.warning(msg)  # delete leading newline
         return False
     else:
         return action_dict
+
 
 def get_required_values(value_dict):
     reqd_vals = []
@@ -167,6 +173,7 @@ def get_required_values(value_dict):
             reqd_vals.append(hval["name"])
     return reqd_vals
 
+
 def get_default_values(value_dict):
     def_vals = {}
     for hval in value_dict:
@@ -174,12 +181,13 @@ def get_default_values(value_dict):
             def_vals[hval["name"]] = hval["default"]
     return def_vals
 
+
 def validate_the_user_data(section_dict, reqd_vals):
     for val in reqd_vals:
         if type(val) is not list:
             if not section_dict.get(val):
                 msg = "Configuration file validation error. "
-                msg1 = "Required option %s not found."%val
+                msg1 = "Required option %s not found." % val
                 Global.logger.error(msg.lstrip() + msg1.lstrip())
                 print "Error: " + msg + "\n" + msg1
                 return False

@@ -26,6 +26,7 @@ from ast import literal_eval
 
 setupvardef = re.compile('^([a-zA-Z0-9_]+)=(.*)')
 
+
 def parsesetup(filename):
     modules = {}
     variables = {}

@@ -24,6 +24,7 @@ from collections import OrderedDict
 from ansible.module_utils.basic import *
 from ast import literal_eval
 
+
 class Peer(object):
     def __init__(self, module):
         self.module = module
@@ -36,7 +37,7 @@ class Peer(object):
         value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
-            self.module.fail_json(rc=4,msg=msg)
+            self.module.fail_json(rc=4, msg=msg)
         return value
 
     def get_host_names(self):
@@ -63,22 +64,21 @@ class Peer(object):
         if hosts:
             for hostname in hosts:
                 cmd.append(' peer ' + self.action + ' ' + ' ' +
-                        hostname + ' ' + force)
+                           hostname + ' ' + force)
         return cmd
 
     def get_to_be_probed_hosts(self, hosts):
         rc, output, err = self.module.run_command(
-                "gluster pool list")
+            "gluster pool list")
         peers_in_cluster = [line.split('\t')[1].strip() for
-                line in filter(None, output.split('\n')[1:])]
+                            line in filter(None, output.split('\n')[1:])]
         try:
             peers_in_cluster.remove('localhost')
         except:
             pass
         hosts_to_be_probed = [host for host in hosts if host not in
-                peers_in_cluster]
+                              peers_in_cluster]
         return hosts_to_be_probed
-
 
     def call_peer_commands(self, cmds):
         errors = []
@@ -97,6 +97,7 @@ class Peer(object):
     def _run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts + ' --mode=script'
         return self.module.run_command(cmd)
+
 
 if __name__ == '__main__':
     module = AnsibleModule(

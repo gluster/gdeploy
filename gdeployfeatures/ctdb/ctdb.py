@@ -5,11 +5,13 @@ The function should be named as follows <feature name>_<action_name>
 from gdeploylib import defaults, Global
 import re
 
+
 def ctdb_start(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['state'] = 'started'
     Global.logger.info("Starting CTDB service")
     return section_dict, defaults.SERVICE_MGMT
+
 
 def ctdb_stop(section_dict):
     section_dict['service'] = ['ctdb']
@@ -17,17 +19,20 @@ def ctdb_stop(section_dict):
     Global.logger.info("Stopping CTDB service")
     return section_dict, defaults.SERVICE_MGMT
 
+
 def ctdb_enable(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['enabled'] = 'yes'
     Global.logger.info("Enabling CTDB service")
     return section_dict, defaults.CHKCONFIG
 
+
 def ctdb_disable(section_dict):
     section_dict['service'] = ['ctdb']
     section_dict['enabled'] = 'no'
     Global.logger.info("Disabling CTDB service")
     return section_dict, defaults.CHKCONFIG
+
 
 def ctdb_setup(section_dict):
     Global.logger.info("Initiating CTDB setup")
@@ -37,8 +42,8 @@ def ctdb_setup(section_dict):
 
     if paddress:
         if not isinstance(paddress, list):
-            paddress= [paddress]
-        Global.logger.info("Using %s as physical addresses"%paddress)
+            paddress = [paddress]
+        Global.logger.info("Using %s as physical addresses" % paddress)
         paddress_list = map(lambda x: x.split(' '), paddress)
         paddress_list = filter(None, paddress_list)
         addresses, interfaces = [], []
@@ -48,7 +53,7 @@ def ctdb_setup(section_dict):
                 interfaces.append(ip[1])
             except:
                 interfaces.append(' ')
-        interfaces = map(lambda x: x.replace(';',','), interfaces)
+        interfaces = map(lambda x: x.replace(';', ','), interfaces)
         paddress = []
         for ip, inter in zip(addresses, interfaces):
             public_add = ip + ' ' + inter
@@ -60,7 +65,7 @@ def ctdb_setup(section_dict):
         if not isinstance(ctdbnodes, list):
             ctdbnodes = [ctdbnodes]
         section_dict['ctdbnodes'] = "\n".join(ctdbnodes)
-        Global.logger.info("Using %s as CTDB nodes"%ctdbnodes)
+        Global.logger.info("Using %s as CTDB nodes" % ctdbnodes)
     section_dict, enable_yml = ctdb_enable(section_dict)
     section_dict, start_yml = ctdb_start(section_dict)
 

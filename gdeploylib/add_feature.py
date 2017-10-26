@@ -19,14 +19,15 @@
 #
 
 from gdeploylib import *
-import os, json
+import os
+import json
 
 
 def add_feature(feature):
     feature = feature.lower().replace('-', '_')
     helpers = Helpers()
     base_dir = helpers.get_file_dir_path(helpers.uppath(os.getcwd(), 0),
-            'gdeployfeatures')
+                                         'gdeployfeatures')
     feature_dir = helpers.get_file_dir_path(helpers.uppath(
         os.getcwd(), 1), 'gdeploy/gdeployfeatures/%s' % feature)
     JSON_FILE = helpers.get_file_dir_path(feature_dir, '%s.json' % feature)
@@ -39,32 +40,30 @@ def add_feature(feature):
     helpers.touch_file(PYTHON_SCRIPT)
     helpers.touch_file(INIT_FILE)
 
-
     init_file_line = "import %s\n" % feature
 
     with open(INIT_FILE, 'a') as f:
         f.write(init_file_line)
 
-
     with open(BASE_INIT_FILE, 'a') as f:
         f.write(init_file_line)
 
-    data = { feature:
-                { "action":
-                    { "action1":
-                        { "options": [
-                                    {"name": "name1", "required": "true"}
-                                     ]
-                         },
-                     "action2":
-                        { "options": [
-                                    {"name": "name2", "required": "false", "default": "my_name"}
-                                     ]
-                        }
-                    }
-                }
+    data = {feature:
+            {"action":
+             {"action1":
+              {"options": [
+                  {"name": "name1", "required": "true"}
+              ]
+              },
+              "action2":
+              {"options": [
+                  {"name": "name2", "required": "false",
+                   "default": "my_name"}
+              ]
+              }
+              }
+             }
             }
-
 
     with open(JSON_FILE, 'w') as f:
         f.write(json.dumps(data, f, indent=2))
@@ -87,5 +86,5 @@ def %s_action1(section_dict):
         f.write(SCRIPT_DATA)
 
     print "\nINFO: New feature addition successful. Edit the files %s, "\
-    "%s  and add the necessary ansible playbooks to use "\
-    "them." %(JSON_FILE, PYTHON_SCRIPT)
+        "%s  and add the necessary ansible playbooks to use "\
+        "them." % (JSON_FILE, PYTHON_SCRIPT)

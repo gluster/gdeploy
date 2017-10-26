@@ -23,6 +23,7 @@ import sys
 import re
 import os
 
+
 class BackendSetup(Helpers):
     def __init__(self):
         self.section_dict = dict()
@@ -36,7 +37,7 @@ class BackendSetup(Helpers):
         self.remove_from_sections('backend-setup')
 
     def write_sections(self):
-        self.filename =  Global.group_file
+        self.filename = Global.group_file
         hosts = self.check_backend_setup_format()
         default = self.config_get_options('default', False)
         gluster = self.config_get_options('gluster', False)
@@ -69,7 +70,8 @@ class BackendSetup(Helpers):
             for host in hosts:
                 self.bricks = []
                 Global.current_hosts = [host]
-                self.host_file = self.get_file_dir_path(Global.host_vars_dir, host)
+                self.host_file = self.get_file_dir_path(
+                    Global.host_vars_dir, host)
                 self.touch_file(self.host_file)
                 self.parse_section(':' + host)
                 self.call_gen_methods()
@@ -79,9 +81,9 @@ class BackendSetup(Helpers):
         Global.var_file = None
         self.parse_section('')
         Global.current_hosts = [host for host in Global.hosts if host not in
-                hosts]
+                                hosts]
         if self.section_dict:
-            self.filename =  Global.group_file
+            self.filename = Global.group_file
             self.call_gen_methods()
             self.create_var_files(self.section_dict)
             self.remove_section(Global.inventory, Global.group)
@@ -92,14 +94,14 @@ class BackendSetup(Helpers):
     def parse_section(self, hostname):
         try:
             self.section_dict = Global.sections['backend-setup' +
-                    hostname]
+                                                hostname]
             del self.section_dict['__name__']
         except KeyError:
             return
         try:
             self.filename = self.host_file
         except:
-            self.filename =  Global.group_file
+            self.filename = Global.group_file
         self.section_dict = self.format_values(self.section_dict)
 
     def call_gen_methods(self):
@@ -120,7 +122,6 @@ class BackendSetup(Helpers):
         self.write_brick_dirs()
         self.create_var_files(self.section_dict)
 
-
     def write_brick_names(self):
         self.bricks = self.section_data_gen('devices', 'Devices')
         ssd = filter(None, self.section_data_gen('ssd', "SSD"))
@@ -128,13 +129,13 @@ class BackendSetup(Helpers):
             self.ssd = self.correct_brick_format(ssd)[0]
             self.section_dict['disk'] = self.ssd
             self.bricks.append(self.ssd)
-            Global.logger.info("Setting up SSD bricks %s"%self.ssd)
+            Global.logger.info("Setting up SSD bricks %s" % self.ssd)
         if not self.bricks:
             return
         self.bricks = self.correct_brick_format(self.bricks)
         self.device_count = len(self.bricks)
         self.section_dict['bricks'] = self.bricks
-        Global.logger.info("Create physical volumes %s"%
+        Global.logger.info("Create physical volumes %s" %
                            self.section_dict['bricks'])
         if self.bricks:
             self.run_playbook(PVCREATE_YML)
@@ -165,15 +166,15 @@ class BackendSetup(Helpers):
         self.section_dict['vgnames'] = filter(None, data)
         self.vgs = self.section_dict['vgs']
         if self.vgs:
-            Global.logger.info("Creating volume group %s"%self.vgs)
+            Global.logger.info("Creating volume group %s" % self.vgs)
             self.run_playbook(VGCREATE_YML)
 
     def write_thinp_names(self):
         self.pools = self.section_data_gen('pools', 'Logical Pools')
         snapshot_reserve = self.config_get_options(
-                'snapshot-reserve', False) or ['0']
+            'snapshot-reserve', False) or ['0']
         self.section_dict['snapshot_reserve'] = int(
-                snapshot_reserve[0].strip('\n\r%'))
+            snapshot_reserve[0].strip('\n\r%'))
         if not self.pools:
             if not self.vgs:
                 self.lvs = None
@@ -189,10 +190,10 @@ class BackendSetup(Helpers):
                 return
         data = []
         if len(self.pools) != len(self.lvs):
-                self.insufficient_param_count('lvs', len(self.pools))
+            self.insufficient_param_count('lvs', len(self.pools))
         if self.device_count != len(self.pools):
             if self.device_count == 1:
-                self.vgs *= len (self.pools)
+                self.vgs *= len(self.pools)
             else:
                 self.insufficient_param_count('pools', self.device_count)
         for i, j, k in zip(self.pools, self.vgs, self.lvs):
@@ -203,7 +204,7 @@ class BackendSetup(Helpers):
             data.append(pools)
         self.section_dict['lvpools'] = filter(None, data)
         if self.section_dict['lvpools']:
-            Global.logger.info("Creating thin pool %s"%
+            Global.logger.info("Creating thin pool %s" %
                                self.section_dict['lvpools'])
             self.run_playbook(GLUSTER_LV_YML)
 
@@ -225,8 +226,8 @@ class BackendSetup(Helpers):
                 self.lvs_with_size(lv, '100%FREE', vg)
         self.section_dict['vg'] = self.vgs[0]
         self.section_dict['force'] = self.config_get_options(
-                                               'force', False) or 'no'
-        #If SSD present for caching
+            'force', False) or 'no'
+        # If SSD present for caching
         if hasattr(self, 'ssd'):
             Global.logger.info("SSD information found, setting up "
                                "SSD for caching.")
@@ -241,23 +242,22 @@ class BackendSetup(Helpers):
             self.run_playbook(VGEXTEND_YML)
             self.section_dict['datalv'] = datalv[0]
             cachemeta = self.get_options(
-                    'cachemetalv') or 'lv_cachemeta'
+                'cachemetalv') or 'lv_cachemeta'
             cachedata = self.get_options(
-                    'cachedatalv') or 'lv_cachedata'
+                'cachedatalv') or 'lv_cachedata'
             self.section_dict['cachemeta'] = self.lvs_with_size(
-                    cachemeta, '1024', self.section_dict['vg'])
+                cachemeta, '1024', self.section_dict['vg'])
             self.section_dict['cachedata'] = self.lvs_with_size(
-                    cachedata, '4096', self.section_dict['vg'])
+                cachedata, '4096', self.section_dict['vg'])
         if not self.data:
             return
         self.section_dict['lvs'] = self.data
-        Global.logger.info("Creating logical volumes %s"%
+        Global.logger.info("Creating logical volumes %s" %
                            self.section_dict['lvs'])
         self.run_playbook(LVCREATE_YML)
         if hasattr(self, 'ssd'):
             Global.logger.info("lvconvert: convert lv to cachepool")
             self.run_playbook(LVCONVERT_YML)
-
 
     def lvs_with_size(self, lv, d_size, vg=None):
         name = lv.split(':')[0]
@@ -270,15 +270,14 @@ class BackendSetup(Helpers):
         lvs['size'] = size
         lvs['vg'] = vg
         self.data.append(lvs)
-        Global.logger.info("Creating LV with data %s"%lvs)
+        Global.logger.info("Creating LV with data %s" % lvs)
         return lvs
-
 
     def write_lvol_names(self):
         if not (self.lvs and self.vgs):
             return
         lvols = ['/dev/%s/%s' % (i, j.split(':')[0]) for i, j in
-                                      zip(self.vgs, self.lvs)]
+                 zip(self.vgs, self.lvs)]
         if lvols:
             self.section_dict['lvols'] = lvols
             # If RAID data is provided use it to set the stripe_width and
@@ -291,22 +290,22 @@ class BackendSetup(Helpers):
                     # No stripe size given assuming 256
                     su = [256]
                 self.section_dict['opts'] = "-f -K -i size=512 -d sw=%s,su=%sk\
- -n size=8192"%(sw[0],su[0])
+ -n size=8192" % (sw[0], su[0])
             else:
                 self.section_dict['opts'] = "-f -K -i size=512 -n size=8192"
 
             self.section_dict['fstype'] = "xfs"
-            Global.logger.info("Creating %s filesystem on %s with options %s"\
-                               %(self.section_dict['fstype'],
-                                 self.section_dict['lvols'],
-                                 self.section_dict['opts']))
+            Global.logger.info("Creating %s filesystem on %s with options %s"
+                               % (self.section_dict['fstype'],
+                                  self.section_dict['lvols'],
+                                  self.section_dict['opts']))
             self.run_playbook(FSCREATE_YML)
 
     def write_mount_options(self):
         if not self.section_dict.get('lvols'):
             return
         self.mountpoints = self.section_data_gen(
-                'mountpoints', 'Mount Point')
+            'mountpoints', 'Mount Point')
         if not self.mountpoints:
             self.mountpoints = self.set_default('mountpoints')
         data = []
@@ -319,20 +318,20 @@ class BackendSetup(Helpers):
             data.append(mntpath)
         self.section_dict['mntpath'] = filter(None, data)
         if self.section_dict['mntpath']:
-            Global.logger.info("Mounting on %s"%self.section_dict['mntpath'])
+            Global.logger.info("Mounting on %s" % self.section_dict['mntpath'])
             self.run_playbook(MOUNT_YML)
 
     def write_brick_dirs(self):
         self.section_dict['mountpoints'] = []
         force = self.config_section_map('volume',
-                'force', False) or ''
+                                        'force', False) or ''
         brick_dirs = []
         brick_dirs = self.section_data_gen('brick_dirs', 'Brick directories')
         if not brick_dirs:
             if force.lower() == 'no':
                 msg = "Error: Mount points cannot be brick directories.\n" \
-                        "Provide 'brick_dirs' option/section or use force=yes"\
-                        " in your configuration file. Exiting!"
+                    "Provide 'brick_dirs' option/section or use force=yes"\
+                    " in your configuration file. Exiting!"
                 print msg
                 Global.logger.error(msg.replace("\n", " "))
                 return
@@ -347,27 +346,27 @@ class BackendSetup(Helpers):
                     for mntpath in self.mountpoints:
                         if mntpath.endswith('/'):
                             mntpath = mntpath[:-1]
-                        brick_dirs.append(self.get_file_dir_path\
+                        brick_dirs.append(self.get_file_dir_path
                                           (mntpath, os.path.basename(mntpath)))
             brick_list = brick_dirs
         else:
             if hasattr(self, 'mountpoints'):
                 if (len(brick_dirs) != len(self.mountpoints
-                                        ) and len(brick_dirs) != 1):
-                        msg = "The number of brick_dirs is different "\
-                            "from that of " \
-                            "the mountpoints available.\nEither give %d " \
-                            "brick_dirs or provide a common one or leave this "\
-                            "empty." % (len(self.mountpoints))
-                        Global.logger.error(msg)
-                        return
+                                           ) and len(brick_dirs) != 1):
+                    msg = "The number of brick_dirs is different "\
+                        "from that of " \
+                        "the mountpoints available.\nEither give %d " \
+                        "brick_dirs or provide a common one or leave this "\
+                        "empty." % (len(self.mountpoints))
+                    Global.logger.error(msg)
+                    return
                 brick_dir = self.sub_directory_check(brick_dirs)
                 brick_list = []
                 brick_list = [
                     self.get_file_dir_path(
                         mntpath, brick) for mntpath, brick in zip(
                         self.mountpoints, brick_dir)]
-                for brick, mountpoint in zip( brick_list, self.mountpoints):
+                for brick, mountpoint in zip(brick_list, self.mountpoints):
                     if brick == mountpoint:
                         if force.lower() != 'yes':
                             msg = "Error: Mount point cannot be brick.\nProvide a "\
@@ -378,7 +377,7 @@ class BackendSetup(Helpers):
                             return
                         else:
                             print "Warning: Using mountpoint itself as the brick in one or " \
-                                    "more hosts since force" \
+                                "more hosts since force" \
                                 " is specified, although not recommended.\n"
                             Global.logger.warning(msg)
             else:
@@ -388,7 +387,7 @@ class BackendSetup(Helpers):
         self.section_dict['force'] = force
         self.section_dict['mountpoints'] = brick_list
         self.create_var_files(self.section_dict, keep_format=False,
-                filename=Global.group_file)
+                              filename=Global.group_file)
         if hasattr(self, 'host_file'):
             self.filename = self.host_file
             self.create_var_files(self.section_dict)
@@ -404,7 +403,7 @@ class BackendSetup(Helpers):
                         "inside mountpoint(%s).\nMake sure " \
                         "relative paths for all the %s mountpoints "\
                         "are given separately. "\
-                        "Exiting!" %(mnt, len(self.mountpoints))
+                        "Exiting!" % (mnt, len(self.mountpoints))
                     print "Error: " + msg
                     Global.logger.error(msg.replace("\n", " "))
                     self.cleanup_and_quit()

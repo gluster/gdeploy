@@ -5,21 +5,25 @@ The function should be named as follows <feature name>_<action_name>
 from gdeploylib import defaults, Helpers, Global
 helpers = Helpers()
 
+
 def rh_subscription_register(section_dict):
     Global.ignore_errors = section_dict.get('ignore_register_errors')
     Global.logger.info("Registering to subscription manager")
     return register_and_subscribe(section_dict)
+
 
 def rh_subscription_unregister(section_dict):
     Global.ignore_errors = section_dict.get('ignore_unregister_errors')
     Global.logger.info("Unregistering to subscription manager")
     return section_dict, defaults.UNREGISTER
 
+
 def rh_subscription_enable_repos(section_dict):
     Global.ignore_errors = section_dict.get('ignore_enable_errors')
     section_dict, ret = register_and_subscribe(section_dict)
     Global.logger.info("Enable repos in subscription manager")
     return section_dict, defaults.ENABLE_REPO
+
 
 def rh_subscription_disable_repos(section_dict):
     global helpers
@@ -29,10 +33,12 @@ def rh_subscription_disable_repos(section_dict):
     Global.logger.info("Disable repos in subscription manager")
     return section_dict, defaults.DISABLE_REPO
 
+
 def rh_subscription_attach_pool(section_dict):
     Global.ignore_errors = section_dict.get('ignore_attach_pool_errors')
     Global.logger.info("Attach to a pool in subscription manager")
     return register_and_subscribe(section_dict)
+
 
 def register_and_subscribe(section_dict):
     global helpers
