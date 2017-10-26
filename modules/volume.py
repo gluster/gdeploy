@@ -35,7 +35,8 @@ options:
     action:
         required: True
         choices: [create, delete, start, stop, add-brick, remove-brick, replace-brick,
-                  rebalance]
+                  rebalance, profile_state, bitrot, set,barrier]
+
                      This can be create, delete, start, stop,
                      add-brick, remove-brick, or replace-brick.
     volume:
@@ -70,7 +71,7 @@ options:
     value:
         required: True if action is set
         description: Specifies the value to be set for the option
-                     specified bt key.
+                     specified by key.
 
     transport:
         required: False
@@ -99,7 +100,7 @@ options:
     disperse:
         required: False
         choices: [yes, no]
-        descirption: Specifies if the volume is to be disperse or not
+        description: Specifies if the volume is to be disperse or not
 
     disperse_count:
         required: False
@@ -119,9 +120,38 @@ options:
         choices: [start, stop, commit, force] for remove-brick
         choices: [start, stop, fix-layout] for rebalance
         description: Specifies the state of the volume if one or more
-                     bricks are to be removed from the volume
-
-
+                     bricks are to be removed from the volume.
+    
+    profile_state:
+        required: False
+        choices: [start, stop]
+        description: Starts or stops profiling on a given gluster volume
+        
+    barrier:
+        required: False
+        choices: [enable, disable]
+        description: Enables or disables volume barrier.
+        
+    scrub:
+        required: False
+        choices: [pause, resume]
+        description: Sets Volume bitrot scrub options.
+    
+    scrub_throttle:
+        required: False
+        choices: [lazy, normal, aggressive]
+        description: Sets volume bitrot scrub-throttle rate.
+        
+    scrub_frequency:
+        required: False
+        choices: [daily, weekly, biweekly, monthly]
+        description: Sets volume bitrot scrub-frequency.
+        
+    bitrot_daemon:
+        required: False
+        choices: [enable, disable]
+        description: Enables or disables Volume Bitrot detection daemon 
+        
 '''
 
 EXAMPLES = '''
@@ -136,6 +166,45 @@ EXAMPLES = '''
              transport=rdma
              replica_count=3
              arbiter_count=1
+
+# Starts Volume profiling
+  - gluster_volume: action=profile
+             volume="{{ volname }}"
+             profile_state="start"   
+    run_once: true
+    
+# Sets Volume options
+  - gluster_volume: action=set
+             volume="{{ volname }}"
+             key="performance.cache-size"
+             value="256MB"
+    run_once: true
+    
+# Enable volume barrier
+  - glusterfs_volume: action=barrier
+             volume="{{ volname }}"
+             barrier_state="enable"
+    run_once: true
+    
+# Enable bitrot daemon
+  - glusterfs_volume: action=bitrot
+             volume="{{ volname }}"
+             bitrot_daemon="enable"
+
+# Sets bitrot scrub frequency to daily
+  - glusterfs_volume: action=bitrot
+             volume="{{ volname }}"
+             scrub_frequency="daily"
+             
+# Sets bitrot scrub throttle rate to aggressive
+  - glusterfs_volume: action=bitrot
+             volume="{{ volname }}"
+             scrub_throttle="aggressive"
+             
+# Sets bitrot scrub to pause
+  - glusterfs_volume: action=bitrot
+             volume="{{ volname }}"
+             scrub="pause"
 
 '''
 
@@ -155,7 +224,7 @@ class Volume(object):
     def get_playbook_params(self, opt):
         return self.module.params[opt]
 
-    def _validated_params(self, opt):
+    def _validated_params(self, opt):  
         value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
@@ -255,10 +324,29 @@ class Volume(object):
             option_str += self.get_brick_list_of_all_hosts()
         if self.action in ['add-brick', 'remove-brick']:
             option_str = self.brick_ops()
+        if self.action == 'profile':
+            option_str = self._validated_params('profile_state')
+        if self.action == 'set':
+            option_str = self._validated_params('key') + " " 
+            option_str += self._validated_params('value')
+        if self.action == 'barrier':
+            option_str = self._validated_params('barrier_state')
+        if self.action == 'bitrot':          
+            if self.module.params['scrub']:
+                option_str = 'scrub ' + self._validated_params('scrub')
+            elif self.module.params['scrub_throttle']:
+                option_str = 'scrub-throttle ' 
+                option_str += self._validated_params('scrub_throttle')
+            elif self.module.params['scrub_frequency']:
+                option_str = 'scrub-frequency ' 
+                option_str += self._validated_params('scrub_frequency')
+            elif self.module.params['bitrot_daemon']:
+                option_str = self._validated_params('bitrot_daemon')
+                              
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
-
+        
     def rebalance_volume(self):
         state = self._validated_params('state')
         if state not in ['start', 'stop', 'fix-layout']:
@@ -311,8 +399,15 @@ if __name__ == '__main__':
             disperse=dict(),
             disperse_count=dict(),
             redundancy_count=dict(),
-
+            profile_state=dict(),
+            barrier_state=dict(),
+            scrub=dict(),
+            scrub_frequency=dict(),
+            scrub_throttle=dict(),
+            bitrot_daemon=dict(),
+          
         ),
     )
 
     Volume(module)
+    
