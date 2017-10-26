@@ -30,7 +30,7 @@ test -d /etc/vdsm && WARN="true"
 [[ ${WARN:=false} == "true" ]] && warn
 
 # Load the multipath module before trying to flush
-modprobe multipath
+# modprobe multipath
 modprobe dm_multipath
 
 # flush maps; script will exit with error if map in use
