@@ -16,34 +16,40 @@ You should have received a copy of the GNU General Public License
 along with Ansible. If not, see <http://www.gnu.org/licenses/>.
 """
 
+from ansible.module_utils.basic import AnsibleModule
+
+
 DOCUMENTATION = '''
 ---
 module: pv
-short_description: Create or remove a Physical Volume.
+short_description: Create, remove, resize or change a Physical Volume.
 description:
     - Creates or removes n-number of Physical Volumes on n-number
       of remote hosts
 
 options:
     action:
-        required: true
-        choices: [create, remove, resize, change]
-        description: Specifies the pv operation that is to be executed,
-                     either a physical volume creation or deletion.
+        required:    true
+        choices:     [create, remove, resize, change]
+        description: * Specifies the pv operation that is to be executed,
+                       either a physical volume creation or deletion.
+
+                     * PV Resize to a manually specified size is done via options:
+                        --setphysicalvolumesize <Size[m|UNIT]>
+                        --yes / -y is required for shrinking (potentially dangerous)
+
+                     * PV change requires additional options, check 'pvchange' man page
+
     disks:
-        required: true
+        required:    true
         description: Disks from which the Physical Volumes are to be created,
                      or Physical Volumes that are to be removed needs to be
                      specified here.
     options:
-        required: false
+        required:    false
         description: Extra options that needs to be passed while creating the
                      Physical Volumes can be given here. Check the man page of
                      pvcreate for more info.
-    size:
-        required: true if action is resize and opertion is shrink
-        description: Specifies to what size the physical volume is to be
-                     shrunken
 
 authors: Anusha Rao, Nandaja Varma
 '''
@@ -62,10 +68,13 @@ EXAMPLES = '''
       with_items:
          - disk1
          - disk2
+
+#Resize/Shrink Physical Volume /dev/sdb
+    - pv:
+        action: resize
+        disks: "/dev/sdb"
+        options: "--setphysicalvolumesize 1000G --yes"
 '''
-from ansible.module_utils.basic import *
-import json
-from ast import literal_eval
 
 
 class PvOps(object):
@@ -83,7 +92,7 @@ class PvOps(object):
         return value
 
     def run_command(self, op, options):
-        cmd = self.module.get_bin_path(op, True)  + options
+        cmd = self.module.get_bin_path(op, True) + options
         return self.module.run_command(cmd)
 
     def get_output(self, rc, output, err):
@@ -96,9 +105,11 @@ class PvOps(object):
         rc, out, err = self.run_command('pvdisplay', ' ' + disk)
         ret = 0
         if self.action == 'create' and not rc:
-            self.module.exit_json(rc=0, changed= 0, msg="%s Physical Volume Exists!" % disk)
+            self.module.exit_json(
+                rc=0, changed=0, msg="%s Physical Volume Exists!" % disk)
         elif self.action == 'remove' and rc:
-            self.module.exit_json(rc=0, changed=0,msg="%s Physical Volume Doesn't Exists!" % disk)
+            self.module.exit_json(
+                rc=0, changed=0, msg="%s Physical Volume Doesn't Exists!" % disk)
         else:
             ret = 1
         return ret
@@ -110,19 +121,17 @@ class PvOps(object):
         return self.get_volume_command(self.disks)
 
     def get_volume_command(self, disk):
-        op = 'pv' + self.action
         args = " %s %s" % (self.options, disk)
         return args
-
 
 
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
-            action=dict(choices=["create", "remove", "resize", "change"], required=True),
+            action=dict(choices=["create", "remove",
+                                 "resize", "change"], required=True),
             disks=dict(),
             options=dict(type='str'),
-            size=dict(),
         ),
     )
 
