@@ -328,7 +328,8 @@ class Volume(object):
             option_str = self._validated_params('profile_state')
         if self.action == 'set':
             option_str = self._validated_params('key') + " " 
-            option_str += self._validated_params('value')
+            option_str += self._validated_params('value') + " "
+            option_str += self.force
         if self.action == 'barrier':
             option_str = self._validated_params('barrier_state')
         if self.action == 'bitrot':          
