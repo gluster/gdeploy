@@ -153,7 +153,7 @@ class VgOps(object):
             self.module.exit_json(changed=False, rc=1,
                                   msg="A volume group %s not found." % vg)
         elif self.action == 'remove' and rc:
-            self.module.exit_json(changed=False, rc=1,
+            self.module.exit_json(changed=False, rc=0,
                                   msg="Volume group %s not found" % vg)
 
     def pv_presence_check(self, disk):
