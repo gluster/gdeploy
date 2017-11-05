@@ -39,8 +39,7 @@ def parse_arguments(args=None):
     This method uses argparser to parse the command line inputs
     to the gdeploy script
     '''
-    usage = 'gdeploy [-h] [-v] [-vv] [-k] [-n | --new]' \
-        '[-d DISPLAY | --display DISPLAY] -c CONFIG_FILE'
+    usage = 'gdeploy [-h] [-v] [-vv] [-k] -c CONFIG_FILE'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument('--version',
                         action='version',
@@ -60,12 +59,7 @@ def parse_arguments(args=None):
                         help="verbose mode")
     parser.add_argument('--addfeature', dest='feature_name',
                         help="Add new feature to gdeploy")
-    parser.add_argument("-n", "--new", action="store_true",
-                        dest='new',
-                        help="Print output in new format")
-    parser.add_argument("-d", "--display", dest='display', default='gdeploy',
-                        help="Display output in the given format "
-                        "(default: gdeploy)")
+
     try:
         args = parser.parse_args(args=args)
     except IOError as msg:
@@ -131,8 +125,6 @@ def init_global_values(args):
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep
     Global.trace = args.trace
-    Global.new = args.new
-    Global.display = args.display
 
     for sec in Global.config._sections:
         sections = helpers.parse_patterns(sec)
