@@ -1,9 +1,0 @@
----
-- hosts: georep_slave
-  remote_user: root
-  gather_facts: no
-
-  tasks:
-  - name: Set pem keys
-    shell: "/usr/libexec/glusterfs/set_geo_rep_pem_keys.sh geoaccount {{ mastervolname }} {{slavevolname}}"
-

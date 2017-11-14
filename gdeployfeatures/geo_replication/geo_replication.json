@@ -12,21 +12,23 @@
             "name": "slavevol"
           },
           {
-            "required": "false",
-            "name": "force",
-            "default": "no"
-          }
-        ]
-      },
-      "secure-session": {
-        "options": [
-          {
             "required": "true",
-            "name": "mastervol"
+            "name": "slavenodes"
           },
           {
-            "required": "true",
-            "name": "slavevol"
+            "required": "false",
+            "name": "georepuser",
+            "default": "root"
+          },
+          {
+            "required": "false",
+            "name": "start",
+            "default": "yes"
+          },
+          {
+            "required": "false",
+            "name": "groupname",
+            "default": "geogroup"
           },
           {
             "required": "false",
@@ -47,6 +49,11 @@
           },
           {
             "required": "false",
+            "name": "georepuser",
+            "default": "root"
+          },
+          {
+            "required": "false",
             "name": "force",
             "default": "no"
           }
@@ -61,6 +68,11 @@
           {
             "required": "true",
             "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "georepuser",
+            "default": "root"
           },
           {
             "required": "false",
@@ -81,6 +93,11 @@
           },
           {
             "required": "false",
+            "name": "georepuser",
+            "default": "root"
+          },
+          {
+            "required": "false",
             "name": "force",
             "default": "no"
           }
@@ -98,6 +115,11 @@
           },
           {
             "required": "false",
+            "name": "georepuser",
+            "default": "root"
+          },
+          {
+            "required": "false",
             "name": "force",
             "default": "no"
           }
@@ -112,6 +134,11 @@
           {
             "required": "true",
             "name": "slavevol"
+          },
+          {
+            "required": "false",
+            "name": "georepuser",
+            "default": "root"
           },
           {
             "required": "false",
@@ -133,9 +160,11 @@
           {
             "required": "true",
             "name": ["gluster-log-file", "gluster-log-level", "log-file",
-            "log-level", "ssh-command", "rsync-command", "use-tarssh",
-            "volume-id", "timeout", "sync-jobs", "ignore-deletes",
-            "config", "op", "checkpoint"]
+                     "log-level", "changelog-log-level", "ssh-command",
+                     "rsync-command", "use-tarssh", "volume-id", "timeout",
+                     "sync-jobs", "ignore-deletes", "checkpoint", "sync-acls",
+                     "sync-xattrs", "log-rsync-performance", "rsync-options",
+                     "use-meta-volume", "meta-volume-mnt"]
           }
         ]
       },
@@ -143,11 +172,12 @@
         "options": [
           {
             "required": "true",
-            "name": "mastervol"
+            "name": "slavevol"
           },
           {
-            "required": "true",
-            "name": "slavevol"
+            "required": "false",
+            "name": "georepuser",
+            "default": "root"
           }
         ]
       },

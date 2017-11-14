@@ -1,0 +1,12 @@
+---
+- hosts: georep_slave
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: Copy pem keys
+    shell: "gluster system:: copy file /geo-replication/{{ mastervolname }}_{{ slavevolname }}_common_secret.pem.pub"
+
+  - name: Add pem keys
+    shell: "gluster system:: execute add_secret_pub {{ georepuser }} geo-replication/{{ mastervolname }}_{{ slavevolname }}_common_secret.pem.pub"
+

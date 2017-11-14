@@ -5,8 +5,9 @@
 
   tasks:
   - name: Starts the geo-rep session
-    georep: action=start
+    geo_rep: action=start
             mastervol="{{ mastervolname }}"
             slavevol="{{ slavevol }}"
+            georepuser="{{ georepuser }}"
             force="{{ force }}"
-            secure="{{secure}}"
+

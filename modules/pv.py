@@ -51,10 +51,17 @@ authors: Anusha Rao, Nandaja Varma
 EXAMPLES = '''
 #Create Physical Volumes /dev/sdb and /dev/sdc with
 #dataalignment 1280k
-    - pv: action=create disks='["/dev/sdb", "/dev/sdc"]'
+    - pv: action=create disks="{{ item }}"
           options="--dataalignment 1280k"
+      with_items:
+         - disk1
+         - disk2
+
 #Remove Physical Volumes /dev/sdb and /dev/sdc
-    - pv: action=remove disks='["/dev/sdb", "/dev/sdc"]'
+    - pv: action=remove disks="{{ item }}"
+      with_items:
+         - disk1
+         - disk2
 '''
 from ansible.module_utils.basic import *
 import json
