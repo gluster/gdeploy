@@ -1,0 +1,112 @@
+{
+  "vdo": {
+    "action": {
+      "create": {
+        "options": [
+          {
+            "required": "false",
+            "name": "names"
+          },
+          {
+            "required": "true",
+            "name": "devices"
+          },
+          {
+            "required": "false",
+            "name": "activate",
+            "default": "yes"
+          },
+          {
+            "required": "false",
+            "name": "run",
+            "default": "yes"
+          },
+          {
+            "required": "false",
+            "name": "logicalsize"
+          },
+          {
+            "required": "false",
+            "name": "compression",
+            "default": "enabled"
+          },
+          {
+            "required": "no",
+            "name": "blockmapcachesize"
+          },
+          {
+            "required": "no",
+            "name": "readcache",
+            "default": "enabled"
+          },
+          {
+            "name": "readcachesize",
+            "required": "false"
+          },
+          {
+            "name": "emulate512",
+            "required": "false",
+            "default": "disabled"
+          },
+          {
+            "name": "slabsize",
+            "required": "no"
+          },
+          {
+            "name": "writepolicy",
+            "required": "false"
+          },
+          {
+            "name": "indexmem",
+            "required": "false"
+          },
+          {
+            "name": "indexmode",
+            "required": "false"
+          },
+          {
+            "required": "false",
+            "name": "ackthreads"
+          },
+          {
+            "required": "false",
+            "name": "biothreads"
+          },
+          {
+            "required": "false",
+            "name": "cputhreads"
+          },
+          {
+            "required": "false",
+            "name": "logicalthreads"
+          },
+          {
+            "required": "false",
+            "name": "physicalthreads"
+          },
+          {
+            "required": "false",
+            "name": "mkfs",
+            "default": "xfs"
+          },
+          {
+            "name": "mkfs-opts",
+            "required": "false"
+          },
+          {
+            "required": "false",
+            "name": "mount"
+          }
+        ]
+      },
+      "delete": {
+        "options": [
+          {
+            "name": "names",
+            "required": "true"
+          }
+        ]
+      }
+    }
+  }
+}

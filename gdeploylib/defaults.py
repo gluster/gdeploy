@@ -20,9 +20,9 @@
 # ALL features
 
 feature_list = ['snapshot', 'quota', 'yum', 'geo_replication', 'ctdb',
-'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
-'update_file', 'script', 'volume', 'peer', 'clients', 'pv', 'vg', 'lv',
-'openshift_ctl']
+                'firewalld', 'nfs_ganesha', 'service', 'rh_subscription', 'shell',
+                'update_file', 'script', 'volume', 'peer', 'clients', 'pv', 'vg', 'lv',
+                'openshift_ctl', 'vdo']
 # All the defaults values used in gdeploy
 
 
@@ -221,3 +221,7 @@ SSL_VOL_START = 'ssl-vol-start.yml'
 
 # Replace brick
 REPLACE_BRICK = 'gluster-volume-replace-brick.yml'
+
+# VDO
+VDO_CREATE = 'vdo-create.yml'
+VDO_DELETE = 'vdo-delete.yml'
