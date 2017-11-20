@@ -1,0 +1,11 @@
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+      - name: Delete VDO volumes
+        vdo:
+            name="{{ item }}"
+            state="{{ state }}"
+        with_items: "{{ vdonames | default([]) }}"
