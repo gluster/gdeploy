@@ -4,7 +4,7 @@
   gather_facts: no
 
   roles:
-  - roles/pv/pvcreate
-  - roles/vg/vgcreate
-  - roles/lv/lvcreate
-  - roles/mount/mounting
+  - system/gluster_pv/pvcreate
+  - system/gluster_vg/vgcreate
+  - system/gluster_lv/lvcreate
+  - system/mount/mounting
