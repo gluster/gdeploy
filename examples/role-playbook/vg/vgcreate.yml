@@ -4,4 +4,4 @@
   gather_facts: no
 
   roles:
-  - roles/vg/vgcreate
+  - system/gluster_vg/vgcreate

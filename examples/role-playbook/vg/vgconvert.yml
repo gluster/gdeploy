@@ -4,4 +4,4 @@
   gather_facts: no
 
   roles:
-  - roles/vg/vgconvert
+  - system/gluster_vg/vgconvert

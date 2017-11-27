@@ -4,4 +4,4 @@
   gather_facts: no
 
   roles:
-  - roles/lv/lvreduce
+  - system/gluster_lv/lvreduce
