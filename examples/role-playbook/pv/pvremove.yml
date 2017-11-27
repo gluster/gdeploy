@@ -4,4 +4,4 @@
   gather_facts: no
 
   roles:
-  - roles/pv/pvremove
+  - system/pv/pvremove

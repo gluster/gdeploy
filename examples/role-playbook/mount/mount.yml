@@ -4,4 +4,4 @@
   gather_facts: no
 
   roles:
-  - roles/mount/mount
+  - system/mount/mount
