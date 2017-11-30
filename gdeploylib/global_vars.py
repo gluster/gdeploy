@@ -59,8 +59,3 @@ class Global(object):
                         'ansible_playbooks.yml')
     ignore_errors = 'yes'
     keep = False
-
-    #HEKETI DATA
-
-    port = None
-    server = None
