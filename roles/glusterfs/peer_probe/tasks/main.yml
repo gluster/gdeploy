@@ -1,0 +1,8 @@
+---
+# tasks file for peer_probe
+
+   tasks:
+   - name: Creates a Trusted Storage Pool
+     glusterfs_peer:
+           state: present
+           nodes: "{{ nodes }}"

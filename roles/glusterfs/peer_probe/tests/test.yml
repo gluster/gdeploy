@@ -1,0 +1,12 @@
+---
+- hosts: master
+  remote_user: root
+
+  tasks:
+    - include_role:
+         name: glusterfs/peer_probe
+      vars:
+        nodes:
+           - 10.70.43.142
+           - 10.70.43.200
+           - 10.70.42.69
