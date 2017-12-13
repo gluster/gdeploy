@@ -153,6 +153,11 @@ class Helpers(Global, YamlWriter):
                         result[-1] += '{' + pat_group.group(2) + '}'
                     else:
                         result.extend(pat_group.group(i).split(','))
+                if pat_group.group(3) != '':
+                    # We have a pattern like `val0{foo,bar,baz}val1' append the
+                    # val1 to the expanded pattern. For example if the pattern
+                    # is nvme{0,1,2,3}n1 we have: nvme0n1, nvme1n1, nvme2n1 ...
+                    result[-1] += pat_group.group(3)
                 return self.pattern_stripping(result)
         return []
 
