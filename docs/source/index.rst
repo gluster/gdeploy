@@ -16,7 +16,7 @@ Quick links
 """""""""""
 
 * `Git repositories <https://github.com/gluster/gdeploy>`_
-* `Mailing list <https://www.gluster.org/mailman/listinfo/gluster-users>`_
+* `Mailing list <https://lists.gluster.org/mailman/listinfo/gluster-users>`_
 
 Contents
 """"""""
