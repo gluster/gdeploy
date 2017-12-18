@@ -121,37 +121,36 @@ options:
         choices: [start, stop, fix-layout] for rebalance
         description: Specifies the state of the volume if one or more
                      bricks are to be removed from the volume.
-    
+
     profile_state:
         required: False
         choices: [start, stop]
         description: Starts or stops profiling on a given gluster volume
-        
+
     barrier:
         required: False
         choices: [enable, disable]
         description: Enables or disables volume barrier.
-        
+
     scrub:
         required: False
         choices: [pause, resume]
         description: Sets Volume bitrot scrub options.
-    
+
     scrub_throttle:
         required: False
         choices: [lazy, normal, aggressive]
         description: Sets volume bitrot scrub-throttle rate.
-        
+
     scrub_frequency:
         required: False
         choices: [daily, weekly, biweekly, monthly]
         description: Sets volume bitrot scrub-frequency.
-        
+
     bitrot_daemon:
         required: False
         choices: [enable, disable]
-        description: Enables or disables Volume Bitrot detection daemon 
-        
+        description: Enables or disables Volume Bitrot detection daemon
 '''
 
 EXAMPLES = '''
@@ -170,22 +169,22 @@ EXAMPLES = '''
 # Starts Volume profiling
   - gluster_volume: action=profile
              volume="{{ volname }}"
-             profile_state="start"   
+             profile_state="start"
     run_once: true
-    
+
 # Sets Volume options
   - gluster_volume: action=set
              volume="{{ volname }}"
              key="performance.cache-size"
              value="256MB"
     run_once: true
-    
+
 # Enable volume barrier
   - glusterfs_volume: action=barrier
              volume="{{ volname }}"
              barrier_state="enable"
     run_once: true
-    
+
 # Enable bitrot daemon
   - glusterfs_volume: action=bitrot
              volume="{{ volname }}"
@@ -195,12 +194,12 @@ EXAMPLES = '''
   - glusterfs_volume: action=bitrot
              volume="{{ volname }}"
              scrub_frequency="daily"
-             
+
 # Sets bitrot scrub throttle rate to aggressive
   - glusterfs_volume: action=bitrot
              volume="{{ volname }}"
              scrub_throttle="aggressive"
-             
+
 # Sets bitrot scrub to pause
   - glusterfs_volume: action=bitrot
              volume="{{ volname }}"
@@ -217,14 +216,18 @@ from ast import literal_eval
 class Volume(object):
     def __init__(self, module):
         self.module = module
-        self.action = self._validated_params('action')
+        self.action = self._validated_params('state')
+        if self.action == 'present':
+            self.action = 'create'
+        elif self.action == 'absent':
+            self.action = 'delete'
         self.force = 'force' if self.module.params.get('force') == 'yes' else ''
         self.gluster_volume_ops()
 
     def get_playbook_params(self, opt):
         return self.module.params[opt]
 
-    def _validated_params(self, opt):  
+    def _validated_params(self, opt):
         value = self.get_playbook_params(opt)
         if value is None:
             msg = "Please provide %s option in the playbook!" % opt
@@ -305,12 +308,12 @@ class Volume(object):
             options += ' replica %s ' % self._validated_params('replica_count')
         new_bricks = self.get_brick_list()
         if self.action == 'remove-brick':
-            return options + new_bricks + ' ' + self._validated_params('state')
+            return options + new_bricks + ' ' + self._validated_params('rebal_state')
         return options + new_bricks
 
     def gluster_volume_ops(self):
         option_str = ''
-        if self.action in ['delete', 'remove-brick']:
+        if self.action in ['absent', 'remove-brick']:
             self.force = ''
         if self.action == 'replace-brick':
             self.force = 'commit force'
@@ -327,28 +330,28 @@ class Volume(object):
         if self.action == 'profile':
             option_str = self._validated_params('profile_state')
         if self.action == 'set':
-            option_str = self._validated_params('key') + " " 
+            option_str = self._validated_params('key') + " "
             option_str += self._validated_params('value')
         if self.action == 'barrier':
             option_str = self._validated_params('barrier_state')
-        if self.action == 'bitrot':          
+        if self.action == 'bitrot':
             if self.module.params['scrub']:
                 option_str = 'scrub ' + self._validated_params('scrub')
             elif self.module.params['scrub_throttle']:
-                option_str = 'scrub-throttle ' 
+                option_str = 'scrub-throttle '
                 option_str += self._validated_params('scrub_throttle')
             elif self.module.params['scrub_frequency']:
-                option_str = 'scrub-frequency ' 
+                option_str = 'scrub-frequency '
                 option_str += self._validated_params('scrub_frequency')
             elif self.module.params['bitrot_daemon']:
                 option_str = self._validated_params('bitrot_daemon')
-                              
+
         rc, output, err = self.call_gluster_cmd('volume', self.action,
                                                volume, option_str, self.force)
         self._get_output(rc, output, err)
-        
+
     def rebalance_volume(self):
-        state = self._validated_params('state')
+        state = self._validated_params('rebal_state')
         if state not in ['start', 'stop', 'fix-layout']:
             self.module.fail_json(rc=20,msg="Invalid state for rebalance action. \n" \
                     "Available options are: start, stop, fix-layout.")
@@ -383,13 +386,15 @@ class Volume(object):
 if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
-            action=dict(required=True),
-            current_host=dict(),
+            state=dict(required=True,
+                       choices=["absent", "present", "remove-brick",
+                                "replace-brick", "rebalance", "add-brick",
+                                "profile", "set", "barrier", "bitrot" ]),
             hosts=dict(),
             volume=dict(),
             bricks=dict(),
             force=dict(),
-            state=dict(),
+            rebal_state=dict(),
             key=dict(),
             value=dict(),
             replica=dict(),
@@ -405,9 +410,7 @@ if __name__ == '__main__':
             scrub_frequency=dict(),
             scrub_throttle=dict(),
             bitrot_daemon=dict(),
-          
         ),
     )
 
     Volume(module)
-    

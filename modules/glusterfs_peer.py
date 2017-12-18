@@ -58,8 +58,7 @@ class Peer(object):
             action = 'detach'
         cmd = []
         for node in nodes:
-            cmd.append(' peer ' + action + ' ' + ' ' +
-                       node + ' ' + force)
+            cmd.append(' peer ' + action + ' ' + node + ' ' + force)
         return cmd
 
     def get_to_be_probed_hosts(self, hosts):
