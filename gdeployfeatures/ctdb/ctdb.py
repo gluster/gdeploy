@@ -4,6 +4,7 @@ The function should be named as follows <feature name>_<action_name>
 """
 from gdeploylib import defaults, Global
 import re
+import sys
 
 
 def ctdb_start(section_dict):
@@ -66,6 +67,17 @@ def ctdb_setup(section_dict):
             ctdbnodes = [ctdbnodes]
         section_dict['ctdbnodes'] = "\n".join(ctdbnodes)
         Global.logger.info("Using %s as CTDB nodes" % ctdbnodes)
+    else:
+        # Ensure that the section_dict['nodes'] are IPs and
+        # not hostnames when ctdb_nodes are not specified
+        for host in Global.hosts:
+            for i in host.split('.'):
+                try:
+                    int(i)
+                except ValueError:
+                    msg = "Provide ip address in [hosts] section or define ctdb_nodes variable with ip addresses."
+                    Global.logger.info(msg)
+                    sys.exit(msg)
     section_dict, enable_yml = ctdb_enable(section_dict)
     section_dict, start_yml = ctdb_start(section_dict)
 
