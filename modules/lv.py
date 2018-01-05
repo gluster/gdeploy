@@ -121,9 +121,7 @@ EXAMPLES = '''
 ---
 '''
 
-from ansible.module_utils.basic import *
-import json
-from ast import literal_eval
+from ansible.module_utils.basic import AnsibleModule
 from math import floor
 error = False
 
@@ -135,7 +133,7 @@ class LvOps(object):
         self.action = self.validated_params('action')
         self.vgname = self.validated_params('vgname')
         self.lvname = self.validated_params('lvname')
-        if self.action not in ['rename', 'remove','resize','change']:
+        if self.action not in ['rename', 'remove', 'resize', 'change']:
             self.pvname = self.validated_params('pvname')
 
     def lv_action(self):
@@ -156,8 +154,8 @@ class LvOps(object):
             self.module.fail_json(rc=rc, msg=err)
 
     def metadata_compute(self):
-        #This is an RHS specific computation method for performance
-        #improvements. User can choose not to use it by providing
+        # This is an RHS specific computation method for performance
+        # improvements. User can choose not to use it by providing
         # metadatasize and poolsize in the playbook.
         metadatasize = 0
         global error
@@ -166,7 +164,7 @@ class LvOps(object):
         rc, vg_size, err = self.run_command('vgs', option)
         if not rc:
             vg_size = list(set(filter(
-                                None, vg_size.split(' '))))[0]
+                None, vg_size.split(' '))))[0]
             vg_size = floor(float(vg_size.strip(' m\t\r\n')) - 4)
             KB_PER_GB = 1048576
             if vg_size > 1000000:
@@ -178,7 +176,6 @@ class LvOps(object):
             self.vg_size = vg_size
             return metadatasize
         self.module.fail_json(msg=err, rc=rc)
-
 
     def poolsize_compute(self):
         metadatasize = self.metadata_compute()
@@ -214,15 +211,14 @@ class LvOps(object):
         else:
             sop = ' -L %s' % size
         pvname = self.module.params.get('pvname') or ''
-        opts = ' -Wn %s -n %s %s %s' %(sop, lvname, self.vgname, pvname)
+        opts = ' -Wn %s -n %s %s %s' % (sop, lvname, self.vgname, pvname)
         return opts
-
 
     def create_thin_pool(self):
         lvcreate = {}
         lvcreate['chunksize'] = self.module.params['chunksize']
         lvcreate['poolmetadatasize'] = self.module.params[
-                'poolmetadatasize'] or ''
+            'poolmetadatasize'] or ''
         poolname = self.validated_params('poolname')
         self.lv_presence_check(poolname)
         lvcreate['thinpool'] = self.get_vg_appended_name(poolname)
@@ -230,16 +226,16 @@ class LvOps(object):
         cmd = self.parse_playbook_data(lvcreate)
         if not lvcreate['size']:
             extent = self.module.params.get('extent') or '100%FREE'
-            extcmd = ' -l %s'%extent
-            opts = ' -Wn %s %s' %(extcmd, cmd)
+            extcmd = ' -l %s' % extent
+            opts = ' -Wn %s %s' % (extcmd, cmd)
         else:
-            opts = ' -Wn %s' %cmd
+            opts = ' -Wn %s' % cmd
         return opts
 
     def create_thin_lv(self):
         lvcreate = {}
         lvcreate['virtualsize'] = self.module.params[
-                'virtualsize'] or (str(self.poolsize_compute()) + 'K')
+            'virtualsize'] or (str(self.poolsize_compute()) + 'K')
         lvname = self.validated_params('lvname')
         self.lv_presence_check(lvname)
         lvcreate['name'] = lvname
@@ -254,50 +250,52 @@ class LvOps(object):
         return rc
 
     def lv_presence_check(self, lvname):
-        rc, out, err = self.run_command('lvdisplay', ' '+ self.vgname +
-                '/' + lvname)
+        rc, out, err = self.run_command('lvdisplay', ' ' + self.vgname +
+                                        '/' + lvname)
         ret = 0
         if self.action == 'create' and not rc:
             self.module.exit_json(changed=0, msg="%s Logical Volume Exists!"
-                    % lvname)
+                                  % lvname)
         elif self.action in ['convert', 'change', 'remove'] and rc:
-            self.module.exit_json(changed=0, msg="%s Logical Volume Doesn't "\
-                    "Exists!" % lvname)
+            self.module.exit_json(changed=0, msg="%s Logical Volume Doesn't "
+                                  "Exists!" % lvname)
         else:
             ret = 1
         return ret
 
     def rename(self):
-        args= " "
-        args += '%s/%s' % (self.vgname,self.lvname)
-        new_name= self.module.params['new_name']
-        args += " "+ str(new_name)
+        args = " "
+        args += '%s/%s' % (self.vgname, self.lvname)
+        new_name = self.module.params['new_name']
+        args += " " + str(new_name)
         return args
 
     def resize(self):
-        args= " "
-        force= self.module.params['force']
+        args = " "
+        force = self.module.params['force']
         if force == 'y':
             args += " -f "
         nofsck = self.module.params['nofsck']
-        if nofsck=='y':
+        if nofsck == 'y':
             args += " -n "
         resizefs = self.module.params['resizefs']
-        if resizefs=='y':
+        if resizefs == 'y':
             args += " -r "
         size = self.module.params['size']
         args += "-L" + size + " "
         stripe = self.module.params['stripe']
-        if stripe=='y':
+        if stripe == 'y':
             args += " -i "
         stripesize = self.module.params['stripesize']
         if stripesize:
             args += " -I " + stripesize
-        args += '%s/%s' % (self.vgname,self.lvname)
+        args += '%s/%s' % (self.vgname, self.lvname)
         return args
 
     def reduce(self):
-        args= " "
+        args = " "
+        compute_type = self.module.params['compute'] or ''
+        compute_func = getattr(self, compute_type, None)
         force = self.module.params['force']
         if force == 'y':
             args += " -f "
@@ -312,16 +310,18 @@ class LvOps(object):
         else:
             sop = ' -L %s' % size
         nofsck = self.module.params['nofsck']
-        if nofsck=='y':
+        if nofsck == 'y':
             args += "-n "
         resizefs = self.module.params['resizefs']
-        if resizefs=='y':
+        if resizefs == 'y':
             args += "-r "
-        args += '%s/%s %s' % (self.vgname,self.lvname,self.pvname)
+        args += '%s/%s %s' % (self.vgname, self.lvname, self.pvname)
         return sop + args
 
     def extend(self):
-        args= " "
+        args = " "
+        compute_type = self.module.params['compute'] or ''
+        compute_func = getattr(self, compute_type, None)
         force = self.module.params['force']
         if force == 'y':
             args += " -f "
@@ -336,18 +336,18 @@ class LvOps(object):
         else:
             sop = ' -L %s' % size
         nofsck = self.module.params['nofsck']
-        if nofsck=='y':
+        if nofsck == 'y':
             args += "-n "
         resizefs = self.module.params['resizefs']
-        if resizefs=='y':
+        if resizefs == 'y':
             args += "-r "
-        args += '/dev/%s/%s %s' % (self.vgname,self.lvname,self.pvname)
+        args += '/dev/%s/%s %s' % (self.vgname, self.lvname, self.pvname)
         return sop + args
 
     def create(self):
         args = " "
         cachemode = self.module.params['cachemode']
-        if cachemode in ["writethrough","writeback","passthrough"]:
+        if cachemode in ["writethrough", "writeback", "passthrough"]:
             args += "--cachemode " + cachemode
         poolmetadataspare = self.module.params["poolmetadataspare"]
         if poolmetadataspare == 'y':
@@ -371,12 +371,12 @@ class LvOps(object):
             args += " -Z y "
         self.lvtype = self.validated_params('lvtype')
         options = {'thick': self.create_thick_pool,
-                   'thinpool':  self.create_thin_pool,
+                   'thinpool': self.create_thin_pool,
                    'thinlv': self.create_thin_lv
                    }[self.lvtype]()
-                   # 'virtual': ' -V %sK -T /dev/%s/%s -n %s'
-                   # % (pool_sz, self.vgname, poolname, lvname)
-                   # }[self.lvtype]
+        # 'virtual': ' -V %sK -T /dev/%s/%s -n %s'
+        # % (pool_sz, self.vgname, poolname, lvname)
+        # }[self.lvtype]
         # self.module.exit_json(rc=1,msg= "Debug output:\n" + options + " " + args)
         return options + " " + args
 
@@ -389,7 +389,7 @@ class LvOps(object):
     def get_vg_appended_name(self, lv):
         if not lv or not lv.strip():
             return ''
-        if not '/' in lv:
+        if '/' not in lv:
             return self.vgname + '/' + lv
         return lv
 
@@ -399,7 +399,7 @@ class LvOps(object):
         if errorwhenfull == 'n':
             args += "--errorwhenfull " + errorwhenfull
         permission = self.module.params['permission']
-        if permission in ["r","rw"]:
+        if permission in ["r", "rw"]:
             args += " -p" + permission
         poolname = self.validated_params('lvname')
         self.lv_presence_check(poolname)
@@ -420,7 +420,7 @@ if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
             action=dict(choices=["create", "change", "resize",
-                                "reduce","remove",'rename','extend']),
+                                 "reduce", "remove", 'rename', 'extend']),
             lvname=dict(type='str'),
             lv=dict(),
             cachemode=dict(),
