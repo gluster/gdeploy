@@ -81,9 +81,7 @@ EXAMPLES = '''
 
 '''
 
-from ansible.module_utils.basic import *
-import json
-from ast import literal_eval
+from ansible.module_utils.basic import AnsibleModule
 
 
 class PvOps(object):
@@ -100,7 +98,7 @@ class PvOps(object):
         return value
 
     def run_command(self, op, options):
-        cmd = self.module.get_bin_path(op, True)  + options
+        cmd = self.module.get_bin_path(op, True) + options
         return self.module.run_command(cmd)
 
     def get_output(self, rc, output, err):
@@ -113,11 +111,11 @@ class PvOps(object):
         rc, out, err = self.run_command('pvdisplay', ' ' + disk)
         ret = 0
         if self.action == 'create' and not rc:
-            self.module.exit_json(rc=0, changed= 0, msg="%s Physical Volume"
-                                   " Exists!" % disk)
+            self.module.exit_json(rc=0, changed=0, msg="%s Physical Volume"
+                                  " Exists!" % disk)
         elif self.action == 'remove' and rc:
-            self.module.exit_json(rc=0, changed=0,msg="%s Physical Volume"
-                                   "Doesn't Exists!" % disk)
+            self.module.exit_json(rc=0, changed=0, msg="%s Physical Volume"
+                                  "Doesn't Exists!" % disk)
         else:
             ret = 1
         return ret
@@ -132,7 +130,7 @@ class PvOps(object):
     def get_volume_command(self, disk):
         args = ' ' + str(disk)
 
-        if  self.action == 'create':
+        if self.action == 'create':
             force = self.module.params['force']
             if force == 'y':
                 args += " -f"
@@ -153,7 +151,7 @@ class PvOps(object):
             force = self.module.params['force']
             if force == 'y':
                 args += " -f"
-        elif self.action =='change':
+        elif self.action == 'change':
             uuid = self.module.params['uuid']
             if uuid:
                 args += " -u " + uuid
@@ -164,7 +162,7 @@ class PvOps(object):
             allocatable = self.module.params['allocatable']
             if allocatable == 'n':
                 args += " -x " + allocatable
-        elif self.action =='resize':
+        elif self.action == 'resize':
             setphysicalvolumesize = self.module.params['setphysicalvolumesize']
             if setphysicalvolumesize:
                 args += " --setphysicalvolumesize " + setphysicalvolumesize

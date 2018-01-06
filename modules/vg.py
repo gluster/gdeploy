@@ -90,10 +90,7 @@ EXAMPLES = '''
       -vgname3
 '''
 
-from ansible.module_utils.basic import *
-from ast import literal_eval
-import sys
-import os
+from ansible.module_utils.basic import AnsibleModule
 
 
 class VgOps(object):
@@ -123,13 +120,13 @@ class VgOps(object):
             if self.disktype and self.disktype not in ['jbod']:
                 self.options += ' -s %sK ' % self._compute_size()
             args += " %s %s" % (self.vgname, self.disk)
-            maxlogicalvolumes=self.module.params['maxlogicalvolumes']
+            maxlogicalvolumes = self.module.params['maxlogicalvolumes']
             if maxlogicalvolumes:
                 args += " -l " + maxlogicalvolumes
-            maxphysicalvolumes= self.module.params['maxphysicalvolumes']
+            maxphysicalvolumes = self.module.params['maxphysicalvolumes']
             if maxphysicalvolumes:
                 args += " -p " + maxphysicalvolumes
-            physicalextentsize=self.module.params['physicalextentsize']
+            physicalextentsize = self.module.params['physicalextentsize']
             if physicalextentsize:
                 args += " -s " + physicalextentsize
             zero = self.module.params['zero']
@@ -169,14 +166,14 @@ class VgOps(object):
             if not hasattr(self, 'disk'):
                 self.disk = self.validated_params('disk')
             args = " %s %s" % (self.vgname, self.disk)
-            removemissing =self.module.params['removemissing']
+            removemissing = self.module.params['removemissing']
             if removemissing:
                 args += "--removemissing"
         elif self.action == 'convert':
-            args += " %s "%(self.vgname)
-            metadatatype= self.module.params['metadatatype']
+            args += " %s " % (self.vgname)
+            metadatatype = self.module.params['metadatatype']
             if metadatatype:
-                args+= " -M"+ metadatatype
+                args += " -M" + metadatatype
             # self.module.exit_json(rc=1, msg=args)
         else:
             self.module.fail_json(rc=1, msg="Unknown action")
@@ -207,23 +204,22 @@ class VgOps(object):
             # volume group exists, exit!
             self.module.exit_json(changed=False, rc=1,
                                   msg="A volume group called %s already exists"
-                                  %vg)
+                                  % vg)
         elif self.action == 'extend' and rc:
             # volume group does not exist, exit!
             self.module.exit_json(changed=False, rc=1,
-                                  msg="A volume group %s not found."%vg)
+                                  msg="A volume group %s not found." % vg)
         elif self.action == 'reduce' and rc:
             # volume group does not exist, exit!
             self.module.exit_json(changed=False, rc=1,
-                                  msg="A volume group %s not found."%vg)
+                                  msg="A volume group %s not found." % vg)
         elif self.action == 'convert' and rc:
             # volume group does not exist, exit!
             self.module.exit_json(changed=False, rc=1,
-                                  msg="A volume group %s not found."%vg)
+                                  msg="A volume group %s not found." % vg)
         elif self.action == 'remove' and rc:
             self.module.exit_json(changed=False, rc=1,
-                                  msg="Volume group %s not found"%vg)
-
+                                  msg="Volume group %s not found" % vg)
 
     def pv_presence_check(self, disk):
         if self.action not in ['create', 'extend']:
@@ -233,7 +229,7 @@ class VgOps(object):
             dataalignment = self.module.params['dataalignment'] or ''
             opts = " --dataalignment %sk" % dataalignment if dataalignment else ''
             rc, out, err = self.run_command('pvcreate', opts +
-                    ' ' + disk)
+                                            ' ' + disk)
             if rc:
                 self.module.fail_json(msg="Could not create PV", rc=rc)
         return 1
@@ -241,6 +237,7 @@ class VgOps(object):
     def run_command(self, op, opts):
         cmd = self.module.get_bin_path(op, True) + opts
         return self.module.run_command(cmd)
+
 
 if __name__ == '__main__':
     module = AnsibleModule(
