@@ -32,25 +32,12 @@ description:
 
 
 options:
-    action:
-        required: True
-        choices: [create, delete, start, stop, add-brick, remove-brick, replace-brick,
-                  rebalance, profile_state, bitrot, set,barrier]
-
-                     This can be create, delete, start, stop,
-                     add-brick, remove-brick, or replace-brick.
-    volume:
+    volname:
         required: True
         description: Specifies the name of the Gluster volume to be created.
 
-    hosts:
-        required: True
-        description: The list of all the hosts that are to be a part of the
-                     cluster.
-
     bricks:
-        required: True (If and action is in [create,
-                  add-brick, remove-brick])
+        required: True (If state is in [create, add-brick, remove-brick])
         description: Specifies the bricks that constitutes the volume if
                      the action is volume create, the new bricks to be
                      added to a volume if the action is volume add-brick
@@ -116,11 +103,10 @@ options:
         optimal configuration.
 
     state:
-        required: True if action is remove-brick and rebalance
-        choices: [start, stop, commit, force] for remove-brick
-        choices: [start, stop, fix-layout] for rebalance
-        description: Specifies the state of the volume if one or more
-                     bricks are to be removed from the volume.
+        required: True
+        choices: ["absent", "present", "remove-brick", "started",
+                  "stopped", "replace-brick", "rebalance",
+                  "add-brick", "profile", "set", "barrier", "bitrot" ]
 
     profile_state:
         required: False
@@ -155,56 +141,19 @@ options:
 
 EXAMPLES = '''
 ---
-# Creates a volume
-  - volume: action=create
-             volume="{{ volname }}"
-             bricks='{% for host in hosts %}
-             {{ hostvars[host]['mountpoints'] }};
-             {% endfor %}'
-             hosts="{{ hosts }}"
-             transport=rdma
-             replica_count=3
-             arbiter_count=1
-
-# Starts Volume profiling
-  - gluster_volume: action=profile
-             volume="{{ volname }}"
-             profile_state="start"
-    run_once: true
-
-# Sets Volume options
-  - gluster_volume: action=set
-             volume="{{ volname }}"
-             key="performance.cache-size"
-             value="256MB"
-    run_once: true
-
-# Enable volume barrier
-  - glusterfs_volume: action=barrier
-             volume="{{ volname }}"
-             barrier_state="enable"
-    run_once: true
-
-# Enable bitrot daemon
-  - glusterfs_volume: action=bitrot
-             volume="{{ volname }}"
-             bitrot_daemon="enable"
-
-# Sets bitrot scrub frequency to daily
-  - glusterfs_volume: action=bitrot
-             volume="{{ volname }}"
-             scrub_frequency="daily"
-
-# Sets bitrot scrub throttle rate to aggressive
-  - glusterfs_volume: action=bitrot
-             volume="{{ volname }}"
-             scrub_throttle="aggressive"
-
-# Sets bitrot scrub to pause
-  - glusterfs_volume: action=bitrot
-             volume="{{ volname }}"
-             scrub="pause"
-
+- name: Create a volume
+  glusterfs_volume:
+           state=present
+           volume="{{ volname }}"
+           bricks="{{ bricks }}"
+           hosts="{{ gluster_hosts }}"
+           transport="{{ transport }}"
+           replica_count="{{ replica_count }}"
+           arbiter_count="{{ arbiter_count }}"
+           disperse="{{ disperse }}"
+           disperse_count="{{ disperse_count }}"
+           redundancy_count="{{ redundancy_count }}"
+           force="{{ force | default('no') }}"
 '''
 
 import sys
