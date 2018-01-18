@@ -221,6 +221,10 @@ class Volume(object):
             self.action = 'create'
         elif self.action == 'absent':
             self.action = 'delete'
+        elif self.action == 'started':
+            self.action = 'start'
+        elif self.action == 'stopped':
+            self.action = 'stop'
         self.force = 'force' if self.module.params.get('force') == 'yes' else ''
         self.gluster_volume_ops()
 
@@ -387,9 +391,10 @@ if __name__ == '__main__':
     module = AnsibleModule(
         argument_spec=dict(
             state=dict(required=True,
-                       choices=["absent", "present", "remove-brick",
-                                "replace-brick", "rebalance", "add-brick",
-                                "profile", "set", "barrier", "bitrot" ]),
+                       choices=["absent", "present", "remove-brick", "started",
+                                "stopped", "replace-brick", "rebalance",
+                                "add-brick", "profile", "set", "barrier",
+                                "bitrot" ]),
             hosts=dict(),
             volume=dict(),
             bricks=dict(),
