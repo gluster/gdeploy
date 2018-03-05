@@ -112,10 +112,11 @@ def parse_georep_data(section_dict):
     if section_dict.has_key('mastervol'):
         section_dict['mastervolname'] = helpers.split_volume_and_hostname(
             section_dict['mastervol'])
+    section_dict['master'] = Global.master
     if section_dict.has_key('slavevol'):
         section_dict['slavevolname'] = helpers.split_volume_and_hostname(
             section_dict['slavevol'])
-    section_dict['master'] = section_dict['slave'] = Global.master
+    section_dict['slave'] = Global.master
     return section_dict
 
 
