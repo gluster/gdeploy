@@ -1,2 +1,2 @@
 [Slice]
-CPUQuota=400%
+CPUQuota={{ (ansible_processor_vcpus * 0.33 * 100)|round|int }} 
