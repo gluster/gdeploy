@@ -1,12 +1,12 @@
-#Installation
+# Installation
 
-###Clone this repo:
+### Clone this repo:
 
-` git clone git@github.com:gluster/gdeploy.git`
+` git clone https://github.com/gluster/gdeploy.git`
 
 ` cd gdeploy`
 
-###Install the requirements:
+### Install the requirements:
 
  Make sure you have gcc and python-devel installed
 
@@ -20,7 +20,7 @@
  If [backend-setup] or any other lvm releated sections are used, ensure to
  install lvm2 package.
 
-###Setup GDeploy
+### Setup GDeploy
 
 **Run the gdeploy_setup.sh file from the root directory of gdeploy**
 
@@ -38,7 +38,7 @@
 <br/>` python setup.py install`<br/>
 
 
-##Usage
+## Usage
 
 To use the framework create a configuration file as per your needs.
 Follow the instructions [here](https://github.com/gluster/gdeploy/blob/master/examples/gluster.conf.sample)
