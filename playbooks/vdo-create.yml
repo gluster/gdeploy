@@ -27,11 +27,3 @@
             logicalthreads="{{ logicalthreads | default('1') }}"
             physicalthreads="{{ physicalthreads | default('1') }}"
         with_items: "{{ vdos | default([]) }}"
-
-      - name:  set xfs ENOSPC metadata settings during vdo creation
-        shell: "echo 4 | tee /sys/fs/xfs/{{ item.disk }}/error/metadata/ENOSPC/max_retries"
-        changed_when: False
-
-      - name: set xfs EIO metadata settings during vdo creation
-        shell: "echo 4 | tee /sys/fs/xfs/{{ item.disk }}/error/metadata/EIO/max_retries"
-        changed_when: False
