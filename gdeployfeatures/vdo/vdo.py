@@ -45,7 +45,7 @@ def vdo_create(section_dict):
 def vdo_delete(section_dict):
     section_dict['state'] = 'absent'
     section_dict['vdonames'] = helpers.listify(section_dict.get('names'))
-    Global.logger.info("Deleteing vdo volume(s) %s"% section_dict['vdonames'])
+    Global.logger.info("Deleting vdo volume(s) %s"% section_dict['vdonames'])
     return section_dict, defaults.VDO_DELETE
 
 def data_not_found(item):
