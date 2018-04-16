@@ -11,7 +11,7 @@ URL:            https://github.com/gluster/gdeploy
 Source0:        %{url}/archive/v%{version}-%{release}.tar.gz#/%{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
 Requires:       PyYAML
-Requires:       ansible > 2.3
+Requires:       ansible > 2.5
 Requires:       python2
 Requires:       lvm2
 
