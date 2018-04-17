@@ -10,12 +10,12 @@
     redhat_subscription: state=present activationkey="{{ activationkey }}" autosubscribe="{{ attach }}"
     when: activationkey is defined and activationkey
 
-  - name: Register with subscription-manager with username and password
+  - name: Register to subscription-manager with username and password
     redhat_subscription: state=present username="{{ username }}" password="{{ password }}" autosubscribe="{{ attach }}"
     when: ((username is defined and username) and (password is defined and password))
 
   - name: Attach to Red Hat subscription pool
-    command: subscription-manager attach --pool="{{ pool }}"
+    redhat_subscription: state=present pool_ids="{{ pool }}" username="{{ username }}" password="{{ password }}"
     when: pool is defined
 
   - name: Disable all rhsm repos
