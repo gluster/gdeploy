@@ -8,6 +8,7 @@ helpers = Helpers()
 
 def nfs_ganesha_create_cluster(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_ganesha_errors')
     Global.logger.info("Creating NFS Ganesha cluster")
     cluster_nodes = get_cluster_nodes(section_dict)
     section_dict['ha_name'] = section_dict.pop('ha-name')
@@ -35,6 +36,7 @@ def nfs_ganesha_create_cluster(section_dict):
 
 def nfs_ganesha_destroy_cluster(section_dict):
     global helpers
+    Global.ignore_errors = section_dict.get('ignore_ganesha_errors')
     Global.logger.info("Destroying NFS Ganesha cluster")
     section_dict = get_base_dir(section_dict)
     helpers.write_to_inventory('cluster_nodes',
@@ -42,6 +44,7 @@ def nfs_ganesha_destroy_cluster(section_dict):
     return section_dict, defaults.GANESHA_DISABLE
 
 def nfs_ganesha_add_node(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_ganesha_errors')
     Global.logger.info("Adding nodes to NFS Ganesha cluster")
     new_nodes = helpers.listify(section_dict.get('nodes'))
     cluster_nodes = section_dict.get('cluster_nodes')
@@ -65,11 +68,13 @@ def nfs_ganesha_add_node(section_dict):
                            defaults.GANESHA_ADD_NODE ]
 
 def nfs_ganesha_delete_node(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_ganesha_errors')
     section_dict = get_base_dir(section_dict)
     Global.logger.info("Deleting nodes from NFS Ganesha cluster")
     return section_dict, defaults.GANESHA_DELETE_NODE
 
 def nfs_ganesha_export_volume(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_ganesha_errors')
     section_dict['value'] = "on"
     section_dict = get_base_dir(section_dict)
     Global.logger.info("Exporting NFS Ganesha cluster volume")
@@ -77,12 +82,14 @@ def nfs_ganesha_export_volume(section_dict):
                           defaults.GANESHA_VOL_EXPORT ]
 
 def nfs_ganesha_unexport_volume(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_ganesha_errors')
     section_dict['value'] = "off"
     section_dict = get_base_dir(section_dict)
     Global.logger.info("Unexporting NFS Ganesha cluster volume")
     return section_dict, defaults.GANESHA_VOL_EXPORT
 
 def nfs_ganesha_refresh_config(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_ganesha_errors')
     del_lines = list_to_string(section_dict.get('del-config-lines'))
     Global.logger.info("Running refresh config on NFS Ganesha volume")
     # Split the string which is `|' delimited. Escaped `|' is handled gracefully
