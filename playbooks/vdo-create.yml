@@ -2,6 +2,7 @@
 - hosts: gluster_servers
   remote_user: root
   gather_facts: no
+  any_errors_fatal: True 
 
   tasks:
       - name: Create VDO with specified size
