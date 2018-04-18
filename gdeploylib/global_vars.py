@@ -57,7 +57,7 @@ class Global(object):
     group_file = os.path.join(group_vars_dir, 'all')
     playbooks_file = os.path.join(os.path.realpath(base_dir),
                                   'ansible_playbooks.yml')
-    ignore_errors = 'yes'
+    ignore_errors = 'no'
     keep = False
 
     # HEKETI DATA
