@@ -7,7 +7,7 @@ helpers = Helpers()
 
 def vdo_create(section_dict):
     global helpers
-
+    Global.ignore_errors = section_dict.get('ignore_vdo_errors')
     section_dict['state'] = 'present'
     disks = helpers.correct_brick_format(
         helpers.listify(section_dict['devices']))
@@ -43,6 +43,7 @@ def vdo_create(section_dict):
     return section_dict, defaults.VDO_CREATE
 
 def vdo_delete(section_dict):
+    Global.ignore_errors = section_dict.get('ignore_vdo_errors')
     section_dict['state'] = 'absent'
     section_dict['vdonames'] = helpers.listify(section_dict.get('names'))
     Global.logger.info("Deleting vdo volume(s) %s"% section_dict['vdonames'])
