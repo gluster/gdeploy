@@ -70,6 +70,12 @@ mkdir -p %{buildroot}/%{python2_sitelib}/ansible/plugins/callback
 install -p -m 644 plugins/callback/gdeploy.py \
         %{buildroot}/%{python2_sitelib}/ansible/plugins/callback/
 
+# Install the vdo service file
+# To-Do Install service file in the following path
+# /usr/lib/systemd/system/vdo.service 
+
+
+
 # Documentation
 mkdir -p %{buildroot}/%{_pkgdocdir}
 cp -rp docs/build/html examples %{buildroot}/%{_pkgdocdir}
