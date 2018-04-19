@@ -96,7 +96,13 @@
           {
             "required": "false",
             "name": "mount"
-          }
+          },
+          {
+	    "required": "false",
+            "name": "ignore_vdo_errors",
+            "default": "yes"	    
+	  }
+
         ]
       },
       "delete": {
@@ -104,7 +110,12 @@
           {
             "name": "names",
             "required": "true"
-          }
+          },
+	  {
+	     "required": "false",
+	     "name": "ignore_vdo_errors",
+	     "default": "yes"  
+	  }
         ]
       }
     }
