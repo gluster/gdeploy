@@ -174,6 +174,8 @@ def get_mount_data(section_dict, devices, vgnames):
         mntpath['device'] = dev
         data.append(mntpath)
     section_dict['mntpath'] = data
+    if Global.vdo_device:
+        section_dict['vdo_device'] = True
     selinux = helpers.config_get_options('selinux', False)
     ymls = [defaults.FSCREATE_YML, defaults.MOUNT_YML]
     if selinux:
