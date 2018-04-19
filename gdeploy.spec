@@ -1,9 +1,10 @@
+%{?systemd_requires}
 %global gdeploymod ansible/modules/gdeploy
 %global gdeploytemp %{_datadir}/gdeploy
 
 Name:           gdeploy
 Version:        2.0.2
-Release:        14%{?dist}
+Release:        24%{?dist}
 Summary:        Tool to deploy and manage GlusterFS cluster
 
 License:        GPLv3+
@@ -17,6 +18,7 @@ Requires:       lvm2
 
 BuildRequires:  python2-setuptools
 BuildRequires:  python2-devel
+BuildRequires:  systemd
 
 %description
 gdeploy is an Ansible based deployment tool. Initially gdeploy was written to
@@ -70,6 +72,13 @@ mkdir -p %{buildroot}/%{python2_sitelib}/ansible/plugins/callback
 install -p -m 644 plugins/callback/gdeploy.py \
         %{buildroot}/%{python2_sitelib}/ansible/plugins/callback/
 
+# Install the vdo service file
+# https://fedoraproject.org/wiki/Packaging:Scriptlets#Systemd
+# /usr/lib/systemd/system/vdo.service
+install -p -m 644 extras/scripts/vdo.service \
+           %{buildroot}/usr/lib/systemd/system/
+
+
 # Documentation
 mkdir -p %{buildroot}/%{_pkgdocdir}
 cp -rp docs/build/html examples %{buildroot}/%{_pkgdocdir}
@@ -80,13 +89,26 @@ mkdir -p %{buildroot}/%{_mandir}/man1/ \
 cp -p man/gdeploy.1* %{buildroot}/%{_mandir}/man1/
 cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
+
+%post
+%systemd_post vdo.service
+
+%preun
+%systemd_preun vdo.service
+
+%postun
+%systemd_postun_with_restart vdo.service
+
 %files
 %{_bindir}/gdeploy
+%{_unitdir}/vdo.service
 %{python2_sitelib}/gdeploy*
 %{gdeploytemp}
 %{python2_sitelib}/%{gdeploymod}
 %{_bindir}/gluster-replace-node
 %{python2_sitelib}/ansible/plugins/callback/gdeploy.py*
+
+
 
 %doc README.md TODO
 %license LICENSE
@@ -108,6 +130,9 @@ configuration files to deploy and configure GlusterFS.
 %doc %{_pkgdocdir}
 
 %changelog
+* Thu Apr 19 2018 Ramakrishna Reddy Yekulla <rreddy@redhat.com>2.0.2-25
+- Adding the vdo service file
+
 * Wed Aug 16 2017 Sachidananda Urs <sac@redhat.com> 2.0.2-14
 - Change the license to GPLv3+
 - Fix the source tar ball naming
