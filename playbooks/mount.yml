@@ -20,4 +20,4 @@
         echo '4' > "/sys/fs/xfs/`basename $(realpath {{ item.device }})`/\
                      error/metadata/EIO/max_retries";
     with_items: "{{ mntpath }}"
-    when: vdo_device is True
+    when: vdo_device is defined and vdo_device|bool == true
