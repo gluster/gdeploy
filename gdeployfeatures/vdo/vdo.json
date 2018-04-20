@@ -46,7 +46,7 @@
           {
             "name": "emulate512",
             "required": "false",
-            "default": "disabled"
+            "default": "0"
           },
           {
             "name": "slabsize",

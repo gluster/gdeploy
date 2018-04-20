@@ -12,3 +12,12 @@
     mount: name={{ item.path }} src={{ item.device }} fstype=xfs
            opts="inode64,noatime,nodiratime" state=mounted
     with_items: "{{ mntpath }}"
+
+  - name: In case of VDO update dynamic config - max_retries
+    shell: >
+        echo '4' > "/sys/fs/xfs/`basename $(realpath {{ item.device }})`/\
+                     error/metadata/ENOSPC/max_retries";
+        echo '4' > "/sys/fs/xfs/`basename $(realpath {{ item.device }})`/\
+                     error/metadata/EIO/max_retries";
+    with_items: "{{ mntpath }}"
+    when: vdo_device is defined and vdo_device|bool == true
