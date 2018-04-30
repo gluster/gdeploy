@@ -1,6 +1,6 @@
 ---
 - hosts: georep_slave
-  remote_user: root
+  become: true
   gather_facts: no
 
   tasks:

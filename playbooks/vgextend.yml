@@ -1,6 +1,6 @@
 ---
 - hosts: gluster_servers
-  remote_user: root
+  become: true
   gather_facts: no
 
 
