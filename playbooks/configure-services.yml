@@ -1,6 +1,6 @@
 ---
 - hosts: cluster_nodes
-  remote_user: root
+  become: true
   gather_facts: no
 
   tasks:
