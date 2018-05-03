@@ -17,7 +17,7 @@
             readcache="{{ readcache | default('disabled') }}"
             readcachesize="{{ readcachesize | default('0') }}"
             emulate512="{{ emulate512 | default('disabled') }}"
-            slabsize="{{ slabsize | default('2G') }}"
+            slabsize="{{ item.slabsize | default('2G') }}"
             writepolicy="{{ writepolicy | default('auto') }}"
             indexmem="{{ indexmem | default('0.25') }}"
             indexmode="{{ indexmode | default('dense') }}"
