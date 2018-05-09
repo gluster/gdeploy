@@ -2,15 +2,22 @@
 - hosts: gluster_servers
   become: true
   gather_facts: no
+  vars:
+    opts="inode64,noatime,nodiratime"
 
   tasks:
   - name: Create the backend disks, skips if present
     file: path={{ item.path }} state=directory
     with_items: "{{ mntpath }}"
 
-  - name: Mount the volumes
+  - name: Set mount options for VDO
+    set_fact:
+      opts="{{opts}},"+"x-systemd.requires=vdo.service"
+    when: vdo_device is defined and vdo_device|bool == true
+
+  - name: Mount the volumes for non-VDO devices
     mount: name={{ item.path }} src={{ item.device }} fstype=xfs
-           opts="inode64,noatime,nodiratime" state=mounted
+           opts="{{ opts }}" state=mounted
     with_items: "{{ mntpath }}"
 
   - name: In case of VDO update dynamic config - max_retries
