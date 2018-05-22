@@ -14,6 +14,7 @@ def vdo_create(section_dict):
         helpers.listify(section_dict['devices']))
     vdonames = helpers.listify(section_dict.get('names'))
     lsize = helpers.listify(section_dict.get('logicalsize'))
+    slabsz = helpers.listify(section_dict.get('slabsize'))
 
     # Zero-fill the lszie so that logicalsize defaults to disk size if not
     # provided.
@@ -21,11 +22,12 @@ def vdo_create(section_dict):
         lsize.append('')
 
     vdolist = []
-    for d, n, lsize in zip(disks, vdonames, lsize):
+    for d, n, lsize, slab in zip(disks, vdonames, lsize, slabsz):
         v = {}
         v['disk'] = d
         v['name'] = n
         v['logicalsize'] = lsize
+        v['slabsize'] = slab
         vdolist.append(v)
     section_dict['vdos'] = vdolist
     activate = section_dict.get('activate')
