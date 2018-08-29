@@ -1,3 +1,20 @@
+# gdeploy deprecation Notice
+The authors and maintainers would be freezing the development 
+of gdeploy and would be focusing on [gluster-ansible](https://github.com/gluster/gluster-ansible) project. 
+There would be no further feature development. However the existing code base would have 
+community support till the lifecycle of Gluster 3.x series (Bugfixes only). 
+The gdeploy-2.0.9 would be the last release avaialable. 
+
+**Gluster - 4.0 and beyond :**
+We are pushing all the existing modules to upstream ansible project 
+and would be available as storage module within Ansible project.
+The deployment stratergy would be an Ansible Role.
+
+**Distributions :**
+Both the FedoraProject and CentOS would be shipping the 
+gdeploy-2.0.9 RPMS for gluster Project for the 3.x series 
+and would be community supported.
+
 # gdeploy release 2.0
 
 These are gdeploy 2.0 release notes. Lists the features and changes introduced
