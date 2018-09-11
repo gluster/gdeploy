@@ -128,7 +128,7 @@ def get_mount_data(section_dict, devices, vgnames):
         # If RAID data is provided use it to set the stripe_width and
         # stripe_unit_size from the config.
         disktype = helpers.config_get_options('disktype', False)
-        if disktype:
+        if disktype and disktype[0].lower() != 'jbod':
             sw = helpers.config_get_options('diskcount', True)
             su = helpers.config_get_options('stripesize', False)
             if not su:
