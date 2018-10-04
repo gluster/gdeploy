@@ -332,7 +332,7 @@ class BackendSetup(Helpers):
             # If RAID data is provided use it to set the stripe_width and
             # stripe_unit_size from the config.
             disktype = self.config_get_options('disktype', False)
-            if disktype:
+            if disktype and disktype[0].lower() != 'jbod':
                 sw = self.config_get_options('diskcount', True)
                 su = self.config_get_options('stripesize', False)
                 if not su:
