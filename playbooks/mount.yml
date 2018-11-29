@@ -12,7 +12,7 @@
 
   - name: Set mount options for VDO
     set_fact:
-      vdo_opts: "{{opts}},x-systemd.requires=vdo.service"
+      vdo_opts: "{{opts}},_netdev,x-systemd.device-timeout=0,x-systemd.requires=vdo.service"
     when: mntpath[0].vdodev is defined and mntpath[0].vdodev|bool == True
 
   - name: Mount the vdo disks (if any)
