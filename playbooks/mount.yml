@@ -6,16 +6,23 @@
     opts: "inode64,noatime,nodiratime"
 
   tasks:
-  - name: Create the backend disks, skips if present
+  - name: Create the mountpoints, skips if present
     file: path={{ item.path }} state=directory
     with_items: "{{ mntpath }}"
 
   - name: Set mount options for VDO
     set_fact:
-      opts: "{{opts}},x-systemd.requires=vdo.service"
-    when: vdo_device is defined and vdo_device|bool == true
+      vdo_opts: "{{opts}},x-systemd.requires=vdo.service"
+    when: mntpath[0].vdodev is defined and mntpath[0].vdodev|bool == True
 
-  - name: Mount the logical volumes
+  - name: Mount the vdo disks (if any)
+    mount: name={{ item.path }} src={{ item.device }} fstype=xfs
+           opts="{{ vdo_opts }}" state=mounted
+    with_items: "{{ mntpath }}"
+    when: item.vdodev is defined and item.vdodev|bool == True
+
+  - name: Mount the disks (non-vdo)
     mount: name={{ item.path }} src={{ item.device }} fstype=xfs
            opts="{{ opts }}" state=mounted
     with_items: "{{ mntpath }}"
+    when: item.vdodev is not defined

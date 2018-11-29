@@ -166,11 +166,18 @@ def get_mount_data(section_dict, devices, vgnames):
         mntpath = {}
         mntpath['path'] = mnt
         mntpath['device'] = dev
+        # Check if we have any VDO devices. We rely on pvnames provided in the
+        # form /dev/mapper/<vdoname>. If this format changes, change the below
+        # code appropriately. Also the lvols are built to be like
+        # /dev/vgname/lvname if this changes please change the code below as
+        # well.
+        for vgdict in Global.vg_data:
+            if vgdict['vg'] == dev.split('/')[2] and \
+               vgdict['brick'].startswith('/dev/mapper'):
+                mntpath['vdodev'] = True
         data.append(mntpath)
     section_dict['mntpath'] = data
 
-    if Global.vdo_device:
-        section_dict['vdo_device'] = True
     selinux = helpers.config_get_options('selinux', False)
     ymls = [defaults.FSCREATE_YML, defaults.MOUNT_YML]
     if selinux:

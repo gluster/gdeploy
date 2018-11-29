@@ -64,6 +64,7 @@ def dictify_pv_vg_names(section_dict, pvnames, vgnames):
             vglist['vg'] = vg
             data.append(vglist)
     section_dict['vgnames'] = data
+    Global.vg_data.append(vglist)
     return section_dict
 
 def get_pv_names(section_dict):
