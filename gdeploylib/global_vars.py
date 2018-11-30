@@ -59,4 +59,4 @@ class Global(object):
                         'ansible_playbooks.yml')
     ignore_errors = 'yes'
     keep = False
-    vdo_device = False
+    vg_data = []

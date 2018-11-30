@@ -8,7 +8,6 @@ helpers = Helpers()
 def vdo_create(section_dict):
     global helpers
     Global.ignore_errors = section_dict.get('ignore_vdo_errors')
-    Global.vdo_device = True
     section_dict['state'] = 'present'
     disks = helpers.correct_brick_format(
         helpers.listify(section_dict['devices']))
