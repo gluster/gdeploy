@@ -211,6 +211,7 @@ class LvOps(object):
 
     def create_thin_pool(self):
         lvcreate = {}
+        zero = self.module.params['zero'] or 'n'
         lvcreate['chunksize'] = self.module.params['chunksize']
         lvcreate['poolmetadatasize'] = self.module.params[
                 'poolmetadatasize'] or ''
@@ -225,7 +226,7 @@ class LvOps(object):
             opts = ' -Wn %s %s' %(extcmd, cmd)
         else:
             opts = ' -Wn %s' %cmd
-        return opts
+        return opts + " --zero %s"%zero
 
     def create_thin_lv(self):
         lvcreate = {}
