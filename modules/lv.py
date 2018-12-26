@@ -132,6 +132,7 @@ class LvOps(object):
         self.module = module
         self.action = self.validated_params('action')
         self.vgname = self.validated_params('vgname')
+        self.lang = dict(LANG='C', LC_ALL='C', LC_MESSAGES='C')
 
     def lv_action(self):
         cmd = {'create': self.create,
@@ -188,7 +189,7 @@ class LvOps(object):
 
     def run_command(self, op, options):
         cmd = self.module.get_bin_path(op, True) + options
-        return self.module.run_command(cmd)
+        return self.module.run_command(cmd, environ_update=self.lang)
 
     def create_thick_pool(self):
         compute_type = self.module.params['compute'] or ''
