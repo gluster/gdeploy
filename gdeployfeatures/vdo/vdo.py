@@ -20,13 +20,19 @@ def vdo_create(section_dict):
     for fi in range(len(vdonames) - len(lsize)):
         lsize.append('')
 
+    # Zero-fill slabsize if not provided. VDO will default it to appropriate
+    # value.
+    for sl in range(len(vdonames) - len(slabsz)):
+        slabsz.append('')
+
     vdolist = []
     for d, n, lsize, slab in zip(disks, vdonames, lsize, slabsz):
         v = {}
         v['disk'] = d
         v['name'] = n
         v['logicalsize'] = lsize
-        v['slabsize'] = slab
+        if slab:
+            v['slabsize'] = slab
         vdolist.append(v)
     section_dict['vdos'] = vdolist
     activate = section_dict.get('activate')
