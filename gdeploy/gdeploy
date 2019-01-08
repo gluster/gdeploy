@@ -117,6 +117,7 @@ def check_ansible_installation():
 def init_global_values(args):
     global helpers
     sections_list = []
+    Global.config_file = args.config_file.name
     Global.config = helpers.read_config(args.config_file.name)
     Global.verbose = '-vv' if args.verbose else ''
     Global.keep = args.keep

@@ -167,10 +167,43 @@ class Helpers(Global, YamlWriter):
         return True
 
     def get_hostnames(self):
-        hosts = self.config_get_options('hosts', False)
+        # Collect a list of hosts, we do not support mix of ipv4 and ipv6
+        # addresses, hosts have to be either purely ipv4 or ipv6
+        for h in Global.config.items('hosts'):
+            if h[1] is None:
+                # ipv4 address
+                hosts = self.config_get_options('hosts', False)
+                break
+            else:
+                # ipv6 address, we can't user ConfigParser for ipv6. ipv6
+                # addresses are colon separated, and config parser treats the
+                # first part as key.
+                hosts = self.get_ipv6_addresses()
+                break
         for host in hosts:
             Global.hosts += self.parse_patterns(host)
         self.remove_from_sections('hosts')
+
+    def get_ipv6_addresses(self):
+        # We assume that the file contains hosts section in the beginning of the
+        # file, that is the requirement of gdeploy anyway.
+        hostsec = False
+        v6hosts = []
+        f = open(Global.config_file, 'r')
+        for l in f.readlines():
+            line = l.strip()
+            # Read till you hit a section, ignore comments and newlines
+            if line.startswith("#") or not line:
+                continue
+            if line == "[hosts]":
+                hostsec = True
+                continue
+            if hostsec and line.startswith('[') == False:
+                v6hosts.append(line)
+            else:
+                break
+        f.close()
+        return v6hosts
 
     def get_var_file_type(self):
         '''
@@ -541,8 +574,41 @@ class Helpers(Global, YamlWriter):
     def write_to_inventory(self, section, options):
         self.write_config(section, options, Global.inventory)
 
+    def remove_ipv6_section(self, filename, section):
+        inblock = False
+        try:
+            fin = open(filename, "rb")
+        except:
+            return
+
+        lines = fin.readlines()
+        fin.close()
+        fout = open(filename, "wb")
+        for l in lines:
+            if section in l:
+                inblock = True
+                continue
+            if inblock and not l.startswith('['):
+                continue
+            else:
+                inblock = False
+                fout.write(l)
+        fout.close()
+
     def write_config(self, section, options, filename):
-        self.remove_section(filename, section)
+        # Kludge to remove section from a config file. In case of ipv6 I can't
+        # user config.read() and config.write(), ConfigParser botches it up. In
+        # a:b:c:... a is considered as key and rest as value. We want it as
+        # is. So we implement our own section removal fuction.
+        if type(options) is not dict:
+            opts = self.listify(options)
+            # ipv6 with 8 numbers
+            if opts[0].count(":") == 7:
+                self.remove_ipv6_section(filename, section)
+            else:
+                self.remove_section(filename, section)
+        else:
+            self.remove_section(filename, section)
         config = self.call_config_parser()
         config.add_section(section)
         if type(options) is not dict:
