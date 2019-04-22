@@ -173,7 +173,7 @@ def get_mount_data(section_dict, devices, vgnames):
         # well.
         for vgdict in Global.vg_data:
             if vgdict['vg'] == dev.split('/')[2] and \
-               vgdict['brick'].startswith('/dev/mapper'):
+               vgdict['brick'].strip().startswith('/dev/mapper'):
                 mntpath['vdodev'] = True
         data.append(mntpath)
     section_dict['mntpath'] = data
