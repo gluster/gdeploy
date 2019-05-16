@@ -10,3 +10,7 @@
             slavevol="{{ slavevol }}"
             force="{{ force }}"
             georepuser="{{ georepuser }}"
+
+  - name: Configure the meta-volume for geo-replication
+    command: gluster volume geo-replication "{{ mastervolname }}" "{{slave[0]}}::{{slavevolname}}" config use_meta_volume true
+
