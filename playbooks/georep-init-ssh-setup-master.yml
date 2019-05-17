@@ -11,3 +11,7 @@
     fetch: src=/var/lib/glusterd/geo-replication/common_secret.pem.pub
            dest={{ base_dir }}/{{ mastervolname }}_{{ slavevolname }}_common_secret.pem.pub
            flat=yes
+
+  - name: Enable shared storage for geo-rep master volume
+    command: gluster volume set all cluster.enable-shared-storage enable
+    ignore_errors: true
