@@ -1,5 +1,5 @@
 ---
-- hosts: master
+- hosts: gluster_servers
   remote_user: root
   gather_facts: no
 
@@ -17,6 +17,16 @@
   - name: Create a new user
     user: name="{{ smb_username }}"
     when: smb_username is defined
+
+  - name: Enable volume option user.smb
+    command: gluster volume set {{ volname }} user.smb enable
+    delegate_to: "{{ master }}"
+    run_once: true
+
+  - name: Set group samba option on the volume
+    command: gluster volume set {{ volname }} group samba
+    delegate_to: "{{ master }}"
+    run_once: true
 
   - name: Set smb password
     raw: (echo {{ smb_password }}; echo {{ smb_password }}) | smbpasswd -s -a "{{ smb_username }}"
