@@ -25,6 +25,8 @@
   - name: Create Samba User if not present
     user: name="{{ smb_username }}"
     when: smb_username is defined
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['gluster_servers'] }}"
 
   - name: Provide permissions using setfacl
     command: setfacl -m user:"{{ smb_username }}":rwx "{{smb_mountpoint}}"
