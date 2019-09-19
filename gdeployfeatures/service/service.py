@@ -54,6 +54,6 @@ def setup_slice(section_dict):
     else:
         msg = "Slice setup is currently limited to glusterd.\n"\
               "Ignoring slice setup"
-        print msg
+        print(msg)
         Global.logger.info(msg.replace("\n", " "))
     return section_dict, yamls

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
@@ -200,8 +200,8 @@ class Volume(object):
             " format or provide 'hosts' and 'bricks' should be of a format " \
                     " 'brick1, brick2; bricka, brickb' where brick1, brick2 " \
                     " belongs to host1 and brick1,brickb belongs to host2")
-        self.bricks = filter(None, [brick.strip() for brick in
-                                        bricks.split(';')])
+        self.bricks = list(filter(None, [brick.strip() for brick in
+                                         bricks.split(';')]))
         return ' '.join(brick_path for brick_path in
                 self.append_host_name())
 

@@ -28,7 +28,7 @@ def lv_create(section_dict):
         section_dict, yml = get_lv_vg_names('poolname', section_dict)
     else:
         msg = "Unknown lvtype"
-        print "Error: %s"%msg
+        print("Error: %s"%msg)
         Global.logger.error(msg)
         helpers.cleanup_and_quit()
     return section_dict, yml
@@ -87,7 +87,7 @@ def thin_lv_data(section_dict):
     if not (vgname and lvname and poolname and virtualsize):
         msg = "Error: Provide vgname, lvname, poolname, virtualsize to "\
               "create thin lv"
-        print msg
+        print(msg)
         Global.logger.error(msg)
         helpers.cleanup_and_quit()
     lvname, vgname = validate_the_numbers(lvname, vgname)
@@ -158,7 +158,7 @@ def get_mount_data(section_dict, devices, vgnames):
                 path *= len(devices)
             else:
                 msg = "Mountpoints number mismatch with lvnames"
-                print "Error: %s"%msg
+                print("Error: %s"%msg)
                 Global.logger.error(msg)
                 helpers.cleanup_and_quit()
     data = []
@@ -196,7 +196,7 @@ def validate_the_numbers(validator, validatee):
     if len(validator) != len(validatee):
         msg = "Provide same number of LVnames and VG names " \
               "or a common VG for all LVs mentioned."
-        print "Error: %s"%msg
+        print("Error: %s"%msg)
         Global.logger.error(msg)
         helpers.cleanup_and_quit()
     return validator, validatee
@@ -204,6 +204,6 @@ def validate_the_numbers(validator, validatee):
 def data_not_found(item):
     global helpers
     msg = "Value for option %s not found." % item
-    print "Error: %s"%msg
+    print("Error: %s"%msg)
     Global.logger.error(msg)
     helpers.cleanup_and_quit()

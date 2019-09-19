@@ -19,5 +19,5 @@ def  get_yml_lists(section_dict):
     ymls = {'ports': defaults.PORT_OP,
             'services': defaults.SERVICE_OP
             }
-    yml_list = [v for k,v in ymls.iteritems() if section_dict[k]]
+    yml_list = [v for k,v in ymls.items() if section_dict[k]]
     return section_dict, yml_list

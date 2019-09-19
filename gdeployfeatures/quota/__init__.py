@@ -1,1 +1,1 @@
-import quota
+from . import quota

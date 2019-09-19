@@ -19,10 +19,10 @@
 #
 
 import os, json
-from helpers import Helpers
-from yaml_writer import YamlWriter
-from global_vars import Global
 import gdeployfeatures
+from gdeploylib.helpers import Helpers
+from gdeploylib.yaml_writer import YamlWriter
+from gdeploylib.global_vars import Global
 
 helpers = Helpers()
 yaml_writer = YamlWriter()
@@ -32,11 +32,11 @@ def call_features():
     global helpers
     if not Global.sections:
         msg = "No sections found in config file. Exiting!"
-        print "Error: " + msg
+        print("Error: " + msg)
         Global.logger.error(msg)
         return
     helpers.get_hostnames()
-    map(get_feature_dir, Global.sections)
+    list(map(get_feature_dir, Global.sections))
 
 def get_feature_dir(section):
     '''
@@ -59,14 +59,14 @@ def get_feature_dir(section):
     except:
         msg = "Error: Could not find the installation path for "\
               "`gdeployfeatures' module. Please check gdeploy installation."
-        print msg
+        print(msg)
         Global.logger.error(msg)
         helpers.cleanup_and_quit()
 
     if not os.path.isdir(section_dir):
         msg = "Feature directory `%s' not found"%section_dir
         Global.logger.error(msg)
-        print "Error: " + msg
+        print("Error: " + msg)
         return
 
     config_file = helpers.get_file_dir_path(section_dir, section_name +
@@ -74,7 +74,7 @@ def get_feature_dir(section):
     if not os.path.isfile(config_file):
         msg = "Error: Setup file %s not found for feature `%s'"%(config_file, section)
         Global.logger.error(msg)
-        print msg
+        print(msg)
         return
 
     section_dict = parse_the_user_config(section, section_dir)
@@ -83,12 +83,13 @@ def get_feature_dir(section):
 
     feature_func = getattr(gdeployfeatures, section_name)
     feature_mod = getattr(feature_func, section_name)
+
     try:
         feature_call = getattr(feature_mod, section_name + '_' + section_dict[
             'action'].replace('-', '_'))
     except:
-        print "Error: No method found for action %s" %(section_name +
-                '_' + section_dict['action'])
+        print("Error: No method found for action %s" %(section_name +
+                '_' + section_dict['action']))
         helpers.cleanup_and_quit()
 
     section_dict, yml = feature_call(section_dict)
@@ -154,7 +155,7 @@ def get_action_data(section, section_dir, section_dict):
         msg = "Warning: We could not find the operations corresponding " \
               "to the action specified for the section {0}. "\
               "Skipping this section.".format(section_name)
-        print msg
+        print(msg)
         Global.logger.warning(msg) # delete leading newline
         return False
     else:
@@ -181,7 +182,7 @@ def validate_the_user_data(section_dict, reqd_vals):
                 msg = "Configuration file validation error. "
                 msg1 = "Required option %s not found."%val
                 Global.logger.error(msg.lstrip() + msg1.lstrip())
-                print "Error: " + msg + "\n" + msg1
+                print("Error: " + msg + "\n" + msg1)
                 return False
             continue
         else:
@@ -190,7 +191,7 @@ def validate_the_user_data(section_dict, reqd_vals):
                 msg = "\nError: configuration file validation error. "\
                       "\nAny one of the options in %s required." % val
                 Global.logger.error(msg.lstrip())
-                print msg
+                print(msg)
                 return False
             for each in val:
                 if not section_dict.get(each):

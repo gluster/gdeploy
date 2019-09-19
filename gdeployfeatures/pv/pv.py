@@ -43,7 +43,7 @@ def pv_resize(section_dict):
     # If you have reached here no proper values provided
     msg = "No valid value for resize, provide valid values for"\
           " expand or shrink in config"
-    print "Error: %s"%msg
+    print("Error: %s"%msg)
     Global.logger.error(msg)
     helpers.cleanup_and_quit()
 

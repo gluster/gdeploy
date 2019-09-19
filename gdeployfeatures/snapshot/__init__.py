@@ -1,1 +1,1 @@
-import snapshot
+from . import snapshot

@@ -114,7 +114,7 @@ def get_common_brick_dirs(section_dict):
         else:
             msg = "Error: 'brick_dirs' not provided for all the "\
                   "hosts."
-            print msg
+            print(msg)
             Global.logger.error(msg)
             helpers.cleanup_and_quit()
 
@@ -149,7 +149,7 @@ def validate_brick_dirs(section_dict, section):
             if not Global.hosts:
                 msg = "Please provide the brick_dirs in the format " \
                       "<hostname>:<brick_dir name>"
-                print "Error: %s"%msg
+                print("Error: %s"%msg)
                 Global.logger.error(msg)
                 helpers.cleanup_and_quit()
             brick_list.extend([host + ':' + brick for host in
@@ -178,7 +178,7 @@ def check_brick_name_format(brick_name):
            helpers.unique(brick_name)]:
         msg = "Values to 'brick_dirs' should be absolute"\
                " path. Relative given. Exiting!"
-        print "Error: %s"%msg
+        print("Error: %s"%msg)
         Global.logger.error(msg)
         helpers.cleanup_and_quit()
     return
@@ -278,7 +278,7 @@ def volume_smb_setup(section_dict):
                    }
     section_dict = helpers.set_default_values(section_dict, SMB_DEFAULTS)
     options = ''
-    for key, value in SMB_DEFAULTS.iteritems():
+    for key, value in SMB_DEFAULTS.items():
         if section_dict[key]:
             options += key + ' = ' + str(section_dict[key]) + '\n'
     section_dict['key'] = ['server.allow-insecure',
@@ -301,8 +301,8 @@ def volume_enable_ssl(section_dict):
     """
     Enable ssl on an existing volume
     """
-    print "Ensure clients are unmounted before continuing. Add umount "\
-    "section in config."
+    print("Ensure clients are unmounted before continuing. Add umount "\
+    "section in config.")
     if section_dict.has_key('ssl_clients'):
         section_dict['ssl_hosts'] = list(set(section_dict['ssl_clients'] +
                                              Global.hosts))

@@ -20,8 +20,8 @@
 import re, sys, os
 from gdeploylib import *
 from gdeploylib.defaults import *
-from backend_setup import BackendSetup
-from backend_reset import BackendReset
+from gdeploycore.backend_setup import BackendSetup
+from gdeploycore.backend_reset import BackendReset
 
 
 yaml_write = YamlWriter()

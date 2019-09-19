@@ -4,7 +4,7 @@ import os
 import datetime
 import time
 import inspect
-from global_vars import Global
+from gdeploylib.global_vars import Global
 
 def logger(f, name=None):
     '''

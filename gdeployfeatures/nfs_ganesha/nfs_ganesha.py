@@ -15,7 +15,7 @@ def nfs_ganesha_create_cluster(section_dict):
     if not len(cluster_nodes) == len(section_dict.get('vip')):
         msg = "Provide virtual IPs for all the hosts in "\
               "the cluster-nodes"
-        print "Error: %s"%msg
+        print("Error: %s"%msg)
         Global.logger.error(msg)
         helpers.cleanup_and_quit()
     vips, section_dict['vip_list'] = get_host_vips(section_dict, cluster_nodes)
@@ -127,7 +127,7 @@ def get_cluster_nodes(section_dict):
         if not set(cluster_nodes).issubset(set(Global.hosts)):
             msg = "cluster-nodes are not subset of the 'hosts' "\
                   "provided"
-            print "Error: %s"%msg
+            print("Error: %s"%msg)
             Global.logger.error(msg)
             helpers.cleanup_and_quit()
     else:
@@ -143,7 +143,7 @@ def get_host_vips(section_dict, cluster):
     if len(cluster) != len(VIPs):
         msg = "The number of cluster_nodes provided and VIP "\
               "given doesn't match. Exiting!"
-        print "Error: %s"%msg
+        print("Error: %s"%msg)
         Global.logger.error(msg)
         helpers.cleanup_and_quit()
     vip_list = []

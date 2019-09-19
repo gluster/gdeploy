@@ -1,1 +1,1 @@
-import rh_subscription
+from . import rh_subscription

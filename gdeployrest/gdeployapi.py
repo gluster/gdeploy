@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # Copyright 2016 Nandaja Varma <nvarma@redhat.com>
@@ -70,7 +70,7 @@ def post_request_handler(env, start_response):
             return ['404 Not Found\r\n']
         data = literal_eval(content)
         config_file = tempfile.mkstemp()[1]
-        for key, value in data.iteritems():
+        for key, value in data.items():
             helpers.write_config(key, value, config_file)
         command = 'gdeploy -c %s' % config_file
         subprocess.call(command.split(),

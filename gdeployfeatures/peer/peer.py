@@ -31,7 +31,7 @@ def check_for_host_names():
         msg = "Although peer manage option is provided, " \
               "no hosts are provided in the section. " \
               "Skipping section `peer"
-        print "Error: " + msg
+        print("Error: " + msg)
         Global.logger.error(msg)
         return False
     return True
