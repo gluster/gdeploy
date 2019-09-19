@@ -31,15 +31,16 @@ import sys
 import itertools
 import shutil
 import argparse
-import ConfigParser
+import configparser
+from configparser import ConfigParser
 try:
     import yaml
 except ImportError:
-    print "Error: Package PyYAML not found."
+    print("Error: Package PyYAML not found.")
     sys.exit(0)
-from global_vars import Global
-from yaml_writer import YamlWriter
-from defaults import feature_list
+from gdeploylib.global_vars import Global
+from gdeploylib.yaml_writer import YamlWriter
+from gdeploylib.defaults import feature_list
 
 # Imports needed to call the ansible api
 from collections import namedtuple
@@ -64,15 +65,15 @@ class Helpers(Global, YamlWriter):
 
     def read_yaml(self, filename):
         with open(filename, 'r') as f:
-            return yaml.load(f)
+            return yaml.load(f, Loader=yaml.FullLoader)
 
     def cleanup_and_quit(self, ret=1):
         if os.path.isdir(Global.base_dir) and not Global.keep:
             shutil.rmtree(Global.base_dir)
             Global.logger.info("Deleting playbook data %s"%Global.base_dir)
         else:
-            print "You can view the generated configuration files "\
-                "inside %s" % Global.base_dir
+            print("You can view the generated configuration files "\
+                "inside %s" % Global.base_dir)
             Global.logger.info("Configuration saved inside %s" %Global.base_dir)
         Global.logger.info("Terminating gdeploy...")
         sys.exit(ret)
@@ -97,7 +98,7 @@ class Helpers(Global, YamlWriter):
                 shutil.copy(each, Global.base_dir)
             except IOError as e:
                 msg = "Error: File copying failed(%s)" % e
-                print msg
+                print(msg)
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
         Global.logger.info("Copied files from %s to %s"%
@@ -115,7 +116,7 @@ class Helpers(Global, YamlWriter):
         This method will split the values provided in config by user,
         when parsed as a dictionary
         '''
-        for key, value in option_dict.iteritems():
+        for key, value in option_dict.items():
             '''
             HACK: The value for option 'transport' can have comma in it,
             eg: tcp,rdma. so comma here doesn't mean that it can have
@@ -127,7 +128,7 @@ class Helpers(Global, YamlWriter):
         return option_dict
 
     def set_default_values(self, dictname, default_value_dict):
-        for key, value in default_value_dict.iteritems():
+        for key, value in default_value_dict.items():
             if key not in dictname:
                 dictname[key] = value
         return dictname
@@ -135,8 +136,8 @@ class Helpers(Global, YamlWriter):
     def is_option_present(self, param, section_dict, reqd=True):
         if not section_dict.get(param):
             if reqd:
-                print "Error: %s not provided in the config. " \
-                        "Cannot continue!" % param
+                print("Error: %s not provided in the config. " \
+                        "Cannot continue!" % param)
                 self.cleanup_and_quit()
             return False
 
@@ -144,7 +145,7 @@ class Helpers(Global, YamlWriter):
         if options:
             pat_group = re.search("(.*){(.*)}(.*)", options)
             if not pat_group:
-                return filter(None, options.split(','))
+                return list(filter(None, options.split(',')))
             else:
                 result = []
                 for i in range(1,3):
@@ -186,7 +187,7 @@ class Helpers(Global, YamlWriter):
             else:
                 msg =  "Looks like you missed to give configurations " \
                     "for one or many host(s). Exiting!"
-                print "Error: " + msg
+                print("Error: " + msg)
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
             return True
@@ -206,7 +207,7 @@ class Helpers(Global, YamlWriter):
                 except:
                     msg = "Error: Couldn't find value for %s option for "\
                           "host %s" %(section, self.current_host)
-                    print msg
+                    print(msg)
                     Global.logger.error(msg)
                 return self.split_comma_separated_options(options)
         return self.section_dict.get(section)
@@ -237,7 +238,7 @@ class Helpers(Global, YamlWriter):
         if not brk_group:
             msg = "Error: Brick names should be in the format " \
                   "<hostname>:<brickname>. Exiting!"
-            print msg
+            print(msg)
             Global.logger.error(msg)
             self.cleanup_and_quit()
         if brk_group.group(1) not in Global.brick_hosts:
@@ -287,7 +288,7 @@ class Helpers(Global, YamlWriter):
         elif '..' in pat_group.group(2):
             pat_string = pat_group.group(2).split('..')
             try:
-                pat_string = map(int, pat_string)
+                pat_string = list(map(int, pat_string))
                 pat_string[-1] += 1
                 range_func = range
             except:
@@ -298,9 +299,9 @@ class Helpers(Global, YamlWriter):
                      for name in pattern_string]
         else:
             msg = "Unknown pattern."
-            print "Error: " + msg
+            print("Error: " + msg)
             Global.logger.error(msg)
-        return filter(None, names)
+        return list(filter(None, names))
 
 
     def char_range(self, c1, c2):
@@ -339,7 +340,7 @@ class Helpers(Global, YamlWriter):
 
     def get_section_dict(self, section_dict, pattern):
         d = []
-        for k, v in section_dict.iteritems():
+        for k, v in section_dict.items():
             if re.search(pattern, k):
                 d.append(v)
         return d
@@ -359,14 +360,14 @@ class Helpers(Global, YamlWriter):
                   "section name %s. Please check your configuration file."\
                   %section
             Global.logger.error(msg)
-            print msg
+            print(msg)
             self.cleanup_and_quit()
         return section[0]
 
     def remove_from_sections(self, regexp):
         r = re.compile(regexp)
-        section_names = filter(r.match, Global.sections)
-        map(Global.sections.__delitem__, section_names)
+        section_names = list(filter(r.match, Global.sections))
+        list(map(Global.sections.__delitem__, section_names))
 
     def run_playbook(self, yaml_file, section_dict=None):
         self.create_inventory()
@@ -386,7 +387,7 @@ class Helpers(Global, YamlWriter):
         executable = 'ansible-playbook'
         command = [executable, '-i', Global.inventory, Global.verbose,
                 playbooks_file]
-        command = filter(None, command)
+        command = list(filter(None, command))
         try:
             retcode = subprocess.call(command, shell=False)
             # Exit gdeploy in case of errors and user has explicitly set
@@ -394,11 +395,11 @@ class Helpers(Global, YamlWriter):
             if retcode != 0 and Global.ignore_errors != 'yes':
                 self.cleanup_and_quit(1)
             elif retcode != 0 and Global.ignore_errors == 'yes':
-                print "Ignoring errors..."
+                print("Ignoring errors...")
         except (OSError, subprocess.CalledProcessError) as e:
             msg = "Error: Command %s failed. (Reason: %s)" % (cmd, e)
             Global.logger.error(msg)
-            print msg
+            print(msg)
             sys.exit()
 
 
@@ -441,7 +442,7 @@ class Helpers(Global, YamlWriter):
             sdisks = ['raid10', 'raid5', 'raid6', 'jbod']
             if perf['disktype'] not in sdisks:
                 msg = "Unsupported disk type!\nOnly %s are supported"%sdisks
-                print "Error: " + msg
+                print("Error: " + msg)
                 Global.logger.error(msg.replace("\n", " "))
                 self.cleanup_and_quit()
             if perf['disktype'] != 'jbod':
@@ -451,7 +452,7 @@ class Helpers(Global, YamlWriter):
                 if not stripe_size and perf['disktype'] in ['raid5', 'raid6']:
                     msg = "Error: 'stripesize' not provided for disktype %s"\
                           % perf['disktype']
-                    print msg
+                    print(msg)
                     Global.logger.error(msg)
                     self.cleanup_and_quit()
                 if stripe_size:
@@ -505,13 +506,13 @@ class Helpers(Global, YamlWriter):
         except:
             msg = "Warning: Insufficient host names or IPs. Running  " \
                   "in the localhost"
-            print msg
+            print(msg)
             Global.logger.warn(msg)
             hostname = "127.0.0.1"
         self.write_config('master', hostname, Global.inventory)
 
     def call_config_parser(self):
-        config = ConfigParser.ConfigParser(allow_no_value=True)
+        config = ConfigParser(allow_no_value=True)
         config.optionxform = str
         return config
 
@@ -534,7 +535,7 @@ class Helpers(Global, YamlWriter):
                   "file %s is not something we could read! \nTry removing " \
                   "whitespaces or unwanted characters in the configuration " \
                   "file." % config_file
-            print msg
+            print(msg)
             Global.logger.error(msg)
             self.cleanup_and_quit()
 
@@ -550,15 +551,15 @@ class Helpers(Global, YamlWriter):
             for option in options:
                 config.set(section, option)
         else:
-            for k, v in options.iteritems():
+            for k, v in options.items():
                 v = ','.join(self.pattern_stripping(v))
                 config.set(section, k , v)
         try:
-            with open(filename, 'ab') as f:
+            with open(filename, 'a') as f:
                 config.write(f)
         except:
             msg = "Error: Failed to create file %s. Exiting!" % filename
-            print msg
+            print(msg)
             Global.logger.error(msg)
             self.cleanup_and_quit()
 
@@ -573,7 +574,7 @@ class Helpers(Global, YamlWriter):
             if required:
                 msg = "Error: Option %s not found! Exiting!" % option
                 Global.logger.error(msg)
-                print msg
+                print(msg)
                 self.cleanup_and_quit()
             return []
 
@@ -585,19 +586,19 @@ class Helpers(Global, YamlWriter):
                 msg = "Error: Section %s not found in the " \
                       "configuration file" % section
                 Global.logger.error(msg)
-                print msg
+                print(msg)
                 self.cleanup_and_quit()
             return []
 
     def config_get_options(self, section, required):
         try:
             return Global.config.options(section)
-        except ConfigParser.NoSectionError as e:
+        except configparser.NoSectionError as e:
             if required:
                 msg = "Error: Section %s not found in the " \
                       "configuration file" % section
                 Global.logger.error(msg)
-                print msg
+                print(msg)
                 self.cleanup_and_quit()
             return []
 
@@ -609,7 +610,7 @@ class Helpers(Global, YamlWriter):
                   "needed in the conf " \
                   "file. Please populate the conf file and retry!"
             Global.logger.error(msg)
-            print msg
+            print(msg)
             self.cleanup_and_quit()
 
     def split_string(self, string, sep):
@@ -668,9 +669,9 @@ class Helpers(Global, YamlWriter):
             try:
                 chunksize = str(int(stripe_unit_size) * int(diskcount)) + 'K'
             except ValueError:
-                print "Only integer value is supported for stripesize or \
-                diskcount!"
-                print "Found %s and %s"%(stripe_unit_size, diskcount)
+                print("Only integer value is supported for stripesize or \
+                diskcount!")
+                print("Found %s and %s"%(stripe_unit_size, diskcount))
                 self.cleanup_and_quit()
         else:
             # As per performance recommendations for RAID 10 storage, the

@@ -1,1 +1,1 @@
-import update_file
+from . import update_file

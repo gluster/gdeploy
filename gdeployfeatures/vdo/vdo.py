@@ -54,12 +54,12 @@ def vdo_delete(section_dict):
 def data_not_found(item):
     global helpers
     msg = "Value for option %s not found." % item
-    print "Error: %s" % msg
+    print("Error: %s" % msg)
     Global.logger.error(msg)
     helpers.cleanup_and_quit()
 
 def log_yes_no_error(key):
     msg = "Error: invalid value for %s" % key
-    print msg
-    print "Possible values are 'yes', 'no', 'true', 'false'"
+    print(msg)
+    print("Possible values are 'yes', 'no', 'true', 'false'")
     Global.logger.error(msg)

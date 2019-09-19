@@ -1,7 +1,7 @@
 #!/bin/sh
 
 test `id -u` -ne 0  && echo "Only root can run setup." && exit 1
-PLUGIN_DIR=/usr/lib/python2.7/site-packages/ansible/plugins/callback/
+PLUGIN_DIR=/usr/lib/python3.7/site-packages/ansible/plugins/callback/
 DIR=$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)
 MODDIR="$DIR/modules"
 
@@ -33,7 +33,7 @@ fi
 # Will move this to spec file later on.
 cp -f $DIR/plugins/callback/gdeploy.py $PLUGIN_DIR
 
-python $DIR/setup.py install
+python3 $DIR/setup.py install
 echo; echo
 echo -n "Please run the command 'source $INIT_FILE'  to "
 echo "update the environment variables."

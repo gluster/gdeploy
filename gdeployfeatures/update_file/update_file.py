@@ -17,7 +17,7 @@ def update_file_copy(section_dict):
     if len(dest) != len(src):
         msg = "Provide same number of 'src' and 'dest' or " \
               "provide a common 'dest'"
-        print "Error: %s"%msg
+        print("Error: %s"%msg)
         Global.logger.error(msg)
         return None, None
     data = []
@@ -37,7 +37,7 @@ def update_file_edit(section_dict):
     Global.ignore_errors = section_dict.get('ignore_update_file_errors')
     if len(replace) != len(line):
         msg = "Provide same number of 'replace' and 'line'"
-        print "Error: %s"%msg
+        print("Error: %s"%msg)
         Global.logger.error(msg)
         return
     for li, re in zip(line, replace):

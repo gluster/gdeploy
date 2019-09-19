@@ -1,1 +1,1 @@
-import nfs_ganesha
+from . import nfs_ganesha

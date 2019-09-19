@@ -1,1 +1,1 @@
-import ctdb
+from . import ctdb

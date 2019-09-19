@@ -110,8 +110,8 @@ class BackendReset(object):
             for pv in self.pvs:
                 option = " --noheading -o vg_name %s" % pv
                 rc, vgs, err = self.run_command('pvs', option)
-                self.vgs.extend(filter(None, [vg.strip() for
-                    vg in vgs.split(' ')]))
+                self.vgs.extend(list(filter(None, [vg.strip() for
+                    vg in vgs.split(' ')])))
 
 
     def get_lvs(self):
@@ -130,8 +130,8 @@ class BackendReset(object):
                 option = " --noheading -o lv_name %s" % vg
                 rc, out, err = self.run_command('vgs', option)
                 lvs = [x.strip() for x in out.split(' ')]
-                self.lvs.extend(['/dev/' + vg.strip() + '/' + lv for lv in filter(
-                    None, lvs)])
+                self.lvs.extend(['/dev/' + vg.strip() + '/' + lv for lv in
+                                 list(filter(None, lvs))])
 
     def format_lvnames(self):
         if not type(self.lvs) is list:
@@ -141,7 +141,7 @@ class BackendReset(object):
         if True not in formatted_lvname:
             option = " --noheading -o vg_name"
             rc, vgs, err = self.run_command('vgs', option)
-            vg_list = filter(None, [x.strip() for x in vgs.split(' ')])
+            vg_list = list(filter(None, [x.strip() for x in vgs.split(' ')]))
             lv_list = []
             for vg in vg_list:
                 option = " --noheading -o lv_name %s" % vg

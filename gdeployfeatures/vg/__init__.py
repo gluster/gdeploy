@@ -1,1 +1,1 @@
-import vg
+from . import vg

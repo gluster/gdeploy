@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # Copyright 2015 Nandaja Varma <nvarma@redhat.com>
@@ -98,7 +98,7 @@ class GeoRep(object):
         rc, output, err = self.module.run_command(
                 "gluster pool list")
         peers_in_cluster = [line.split('\t')[1].strip() for
-                line in filter(None, output.split('\n')[1:])]
+                            line in list(filter(None, output.split('\n')[1:]))]
         val_group = re.search("(.*):(.*)", slavevol)
         if not val_group:
             self.module.fail_json(msg="Slave volume in Unknown format. "\

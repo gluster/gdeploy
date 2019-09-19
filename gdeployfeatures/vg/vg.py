@@ -23,7 +23,7 @@ def vg_extend(section_dict):
     Global.ignore_errors = section_dict.get('ignore_vg_errors')
     if len(vgnames) != 1:
         msg = "We can only extend one vg at a time"
-        print "Error: %s"%msg
+        print("Error: %s"%msg)
         Global.logger.error(msg)
         helpers.cleanup_and_quit()
     section_dict['vg'] = vgnames[0]
@@ -36,14 +36,14 @@ def set_default_values(section_dict, pvnames, vgnames):
     if len(pvnames) != len(vgnames):
         if len(vgnames) > len(pvnames):
             msg = "Insufficient number of values for pvname"
-            print "Error: %s"%msg
+            print("Error: %s"%msg)
             Global.logger.error(msg)
             helpers.cleanup_and_quit()
         else:
             if len(vgnames) != 1:
                 msg = "Provide 1 value for vgname or " \
                       "one for each pvname"
-                print "Error: %s"%msg
+                print("Error: %s"%msg)
                 Global.logger.error(msg)
                 helpers.cleanup_and_quit()
     return dictify_pv_vg_names(section_dict, pvnames, vgnames)
@@ -75,7 +75,7 @@ def get_pv_names(section_dict):
         if not pv_section or not pv_section['devices']:
             msg = "'pvname' not specified to create " \
                   "volume group."
-            print "Error: %s"%msg
+            print("Error: %s"%msg)
             Global.logger.error(msg)
             helpers.cleanup_and_quit()
         pvnames = pv_section['devices']

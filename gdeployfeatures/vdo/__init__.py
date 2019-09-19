@@ -1,1 +1,1 @@
-import vdo
+from . import vdo

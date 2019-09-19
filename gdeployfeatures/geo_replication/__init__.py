@@ -1,1 +1,1 @@
-import geo_replication
+from . import geo_replication

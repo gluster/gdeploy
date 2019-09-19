@@ -40,8 +40,8 @@ def ctdb_setup(section_dict):
         if not isinstance(paddress, list):
             paddress= [paddress]
         Global.logger.info("Using %s as physical addresses"%paddress)
-        paddress_list = map(lambda x: x.split(' '), paddress)
-        paddress_list = filter(None, paddress_list)
+        paddress_list = list(map(lambda x: x.split(' '), paddress))
+        paddress_list = list(filter(None, paddress_list))
         addresses, interfaces = [], []
         for ip in paddress_list:
             addresses.append(ip[0])
@@ -49,7 +49,7 @@ def ctdb_setup(section_dict):
                 interfaces.append(ip[1])
             except:
                 interfaces.append(' ')
-        interfaces = map(lambda x: x.replace(';',','), interfaces)
+        interfaces = list(map(lambda x: x.replace(';',','), interfaces))
         paddress = []
         for ip, inter in zip(addresses, interfaces):
             public_add = ip + ' ' + inter
