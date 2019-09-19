@@ -1,1 +1,1 @@
-import firewalld
+from . import firewalld

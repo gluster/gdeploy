@@ -25,12 +25,12 @@
 #    as per specified in the configuration file
 #
 
-from global_vars import Global
+from gdeploylib.global_vars import Global
 try:
     import yaml
 except ImportError:
     msg = "Package PyYAML not found."
-    print "\nError: " + msg
+    print("\nError: " + msg)
     Global.logger.error(msg)
     sys.exit(0)
 import os
@@ -40,7 +40,7 @@ class YamlWriter():
 
     def create_var_files(self, data_dict, keep_format=False, filename=None):
         # Just a pretty wrapper over create_yaml_dict to iterate over dicts
-        for key, value in data_dict.iteritems():
+        for key, value in data_dict.items():
             if key not in ['__name__']:
                 self.create_yaml_dict(key, value, filename, keep_format)
 
@@ -60,7 +60,7 @@ class YamlWriter():
         elif not hasattr(self, 'filename') or not self.filename:
             self.filename = Global.group_file
         with open(self.filename) as f:
-            list_doc = yaml.load(f) or {}
+            list_doc = yaml.load(f, Loader=yaml.FullLoader) or {}
         list_doc.update(data_dict)
         with open(self.filename, 'w') as outfile:
             if not data_flow:

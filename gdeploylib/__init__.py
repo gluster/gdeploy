@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from gdeploy_logging import log_event
-from global_vars import Global
-from helpers import Helpers
-from yaml_writer import YamlWriter
-from call_features import call_features
-from add_feature import add_feature
-import defaults
+from gdeploylib.gdeploy_logging import log_event
+from gdeploylib.global_vars import Global
+from gdeploylib.helpers import Helpers
+from gdeploylib.yaml_writer import YamlWriter
+from gdeploylib.call_features import call_features
+from gdeploylib.add_feature import add_feature
+import gdeploylib.defaults
 

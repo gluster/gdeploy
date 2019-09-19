@@ -1,1 +1,1 @@
-import service
+from . import service

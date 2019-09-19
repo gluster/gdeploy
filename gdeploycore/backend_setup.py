@@ -33,7 +33,7 @@ try:
     import yaml
 except ImportError:
     msg = "Package PyYAML not found."
-    print "Error: " + msg
+    print("Error: " + msg)
     Global.logger.error(msg)
     sys.exit(1)
 import os
@@ -81,7 +81,7 @@ class BackendSetup(Helpers):
         Global.logger.info("Setting up SELinux labels")
 
     def new_backend_setup(self, hosts):
-        hosts = filter(None, hosts)
+        hosts = list(filter(None, hosts))
         Global.logger.info("Setting up backend on hosts...")
         if hosts:
             Global.var_file = None
@@ -171,7 +171,7 @@ class BackendSetup(Helpers):
 
     def write_brick_names(self):
         self.bricks = self.section_data_gen('devices', 'Devices')
-        ssd = filter(None, self.section_data_gen('ssd', "SSD"))
+        ssd = list(filter(None, self.section_data_gen('ssd', "SSD")))
         if ssd:
             self.ssd = self.correct_brick_format(ssd)[0]
             self.section_dict['disk'] = self.ssd
@@ -210,7 +210,7 @@ class BackendSetup(Helpers):
             vgnames['brick'] = i
             vgnames['vg'] = j
             data.append(vgnames)
-        self.section_dict['vgnames'] = filter(None, data)
+        self.section_dict['vgnames'] = list(filter(None, data))
         self.vgs = self.section_dict['vgs']
         if self.vgs:
             Global.logger.info("Creating volume group %s"%self.vgs)
@@ -249,7 +249,7 @@ class BackendSetup(Helpers):
             pools['vg'] = j
             pools['lv'] = k
             data.append(pools)
-        self.section_dict['lvpools'] = filter(None, data)
+        self.section_dict['lvpools'] = list(filter(None, data))
         if self.section_dict['lvpools']:
             Global.logger.info("Creating thin pool %s"%
                                self.section_dict['lvpools'])
@@ -282,7 +282,7 @@ class BackendSetup(Helpers):
             if not datalv:
                 msg = "Error: Data lv('datalv' options) not specified for "\
                       "cache setup"
-                print msg
+                print(msg)
                 Global.logger.error(msg)
                 self.cleanup_and_quit()
             Global.logger.info("Adding ssd, running vgextend")
@@ -365,7 +365,7 @@ class BackendSetup(Helpers):
             mntpath['path'] = i
             mntpath['device'] = j
             data.append(mntpath)
-        self.section_dict['mntpath'] = filter(None, data)
+        self.section_dict['mntpath'] = list(filter(None, data))
         if self.section_dict['mntpath']:
             Global.logger.info("Mounting on %s"%self.section_dict['mntpath'])
             self.run_playbook(MOUNT_YML)
@@ -381,7 +381,7 @@ class BackendSetup(Helpers):
                 msg = "Error: Mount points cannot be brick directories.\n" \
                         "Provide 'brick_dirs' option/section or use force=yes"\
                         " in your configuration file. Exiting!"
-                print msg
+                print(msg)
                 Global.logger.error(msg.replace("\n", " "))
                 return
             else:
@@ -425,9 +425,9 @@ class BackendSetup(Helpers):
                             Global.logger.error(msg.replace("\n", " "))
                             return
                         else:
-                            print "Warning: Using mountpoint itself as the brick in one or " \
+                            print("Warning: Using mountpoint itself as the brick in one or " \
                                     "more hosts since force" \
-                                " is specified, although not recommended.\n"
+                                " is specified, although not recommended.\n")
                             Global.logger.warning(msg)
             else:
                 brick_list = brick_dirs
@@ -453,7 +453,7 @@ class BackendSetup(Helpers):
                         "relative paths for all the %s mountpoints "\
                         "are given separately. "\
                         "Exiting!" %(mnt, len(self.mountpoints))
-                    print "Error: " + msg
+                    print("Error: " + msg)
                     Global.logger.error(msg.replace("\n", " "))
                     self.cleanup_and_quit()
         return brick_dir
@@ -461,14 +461,14 @@ class BackendSetup(Helpers):
     def insufficient_param_count(self, section, count):
         msg = "Please provide %s names for %s devices " \
             "else leave the field empty" % (section, count)
-        print "Error: " + msg
+        print("Error: " + msg)
         Global.logger.error(msg)
         self.cleanup_and_quit()
 
     def section_data_gen(self, section, section_name):
         opts = self.get_options(section)
         options = self.pattern_stripping(opts)
-        return filter(None, self.listify(options))
+        return list(filter(None, self.listify(options)))
 
     def set_default(self, section):
         if not self.default:

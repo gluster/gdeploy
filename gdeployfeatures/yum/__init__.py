@@ -1,1 +1,1 @@
-import yum
+from . import yum

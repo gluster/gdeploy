@@ -13,11 +13,11 @@ Source0:        %{url}/archive/v%{version}-%{release}.tar.gz#/%{name}-%{version}
 BuildArch:      noarch
 Requires:       PyYAML
 Requires:       ansible > 2.5
-Requires:       python2
+Requires:       python3
 Requires:       lvm2
 
-BuildRequires:  python2-setuptools
-BuildRequires:  python2-devel
+BuildRequires:  python3-setuptools
+BuildRequires:  python3-devel
 BuildRequires:  systemd
 
 %description
@@ -32,25 +32,19 @@ See http://gdeploy.readthedocs.io/en/latest/ for more details
 %prep
 %setup -q -n %{name}-%{version}-%{release}
 
-# We are sticking to python2 till we clean up the code
-# * Change print statements
-# * Change xrange function usage
-# * Change the except syntax
-# ...
-
 %build
-%py2_build
+%py3_build
 pushd docs
 make html
 popd
 
 %install
 # Install the binary and python libraries
-%py2_install
+%py3_install
 
-mkdir -p %{buildroot}/%{python2_sitelib}/%{gdeploymod}
+mkdir -p %{buildroot}/%{python3_sitelib}/%{gdeploymod}
 install -p -m 755 modules/* \
-    %{buildroot}/%{python2_sitelib}/%{gdeploymod}
+    %{buildroot}/%{python3_sitelib}/%{gdeploymod}
 
 # Install the playbooks into /usr/share/gdeploy/playbooks
 mkdir -p %{buildroot}/%{gdeploytemp}
@@ -68,9 +62,9 @@ install -p -m 755 extras/usecases/replace-node/gluster-replace-node \
         %{buildroot}/usr/bin
 
 # Install the gdeploy plugin
-mkdir -p %{buildroot}/%{python2_sitelib}/ansible/plugins/callback
+mkdir -p %{buildroot}/%{python3_sitelib}/ansible/plugins/callback
 install -p -m 644 plugins/callback/gdeploy.py \
-        %{buildroot}/%{python2_sitelib}/ansible/plugins/callback/
+        %{buildroot}/%{python3_sitelib}/ansible/plugins/callback/
 
 
 # Install the vdo service file
@@ -101,11 +95,11 @@ cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 %files
 %{_bindir}/gdeploy
 %{_unitdir}/vdo.service
-%{python2_sitelib}/gdeploy*
+%{python3_sitelib}/gdeploy*
 %{gdeploytemp}
-%{python2_sitelib}/%{gdeploymod}
+%{python3_sitelib}/%{gdeploymod}
 %{_bindir}/gluster-replace-node
-%{python2_sitelib}/ansible/plugins/callback/gdeploy.py*
+%{python3_sitelib}/ansible/plugins/callback/gdeploy.py*
 
 %doc README.md TODO
 %license LICENSE
@@ -114,7 +108,7 @@ cp -p man/gdeploy.conf* %{buildroot}/%{_mandir}/man5/
 
 %package doc
 Summary: gdeploy documentation
-BuildRequires:  python2-sphinx
+BuildRequires:  python3-sphinx
 
 %description doc
 gdeploy is an Ansible based deployment tool, used to deploy and configure
@@ -127,6 +121,9 @@ configuration files to deploy and configure GlusterFS.
 %doc %{_pkgdocdir}
 
 %changelog
+* Tue Sep 17 2019 Sachidananda Urs <sac@redhat.com> 3.0-1
+- Port gdeploy to python3.
+
 * Thu Apr 19 2018 Ramakrishna Reddy Yekulla <rreddy@redhat.com>2.0.2-25
 - Adding the vdo service file
 

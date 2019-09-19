@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # (c) 2016, Nandaja Varma <nandaja.varma@gmail.com>
@@ -118,7 +118,7 @@ class Kubectl:
         output = self.module.params['output']
         o_opts = '-o %s' % output if output else ''
 
-        options = filter(None, [ropts, nopts, fopts, o_opts])
+        options = list(filter(None, [ropts, nopts, fopts, o_opts]))
         return 'oc {0} {1}'.format(self.action, ' '.join(options))
 
     def _validated_params(self, opt):

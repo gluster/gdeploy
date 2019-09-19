@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
 Ansible module to create or remove a Logical Volume.
@@ -273,7 +273,7 @@ class LvOps(object):
         return options
 
     def parse_playbook_data(self, dictionary, cmd=''):
-        for key, value in dictionary.iteritems():
+        for key, value in dictionary.items():
             if value and str(value).strip(' '):
                 cmd += ' --%s %s ' % (key, value)
         return cmd

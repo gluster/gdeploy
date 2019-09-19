@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # Copyright 2016 Nandaja Varma <nvarma@redhat.com>
@@ -90,7 +90,7 @@ def check_ansible_installation():
     # gdeploy currently is supported only on RHEL6 or above
     if int(major_vers) < 6:
         msg = "Error: gdeploy is supported only on RHEL6 or above"
-        print msg
+        print(msg)
         Global.logger.error(msg)
         helpers.cleanup_and_quit()
 
@@ -99,7 +99,7 @@ def check_ansible_installation():
                                stdout=subprocess.PIPE).communicate()[0]
         msg =  "Please install Ansible(version >= 2.2) to use gdeploy."
         if pkg == '':           # Ansible not installed
-            print "Error: " + msg
+            print("Error: " + msg)
             Global.logger.error(msg)
             helpers.cleanup_and_quit()
         else:                   # Extraxt ansible version
@@ -109,7 +109,7 @@ def check_ansible_installation():
             major_version = int(ansible_version[0])
             minor_version = int(ansible_version[2])
             if major_version < 2 or (major_version == 2 and minor_version < 2):
-                print "Error: " + msg
+                print("Error: " + msg)
                 Global.logger.error(msg)
                 helpers.cleanup_and_quit()
     return
@@ -174,7 +174,7 @@ def create_playbooks_in_local():
             "Gdeploy looks inside the directory %s or \n" \
             "wants the environment varible GDEPLOY_TEMPLATES set."\
              % (playbooks_path_pkg)
-        print "Error: " + msg
+        print("Error: " + msg)
         Global.logger.error(msg.strip('\n\t\r'))
         if Global.trace:
             Global.logger.info("Cleaning up the process and quitting.")
@@ -189,7 +189,7 @@ def main(arg):
     args = parse_arguments(arg)
     if args:
         init_global_values(args)
-        check_ansible_installation()
+        # check_ansible_installation()
         create_files_and_dirs()
         helpers.get_hostnames()
         # Log the hosts here, helper.get_hostnames is called from

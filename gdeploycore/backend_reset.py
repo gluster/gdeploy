@@ -41,7 +41,7 @@ class BackendReset(Helpers):
                     hosts.append(val.group(2))
         if not backend_reset:
             return
-        hosts = filter(None, hosts)
+        hosts = list(filter(None, hosts))
         ret = self.parse_section('')
         if hosts:
             hosts = self.pattern_stripping(hosts)
@@ -73,7 +73,7 @@ class BackendReset(Helpers):
     def get_backend_data(self):
         self.section_dict = self.format_values(self.section_dict)
         self.set_default_values(self.section_dict, BRESET_DEFAULTS)
-        for key, value in self.section_dict.iteritems():
+        for key, value in self.section_dict.items():
             if value:
                 self.section_dict[key] = self.pattern_stripping(value)
         pvs = self.section_dict.get('pvs')

@@ -1,1 +1,1 @@
-import openshift_ctl
+from . import openshift_ctl

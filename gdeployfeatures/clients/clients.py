@@ -25,7 +25,7 @@ def clients_mount(section_dict):
         else:
             msg = "Error: Provide equal number of fstype and "\
                   "clients."
-            print msg
+            print(msg)
             Global.logger.error(msg)
             return False, False
     for mnt, fs, host in zip(mntpts, fstype, clients):
@@ -48,7 +48,7 @@ def nfs_mount(mnt, host, section_dict):
     except KeyError:
         options = "nfs-version=4"
         msg = "No options set for NFS, defaulting to nfs-version=4"
-        print msg
+        print(msg)
         Global.logger.info(msg)
     if type(options) is not list:
         options = [options]
@@ -69,9 +69,9 @@ def cifs_mount(mnt, host, section_dict):
     try:
         samba_username = section_dict['smb_username']
         samba_password = section_dict['smb_password']
-    except KeyError, k:
+    except KeyError as k:
         msg = "%s is a required field"%k
-        print msg
+        print(msg)
         Global.logger.error(msg)
         samba_username = samba_password = False
     Global.logger.info("Setting samba username: %s and password %s"%
@@ -80,7 +80,7 @@ def cifs_mount(mnt, host, section_dict):
     if not samba_username or not samba_password:
         msg = "Error: Provide smb_username and smb_password " \
               "for CIFS mount"
-        print msg
+        print(msg)
         Global.logger.error(msg)
         return False
     global client_mounts, helpers
@@ -89,7 +89,7 @@ def cifs_mount(mnt, host, section_dict):
 
 def write_client_mounts():
     global client_mounts
-    for host, value in client_mounts.iteritems():
+    for host, value in client_mounts.items():
         filename = helpers.get_file_dir_path(Global.host_vars_dir, host)
         helpers.touch_file(filename)
         helpers.create_yaml_dict('client_mounts', value, filename)
@@ -125,7 +125,7 @@ def get_client_hosts(section_dict):
         else:
             msg = "Error: Provide equal number of client hosts and "\
                   "client_mount_points."
-            print msg
+            print(msg)
             Global.logger.error(msg)
             helpers.cleanup_and_quit()
     return clients, mntpts

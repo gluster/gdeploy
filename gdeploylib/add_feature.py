@@ -69,7 +69,7 @@ def add_feature(feature):
     with open(JSON_FILE, 'w') as f:
         f.write(json.dumps(data, f, indent=2))
 
-    SCRIPT_DATA = """#!/usr/bin/python
+    SCRIPT_DATA = """#!/usr/bin/python3
 \"""
 Add functions corresponding to each of the actions in the json file.
 The function should be named as follows <feature name>_<action_name>
@@ -86,6 +86,6 @@ def %s_action1(section_dict):
     with open(PYTHON_SCRIPT, 'w') as f:
         f.write(SCRIPT_DATA)
 
-    print "\nINFO: New feature addition successful. Edit the files %s, "\
+    print("\nINFO: New feature addition successful. Edit the files %s, "\
     "%s  and add the necessary ansible playbooks to use "\
-    "them." %(JSON_FILE, PYTHON_SCRIPT)
+    "them." %(JSON_FILE, PYTHON_SCRIPT))

@@ -15,7 +15,7 @@ def openshift_ctl_create(section_dict):
         if not resource:
             msg = "Error: Please provide the resourcename or filename "\
                   "to complete create action"
-            print msg
+            print(msg)
             Global.logger.info(msg)
             helpers.cleanup_and_quit()
         filepaths = get_filename(resource, section_dict)
@@ -48,7 +48,7 @@ def get_filename(resources, section_dict):
         elif filetype in ['yml', 'yaml']:
             filepattern = '.*%s.*.yml' % resource
         else:
-            print "Error: Unknown file type"
+            print("Error: Unknown file type")
             helpers.cleanup_and_quit()
 
         for each in filenames:
@@ -63,7 +63,7 @@ def get_filename(resources, section_dict):
             msg = "Could not find %s file for %s"\
                   " to complete create action" % (
                       section_dict.get('filetype'), resource)
-            print "Error: %s"%msg
+            print("Error: %s"%msg)
             Global.logger.error(msg)
             helpers.cleanup_and_quit()
         filelist.append(filename)
@@ -96,7 +96,7 @@ def get_unique_item_names(section_dict, option):
     name = helpers.listify(section_dict.get(option))
     if not name:
         return None
-    uniqueval = filter(None, map(lambda s: s.strip(), name))
+    uniqueval = list(filter(None, map(lambda s: s.strip(), name)))
     return uniqueval
 
 #def kubectl_run(section_dict):
