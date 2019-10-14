@@ -282,8 +282,9 @@ def volume_smb_setup(section_dict):
         if section_dict[key]:
             options += key + ' = ' + str(section_dict[key]) + '\n'
     section_dict['key'] = ['server.allow-insecure',
-                           'storage.batch-fsync-delay-usec']
-    section_dict['value'] = ['on', 0]
+                           'storage.batch-fsync-delay-usec', 'group',
+                           'user.cifs']
+    section_dict['value'] = ['on', 0, 'samba', 'enable']
     section_dict, yml = volume_set(section_dict)
     section_dict['service'] = 'glusterd'
     section_dict['state'] = 'started'
