@@ -24,7 +24,7 @@ setup(
     include_package_data=True,
     url="https://github.com/gluster/gdeploy",
 
-    license="LICENSE",
+    license="GPLv3+",
     description="Tool to automatically setup and deploy "
     "gluster using ansible",
 
