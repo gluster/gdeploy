@@ -1,4 +1,4 @@
-##gdeploy API usage
+## gdeploy API usage
 
 > gdeploy REST API currently supports only JSON format.
 > This is a beta version. There is no Authentication or Authorization
@@ -17,7 +17,7 @@ To have the API endpoint running, execute:
 
 `python gdeployapi.py <port> <host ip>`
 
-###API
+### API
 
 To add setup configurations:
 
