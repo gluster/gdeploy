@@ -1,4 +1,4 @@
-# WIP: Developer guide
+# Work-In-Progress: Developer guide
 
 
 This guide is made for the developers who might want add their cool
