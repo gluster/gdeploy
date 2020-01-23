@@ -29,12 +29,9 @@ class BackendSetup(Helpers):
         self.section_dict = dict()
         self.previous = True
         self.write_sections()
-        self.remove_from_sections('default')
-        self.remove_from_sections('force')
-        self.remove_from_sections('gluster')
-        self.remove_from_sections('selinux')
-        self.remove_from_sections('snapshot-reserve')
-        self.remove_from_sections('backend-setup')
+        for key in ('default', 'force', 'gluster', 'selinux',
+                    'snapshot-reserve', 'backend-setup'):
+            self.remove_from_sections(key)
 
     def write_sections(self):
         self.filename = Global.group_file
