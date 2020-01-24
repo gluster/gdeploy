@@ -51,9 +51,10 @@ def nfs_ganesha_add_node(section_dict):
     Global.logger.info("Adding nodes to NFS Ganesha cluster")
     new_nodes = helpers.listify(section_dict.get('nodes'))
     cluster_nodes = section_dict.get('cluster_nodes')
-    helpers.write_to_inventory('new_nodes', new_nodes)
-    helpers.write_to_inventory('cluster_nodes', cluster_nodes)
-    helpers.write_to_inventory('master_node', [cluster_nodes[0]])
+    for key,value in (('new_nodes', new_nodes),
+                     ('cluster_nodes', cluster_nodes),
+                     ('master_node', [cluster_nodes[0]])):
+        helpers.write_to_inventory(key, value)
     vips, vip_list = get_host_vips(section_dict, new_nodes)
     data = []
     for node, vip in zip(new_nodes, vips):
