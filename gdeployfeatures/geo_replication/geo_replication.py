@@ -122,8 +122,9 @@ def parse_georep_data(section_dict):
 
 def populate_inventory(section_dict):
     global helpers
-    helpers.write_to_inventory('georep_master', [section_dict['master'][0]])
-    helpers.write_to_inventory('georep_slave', [section_dict['slave'][0]])
+    for key, value in (('georep_master', [section_dict['master'][0]]),
+                      ('georep_slave', [section_dict['slave'][0]])):
+        helpers.write_to_inventory(key, value)
     try:
         helpers.write_to_inventory('georep_slaves', section_dict['slavenodes'])
     except KeyError:
