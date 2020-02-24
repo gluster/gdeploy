@@ -1,4 +1,4 @@
-           Gluster Deploy - Tool to install and configure GlusterFS
+# Gluster Deploy - Tool to install and configure GlusterFS
 
 Introduction
 ============
@@ -9,11 +9,11 @@ Gluster Deploy (gdeploy), deploys configurations. A configuration can be:
 * Gluster cluster setup (Volume configuration).
 * Client (mount) configuration.
 * Feature configurations like:
-  # NFS-Ganesha configuration
-  # Samba configuration
-  # Snapshot configuration.
-  # Geo-replication configuration.
-  # Quota configuration
+  1. NFS-Ganesha configuration
+  2. Samba configuration
+  3. Snapshot configuration.
+  4. Geo-replication configuration.
+  5. Quota configuration
 
 In addition to above configurations any volume set operation can be done from
 the remote host. The CLI will be explained later.
@@ -44,7 +44,7 @@ include:
 * [snapshot]
 
 
-`hosts'
+hosts
 -------
 
 This section will contain ip addresses or hostnames. Each
@@ -52,7 +52,7 @@ hostname or ip address should be listed in a separate line.
 For operations like back-end setup, peer probe, volume create etc.,
 this is a mandatory section.
 
-`devices'
+devices
 ---------
 
 Generic section [devices] is applicable to all the hosts listed in the [hosts]
@@ -64,7 +64,7 @@ This is an optional section. If configuring `Backend setup configuration', the
 devices should be either listed in this section or in the host specific
 section.
 
-`disktype'
+disktype
 ----------
 
 Section [disktype] specifies which disk configuration is used while
@@ -74,7 +74,7 @@ This is common for all the hosts.
 
 This is an optional section with JBOD as default.
 
-`diskcount'
+diskcount
 -----------
 
 Section [diskcount] specifies the number of data disks in the setup. This is a
@@ -82,7 +82,7 @@ mandatory field if the disk configuration specified is either RAID 10 or
 RAID 6 and will be ignored if architecture is JBOD. This is host specific
 data.
 
-`stripesize'
+stripesize
 ------------
 
 Section [stripesize] specifies the stripe_unit size in KB. This is a mandatory
@@ -92,7 +92,7 @@ not necessary for JBOD configuration of disks. Do not add any suffixes like
 K, KB, M, etc. This is host specific data. Can be put into hosts section.
 
 
-`vgs'
+vgs
 -----
 
 vg names for the above devices, The number of vgs in the [vgs] should match the
@@ -101,7 +101,7 @@ devices.
 If the vgnames are missing, volume groups will be named as RHS_vg{1, 2, 3, ...}.
 as default.
 
-`pools'
+pools
 -------
 
 pool names for the above volume groups.
@@ -111,7 +111,7 @@ vgs.
 If the pool names are missing, pools will be named as RHS_pool{1, 2, 3, ...}.
 
 
-`lvs'
+lvs
 -----
 
 lv names for the above volume groups.
@@ -120,18 +120,18 @@ number of vgs.
 
 If lv names are missing, logical volumes are named as RHS_lv{1, 2, 3, ...}.
 
-`mountpoints'
+mountpoints
 -------------
 
 Brick mountpoints for the logical volumes.
 The number of mountpoints should match the number of logical volumes listed
 above.
 
-IMP: If only gluster deployment is to be done and not back-end setup, just
+**IMP**: If only gluster deployment is to be done and not back-end setup, just
 give this data about the hosts specified in the [hosts] section along
 with the client data.
 
-`brick_dirs'
+brick_dirs
 ------------
 
 brick_dirs is the directory which is to be used as brick while creating the
@@ -148,7 +148,7 @@ field can be omitted.
 {host-specific-data}
 --------------------
 
-For the hosts (ip/hostname) listed under `hosts' section, each host can have its
+For the hosts (ip/hostname) listed under `hosts` section, each host can have its
 own specific data. The following are the variables that are supported for hosts.
 
 Host specific data can be:
@@ -158,29 +158,29 @@ Host specific data can be:
   * lvs - Custom LV names
   * mountpoints - Mount points for the logical names
 
-`peer'
+peer
 ------
 
 The section peer specifies the configurations for the Trusted Storage
 Pool management(TSP)
 
-This section helps in making all the hosts specified in the section 'hosts'
+This section helps in making all the hosts specified in the section `hosts`
 to either probe each other making the TSP or detach all of them from TSP
 
-The only option in this section is the option names 'manage' which can have
+The only option in this section is the option names `manage` which can have
 it's values to be  either probe or detach
 
 Conf data:
-  * manage [Possible options are `probe' or `detach']
+  * manage [Possible options are `probe` or `detach`]
 
-`clients'
+clients
 ---------
 
 Specifies the client hosts and client_mount_points to mount the gluster
 volume created.
 
-'action' option is to be specified for the framework to understand
-what action is to be done. The options are 'mount' and 'unmount'
+`action` option is to be specified for the framework to understand
+what action is to be done. The options are `mount` and `unmount`
 Client hosts field is mandatory. If mount points
 are not specified, default will be taken as /mnt/gluster
 for all the hosts
@@ -196,41 +196,41 @@ Fields include:
   * fstype=glusterfs
   * client_mount_points=/mnt/gluster
 
-`volume'
+volume
 --------
 
 The section volume specifies the configuration options for the volume.
 
-'action' option specifies what action id to be performed in the volume.
+`action` option specifies what action id to be performed in the volume.
 The choices can be [create, delete, add-brick, remove-brick].
-If delete is provided all the options other than 'volname' will be ignored.
+If delete is provided all the options other than `volname` will be ignored.
 If add-brick or remove-brick is chosen, extra option bricks with a
 comma separated list of brick names(in the format <hostname>:<brick path>
 should be provided. In case of remove-brick, state option should also
 be provided specifying the state of the volume after brick removal.
 
-'volname' option specifies the volume name. Default is glustervol
+`volname` option specifies the volume name. Default is glustervol
  If the user wishes to do just a volume operation, she can omit the
- 'hosts' section if the volname is provided in the format
+ `hosts` section if the volname is provided in the format
  <hostname>:<volname>, where hostname is the hostname or IP of one of
  the nodes in the cluster
  IMP: Only single volume creation/deletion/configuration is supported
  as of now.
 
-'transport' option specifies the transport type. Default is tcp. Options are
+`transport` option specifies the transport type. Default is tcp. Options are
 tcp or rdma or tcp,rdma
 
-'replica' option will specify if the volume should be of type replica or not.
+`replica` option will specify if the volume should be of type replica or not.
 options are yes and no. Default is no.
-If 'replica' is given as yes, 'replica_count' should be given.
-Option 'arbiter_count' is optional.
+If `replica` is given as yes, `replica_count` should be given.
+Option `arbiter_count` is optional.
 
-'disperse' option will specify if the volume should be of type disperse.
+`disperse` option will specify if the volume should be of type disperse.
 options are yes and no. Default is no.
-'disperse_count' is optional even if the 'disperse' is yes. if not specified,
+`disperse_count` is optional even if the `disperse` is yes. if not specified,
 the number of bricks specified in the command line is taken as the
 disperse_count value.
-If 'redundancy_count' is not specified, and if 'disperse' is yes,  it's
+If `redundancy_count` is not specified, and if `disperse` is yes,  it's
 default value is computed so that it generates an optimal configuration.
 
 Fields allowed in this section:
@@ -245,17 +245,17 @@ Fields allowed in this section:
   * redundancy_count=2
   * force - Pass force option to volume create
 
-`snapshot'
+snapshot
 ----------
 
-'snapshot' section can be used if the user wants to create or delete
+`snapshot` section can be used if the user wants to create or delete
 a snapshot.
-The option 'action' is to be used to specify which snapshot action is to be
+The option `action` is to be used to specify which snapshot action is to be
 executed. The choices supported as of now are create, delete, clone
 and restore.
 The name of the snapshot can be specified as the value to the snapname option.
 If the action is create the name of the volume is to specified as the value
-to the option 'volname'.(If not specified under the volume section).
+to the option `volname`.(If not specified under the volume section).
 
 Fields in this section:
   * action=create
