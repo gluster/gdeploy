@@ -31,7 +31,7 @@
 **Setup manually as follows**
 
 1. Add ansible modules to ANSIBLE_LIBRARY environment variable
-<br/>` echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:'/path/to/gdeploy/modules/'" >> ~/.bashrc`<br/>
+<br/>` echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY'/path/to/gdeploy/modules/'" >> ~/.bashrc`<br/>
 2. Add ansible playbooks(inside the templates directory) to GDEPLOY_TEMPLATES environment variable
 <br/>` echo "export GDEPLOY_TEMPLATES='path/to/gdeploy'" >> ~/.bashrc`<br/>
 3. Install glusterlib module using setuptools
