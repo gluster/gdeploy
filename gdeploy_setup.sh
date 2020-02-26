@@ -18,7 +18,7 @@ update_init_file ()
         echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY" >> $INIT_FILE
     else
         # Append module path to ANSIBLE_LIBRARY
-        echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY:$MODDIR" >>$INIT_FILE
+        echo "export ANSIBLE_LIBRARY=$ANSIBLE_LIBRARY$MODDIR" >>$INIT_FILE
     fi
     echo "export GDEPLOY_TEMPLATES=$DIR" >> $INIT_FILE
 }

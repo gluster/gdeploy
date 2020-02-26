@@ -60,7 +60,7 @@ class YamlWriter():
         elif not hasattr(self, 'filename') or not self.filename:
             self.filename = Global.group_file
         with open(self.filename) as f:
-            list_doc = yaml.load(f, Loader=yaml.FullLoader) or {}
+            list_doc = yaml.load(f, Loader=yaml.Loader) or {}
         list_doc.update(data_dict)
         with open(self.filename, 'w') as outfile:
             if not data_flow:
