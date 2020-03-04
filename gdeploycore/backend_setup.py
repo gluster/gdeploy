@@ -141,6 +141,8 @@ class BackendSetup(Helpers):
         try:
             self.section_dict = Global.sections['backend-setup' +
                     hostname]
+            if '__name__' in self.section_dict.keys():
+                del self.section_dict['__name__']
         except KeyError:
             return
         try:
