@@ -48,7 +48,7 @@ def volume_create(section_dict):
         section_dict['transport'] = ','.join(section_dict['transport'])
     # Configure SSL on the volume if enable_ssl is set.
     if section_dict['enable_ssl'].lower() == "yes":
-        if section_dict.has_key('ssl_clients'):
+        if 'ssl_clients' in section_dict:
             section_dict['ssl_hosts'] = list(set(helpers.listify
                                                  (section_dict['ssl_clients'])\
                                                   + Global.hosts))
@@ -304,7 +304,7 @@ def volume_enable_ssl(section_dict):
     """
     print("Ensure clients are unmounted before continuing. Add umount "\
     "section in config.")
-    if section_dict.has_key('ssl_clients'):
+    if 'ssl_clients' in section_dict:
         section_dict['ssl_hosts'] = list(set(section_dict['ssl_clients'] +
                                              Global.hosts))
     else:
