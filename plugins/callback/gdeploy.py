@@ -95,7 +95,7 @@ class CallbackModule(CallbackBase):
     def _process_results(self, result, status, color):
         # One of the result items could be the status of ansible facts.
         # We ignore them for now
-        if result._result.has_key('ansible_facts'):
+        if 'ansible_facts' in result._result:
             return
 
         try:

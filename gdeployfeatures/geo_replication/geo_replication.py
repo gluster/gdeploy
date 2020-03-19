@@ -99,11 +99,11 @@ def geo_replication_failback(section_dict):
 
 def parse_georep_data(section_dict):
     global helpers
-    if section_dict.has_key('mastervol'):
+    if 'mastervol' in section_dict:
         section_dict['mastervolname'] = helpers.split_volume_and_hostname(
             section_dict['mastervol'])
     section_dict['master'] = Global.master
-    if section_dict.has_key('slavevol'):
+    if 'slavevol' in section_dict:
         section_dict['slavevolname'] = helpers.split_volume_and_hostname(
             section_dict['slavevol'])
     section_dict['slave'] = Global.master
