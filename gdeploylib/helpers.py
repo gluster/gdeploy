@@ -65,7 +65,7 @@ class Helpers(Global, YamlWriter):
 
     def read_yaml(self, filename):
         with open(filename, 'r') as f:
-            return yaml.load(f, Loader=yaml.FullLoader)
+            return yaml.load(f, Loader=yaml.Loader)
 
     def cleanup_and_quit(self, ret=1):
         if os.path.isdir(Global.base_dir) and not Global.keep:
