@@ -1,9 +1,9 @@
----
-- hosts: gluster_servers
-  remote_user: root
-  gather_facts: no
+i---
+  - hosts: gluster_servers
+remote_user: root
+gather_facts: no
 
-  tasks:
+tasks:
   - name: Checking if bricks are already labelled by SELinux
     shell: semanage fcontext -E | grep {{ mntpath[0].path }}
     register: result
@@ -18,3 +18,4 @@
   - name: Restore the SELinux context
     shell: restorecon -Rv {{ item.path }}
     with_items: "{{ mntpath }}"
+    when: mntpath is defined
