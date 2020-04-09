@@ -4,19 +4,16 @@
   gather_facts: no
 
   tasks:
-  - name: Deleting existing SELinux label if any
-    shell: semanage fcontext -d {{ item.path }}
+  - name: Checking if bricks are already labelled by SELinux
+    shell: semanage fcontext -E | grep {{ mntpath[0].path }}
+    register: result
     with_items: "{{ mntpath }}"
-    when: mntpath is defined
-    ignore_errors: yes
 
   - name: Set SELinux labels on the bricks
     shell: semanage fcontext -a -t glusterd_brick_t {{ item.path }}
     with_items: "{{ mntpath }}"
-    when: mntpath is defined
+    when: mntpath is defined and mntpath[0].path not in result.results[0].stdout or result.rc!=1
 
   - name: Restore the SELinux context
     shell: restorecon -Rv {{ item.path }}
     with_items: "{{ mntpath }}"
-    when: mntpath is defined
-
