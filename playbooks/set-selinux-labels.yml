@@ -1,9 +1,9 @@
-i---
-  - hosts: gluster_servers
-remote_user: root
-gather_facts: no
+---
+- hosts: gluster_servers
+  remote_user: root
+  gather_facts: no
 
-tasks:
+  tasks:
   - name: Checking if bricks are already labelled by SELinux
     shell: semanage fcontext -E | grep {{ mntpath[0].path }}
     register: result
