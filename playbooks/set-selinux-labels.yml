@@ -8,11 +8,12 @@
     shell: semanage fcontext -E | grep {{ mntpath[0].path }}
     register: result
     with_items: "{{ mntpath }}"
+    failed_when: result.rc != 1 and result.rc != 0
 
   - name: Set SELinux labels on the bricks
     shell: semanage fcontext -a -t glusterd_brick_t {{ item.path }}
     with_items: "{{ mntpath }}"
-    when: mntpath is defined and mntpath[0].path not in result.results[0].stdout or result.rc!=1
+    when: mntpath is defined and mntpath[0].path not in result.results[0].stdout
 
   - name: Restore the SELinux context
     shell: restorecon -Rv {{ item.path }}
