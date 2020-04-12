@@ -19,3 +19,5 @@
     shell: restorecon -Rv {{ item.path }}
     with_items: "{{ mntpath }}"
     when: mntpath is defined
+
+
