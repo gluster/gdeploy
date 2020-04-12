@@ -4,6 +4,12 @@
   gather_facts: no
 
   tasks:
+  - name: Deleting existing SELinux label if any
+    shell: semanage fcontext -d {{ item.path }}
+    with_items: "{{ mntpath }}"
+    when: mntpath is defined
+    ignore_errors: yes
+
   - name: Set SELinux labels on the bricks
     shell: semanage fcontext -a -t glusterd_brick_t {{ item.path }}
     with_items: "{{ mntpath }}"
@@ -13,4 +19,3 @@
     shell: restorecon -Rv {{ item.path }}
     with_items: "{{ mntpath }}"
     when: mntpath is defined
-
