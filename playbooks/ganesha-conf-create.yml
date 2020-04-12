@@ -1,6 +1,6 @@
 ---
 - hosts: master_node
-  become: true
+  remote_user: root
   gather_facts: no
 
   tasks:
@@ -9,6 +9,9 @@
 
   - name: Copy ganesha.conf to config directory on shared volume
     shell: cp -rf /etc/ganesha/* "{{ ha_base_dir }}"
+
+  - name: ensure file already exists at template dest to work around 'invalid selinux context' issue
+    file: path="{{ ha_base_dir }}/ganesha-ha.conf" state=touch
 
   - name: Creating ganesha-ha.conf file
     template: src=ganesha-ha.conf
