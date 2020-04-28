@@ -41,6 +41,7 @@
 
   - name: Stop kernel NFS
     service: name=nfs state=stopped
+    ignore_errors: yes
 
   - name: Stop network manager service
     service: name=NetworkManager state=stopped
