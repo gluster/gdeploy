@@ -51,11 +51,19 @@
     service: name=NetworkManager enabled=no
     ignore_errors: yes
 
+  - name: Start network manager service
+    service: name=NetworkManager state=started
+
+  - name: Enable network manager service
+    service: name=NetworkManager enabled=yes
+
   - name: Start network service
     service: name=network state=started
+    ignore_errors: yes
 
   - name: Enable network service
     service: name=network enabled=yes
+    ignore_errors: yes
 
   - name: Start pcsd service
     service: name=pcsd state=started
