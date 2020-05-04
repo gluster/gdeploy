@@ -1,9 +1,9 @@
-                gdeploy release 2.0
+# gdeploy release 3.0
 
-These are gdeploy 2.0 release notes. Lists the features and changes introduced
-in 2.0
+These are gdeploy 3.0 release notes. Lists the features and changes introduced
+in 3.0
 
-What is gdeploy?
+## What is gdeploy?
 
   gdeploy is a tool to set-up and deploy GlusterFS using ansible over multiple
   hosts. gdeploy is written to be modular, it can be used to deploy any
@@ -14,7 +14,7 @@ What is gdeploy?
   framework reads a configuration file and applies on the hosts listed in the
   configuration file.
 
-What is new in 2.0?
+## What is new in 3.0?
 
    - Multiple volume support, now one can create multiple volumes in a single
      configuration file.
