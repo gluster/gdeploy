@@ -8,14 +8,6 @@
     service: name=nfs state=stopped
     ignore_errors: yes
 
-  - name: Stop network manager service
-    service: name=NetworkManager state=stopped
-    ignore_errors: yes
-
-  - name: Disable network manager service
-    service: name=NetworkManager enabled=no
-    ignore_errors: yes
-
   - name: Start network manager service
     service: name=NetworkManager state=started
 
