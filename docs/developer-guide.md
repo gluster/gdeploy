@@ -1,5 +1,5 @@
-# WIP: Developer guide
-
+# Developer guide
+**Work-In-Progress**
 
 This guide is made for the developers who might want add their cool
 feature to gdeploy.
