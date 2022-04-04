@@ -3,16 +3,16 @@
 %global gdeploytemp %{_datadir}/gdeploy
 
 Name:           gdeploy
-Version:        2.0.2
-Release:        24
+Version:        3.0.0
+Release:        9
 Summary:        Tool to deploy and manage GlusterFS cluster
 
 License:        GPLv3+
 URL:            https://github.com/gluster/gdeploy
 Source0:        %{url}/archive/v%{version}-%{release}.tar.gz#/%{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
-Requires:       PyYAML
-Requires:       ansible > 2.5
+Requires:       python3-pyyaml > 3
+Requires:       ansible-core >= 2.12
 Requires:       python3
 Requires:       lvm2
 
@@ -121,6 +121,9 @@ configuration files to deploy and configure GlusterFS.
 %doc %{_pkgdocdir}
 
 %changelog
+* Mon Apr 04 2022 Gobinda Das <godas@redhat.com> 3.0.0-9
+- Port gdeploy to python3 dependent libraries.
+
 * Tue Sep 17 2019 Sachidananda Urs <sac@redhat.com> 3.0-1
 - Port gdeploy to python3.
 
