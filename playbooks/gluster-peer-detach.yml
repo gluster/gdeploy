@@ -5,9 +5,10 @@
 
   tasks:
   - name: Detach hosts form a Trusted Storage Pool
-    peer: action=detach
-          hosts="{{ hosts }}"
-          master="{{master}}"
-          force="{{ force }}"
+    command: " gluster peer detach {{ hosts }} force "
+#    peer: action=detach
+#          hosts="{{ hosts }}"
+#          master="{{master}}"
+#          force="{{ force }}"
     register: result
     failed_when: "result.rc != 0 and 'not part of cluster' not in result.msg"

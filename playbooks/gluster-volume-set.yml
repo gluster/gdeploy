@@ -5,7 +5,8 @@
 
   tasks:
   - name: Sets options for volume
-    volume_set: action=set
-                volume="{{ volname }}"
-                key={{ item.key }} value={{ item.value }}
+    command: gluster volume set {{ volname }} {{ item.key }} {{ item.value }}
+#    volume_set: action=set
+#                volume="{{ volname }}"
+#                key={{ item.key }} value={{ item.value }}
     with_items: "{{ set }}"

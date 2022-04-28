@@ -5,8 +5,9 @@
 
   tasks:
   - name: Replace a brick in volume
-    volume:  action=replace-brick
-             volume="{{ volname }}"
-             bricks="{{ bricks }}"
+    command: "gluster volume replace-brick {{ volname }} {{ bricks }} force "
+#    volume:  action=replace-brick
+#             volume="{{ volname }}"
+#             bricks="{{ bricks }}"
 
 

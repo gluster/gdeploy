@@ -5,7 +5,8 @@
 
   tasks:
       - name: Create LVs with specified size for the VGs
-        lv: action=create lvtype="{{ lvtype }}" lvname={{ item.lv }}
-            virtualsize={{ item.virtualsize }} vgname={{ item.vg }}
-              poolname={{ item.pool }}
+        command: lvcreate --thinpool {{ item.pool }} -V {{ item.virtualsize }} -n {{ item.lv }} {{ item.vg }}
+#        lv: action=create lvtype="{{ lvtype }}" lvname={{ item.lv }}
+#            virtualsize={{ item.virtualsize }} vgname={{ item.vg }}
+#              poolname={{ item.pool }}
         with_items: "{{ lvnamelist }}"
