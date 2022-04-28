@@ -1,13 +1,14 @@
 ---
 - hosts: gluster_servers
-  become: true
+  remote_user: root
   gather_facts: no
 
   tasks:
       - name: Create LVs with specified size for the VGs
-        lv: action=create lvtype="{{ lvtype }}" lvname={{ item.lv }}
-            size={{ item.size }} vgname={{ item.vg }} extent={{ item.extent }}
-            chunksize="{{ chunksize }}" poolmetadatasize="{{ poolmetadatasize }}"
-            poolname={{ item.lv }}
-            pvname="{{ pvname }}"
+        command: "lvcreate --type thin-pool  -l '90%FREE'  -n {{ item.lv }} {{ item.vg }} {{ pvname }} "
+#        lv: action=create lvtype="{{ lvtype }}" lvname={{ item.lv }}
+#            size={{ item.size }} vgname={{ item.vg }} extent={{ item.extent }}
+#            chunksize="{{ chunksize }}" poolmetadatasize="{{ poolmetadatasize }}"
+#            poolname={{ item.lv }}
+#            pvname="{{ pvname }}"
         with_items: "{{ lvnamelist }}"

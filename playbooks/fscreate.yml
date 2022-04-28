@@ -1,10 +1,11 @@
 ---
 - hosts: gluster_servers
-  become: true
+  remote_user: root
   gather_facts: no
 
   tasks:
   - name: Create an xfs filesystem
-    filesystem: fstype="{{ fstype }}" dev={{ item }}
-                opts="{{ opts }}"
+    command: mkfs.xfs {{ opts }} {{ item }}
+#    filesystem: fstype="{{ fstype }}" dev={{ item }}
+#                opts="{{ opts }}"
     with_items: "{{ lvols }}"

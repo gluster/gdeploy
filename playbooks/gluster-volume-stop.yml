@@ -1,11 +1,12 @@
 ---
 - hosts: master
-  become: true
+  remote_user: root
   gather_facts: no
 
   tasks:
   - name: Stops a volume
-    volume:  action=stop
-             volume="{{ volname }}"
+    command: "gluster volume stop {{ volname }} force"
+#    volume:  action=stop
+#             volume="{{ volname }}"
     register: result
     failed_when: "result.rc != 0 and ('already stopped' not in result.msg and 'does not exist' and 'not in the started state' not in result.msg)"

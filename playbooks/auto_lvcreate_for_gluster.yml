@@ -5,41 +5,56 @@
 
   tasks:
   - name: Create logical volume named metadata
-    lv: action=create lvname=metadata compute=metadata_compute lvtype='thick'
-        snapshot_reserve="{{ snapshot_reserve }}"
-        vgname={{ item }}
+    command: lvcreate -W n -l 90%FREE -n metadata {{ item }} 
+  #  command: lvcreate -n metadata -t thick -s {{ snapshot_reserve }} {{ item }}
+  #  lv: action=create lvname=metadata compute=metadata_compute lvtype='thick'
+  #      snapshot_reserve="{{ snapshot_reserve }}"
+#        vgname={{ item }}
     with_items: "{{ vgs }}"
     ignore_errors: yes
 
   - name: create data LV that has a size which is a multiple of stripe width
-    lv: action=create lvname={{ item.pool }} lvtype='thick'
-        compute=poolsize_compute vgname={{ item.vg }}
-        snapshot_reserve="{{ snapshot_reserve }}"
+    command: lvcreate -l 20%FREE -n {{ item.pool }} {{ item.vg }}
+#    lv: action=create lvname={{ item.pool }} lvtype='thick'
+#        compute=poolsize_compute vgname={{ item.vg }}
+#        snapshot_reserve="{{ snapshot_reserve }}"
     with_items: "{{ lvpools }}"
     ignore_errors: yes
 
   - name: Convert the logical volume
-    lv: action=convert thinpool={{ item.vg }}/{{item.pool }}
-        poolmetadata={{ item.vg }}/'metadata' poolmetadataspare=n
-        vgname={{ item.vg }} disktype="{{disktype}}"
-        diskcount="{{ diskcount }}"
-        stripesize="{{stripesize}}"
-        chunksize="{{ chunksize | default('') }}"
-        snapshot_reserve="{{ snapshot_reserve }}"
+    ansible.builtin.expect: 
+      command: lvconvert --poolmetadata {{ item.vg }}/'metadata' --thinpool {{ item.vg }}/{{item.pool }} --poolmetadataspare n --chunksize {{ chunksize | default('') }}
+      responses:
+        (.*)\nDo(.*): "y"
+      timeout: 180
+#    command: {{ item.vg }} {{item.pool }} {{ item.vg }} /metadata {{ item.vg }} {{disktype}} {{ diskcount }} {{stripesize}} {{ chunksize | default('') }} {{ snapshot_reserve }}
+#    command: lvconvirt --thinpool {{ item.vg }} {{item.pool }} --poolmetadata {{ item.vg }}/metadata --poolmetadataspare n --type {{disktype}} --stripesize {{stripesize}} --chunksize {{ chunksize | default('') }} --snapshot {{ snapshot_reserve }} {{ item.vg }}
+#    lv: action=convert thinpool={{ item.vg }}/{{item.pool }}
+#        poolmetadata={{ item.vg }}/'metadata' poolmetadataspare=n
+#
+#        vgname={{ item.vg }} disktype="{{disktype}}"
+#        diskcount="{{ diskcount }}"
+#        stripesize="{{stripesize}}"
+#        chunksize="{{ chunksize | default('') }}"
+#        snapshot_reserve="{{ snapshot_reserve }}"
     with_items: "{{ lvpools }}"
     ignore_errors: yes
 
   - name: create stripe-aligned thin volume
-    lv: action=create poolname={{ item.pool }} lvtype="thinlv"
-        compute=rhs disktype="{{ disktype }}"
-        vgname={{ item.vg }} lvname={{ item.lv }}
-        chunksize="{{ chunksize | default('') }}"
-        snapshot_reserve="{{ snapshot_reserve }}"
+    command: lvcreate --zero n --type thin-pool -c {{ chunksize | default('') }} -l '100%FREE' -n {{ item.lv }} {{ item.vg }}
+#    command: lvcreate --thin-pool {{ item.pool }} --type {{ disktype }}  --chunksize {{ chunksize | default('') }} --snapshot {{ snapshot_reserve }} -n {{ item.lv }} {{ item.vg }}
+#    lv: action=create poolname={{ item.pool }} lvtype="thinlv"
+#        compute=rhs disktype="{{ disktype }}"
+#        vgname={{ item.vg }} lvname={{ item.lv }}
+#        chunksize="{{ chunksize | default('') }}"
+#        snapshot_reserve="{{ snapshot_reserve }}"
     with_items: "{{ lvpools }}"
     ignore_errors: yes
 
   - name: Change the attributes of the logical volume
-    lv: action=change zero=n vgname={{ item.vg }} lvname={{ item.pool }}
+    command: lvchange -Z n {{ item.vg }}/{{ item.pool }}
+#    command: lvchange -n {{ item.pool }} --zero n {{ item.vg }}
+#    lv: action=change zero=n vgname={{ item.vg }} lvname={{ item.pool }}
     with_items: "{{ lvpools }}"
     register: res
     failed_when: res.rc != 0 and 'zero new blocks' not in res.msg

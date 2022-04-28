@@ -1,18 +1,19 @@
 ---
 - hosts: master
-  become: true
+  remote_user: root
   gather_facts: no
 
   tasks:
   - name: Creates a volume
-    volume:  action=create
-             volume="{{ volname }}"
-             bricks='{{ mountpoints }}'
-             hosts="{{ hosts }}"
-             transport="{{ transport }}"
-             replica_count="{{ replica_count }}"
-             arbiter_count="{{ arbiter_count }}"
-             disperse="{{ disperse }}"
-             disperse_count="{{ disperse_count }}"
-             redundancy_count="{{ redundancy_count }}"
-             force="{{ force }}"
+    command: gluster volume create {{ volname }} replica {{ replica_count }} {% if arbiter_count | int  > 0 %} arbiter {{ arbiter_count }}  {% endif %} transport tcp {{ mountpoints | replace('[','') | replace(']','') | replace(',','') }} force
+#    volume:  action=create
+#             volume="{{ volname }}"
+#             bricks='{{ mountpoints }}'
+#             hosts="{{ hosts }}"
+#             transport="{{ transport }}"
+#             replica_count="{{ replica_count }}"
+#             arbiter_count="{{ arbiter_count }}"
+#             disperse="{{ disperse }}"
+#             disperse_count="{{ disperse_count }}"
+#             redundancy_count="{{ redundancy_count }}"
+#             force="{{ force }}"

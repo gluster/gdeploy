@@ -1,13 +1,17 @@
 ---
 - hosts: master
-  become: true
+  remote_user: root
   gather_facts: no
 
   tasks:
   - name: Creates a Trusted Storage Pool
-    peer: action=probe
-          hosts="{{ to_be_probed }}"
-          master="{{master}}"
+    command: gluster peer probe {{ item }}
+    with_items: "{{ to_be_probed }}"
+    ignore_errors: yes
+
+#    peer: action=probe
+#          hosts="{{ to_be_probed }}"
+#          master="{{master}}"
 
   - name: Pause for a few seconds
     pause: seconds=5
