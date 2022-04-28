@@ -1,4 +1,5 @@
 ---
+- include: vdo-create.yml
 - include: pvcreate.yml
 - include: vgcreate.yml
 - include: lvcreate.yml

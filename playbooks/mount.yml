@@ -16,13 +16,15 @@
     when: mntpath[0].vdodev is defined and mntpath[0].vdodev|bool == True
 
   - name: Mount the vdo disks (if any)
-    mount: name={{ item.path }} src={{ item.device }} fstype=xfs
-           opts="{{ vdo_opts }}" state=mounted
+    command: mount {{ item.path }} --source  {{ item.device }} -t xfs --options {{ vdo_opts }}
+#    mount: name={{ item.path }} src={{ item.device }} fstype=xfs
+#           opts="{{ vdo_opts }}" state=mounted
     with_items: "{{ mntpath }}"
     when: item.vdodev is defined and item.vdodev|bool == True
 
   - name: Mount the disks (non-vdo)
-    mount: name={{ item.path }} src={{ item.device }} fstype=xfs
-           opts="{{ opts }}" state=mounted
+    command: mount {{ item.path }} --source  {{ item.device }} -t xfs --options {{ opts }}
+#    mount: name={{ item.path }} src={{ item.device }} fstype=xfs
+#           opts="{{ opts }}" state=mounted
     with_items: "{{ mntpath }}"
     when: item.vdodev is not defined

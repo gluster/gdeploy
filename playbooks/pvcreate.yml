@@ -9,13 +9,13 @@
   - name: Clean up filesystem signature
     command: wipefs -a {{ item }}
     with_items: "{{ bricks | default([]) }}"
-    when: wipefs is defined and wipefs == 'yes' and item is defined
     ignore_errors: yes
 
   # Create pv on all the disks
   - name: Create Physical Volume
-    pv: action=create disks={{ item }}
-        options="--dataalignment {{ dalign }}k"
+    command: "pvcreate {{ item }}  --dataalignment {{ dalign }}k "
+#    pv: action=create disks={{ item }}
+#        options="--dataalignment {{ dalign }}k"
     with_items: "{{ bricks }}"
     register: result
     failed_when: "result.rc != 0 and 'Physical Volume Exists' not in result.msg"

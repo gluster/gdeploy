@@ -5,7 +5,8 @@
 
   tasks:
   - name: Rebalance an existing volume
-    volume:  action=rebalance
-             volume="{{ volname }}"
-             state="{{ state }}"
-             force="{{ force }}"
+    command: "gluster volume rebalance {{ volname }} {{ state }} {{ force }} "
+#    volume:  action=rebalance
+#             volume="{{ volname }}"
+#             state="{{ state }}"
+#             force="{{ force }}"
