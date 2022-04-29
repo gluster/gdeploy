@@ -4,8 +4,27 @@
   gather_facts: no
 
   tasks:
+  - name: create vgs empty array
+    set_fact:
+      all_vgs: []
+
+  - name: create lvs empty array
+    set_fact:
+      all_lvs: []
+
+  - name: Run command to store vgs output
+    shell: vgs --noheading --units m  -o vg_size {{ item }}
+    register: vgsdata
+    with_items: "{{ vgs }}"
+
+  - name: Add new JSON Objects to vgs List
+    set_fact:
+      all_vgs: "{{ all_vgs +
+                       [  item.stdout | replace(' ','') | replace('.00','') | replace('m','') + \"#\" + item.cmd.split(' ') | last ] }}"
+    loop: "{{ vgsdata.results  }}"
+
   - name: Create logical volume named metadata
-    command: lvcreate -W n -l 90%FREE -n metadata {{ item }} 
+    command: lvcreate -W n -L {% for vgnames in all_vgs %} {% if item == vgnames.split('#') | last %} {% if vgnames.split('#') | first | int > 1000000 %} 16777216 {% else %} {{ vgnames.split('#') | first | int /200 | int *1024 | round | int }}K  {% endif %} {% endif %} {% endfor %} -n metadata {{ item }} 
   #  command: lvcreate -n metadata -t thick -s {{ snapshot_reserve }} {{ item }}
   #  lv: action=create lvname=metadata compute=metadata_compute lvtype='thick'
   #      snapshot_reserve="{{ snapshot_reserve }}"
@@ -13,8 +32,19 @@
     with_items: "{{ vgs }}"
     ignore_errors: yes
 
+  - name: Run command to store lvs output
+    shell: lvs --noheading --units m  -o vg_size,lv_size {{ item }}
+    register: lvsdata
+    with_items: "{{ vgs }}"
+
+  - name: Add new JSON Objects to lvs List
+    set_fact:
+      all_lvs: "{{ all_lvs +
+                       [  item.stdout | replace('.00m','#') | replace(' ','') + item.cmd.split(' ') | last ] }}"
+    loop: "{{ lvsdata.results  }}"
+
   - name: create data LV that has a size which is a multiple of stripe width
-    command: lvcreate -l 20%FREE -n {{ item.pool }} {{ item.vg }}
+    command: lvcreate -Wn -L {% for lvnames in all_lvs %} {% if lvnames.split('#') | last == item.vg %} {{ (lvnames.split('#') | first | int - lvnames.split('#')[1] | int) * 1024  }}K {% endif %} {% endfor %} -n {{ item.pool }} {{ item.vg }}
 #    lv: action=create lvname={{ item.pool }} lvtype='thick'
 #        compute=poolsize_compute vgname={{ item.vg }}
 #        snapshot_reserve="{{ snapshot_reserve }}"
@@ -41,7 +71,7 @@
     ignore_errors: yes
 
   - name: create stripe-aligned thin volume
-    command: lvcreate --zero n --type thin-pool -c {{ chunksize | default('') }} -l '100%FREE' -n {{ item.lv }} {{ item.vg }}
+    command: lvcreate -n {{ item.lv }} -V {% for lvnames in all_lvs %} {% if lvnames.split('#') | last == item.vg %} {{ (lvnames.split('#') | first | int - lvnames.split('#')[1] | int) * 1024  }}K {% endif %} {% endfor %} --thinpool {{ item.pool }} {{ item.vg }}
 #    command: lvcreate --thin-pool {{ item.pool }} --type {{ disktype }}  --chunksize {{ chunksize | default('') }} --snapshot {{ snapshot_reserve }} -n {{ item.lv }} {{ item.vg }}
 #    lv: action=create poolname={{ item.pool }} lvtype="thinlv"
 #        compute=rhs disktype="{{ disktype }}"
@@ -58,4 +88,3 @@
     with_items: "{{ lvpools }}"
     register: res
     failed_when: res.rc != 0 and 'zero new blocks' not in res.msg
-
