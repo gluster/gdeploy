@@ -5,7 +5,10 @@
 
   tasks:
   - name: Creates a volume
-    command: gluster volume create {{ volname }} replica {{ replica_count }} {% if arbiter_count | int  > 0 %} arbiter {{ arbiter_count }}  {% endif %} transport tcp {{ mountpoints | replace('[','') | replace(']','') | replace(',','') }} force
+    ansible.builtin.expect:
+      command: gluster volume create {{ volname }} {% if disperse == 'yes' %} {% if disperse_count | int > 0  %} disperse-data {{ disperse_count }} {% endif %} redundancy {{ redundancy_count }}  {% else %} replica {{ replica_count }} {% if arbiter_count | int  > 0 %} arbiter {{ arbiter_count }}  {% endif %} {% endif %} transport tcp {{ mountpoints | replace('[','') | replace(']','') | replace(',','') }} force
+      responses:
+        (.*)This configuration is not optimal on most workloads(.*): "y"
 #    volume:  action=create
 #             volume="{{ volname }}"
 #             bricks='{{ mountpoints }}'
