@@ -5,12 +5,11 @@
 
   tasks:
   - name: Mount the volumes, if fstype is CIFS
-    mount: name={{ item.mountpoint }}
-           src="\\\\{{ groups['master'][0]}}\\gluster-{{ volname }}"
-           fstype="cifs"
-           opts="username={{smb_username}},password={{smb_password}}"
-           state=mounted
-    when: item.fstype == 'cifs'
-
+    command: mount {{ item.mountpoint }} --source  {{ groups['master'][0]}}\gluster-{{ volname }} -t cifs --options username={{smb_username}},password={{smb_password}}
+#    mount: name={{ item.mountpoint }}
+#           src="\\\\{{ groups['master'][0]}}\\gluster-{{ volname }}"
+#           fstype="cifs"
+#           opts="username={{smb_username}},password={{smb_password}}"
+#           state=mounted
     with_items: "{{ client_mounts }}"
-
+    when: item.fstype == 'cifs'
