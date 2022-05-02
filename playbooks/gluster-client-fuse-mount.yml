@@ -5,11 +5,10 @@
 
   tasks:
   - name: Mount the volumes, if fstype is glusterfs
-    mount: name={{ item.mountpoint }}
-           src="{{ groups['master'][0]}}:{{ volname }}"
-           fstype="glusterfs"
-           state=mounted
-    when: item.fstype == 'fuse'
-
+    command: mount {{ item.mountpoint }} --source  {{ groups['master'][0]}}:{{ volname }} -t glusterfs
+#    mount: name={{ item.mountpoint }}
+#           src="{{ groups['master'][0]}}:{{ volname }}"
+#           fstype="glusterfs"
+#           state=mounted
     with_items: "{{ client_mounts }}"
-
+    when: item.fstype == 'fuse'

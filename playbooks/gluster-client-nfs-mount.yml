@@ -59,10 +59,11 @@
     with_items: "{{ client_mounts }}"
 
   - name: Mount the volumes if fstype is NFS
-    mount: name={{ item.mountpoint }}
-           src="{{ groups['master'][0]}}:{{ volname }}"
-           fstype=nfs
-           opts="{{ opts }}"
-           state=mounted
-    when: item.fstype == 'nfs'
+    command: mount {{ item.mountpoint }} --source  {{ groups['master'][0]}}:{{ volname }} -t nfs --options {{ opts }}
+#    mount: name={{ item.mountpoint }}
+#           src="{{ groups['master'][0]}}:{{ volname }}"
+#           fstype=nfs
+#           opts="{{ opts }}"
+#           state=mounted
     with_items: "{{ client_mounts }}"
+    when: item.fstype == 'nfs'
