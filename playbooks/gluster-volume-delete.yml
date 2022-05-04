@@ -5,7 +5,10 @@
 
   tasks:
   - name: Stops a volume
-    command: "gluster volume stop {{ volname }} force"
+    ansible.builtin.expect:
+      command: "gluster volume stop {{ volname }} force"
+      responses:
+        (.*)Stopping volume will make its data inaccessible(.*): "y"
 #    volume: action=stop
 #             volume="{{ volname }}"
     register: result
