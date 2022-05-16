@@ -5,7 +5,11 @@
 
   tasks:
   - name: Disabling quota for volume
-    quota:  action=disable
-            volume="{{ volname }}"
+    # quota:  action=disable
+    #         volume="{{ volname }}"
+    ansible.builtin.expect:
+      command	: "gluster volume quota {{ volname }} disable"
+      responses: 
+        (.*)Disabling quota will delete all the quota configuration. Do you want to continue? (.*): "y"
     register: result
     failed_when: "result.rc != 0 and 'is disabled' not in result.msg"
